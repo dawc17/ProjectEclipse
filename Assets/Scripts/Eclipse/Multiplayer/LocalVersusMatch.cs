@@ -10,10 +10,6 @@ namespace Eclipse.Multiplayer
     /// <summary>A detached encounter. Its roster node and equipment never belong to a save.</summary>
     public sealed class LocalVersusMatch : FightList
     {
-        public static readonly string[] WeaponIds = { "Fists", "WEAPON_KNIVES", "WEAPON_STAFF", "WEAPON_KATANA" };
-        public static readonly string[] WeaponLabels = { "Unarmed", "Knives", "Staff", "Katana" };
-        public static readonly string[] ArenaIds = { "dojo", "autumn", "bamboo_grove" };
-        public static readonly string[] ArenaLabels = { "Dojo", "Autumn", "Bamboo grove" };
         public LocalVersusSettings Settings { get; }
         public ModelParameters PlayerOne { get; }
         public ModelParameters PlayerTwo { get; }
@@ -22,10 +18,8 @@ namespace Eclipse.Multiplayer
         public LocalVersusMatch(LocalVersusSettings settings)
         {
             Settings = settings ?? throw new ArgumentNullException(nameof(settings));
-            if (Array.IndexOf(WeaponIds, settings.PlayerOneWeapon) < 0 ||
-                Array.IndexOf(WeaponIds, settings.PlayerTwoWeapon) < 0 ||
-                Array.IndexOf(ArenaIds, settings.Location) < 0)
-                throw new ArgumentException("The selected local matchup is unavailable.", nameof(settings));
+            if (!settings.PlayerOneLoadout.IsValid || !settings.PlayerTwoLoadout.IsValid || !VersusRoster.IsArena(settings.Location))
+                throw new ArgumentException("The selected matchup uses equipment or an arena that is not on the versus roster.", nameof(settings));
             Name = "1";
             Index = 0;
             FightId = new FightIDS("EclipseLocal", "versus", Name);
@@ -46,12 +40,13 @@ namespace Eclipse.Multiplayer
             rosterNode.SetAttribute("Name", FightId.ToString());
             rosterDocument.AppendChild(rosterNode);
             SetRosterFight(new RosterFight(rosterNode));
-            PlayerOne = PrepareFighter(settings.PlayerOneWeapon, true, settings.PlayerOneName);
-            PlayerTwo = PrepareFighter(settings.PlayerTwoWeapon, false, settings.PlayerTwoName);
+            PlayerOne = PrepareFighter(settings.PlayerOneLoadout, true, settings.PlayerOneName);
+            PlayerTwo = PrepareFighter(settings.PlayerTwoLoadout, false, settings.PlayerTwoName, settings.PlayerTwoTactic);
             AddOpponent(PlayerTwo);
         }
 
-        private static ModelParameters PrepareFighter(string weapon, bool left, string displayName)
+        /// <summary>A fighter wearing <paramref name="loadout"/>; also used by the menu's fighter previews.</summary>
+        internal static ModelParameters PrepareFighter(VersusLoadout loadout, bool left, string displayName, string aiTactic = null)
         {
             var document = new XmlDocument();
             var warrior = document.CreateElement("Warrior");
@@ -68,11 +63,11 @@ namespace Eclipse.Multiplayer
                 warrior.SetAttribute(rating, "0");
             var parameters = ListSF.GetInstance().CreateFormParameters(warrior, left);
             parameters.Skeleton = CopyItem(GameUtils.GetDefaultSkeleton());
-            parameters.Armor = CopyItem(GameUtils.GetDefaultItem("Armor"));
-            parameters.Helm = CopyItem(GameUtils.GetDefaultItem("Helm"));
-            parameters.Weapon = CopyItem(weapon);
-            parameters.Ranged = CopyItem(GameUtils.GetDefaultItem("Ranged"));
-            parameters.Magic = CopyItem(GameUtils.GetDefaultItem("Magic"));
+            parameters.Armor = CopyItem(loadout.Armor);
+            parameters.Helm = CopyItem(loadout.Helm);
+            parameters.Weapon = CopyItem(loadout.Weapon);
+            parameters.Ranged = CopyItem(loadout.Ranged);
+            parameters.Magic = CopyItem(loadout.Magic);
             parameters.DisplayName = displayName;
             parameters.AttributeAlignments.Clear();
             parameters.AttributeAlignments.Add(new AttributesAlign());
@@ -82,6 +77,18 @@ namespace Eclipse.Multiplayer
             parameters.LearnedPerks.Clear();
             parameters.Perks.Clear();
             GameUtils.InitializeLocalVersusParameters(parameters, left);
+            if (!string.IsNullOrEmpty(aiTactic))
+            {
+                // A training dummy left to the game's own AI.
+                var tactic = AiData.GetTacticByName(aiTactic);
+                if (tactic != null)
+                {
+                    parameters.HBFMBOHLKPJ = tactic;
+                    parameters.AiControlled = true;
+                    parameters.UserControlled = false;
+                }
+                else Debug.LogWarning("[Versus] No AI tactic named " + aiTactic + "; the dummy stays scripted.");
+            }
             ModelLoader.RequireModelDocuments(parameters.ModelDocuments);
             return parameters;
         }
@@ -91,8 +98,9 @@ namespace Eclipse.Multiplayer
             var source = ListSF.GetItems().GetItemByName(name);
             if (source == null) throw new InvalidOperationException("Local versus equipment is missing: " + name);
             var item = source.Clone();
+            // No enchantments in versus. Innate perks stay: some items (mines, mind throw)
+            // only work through them, and enchantments never come from them.
             item.IgnoreInventoryEnchantments = true;
-            item.InnatePerks.Clear();
             item.DefaultEnchantments.Clear();
             item.DefaultEnchantmentPreviews.Clear();
             item.ParsedPerks.Clear();

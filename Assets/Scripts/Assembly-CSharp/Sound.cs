@@ -536,7 +536,7 @@ public static class Sound
 
 	public static void PlayMusic(string LOJOJHIFCBL, bool KKHJAJFEPPA = true)
 	{
-		FAJONFGJBPD();
+		StopMusic();
 		if (string.IsNullOrEmpty(LOJOJHIFCBL))
 		{
 			if (MissingAudioWarnings.Add("music:<empty>"))
@@ -620,7 +620,8 @@ public static class Sound
 		SetMuteToChannel(ADNDLGKIJJK, KPCIIDFJCOB);
 	}
 
-	public static void FAJONFGJBPD()
+	// best guess for name
+	public static void StopMusic()
 	{
 		if (AGCEHOJAJBK())
 		{

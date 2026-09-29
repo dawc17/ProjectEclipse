@@ -29,6 +29,17 @@ namespace Eclipse.RoomServer
         public const int RelayGraceMs = 10000;
         public const int MaxFailedJoins = 5;
         public const int JoinLockoutMs = 30000;
+        /// <summary>How often each client's ping is measured.</summary>
+        public const int PingIntervalMs = 1000;
+        /// <summary>A ping change alone updates the room at most this often.</summary>
+        public const int PingBroadcastMs = 2000;
+        /// <summary>A ping has to move this much before the room hears about it.</summary>
+        public const int PingChangeMs = 10;
+        /// <summary>Silence after which a member shows as stale.</summary>
+        public const int StaleMs = 3000;
+        /// <summary>Chat: messages a member may send at once, and how fast the allowance refills.</summary>
+        public const int ChatBurst = 4;
+        public const int ChatRefillMs = 1500;
 
         private sealed class Client
         {
@@ -49,6 +60,11 @@ namespace Eclipse.RoomServer
             public long LastMatchEndedMs;
             public int FailedJoins;
             public long JoinLockedUntilMs;
+            public long LastPingSentMs = long.MinValue;
+            /// <summary>Smoothed round trip, or -1 before the first answer.</summary>
+            public float PingMs = -1;
+            public float ChatTokens = ChatBurst;
+            public long ChatRefilledMs;
         }
 
         private sealed class Room
@@ -63,6 +79,7 @@ namespace Eclipse.RoomServer
             public int Streak;
             public Match Current;
             public long ChampionAwaySinceMs = -1;
+            public long LastBroadcastMs;
         }
 
         private sealed class Match
@@ -74,6 +91,8 @@ namespace Eclipse.RoomServer
             public bool LeftGone, RightGone;
             public long StartedMs;
             public long FirstReportMs = -1;
+            /// <summary>Some of this fight's packets went through the relay.</summary>
+            public bool Relayed;
         }
 
         private readonly UdpTransport _socket;
@@ -117,6 +136,7 @@ namespace Eclipse.RoomServer
                 if (client.LastSendMs == long.MinValue || nowMs - client.LastSendMs >= KeepAliveMs ||
                     client.Reliable.PendingCount > 0 && nowMs - client.LastSendMs >= ReliableChannel.ResendMs)
                     Flush(client);
+                if (client.LastPingSentMs == long.MinValue || nowMs - client.LastPingSentMs >= PingIntervalMs) SendPing(client);
             }
             DropPending();
             _scratchRooms.Clear();
@@ -127,6 +147,8 @@ namespace Eclipse.RoomServer
                 if (room.Current != null && (nowMs - room.Current.StartedMs > MatchTimeoutMs ||
                     room.Current.FirstReportMs >= 0 && nowMs - room.Current.FirstReportMs > SecondReportWaitMs))
                     Resolve(room.Current, force: true);
+                // Pings and stale flags change often; members hear about it only when it matters.
+                if (nowMs - room.LastBroadcastMs >= PingBroadcastMs && LinkChanged(room)) Broadcast(room);
                 if (room.ChampionAwaySinceMs >= 0 && nowMs - room.ChampionAwaySinceMs > ChampionWaitMs)
                 {
                     // A champion who never came back gives up the spot.
@@ -180,6 +202,9 @@ namespace Eclipse.RoomServer
                     break;
                 case RoomProtocol.KindRelay:
                     Relay(client, buffer, reader);
+                    break;
+                case RoomProtocol.KindPong:
+                    ReadPong(client, reader.U32());
                     break;
                 case RoomProtocol.KindBye:
                     Drop(client, "left");
@@ -268,6 +293,43 @@ namespace Eclipse.RoomServer
             client.LastSendMs = _nowMs;
         }
 
+        private void SendPing(Client client)
+        {
+            client.LastPingSentMs = _nowMs;
+            RoomProtocol.WriteHeader(_writer, RoomProtocol.KindPing, client.Token);
+            _writer.U32(unchecked((uint)_nowMs));
+            _socket.Send(client.EndPoint, _writer.Buffer, _writer.Length);
+        }
+
+        private void ReadPong(Client client, uint stamp)
+        {
+            uint rtt = unchecked((uint)_nowMs - stamp);
+            if (rtt > 10000) return;
+            client.PingMs = client.PingMs < 0 ? rtt : client.PingMs * 0.75f + rtt * 0.25f;
+        }
+
+        /// <summary>The member's ping and link flags as the room should now see them.</summary>
+        private void MeasureLink(Client client, out int pingMs, out MemberLink link)
+        {
+            pingMs = client.PingMs < 0 ? -1 : (int)Math.Round(client.PingMs);
+            link = MemberLink.None;
+            if (_nowMs - client.LastReceiveMs > StaleMs) link |= MemberLink.Stale;
+            var match = client.Match ?? client.LastMatch;
+            if (match != null && match.Relayed) link |= MemberLink.Relayed;
+        }
+
+        private bool LinkChanged(Room room)
+        {
+            foreach (var client in room.Members)
+            {
+                if (client.Member == null) continue;
+                MeasureLink(client, out int ping, out var link);
+                if (link != client.Member.Link) return true;
+                if ((ping < 0) != (client.Member.PingMs < 0) || Math.Abs(ping - client.Member.PingMs) >= PingChangeMs) return true;
+            }
+            return false;
+        }
+
         private void Send(Client client, byte[] message)
         {
             try { client.Reliable.Send(message); }
@@ -292,6 +354,7 @@ namespace Eclipse.RoomServer
             if (from.RelayBytes > RelayBytesPerSecond) return;
             var to = match.Left == from ? match.Right : match.Left;
             if (to == null || !_byEndPoint.ContainsKey(to.EndPoint)) return;
+            match.Relayed = true;
             RoomProtocol.WriteHeader(_writer, RoomProtocol.KindRelay, to.Token);
             _writer.U32(matchId);
             _writer.Bytes(buffer, reader.Position, payload);
@@ -311,7 +374,8 @@ namespace Eclipse.RoomServer
                     case RoomMessage.CreateRoom: CreateRoom(client, RoomSettings.Read(reader), reader.Str()); break;
                     case RoomMessage.JoinRoom: JoinRoom(client, reader.U32(), reader.Str(), reader.Str()); break;
                     case RoomMessage.LeaveRoom: LeaveRoom(client, "You left the room."); break;
-                    case RoomMessage.SetMember: SetMember(client, reader.Str(), reader.Bool()); break;
+                    case RoomMessage.SetMember: SetMember(client, LoadoutCode.Read(reader), reader.Bool()); break;
+                    case RoomMessage.Chat: Chat(client, reader.Str()); break;
                     case RoomMessage.UpdateSettings: UpdateSettings(client, RoomSettings.Read(reader)); break;
                     case RoomMessage.Kick: Kick(client, reader.U32()); break;
                     case RoomMessage.MatchReport: Report(client, reader.U32(), (MatchOutcome)reader.U8(), reader.Str()); break;
@@ -340,6 +404,7 @@ namespace Eclipse.RoomServer
                     Locked = !string.IsNullOrEmpty(room.Password),
                     WinsRequired = room.Settings.WinsRequired,
                     Rotation = room.Settings.Rotation,
+                    Arena = room.Settings.Arena,
                 }).ToList();
             int start = 0;
             do
@@ -403,6 +468,7 @@ namespace Eclipse.RoomServer
             client.Member = new RoomMember { Id = client.Id, Name = client.Identity.PlayerName, Status = MemberStatus.Idle };
             room.Members.Add(client);
             Broadcast(room);
+            SystemLine(room, client.Identity.PlayerName + " joined.");
         }
 
         private void LeaveRoom(Client client, string reason)
@@ -429,16 +495,20 @@ namespace Eclipse.RoomServer
                 Log("room " + room.Id + " closed");
                 return;
             }
-            if (room.HostId == client.Id) room.HostId = room.Members[0].Id;
+            bool hostLeft = room.HostId == client.Id;
+            if (hostLeft) room.HostId = room.Members[0].Id;
             TryPair(room);
             Broadcast(room);
+            SystemLine(room, client.Identity.PlayerName + " left.");
+            if (hostLeft) SystemLine(room, room.Members[0].Identity.PlayerName + " is now the host.");
         }
 
-        private void SetMember(Client client, string weapon, bool queued)
+        private void SetMember(Client client, LoadoutCode loadout, bool queued)
         {
             var room = client.Room;
             if (room == null || client.Member == null) return;
-            if (IsIdentifier(weapon)) client.Member.Weapon = weapon;
+            // The server cannot read a loadout (only the game knows its roster); it stores and relays it.
+            client.Member.Loadout = loadout;
             if (client.Member.Status == MemberStatus.InMatch) client.QueueAfterMatch = queued;
             else
             {
@@ -464,13 +534,30 @@ namespace Eclipse.RoomServer
             Broadcast(room);
         }
 
-        /// <summary>Weapon ids are short ASCII identifiers; anything else is ignored.</summary>
-        private static bool IsIdentifier(string value)
+        private void Chat(Client client, string text)
         {
-            if (string.IsNullOrEmpty(value) || value.Length > 24) return false;
-            foreach (char c in value)
-                if (!(c >= 'A' && c <= 'Z' || c >= 'a' && c <= 'z' || c >= '0' && c <= '9' || c == '_')) return false;
-            return true;
+            var room = client.Room;
+            if (room == null || client.Member == null) return;
+            text = ChatLine.Clean(text);
+            if (text.Length == 0) return;
+            client.ChatTokens = Math.Min(ChatBurst, client.ChatTokens + (_nowMs - client.ChatRefilledMs) / (float)ChatRefillMs);
+            client.ChatRefilledMs = _nowMs;
+            if (client.ChatTokens < 1f)
+            {
+                Send(client, new ChatLine { Kind = ChatKind.Notice, Text = "You are sending messages too quickly." }.Encode());
+                return;
+            }
+            client.ChatTokens -= 1f;
+            byte[] line = new ChatLine { Kind = ChatKind.Player, SenderId = client.Id, SenderName = client.Identity.PlayerName, Text = text }.Encode();
+            foreach (var member in room.Members.ToArray()) Send(member, line);
+        }
+
+        /// <summary>A line from the room itself: someone joined, left, won, or the rules changed.</summary>
+        private void SystemLine(Room room, string text)
+        {
+            if (!_rooms.ContainsKey(room.Id)) return;
+            byte[] line = new ChatLine { Kind = ChatKind.System, Text = text }.Encode();
+            foreach (var member in room.Members.ToArray()) Send(member, line);
         }
 
         private void UpdateSettings(Client client, RoomSettings settings)
@@ -485,6 +572,7 @@ namespace Eclipse.RoomServer
             room.Settings = settings.Copy();
             TryPair(room);
             Broadcast(room);
+            SystemLine(room, "Room settings changed.");
         }
 
         private void Kick(Client client, uint memberId)
@@ -541,7 +629,7 @@ namespace Eclipse.RoomServer
                 Side = side,
                 PeerId = peer.Id,
                 PeerName = peer.Identity.PlayerName,
-                PeerWeapon = peer.Member.Weapon,
+                PeerLoadout = peer.Member.Loadout,
                 Seed = seed,
             };
             pairing.Candidates.Add(peer.EndPoint);
@@ -603,6 +691,14 @@ namespace Eclipse.RoomServer
                 room.ChampionAwaySinceMs = _nowMs;
             }
             Log("match " + match.Id + " result " + outcome);
+            if (outcome == MatchOutcome.LeftWon || outcome == MatchOutcome.RightWon)
+            {
+                var winner = outcome == MatchOutcome.LeftWon ? match.Left : match.Right;
+                var loser = outcome == MatchOutcome.LeftWon ? match.Right : match.Left;
+                SystemLine(room, winner.Identity.PlayerName + " beat " + loser.Identity.PlayerName +
+                    (room.ChampionId == winner.Id && room.Streak > 1 ? " (" + room.Streak + " in a row)." : "."));
+            }
+            else SystemLine(room, match.Left.Identity.PlayerName + " vs " + match.Right.Identity.PlayerName + " ended without a result.");
             // Anyone who already asked to queue again (continued before the other report) goes straight in.
             foreach (var player in new[] { match.Left, match.Right })
             {
@@ -643,7 +739,11 @@ namespace Eclipse.RoomServer
                 LeftId = room.Current?.Left.Id ?? 0,
                 RightId = room.Current?.Right.Id ?? 0,
             };
-            foreach (var member in room.Members) state.Members.Add(member.Member);
+            foreach (var member in room.Members)
+            {
+                MeasureLink(member, out member.Member.PingMs, out member.Member.Link);
+                state.Members.Add(member.Member);
+            }
             state.Queue.AddRange(room.Queue);
             return state.Encode();
         }
@@ -651,6 +751,7 @@ namespace Eclipse.RoomServer
         private void Broadcast(Room room)
         {
             if (!_rooms.ContainsKey(room.Id)) return;
+            room.LastBroadcastMs = _nowMs;
             byte[] state = StateFor(room);
             foreach (var member in room.Members.ToArray()) Send(member, state);
         }

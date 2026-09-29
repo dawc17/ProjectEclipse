@@ -61,6 +61,13 @@ namespace Nekki.SF2.GUI.Fight
 
 		private ObscuredInt NFEMKPCLDDB = (ObscuredInt)(0);
 
+		/// <summary>Eclipse training: sets the round clock back to <paramref name="seconds"/>.</summary>
+		internal void RefillTime(int seconds)
+		{
+			ENKHHGEMJCK = (ObscuredInt)(seconds * 60);
+			NFEMKPCLDDB = (ObscuredInt)seconds;
+		}
+
 		private Vector2 AKMAGAEENDB = new Vector2(-700f, 580f);
 
 		private Vector2 JGKDIFJLHGO = new Vector2(700f, 580f);

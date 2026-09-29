@@ -10,13 +10,17 @@ namespace Eclipse.Multiplayer
         Online,
         /// <summary>A recorded match played back from its inputs.</summary>
         Replay,
+        /// <summary>Player one against a training dummy (scripted, recorded or the game AI).</summary>
+        Training,
     }
 
     /// <summary>Immutable configuration for one versus match and its rematches.</summary>
     public sealed class LocalVersusSettings
     {
-        public string PlayerOneWeapon { get; }
-        public string PlayerTwoWeapon { get; }
+        public VersusLoadout PlayerOneLoadout { get; }
+        public VersusLoadout PlayerTwoLoadout { get; }
+        public string PlayerOneWeapon => PlayerOneLoadout.Weapon;
+        public string PlayerTwoWeapon => PlayerTwoLoadout.Weapon;
         public string Location { get; }
         public bool KeyboardPlayerOne { get; }
         /// <summary>Both players on one keyboard with fixed layouts; no gamepad needed.</summary>
@@ -28,19 +32,21 @@ namespace Eclipse.Multiplayer
         public string PlayerTwoName { get; }
         /// <summary>Seeds every gameplay random source, so peers and replays roll identically.</summary>
         public int Seed { get; }
+        /// <summary>Player two is driven by the game AI with this tactic (training only), or null.</summary>
+        public string PlayerTwoTactic { get; }
 
-        public LocalVersusSettings(string playerOneWeapon, string playerTwoWeapon, string location,
+        public LocalVersusSettings(VersusLoadout playerOneLoadout, VersusLoadout playerTwoLoadout, string location,
             bool keyboardPlayerOne, int winsRequired = 2, int roundTimeSeconds = 99,
             VersusMode mode = VersusMode.Local, string playerOneName = null, string playerTwoName = null, int? seed = null,
-            bool sharedKeyboard = false)
+            bool sharedKeyboard = false, string playerTwoTactic = null)
         {
-            if (string.IsNullOrWhiteSpace(playerOneWeapon)) throw new ArgumentException("Choose player one's weapon.", nameof(playerOneWeapon));
-            if (string.IsNullOrWhiteSpace(playerTwoWeapon)) throw new ArgumentException("Choose player two's weapon.", nameof(playerTwoWeapon));
+            if (playerOneLoadout == null || string.IsNullOrWhiteSpace(playerOneLoadout.Weapon)) throw new ArgumentException("Choose player one's loadout.", nameof(playerOneLoadout));
+            if (playerTwoLoadout == null || string.IsNullOrWhiteSpace(playerTwoLoadout.Weapon)) throw new ArgumentException("Choose player two's loadout.", nameof(playerTwoLoadout));
             if (string.IsNullOrWhiteSpace(location)) throw new ArgumentException("Choose an arena.", nameof(location));
             if (winsRequired < 1 || winsRequired > 5) throw new ArgumentOutOfRangeException(nameof(winsRequired));
             if (roundTimeSeconds < 30 || roundTimeSeconds > 300) throw new ArgumentOutOfRangeException(nameof(roundTimeSeconds));
-            PlayerOneWeapon = playerOneWeapon;
-            PlayerTwoWeapon = playerTwoWeapon;
+            PlayerOneLoadout = playerOneLoadout;
+            PlayerTwoLoadout = playerTwoLoadout;
             Location = location;
             SharedKeyboard = sharedKeyboard;
             KeyboardPlayerOne = keyboardPlayerOne || sharedKeyboard;
@@ -50,13 +56,14 @@ namespace Eclipse.Multiplayer
             PlayerOneName = string.IsNullOrWhiteSpace(playerOneName) ? "PLAYER 1" : playerOneName.Trim();
             PlayerTwoName = string.IsNullOrWhiteSpace(playerTwoName) ? "PLAYER 2" : playerTwoName.Trim();
             Seed = seed ?? new Random().Next();
+            PlayerTwoTactic = mode == VersusMode.Training && !string.IsNullOrEmpty(playerTwoTactic) ? playerTwoTactic : null;
         }
 
         /// <summary>The same matchup with a fresh seed, for a local rematch.</summary>
         public LocalVersusSettings Reseeded()
         {
-            return new LocalVersusSettings(PlayerOneWeapon, PlayerTwoWeapon, Location, KeyboardPlayerOne,
-                WinsRequired, RoundTimeSeconds, Mode, PlayerOneName, PlayerTwoName, null, SharedKeyboard);
+            return new LocalVersusSettings(PlayerOneLoadout, PlayerTwoLoadout, Location, KeyboardPlayerOne,
+                WinsRequired, RoundTimeSeconds, Mode, PlayerOneName, PlayerTwoName, null, SharedKeyboard, PlayerTwoTactic);
         }
     }
 

@@ -2207,8 +2207,10 @@ public class Model : global::EventDispatcher<object>
 	public void RenderAi()
 	{
 		var fight = Fight.GetCurrentFight();
+		// Versus fighters take only player input; a training dummy may be left to the game AI.
 		if (fight != null && fight.IsLocalVersus &&
-			(this == fight.GetPlayerModel() || this == fight.GetEnemyModel())) return;
+			(this == fight.GetPlayerModel() || this == fight.GetEnemyModel()) &&
+			!(Eclipse.Multiplayer.VersusTraining.Active && FGKAFKFBFEM())) return;
 		if ((!FGKAFKFBFEM() && !AiData.get_BothBotEnabled()) || JMHJDHLBHLK != 2)
 		{
 			return;
@@ -2358,6 +2360,17 @@ public class Model : global::EventDispatcher<object>
 		_ModelObject.NDDMFBCIHPC();
 		_ModelObject.JANOFOIKIAP();
 		_ModelObject.OBFONONKIAN();
+	}
+
+	/// <summary>
+	/// Eclipse training: moves the fighter so its pivot stands at <paramref name="x"/>. The
+	/// running move's keyframes move with it, so a fighter mid-move does not snap back.
+	/// </summary>
+	internal void TrainingMoveToX(float x)
+	{
+		ModelNode pivot = _ModelObject.CJELIBMCCMA();
+		if (pivot == null) return;
+		ShiftModelPosition(new Vector3f(x - pivot.GetStart().GetX()), true);
 	}
 
 	public void ShiftModelPosition(Vector3f OPNPKNEOALJ, bool LFFNFGOECLB = false)
@@ -2975,6 +2988,12 @@ public class Model : global::EventDispatcher<object>
 			{
 				RemoveIntervals(hFIIPNLCIEE.KBENFIOADCG());
 			}
+		}
+		// Eclipse training: idle stances guard by themselves, so the dummy's block rule
+		// drops the guard the same way an unblockable attack does.
+		if (Eclipse.Multiplayer.VersusTraining.Active && Eclipse.Multiplayer.VersusTraining.ShouldDropGuard(this))
+		{
+			RemoveInterval(IntervalAnimation.NGAJJDIEDGF.INTERVAL_BLOCK);
 		}
 		HJOGNGDMAKJ.OnGetHit();
 		if (HFGPAELCNMF != null)

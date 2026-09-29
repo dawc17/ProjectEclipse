@@ -6,13 +6,14 @@ namespace Eclipse.Multiplayer.Online.Rooms
 {
     public enum RoomClientState { Connecting, Connected, Closed }
 
-    public enum RoomEventType { Error, RoomListUpdated, RoomChanged, LeftRoom, Paired }
+    public enum RoomEventType { Error, RoomListUpdated, RoomChanged, LeftRoom, Paired, Chat }
 
     public struct RoomEvent
     {
         public RoomEventType Type;
         public string Text;
         public RoomPairing Pairing;
+        public ChatLine Chat;
     }
 
     /// <summary>
@@ -27,6 +28,8 @@ namespace Eclipse.Multiplayer.Online.Rooms
         public const int ConnectTimeoutMs = 10000;
         public const int KeepAliveMs = 500;
         public const int TimeoutMs = 15000;
+        /// <summary>Chat lines kept for the room page; older ones drop off.</summary>
+        public const int ChatHistory = 60;
 
         private readonly UdpTransport _socket;
         private readonly NetWriter _writer = new NetWriter();
@@ -48,6 +51,8 @@ namespace Eclipse.Multiplayer.Online.Rooms
         public long LastReceiveMs { get; private set; }
         public RoomState Room { get; private set; }
         public readonly List<RoomListing> Rooms = new List<RoomListing>();
+        /// <summary>This room's chat, oldest first; cleared on leaving the room.</summary>
+        public readonly List<ChatLine> Chat = new List<ChatLine>();
         public MatchLink Link { get; private set; }
         /// <summary>Test aid: skip hole punching and always relay through the server.</summary>
         public bool ForceRelay { get; set; }
@@ -85,7 +90,12 @@ namespace Eclipse.Multiplayer.Online.Rooms
         public void JoinRoom(uint roomId, string password) => Send(RoomMessages.JoinRoom(roomId, "", password));
         public void JoinByCode(string code, string password) => Send(RoomMessages.JoinRoom(0, code, password));
         public void LeaveRoom() => Send(RoomMessages.Simple(RoomMessage.LeaveRoom));
-        public void SetMember(string weapon, bool queued) => Send(RoomMessages.SetMember(weapon, queued));
+        public void SetMember(LoadoutCode loadout, bool queued) => Send(RoomMessages.SetMember(loadout, queued));
+        public void SendChat(string text)
+        {
+            text = ChatLine.Clean(text);
+            if (text.Length > 0) Send(RoomMessages.Chat(text));
+        }
         public void UpdateSettings(RoomSettings settings) => Send(RoomMessages.UpdateSettings(settings));
         public void Kick(uint memberId) => Send(RoomMessages.Kick(memberId));
 
@@ -104,7 +114,9 @@ namespace Eclipse.Multiplayer.Online.Rooms
         private void Send(byte[] message)
         {
             if (State == RoomClientState.Closed) return;
-            _reliable.Send(message);
+            // A server that stopped acknowledging times out on its own; never throw into game code.
+            try { _reliable.Send(message); }
+            catch (InvalidOperationException) { }
         }
 
         // ---- Pump ----
@@ -218,6 +230,14 @@ namespace Eclipse.Multiplayer.Online.Rooms
                     _reliable.Read(reader);
                     while (_reliable.TryReceive(out var message)) HandleMessage(message);
                     break;
+                case RoomProtocol.KindPing:
+                    if (State != RoomClientState.Connected) return;
+                    LastReceiveMs = _nowMs;
+                    uint stamp = reader.U32();
+                    RoomProtocol.WriteHeader(_writer, RoomProtocol.KindPong, _token);
+                    _writer.U32(stamp);
+                    _socket.Send(Server, _writer.Buffer, _writer.Length);
+                    break;
                 case RoomProtocol.KindRelay:
                     if (State != RoomClientState.Connected) return;
                     LastReceiveMs = _nowMs;
@@ -248,7 +268,15 @@ namespace Eclipse.Multiplayer.Online.Rooms
                     case RoomMessage.LeftRoom:
                         Room = null;
                         Link = null;
+                        Chat.Clear();
                         _events.Enqueue(new RoomEvent { Type = RoomEventType.LeftRoom, Text = reader.Str() });
+                        break;
+                    case RoomMessage.ChatLine:
+                        var line = ChatLine.Decode(reader);
+                        if (line.Text.Length == 0) break;
+                        Chat.Add(line);
+                        if (Chat.Count > ChatHistory) Chat.RemoveRange(0, Chat.Count - ChatHistory);
+                        _events.Enqueue(new RoomEvent { Type = RoomEventType.Chat, Chat = line });
                         break;
                     case RoomMessage.Pairing:
                         var pairing = RoomPairing.Decode(reader);

@@ -108,7 +108,7 @@ public static class ValidateLocalVersusNative
                 case 10:
                     if (Time.frameCount <= captureFrame + 2) return;
                     Time.timeScale = 4f;
-                    Launch("WEAPON_KNIVES", "WEAPON_STAFF", "dojo", 2);
+                    Launch("WEAPON_KNUCKLES", "WEAPON_STAFF", "dojo", 2);
                     step = 2;
                     break;
                 case 2:
@@ -202,7 +202,7 @@ public static class ValidateLocalVersusNative
                     Check(fight.GetPlayerModel().Parameters.RoundsWon == 1 &&
                         fight.GetEnemyModel().Parameters.RoundsWon == 0, "Higher-health player one wins native timeout");
                     Check(ProfileXml() == baseline, "Rounds and rematch preserve campaign XML");
-                    Launch("Fists", "WEAPON_KNIVES", "bamboo_grove", 1);
+                    Launch("Fists", "WEAPON_KNUCKLES", "bamboo_grove", 1);
                     step = 14;
                     break;
                 case 14:
@@ -266,7 +266,7 @@ public static class ValidateLocalVersusNative
 
     static void Launch(string one, string two, string arena, int wins)
     {
-        var settings = new LocalVersusSettings(one, two, arena, true, wins);
+        var settings = new LocalVersusSettings(VersusLoadout.Default.With(LoadoutSlot.Weapon, one), VersusLoadout.Default.With(LoadoutSlot.Weapon, two), arena, true, wins);
         var match = new LocalVersusMatch(settings);
         typeof(LocalVersusSession).GetProperty("Settings").GetSetMethod(true).Invoke(null, new object[] { settings });
         LocalVersusMenu.Ensure().Hide();

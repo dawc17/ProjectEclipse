@@ -26,6 +26,14 @@ namespace Eclipse.Diagnostics
 		private bool _menuOpen;
 		private bool _showCollisionShapes;
 		private bool _showHitPoints;
+		private static EclipseFightDebugMenu _instance;
+
+		/// <summary>Hitbox and hurtbox outlines, also switched from training mode.</summary>
+		internal static bool ShowCollisionShapes
+		{
+			get { return _instance != null && _instance._showCollisionShapes; }
+			set { if (_instance != null) _instance._showCollisionShapes = value; }
+		}
 		private bool _progressionSprint;
 		private bool _ownsTimeScale;
 		private float _timeScaleBeforeSprint = 1f;
@@ -50,7 +58,7 @@ namespace Eclipse.Diagnostics
 
 			GameObject host = new GameObject("Eclipse Fight Debug Menu");
 			DontDestroyOnLoad(host);
-			host.AddComponent<EclipseFightDebugMenu>();
+			_instance = host.AddComponent<EclipseFightDebugMenu>();
 		}
 
 		private void Update()

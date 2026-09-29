@@ -52,6 +52,9 @@ namespace Nekki.SF2.Core.Fights
 
 		private Color _colorModel = new Color32(40, 20, 9, byte.MaxValue);
 
+		// Eclipse: a fighter to show instead of the saved player (versus loadout previews).
+		private ModelParameters _eclipseParameters;
+
 		private bool OGKFKJFGOIE = true;
 
 		public float KBGFAKKBMCN
@@ -175,7 +178,7 @@ namespace Nekki.SF2.Core.Fights
 				});
 				_models.Clear();
 			}
-			HEGIABHIPHA = new ModelParameters(GameUtils.LBMPHBNJMGG());
+			HEGIABHIPHA = new ModelParameters(_eclipseParameters ?? GameUtils.LBMPHBNJMGG());
 			HEGIABHIPHA.JJCKADKCDIF = new Vector3f(_modelPosition);
 			HEGIABHIPHA.AiControlled = false;
 			HEGIABHIPHA.UserControlled = false;
@@ -225,7 +228,8 @@ namespace Nekki.SF2.Core.Fights
 				dJKEECEOCJB = CNIMJKICMBG();
 			}
 			HEGIABHIPHA.ALBOCOGOBCN(OCEIGMAPCHK);
-			KCDFCHGDJBJ(HEGIABHIPHA, MHOCFOODLLL);
+			// A shop's forced preview item is for the saved player, not a versus fighter.
+			if (_eclipseParameters == null) KCDFCHGDJBJ(HEGIABHIPHA, MHOCFOODLLL);
 			if (FFDNOHEDBKB)
 			{
 				FFDNOHEDBKB = false;
@@ -256,6 +260,19 @@ namespace Nekki.SF2.Core.Fights
 			PFELMKLNBMC.FPNKBJPKKGB().AddModel(_playerModel.CLDMEJKGLBA(), _colorModel, true);
 			PFELMKLNBMC.CDDKOOMODHG(_playerModel);
 			ODEHNPJKBIA = true;
+		}
+
+		/// <summary>
+		/// Eclipse: shows <paramref name="parameters"/> (fully equipped) through the same menu
+		/// model path as the profile scene, instead of the saved player.
+		/// </summary>
+		internal void ShowParameters(ModelParameters parameters, StageType.FDBBPEGEGMK stage, string scene, Color tint)
+		{
+			_eclipseParameters = parameters;
+			_colorModel = tint;
+			UpdateModel(null, stage, scene);
+			// A preview is not framed by the scene camera; keep its walls well clear of the pose.
+			_playerModel?.SetWalls(-4000f, 4000f, 0, 0);
 		}
 
 		public void PlayAnimation(string name, int AOJJBKLCHJO = 1)
@@ -538,9 +555,13 @@ namespace Nekki.SF2.Core.Fights
 
 		private void SetModelOnListening(Model ACENLMONNPA)
 		{
-			float nGHJOCKCCHH = UnityEngine.Camera.main.ScreenToWorldPoint(new Vector2(0f, 0f)).x - base.transform.position.x;
-			float kCNCLAANGGJ = UnityEngine.Camera.main.ScreenToWorldPoint(new Vector2(Screen.width, 0f)).x - base.transform.position.x;
-			ACENLMONNPA.SetWalls(nGHJOCKCCHH, kCNCLAANGGJ, 0, 0);
+			// Eclipse: menus without a main camera (versus previews) set their walls themselves.
+			if (UnityEngine.Camera.main != null)
+			{
+				float nGHJOCKCCHH = UnityEngine.Camera.main.ScreenToWorldPoint(new Vector2(0f, 0f)).x - base.transform.position.x;
+				float kCNCLAANGGJ = UnityEngine.Camera.main.ScreenToWorldPoint(new Vector2(Screen.width, 0f)).x - base.transform.position.x;
+				ACENLMONNPA.SetWalls(nGHJOCKCCHH, kCNCLAANGGJ, 0, 0);
+			}
 			ACENLMONNPA.AddEventListener(3, OnAnimationEnd);
 			ACENLMONNPA.AddEventListener(6, HMAGHCEBOPK);
 			ACENLMONNPA.AddEventListener(5, KAJHBALIMOE);

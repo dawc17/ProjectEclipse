@@ -14,6 +14,8 @@ namespace Eclipse.Multiplayer
         public static bool HasResult { get; private set; }
         public static bool IsOnline => Settings != null && Settings.Mode == VersusMode.Online;
         public static bool IsReplay => Settings != null && Settings.Mode == VersusMode.Replay;
+        /// <summary>A match is set up and its fight scene has not finished loading.</summary>
+        public static bool IsStarting => _starting;
         /// <summary>The replay being watched, kept for "watch again".</summary>
         public static Online.VersusReplay CurrentReplay { get; private set; }
         private static Func<IVersusInputSource> _sourceFactory;
@@ -47,7 +49,7 @@ namespace Eclipse.Multiplayer
                 _instance = new GameObject("Eclipse Local Versus Session").AddComponent<LocalVersusSession>();
                 DontDestroyOnLoad(_instance.gameObject);
             }
-            LocalVersusMenu.Ensure().ShowLobby();
+            LocalVersusMenu.Ensure().ShowModeSelect();
         }
 
         public static bool DevicesReady(LocalVersusSettings settings)
@@ -69,15 +71,18 @@ namespace Eclipse.Multiplayer
             if (settings == null) throw new ArgumentNullException(nameof(settings));
             if (settings.Mode == VersusMode.Local && !DevicesReady(settings))
                 throw new InvalidOperationException(settings.KeyboardPlayerOne ? "Connect a gamepad for player two." : "Connect two gamepads.");
-            if (settings.Mode != VersusMode.Local && sourceFactory == null)
+            if (settings.Mode != VersusMode.Local && settings.Mode != VersusMode.Training && sourceFactory == null)
                 throw new ArgumentException("Online and replay matches need an input source.", nameof(sourceFactory));
             var current = Fight.GetCurrentFight();
             if (current != null && !current.IsLocalVersus)
                 throw new InvalidOperationException("Leave the current fight before starting local versus.");
             // Validate and prepare both independent loadouts before leaving the lobby.
             var match = new LocalVersusMatch(settings);
+            // Replay speed controls never carry into a real match.
+            if (settings.Mode != VersusMode.Replay) { VersusReplayPlayer.End(); Time.timeScale = 1f; }
             current?.SetPaused(true);
             VersusTickDriver.Stop();
+            VersusTraining.Replay = false;
             VersusDeterminism.Seed(settings.Seed);
             Settings = settings;
             _sourceFactory = sourceFactory;
@@ -85,12 +90,31 @@ namespace Eclipse.Multiplayer
             HasResult = false;
             _starting = true;
             _startedAt = Time.realtimeSinceStartup;
+            // Fighters are introduced before local and online fights; replays and training go straight in.
+            if (settings.Mode == VersusMode.Local || settings.Mode == VersusMode.Online)
+                LocalVersusMenu.Ensure().PlayVersusSplash(settings, () =>
+                {
+                    try { OpenFight(match, settings); }
+                    catch (Exception exception)
+                    {
+                        Debug.LogException(exception);
+                        LocalVersusMenu.Ensure().ShowPause("The match could not start: " + exception.Message);
+                    }
+                });
+            else OpenFight(match, settings);
+        }
+
+        private static void OpenFight(LocalVersusMatch match, LocalVersusSettings settings)
+        {
+            if (!_starting) return;
+            _startedAt = Time.realtimeSinceStartup;
             LocalVersusMenu.Ensure().Hide();
             try { Module.GetInstance().OpenLocalVersus(match); }
             catch
             {
                 _starting = false;
-                LocalVersusMenu.Ensure().ShowLobby();
+                if (settings.Mode == VersusMode.Local) LocalVersusMenu.Ensure().ShowLobby();
+                else LocalVersusMenu.Ensure().ShowModeSelect();
                 throw;
             }
         }
@@ -100,10 +124,15 @@ namespace Eclipse.Multiplayer
         {
             if (replay == null) throw new ArgumentNullException(nameof(replay));
             if (OnlineVersusSession.IsActive) throw new InvalidOperationException("Leave the online session before watching a replay.");
-            var settings = new LocalVersusSettings(replay.LeftWeapon, replay.RightWeapon, replay.Arena, true, replay.WinsRequired,
+            var settings = new LocalVersusSettings(VersusLoadout.FromIds(replay.LeftLoadout), VersusLoadout.FromIds(replay.RightLoadout), replay.Arena, true, replay.WinsRequired,
                 replay.RoundTimeSeconds, VersusMode.Replay, replay.LeftName, replay.RightName, replay.Seed);
             StartMatch(settings, rollbackTest ? (Func<IVersusInputSource>)(() => new Rollback.RollbackSelfTest(replay)) : () => new ReplayInputSource(replay));
             CurrentReplay = replay;
+            if (!rollbackTest)
+            {
+                VersusReplayPlayer.Begin(replay);
+                VersusTraining.BeginReplay();
+            }
         }
 
         internal static IVersusInputSource CreateInputSource()
@@ -143,13 +172,36 @@ namespace Eclipse.Multiplayer
 
         public static void ShowLobby()
         {
-            if (!IsActive || !IsReady || _starting || _returning) return;
-            var fight = Fight.GetCurrentFight();
-            if (fight != null && fight.IsLocalVersus) fight.SetPaused(true);
-            if (!HasResult && fight != null && fight.IsLocalVersus) VersusTickDriver.Stop();
+            if (!LeaveFightForMenu()) return;
             if (RoomSession.IsActive && RoomSession.Current.Room != null) LocalVersusMenu.Ensure().ShowRoom();
             else if (OnlineVersusSession.IsActive) LocalVersusMenu.Ensure().ShowOnlineLobby();
             else LocalVersusMenu.Ensure().ShowLobby();
+        }
+
+        /// <summary>Back to the multiplayer page that chooses local, online or replays (from a replay, for one).</summary>
+        public static void ShowMultiplayerHome()
+        {
+            if (!LeaveFightForMenu()) return;
+            if (RoomSession.IsActive && RoomSession.Current.Room != null) LocalVersusMenu.Ensure().ShowRoom();
+            else if (OnlineVersusSession.IsActive) LocalVersusMenu.Ensure().ShowOnlineLobby();
+            else LocalVersusMenu.Ensure().ShowModeSelect();
+        }
+
+        /// <summary>Pauses and stops driving a versus fight that a menu is replacing; false when no menu may open now.</summary>
+        private static bool LeaveFightForMenu()
+        {
+            if (!IsActive || !IsReady || _starting || _returning) return false;
+            var fight = Fight.GetCurrentFight();
+            if (fight != null && fight.IsLocalVersus)
+            {
+                fight.SetPaused(true);
+                // The menu plays its own music; the arena's track and loops must not carry on under it.
+                Sound.StopMusic();
+                Sound.StopLoopedSounds();
+            }
+            if (fight != null && fight.IsLocalVersus && (!HasResult || VersusTraining.Active)) VersusTickDriver.Stop();
+            VersusTraining.Replay = false;
+            return true;
         }
 
         internal static void Complete(Fight fight, bool abandoned = false)
@@ -190,6 +242,7 @@ namespace Eclipse.Multiplayer
             GameController.get_Current()?.StopController();
             LocalVersusMenu.Ensure().Hide();
             Eclipse.UI.TitleScreen.PrepareForRestart();
+            Sound.StopMusic();
             Sound.StopLoopedSounds();
             Time.timeScale = 1f;
             // Keep isolation active until the outgoing scene has completed teardown.

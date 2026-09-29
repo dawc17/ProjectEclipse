@@ -368,7 +368,7 @@ public class ModelAnimation : global::EventDispatcher<object>
 	{
 		get
 		{
-			return HILLKPNMCIP();
+			return GetFrameInMove();
 		}
 	}
 
@@ -709,7 +709,8 @@ public class ModelAnimation : global::EventDispatcher<object>
 		return (IDKMDLCEHBK != 0) ? (IDKMDLCEHBK + GKGEBAKLIDH - 2) : (-3);
 	}
 
-	public int HILLKPNMCIP()
+	// best guess for name
+	public int GetFrameInMove()
 	{
 		if (MDLBEBOGOGK)
 		{

@@ -57,7 +57,7 @@ namespace Eclipse.Multiplayer
             if (animation != null)
             {
                 result.Frame = animation.NEBJGKODIKP();
-                result.Interval = animation.HILLKPNMCIP();
+                result.Interval = animation.GetFrameInMove();
             }
             return result;
         }

@@ -338,11 +338,18 @@ public class ModelAi
             StartAnimationEnemy(FNKFIMEDNLP);
             if (COKFBIJAFLH == null) return null;
         }
+        // Likewise for the controller's own move: a fighter handed to the AI after its idle
+        // loop began (the Eclipse training dummy) never gets that start notification, and
+        // IsFitIntervalAndMove refuses every decision until it does.
+        if (CGPDPHJIDPA == null && _ModelAnimation.NMEEPBDJHMG() && Fight.GetCurrentFight() != null && Fight.GetCurrentFight().IsLocalVersus)
+        {
+            StartAnimationBot(_ModelAnimation.NNMAFFCCMHC());
+        }
 		ModelAnimation oJIEPADIEDE = FNKFIMEDNLP.OCPMJKIEPIG();
 		TacticFactors fJCBLOKOBBD = SetFactors(FNKFIMEDNLP);
 		if (oJIEPADIEDE.NMEEPBDJHMG())
 		{
-			int num = oJIEPADIEDE.HILLKPNMCIP();
+			int num = oJIEPADIEDE.GetFrameInMove();
 			int num2 = oJIEPADIEDE.KOCKCMNHPMC();
 			int num3 = GetFrameError(fJCBLOKOBBD);
 			MEHOEEIGCEP = num + num2 + num3;
@@ -353,7 +360,7 @@ public class ModelAi
 		}
 		if (_ModelAnimation.NMEEPBDJHMG())
 		{
-			int num4 = _ModelAnimation.HILLKPNMCIP();
+			int num4 = _ModelAnimation.GetFrameInMove();
 			int num5 = _ModelAnimation.KOCKCMNHPMC();
 			NJPDFMHHIDE = num4 + num5;
 		}
@@ -510,7 +517,7 @@ public class ModelAi
 		_Model.FGACEEPJBIF().GetCountAndDamage(true, COKFBIJAFLH, ref oHKCJDCMOKN.EOGLBDCLMBM, ref oHKCJDCMOKN.KFMJMBANIGF, ref oHKCJDCMOKN.AAKOCIPFDNM);
 		oHKCJDCMOKN.MGICNNKKCAN = (ObscuredFloat)(_Model.Parameters.KKMCHCNOHMB());
 		oHKCJDCMOKN.DDGNCMJGDAG = (ObscuredFloat)(OGBHDKKOIGH.Parameters.KKMCHCNOHMB());
-		oHKCJDCMOKN.OLCKGMBDGOG = OGBHDKKOIGH.OCPMJKIEPIG().HILLKPNMCIP();
+		oHKCJDCMOKN.OLCKGMBDGOG = OGBHDKKOIGH.OCPMJKIEPIG().GetFrameInMove();
 		oHKCJDCMOKN.NGMLGDJGBCD = ChildMaxModelFrame(OGBHDKKOIGH);
 		CAONFMOKPKA = NekkiMath.randomFloat();
 		CIIDKJINKJG = NekkiMath.randomFloat();
@@ -596,7 +603,7 @@ public class ModelAi
 				_Model.FGACEEPJBIF().GetCountAndDamage(true, COKFBIJAFLH, ref oHKCJDCMOKN.EOGLBDCLMBM, ref oHKCJDCMOKN.KFMJMBANIGF, ref oHKCJDCMOKN.AAKOCIPFDNM);
 				oHKCJDCMOKN.MGICNNKKCAN = (ObscuredFloat)(_Model.Parameters.KKMCHCNOHMB());
 				oHKCJDCMOKN.DDGNCMJGDAG = (ObscuredFloat)(OGBHDKKOIGH.Parameters.KKMCHCNOHMB());
-				oHKCJDCMOKN.OLCKGMBDGOG = OGBHDKKOIGH.OCPMJKIEPIG().HILLKPNMCIP();
+				oHKCJDCMOKN.OLCKGMBDGOG = OGBHDKKOIGH.OCPMJKIEPIG().GetFrameInMove();
 				oHKCJDCMOKN.NGMLGDJGBCD = ChildMaxModelFrame(OGBHDKKOIGH);
 				EBEHPENMJLK = GetResponseDelay(oHKCJDCMOKN);
 			}
@@ -1108,7 +1115,7 @@ public class ModelAi
 		{
 			return NCBNEMAOHJE.Count;
 		}
-		int num3 = oJIEPADIEDE.HILLKPNMCIP();
+		int num3 = oJIEPADIEDE.GetFrameInMove();
 		if (EBEHPENMJLK < num3 && !IsUninteruptIntervalEnd(oJIEPADIEDE))
 		{
 			if (COKFBIJAFLH.CJAHEDOHHEG("Uninterrupt", MEHOEEIGCEP))
@@ -2263,7 +2270,7 @@ public class ModelAi
 		_Model.FGACEEPJBIF().GetCountAndDamage(true, COKFBIJAFLH, ref oHKCJDCMOKN.EOGLBDCLMBM, ref oHKCJDCMOKN.KFMJMBANIGF, ref oHKCJDCMOKN.AAKOCIPFDNM);
 		oHKCJDCMOKN.MGICNNKKCAN = (ObscuredFloat)(_Model.Parameters.KKMCHCNOHMB());
 		oHKCJDCMOKN.DDGNCMJGDAG = (ObscuredFloat)(FNKFIMEDNLP.Parameters.KKMCHCNOHMB());
-		oHKCJDCMOKN.OLCKGMBDGOG = FNKFIMEDNLP.OCPMJKIEPIG().HILLKPNMCIP();
+		oHKCJDCMOKN.OLCKGMBDGOG = FNKFIMEDNLP.OCPMJKIEPIG().GetFrameInMove();
 		oHKCJDCMOKN.NGMLGDJGBCD = ChildMaxModelFrame(FNKFIMEDNLP);
 		oHKCJDCMOKN.DDFBIOFIDIH = GetDistanceToEnemy(_Model);
 		oHKCJDCMOKN.HDCPIAPMFNO = _Model.OCPMJKIEPIG().NNMAFFCCMHC();

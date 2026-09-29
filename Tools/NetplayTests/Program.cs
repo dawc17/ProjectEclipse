@@ -241,9 +241,12 @@ internal static class Program
         var replay = new VersusReplay
         {
             Build = "0.9.1", Content = "mods:none", LeftName = "Ann", RightName = "Bo",
-            LeftWeapon = "WEAPON_STAFF", RightWeapon = "Fists", Arena = "dojo",
+            Arena = "dojo", Title = "Final", Winner = 1, LeftRounds = 2, RightRounds = 3, Kept = true, Tag = "desync",
             WinsRequired = 3, RoundTimeSeconds = 60, Seed = -12345, Online = true, RecordedUnixSeconds = 1790000000,
         };
+        replay.LeftLoadout[0] = "WEAPON_STAFF"; replay.LeftLoadout[3] = "RANGED_CHAKRAM";
+        replay.RightLoadout[0] = "Fists"; replay.RightLoadout[2] = "HELM_ONI_MASK";
+        replay.RoundEnds.AddRange(new[] { 900, 2100, 3900 });
         for (int i = 0; i < 5000; i++) replay.Record(ScriptedInput(0, i), ScriptedInput(1, i));
         replay.Hashes[0] = 1; replay.Hashes[30] = 0xFFFFFFFF;
         var stream = new MemoryStream();
@@ -253,11 +256,50 @@ internal static class Program
         var loaded = VersusReplay.Read(stream);
         Check(loaded.TickCount == 5000 && loaded.Seed == -12345 && loaded.Online && loaded.RightWeapon == "Fists" &&
             loaded.WinsRequired == 3 && loaded.Hashes[30] == 0xFFFFFFFF && loaded.LeftName == "Ann", "replay fields survive");
+        Check(loaded.LeftLoadout[3] == "RANGED_CHAKRAM" && loaded.RightLoadout[2] == "HELM_ONI_MASK" && loaded.LeftLoadout[4] == "" &&
+            loaded.Winner == 1 && loaded.RightRounds == 3 && loaded.RoundEnds.Count == 3 && loaded.RoundEnds[2] == 3900 &&
+            loaded.Kept && loaded.Tag == "desync" && loaded.Title == "Final", "format 2 loadouts, result and flags survive");
+        stream.Position = 0;
+        var header = VersusReplay.ReadHeader(stream);
+        Check(header.HeaderOnly && header.TickCount == 5000 && header.Left.Count == 0 && header.Winner == 1 && header.LeftWeapon == "WEAPON_STAFF",
+            "the header reads without the inputs");
+        Check(stream.Position < 400, "the header is read without inflating the inputs (" + stream.Position + " bytes read)");
+        bool savedHeaderOnly = false;
+        try { header.Write(new MemoryStream()); } catch (InvalidOperationException) { savedHeaderOnly = true; }
+        Check(savedHeaderOnly, "a header-only replay cannot be saved over the full one");
+        ReplayVersionOneStillLoads();
         for (int i = 0; i < 5000; i++) Check(loaded.Left[i] == replay.Left[i] && loaded.Right[i] == replay.Right[i], "replay input " + i);
         bool threw = false;
         try { VersusReplay.Read(new MemoryStream(new byte[] { 1, 2, 3, 4, 5, 6, 7 })); } catch (InvalidDataException) { threw = true; }
         Check(threw, "foreign file rejected");
     }
+
+    /// <summary>A format 1 replay, written the way format 1 did it, still loads.</summary>
+    private static void ReplayVersionOneStillLoads()
+    {
+        var stream = new MemoryStream();
+        stream.Write(System.Text.Encoding.ASCII.GetBytes("ECLRPL"), 0, 6);
+        stream.WriteByte(1);
+        using (var deflate = new System.IO.Compression.DeflateStream(stream, System.IO.Compression.CompressionLevel.Optimal, true))
+        using (var writer = new BinaryWriter(deflate, System.Text.Encoding.UTF8))
+        {
+            writer.Write("0.9.0"); writer.Write("mods:none"); writer.Write("Ann"); writer.Write("Bo");
+            writer.Write("WEAPON_KATANA"); writer.Write("Fists"); writer.Write("autumn");
+            writer.Write(2); writer.Write(99); writer.Write(7); writer.Write(false); writer.Write(1780000000L);
+            writer.Write(3); for (int i = 0; i < 3; i++) { writer.Write((byte)0); writer.Write((byte)NetInput.Punch); }
+            writer.Write(1); writer.Write(0); writer.Write(5u);
+        }
+        stream.Position = 0;
+        var old = VersusReplay.Read(stream);
+        Check(old.SourceFormat == 1 && old.LeftWeapon == "WEAPON_KATANA" && old.RightWeapon == "Fists" && old.LeftLoadout[1] == "" &&
+            old.TickCount == 3 && old.Right[2] == NetInput.Punch && old.Winner == VersusReplay.WinnerUnknown && old.Arena == "autumn", "format 1 replays still load");
+        stream.Position = 0;
+        var oldHeader = VersusReplay.ReadHeader(stream);
+        Check(oldHeader.HeaderOnly && oldHeader.TickCount == 3 && oldHeader.LeftName == "Ann", "format 1 headers still read");
+    }
+
+    private static readonly LoadoutCode Katana = new LoadoutCode { Weapon = 4, Armor = 12, Helm = 30, Ranged = 1, Magic = 2 };
+    private static readonly LoadoutCode Fists = new LoadoutCode { Weapon = 0, Armor = 0, Helm = 0, Ranged = 0, Magic = 0 };
 
     private static readonly Stopwatch Clock = Stopwatch.StartNew();
     private static long Now => Clock.ElapsedMilliseconds;
@@ -306,19 +348,19 @@ internal static class Program
             Check(host.RemoteIdentity.PlayerName == "Guest" && guest.RemoteIdentity.PlayerName == "Host", "identities exchanged");
 
             // Lobby over the reliable channel, then the host starts the match.
-            guest.SendReliable(NetMessages.GuestLobby("WEAPON_KATANA", true));
+            guest.SendReliable(NetMessages.GuestLobby(Katana, true));
             LobbyState lobby = null;
             Pump(host, guest, () =>
             {
                 if (host.TryReceiveReliable(out var message) && message[0] == (byte)NetMessageType.GuestLobby)
                 {
                     var reader = new NetReader(message, 1, message.Length - 1);
-                    lobby = new LobbyState { GuestWeapon = reader.Str(), GuestReady = reader.Bool(), HostWeapon = "Fists", Arena = "dojo", InputDelay = delay };
+                    lobby = new LobbyState { GuestLoadout = LoadoutCode.Read(reader), GuestReady = reader.Bool(), HostLoadout = Fists, Arena = "dojo", InputDelay = delay };
                 }
                 return lobby != null;
             }, 5000);
-            Check(lobby != null && lobby.GuestWeapon == "WEAPON_KATANA" && lobby.GuestReady, "guest lobby arrives");
-            var start = new MatchStart { MatchIndex = 1, HostWeapon = lobby.HostWeapon, GuestWeapon = lobby.GuestWeapon, Arena = lobby.Arena, WinsRequired = 2, RoundTimeSeconds = 99, InputDelay = delay, Seed = 4242 };
+            Check(lobby != null && lobby.GuestLoadout == Katana && lobby.GuestReady, "guest lobby arrives");
+            var start = new MatchStart { MatchIndex = 1, HostLoadout = lobby.HostLoadout, GuestLoadout = lobby.GuestLoadout, Arena = lobby.Arena, WinsRequired = 2, RoundTimeSeconds = 99, InputDelay = delay, Seed = 4242 };
             host.SendReliable(start.Encode());
             MatchStart received = null;
             Pump(host, guest, () =>
@@ -327,7 +369,7 @@ internal static class Program
                     received = MatchStart.Decode(new NetReader(message, 1, message.Length - 1));
                 return received != null;
             }, 5000);
-            Check(received != null && received.Seed == 4242 && received.GuestWeapon == "WEAPON_KATANA" && received.InputDelay == delay, "match start arrives");
+            Check(received != null && received.Seed == 4242 && received.GuestLoadout == Katana && received.HostLoadout == Fists && received.InputDelay == delay, "match start arrives");
 
             const int ticks = 360;
             var a = new Side { Index = 0, Timeline = new InputTimeline(received.MatchIndex, delay) };

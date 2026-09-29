@@ -15,7 +15,6 @@ namespace Eclipse.Multiplayer
     public sealed class RoomSession : MonoBehaviour
     {
         private const string ServerPreference = "Eclipse.Online.RoomServer";
-        private const string WeaponPreference = "Eclipse.Online.RoomWeapon";
         public const int AutoContinueSeconds = 20;
 
         public static RoomSession Current { get; private set; }
@@ -23,7 +22,7 @@ namespace Eclipse.Multiplayer
 
         public RoomClient Client { get; private set; }
         public string LocalName { get; private set; }
-        public string LocalWeapon { get; private set; }
+        public VersusLoadout LocalLoadout { get; private set; }
         /// <summary>Whether this player wants to be in the queue (restored after each fight).</summary>
         public bool WantsQueue { get; private set; }
         public string Notice { get; private set; } = string.Empty;
@@ -65,8 +64,7 @@ namespace Eclipse.Multiplayer
             session = new GameObject("Eclipse Online Rooms").AddComponent<RoomSession>();
             DontDestroyOnLoad(session.gameObject);
             session.LocalName = name;
-            session.LocalWeapon = PlayerPrefs.GetString(WeaponPreference, LocalVersusMatch.WeaponIds[0]);
-            if (Array.IndexOf(LocalVersusMatch.WeaponIds, session.LocalWeapon) < 0) session.LocalWeapon = LocalVersusMatch.WeaponIds[0];
+            session.LocalLoadout = VersusLoadouts.Load(VersusLoadouts.Online);
             var identity = new NetIdentity(OnlineVersusSession.BuildId, OnlineVersusSession.ContentFingerprint(), name);
             try { session.Client = new RoomClient(endPoint, identity, NetAddresses.LocalIPv4(), OnlineVersusSession.NowMs); }
             catch (Exception exception)
@@ -110,19 +108,29 @@ namespace Eclipse.Multiplayer
 
         // ---- Actions (from the menu) ----
 
-        public void CycleWeapon()
+        public void SetLoadout(VersusLoadout loadout)
         {
-            int index = (Array.IndexOf(LocalVersusMatch.WeaponIds, LocalWeapon) + 1) % LocalVersusMatch.WeaponIds.Length;
-            LocalWeapon = LocalVersusMatch.WeaponIds[index];
-            PlayerPrefs.SetString(WeaponPreference, LocalWeapon);
-            if (Room != null) Client.SetMember(LocalWeapon, WantsQueue && !InFight);
+            LocalLoadout = (loadout ?? VersusLoadout.Default).Sanitized();
+            VersusLoadouts.Save(VersusLoadouts.Online, LocalLoadout);
+            if (Room != null) Client.SetMember(LocalLoadout.ToCode(), WantsQueue && !InFight);
         }
+
+        /// <summary>Sends a chat line to the room.</summary>
+        public void Say(string text)
+        {
+            if (Room == null) return;
+            Client.SendChat(text);
+        }
+
+        /// <summary>A member's loadout as the room reports it, or null before they chose one this roster knows.</summary>
+        public static VersusLoadout LoadoutOf(RoomMember member) =>
+            member != null && VersusLoadouts.TryFromCode(member.Loadout, out var loadout) ? loadout : null;
 
         public void ToggleQueue()
         {
             if (Room == null || InFight) return;
             WantsQueue = !WantsQueue;
-            Client.SetMember(LocalWeapon, WantsQueue);
+            Client.SetMember(LocalLoadout.ToCode(), WantsQueue);
         }
 
         public void Leave()
@@ -151,7 +159,7 @@ namespace Eclipse.Multiplayer
             uint matchId = OnlineVersusSession.Current?.RoomMatch?.MatchId ?? 0;
             OnlineVersusSession.Shutdown("Returned to the room.");
             if (matchId != 0) Client.ReleaseLink(matchId);
-            if (Room != null) Client.SetMember(LocalWeapon, WantsQueue);
+            if (Room != null) Client.SetMember(LocalLoadout.ToCode(), WantsQueue);
             string notice = Notice;
             LocalVersusMenu.Ensure().ShowRoom();
             if (notice.StartsWith("Could not connect")) Notice = notice;
@@ -213,6 +221,9 @@ namespace Eclipse.Multiplayer
                 case RoomEventType.RoomChanged:
                     menu.OnRoomChanged();
                     break;
+                case RoomEventType.Chat:
+                    menu.OnRoomChat(roomEvent.Chat);
+                    break;
                 case RoomEventType.LeftRoom:
                     Notice = roomEvent.Text;
                     InFight = false;
@@ -247,7 +258,7 @@ namespace Eclipse.Multiplayer
                 : NetplayPeer.Join(link, MatchLink.PeerEndPoint, identity, OnlineVersusSession.NowMs);
             InFight = true;
             AutoContinueAtMs = -1;
-            OnlineVersusSession.StartRoomFight(peer, pairing, Room?.Settings ?? new RoomSettings(), LocalName, LocalWeapon);
+            OnlineVersusSession.StartRoomFight(peer, pairing, Room?.Settings ?? new RoomSettings(), LocalName, LocalLoadout);
             Notice = "Fighting " + pairing.PeerName + (link.Path == LinkPath.Relay ? " (relayed)." : ".");
             LocalVersusMenu.Ensure().OnRoomChanged();
         }
@@ -261,7 +272,7 @@ namespace Eclipse.Multiplayer
             Client.ReportMatch(pairing.MatchId, MatchOutcome.Aborted, "could not start");
             Client.ReleaseLink(pairing.MatchId);
             Notice = "Could not start the fight with " + pairing.PeerName + ".";
-            if (Room != null) Client.SetMember(LocalWeapon, WantsQueue);
+            if (Room != null) Client.SetMember(LocalLoadout.ToCode(), WantsQueue);
             LocalVersusMenu.Ensure().OnRoomChanged();
         }
 
@@ -274,7 +285,7 @@ namespace Eclipse.Multiplayer
             long now = OnlineVersusSession.NowMs;
             if (now - _lastQueueResendMs < 2000) return;
             _lastQueueResendMs = now;
-            Client.SetMember(LocalWeapon, true);
+            Client.SetMember(LocalLoadout.ToCode(), true);
         }
 
         private void OnFightOver(RoomPairing pairing, MatchOutcome outcome, string reason)
@@ -329,11 +340,7 @@ namespace Eclipse.Multiplayer
             return room.Queue.Count >= 2 ? "Starting..." : room.Queue.Count == 1 ? "Waiting for a challenger" : "Nobody is in line to fight";
         }
 
-        public static string WeaponLabel(string id)
-        {
-            int index = Array.IndexOf(LocalVersusMatch.WeaponIds, id);
-            return index >= 0 ? LocalVersusMatch.WeaponLabels[index] : "-";
-        }
+        public static string WeaponLabel(VersusLoadout loadout) => loadout?.WeaponName ?? "-";
     }
 
     /// <summary>This machine's IPv4 addresses, so players behind the same router can connect directly.</summary>

@@ -51,14 +51,14 @@ internal static class RoomTests
             Check(ann.Room.Members.Count == 3, "three members");
 
             // Queue: Ann, Bo, Cy. Winner stays.
-            ann.SetMember("Fists", true);
+            ann.SetMember(Loadout(0), true);
             Pump(() => ann.Room.Queue.Count == 1);
-            bo.SetMember("WEAPON_KATANA", true);
+            bo.SetMember(Loadout(4), true);
             Pump(() => ann.Link != null && bo.Link != null);
-            cy.SetMember("WEAPON_STAFF", true);
+            cy.SetMember(Loadout(2), true);
             Pump(() => ann.Room.Queue.Contains(cy.ClientId));
             Check(ann.Link.Pairing.Side == 0 && bo.Link.Pairing.Side == 1 && ann.Link.Pairing.PeerName == "Bo" &&
-                bo.Link.Pairing.PeerWeapon == "Fists" && ann.Link.Pairing.Seed == bo.Link.Pairing.Seed, "first two in queue paired");
+                bo.Link.Pairing.PeerLoadout == Loadout(0) && ann.Link.Pairing.PeerLoadout == Loadout(4) && ann.Link.Pairing.Seed == bo.Link.Pairing.Seed, "first two in queue paired");
             Check(ann.Room.MatchId == ann.Link.MatchId && ann.Room.Find(ann.ClientId).Status == MemberStatus.InMatch, "room shows the match");
             Fight(ann, bo, expectDirect: true);
             uint firstMatch = ann.Room.MatchId;
@@ -73,8 +73,8 @@ internal static class RoomTests
             // The champion must continue before the next fight; Cy is waiting.
             Pump(() => false, 300);
             Check(ann.Room.MatchId == 0, "no pairing while the champion is away");
-            bo.SetMember("WEAPON_KATANA", true);
-            ann.SetMember("Fists", true);
+            bo.SetMember(Loadout(4), true);
+            ann.SetMember(Loadout(0), true);
             Pump(() => ann.Link != null && cy.Link != null);
             Check(ann.Link.Pairing.PeerId == cy.ClientId && ann.Link.Pairing.Side == 0, "winner stays against the next in queue");
 
@@ -90,8 +90,8 @@ internal static class RoomTests
             Check(ann.Room.Find(ann.ClientId).Wins == 1 && ann.Room.Find(cy.ClientId).Losses == 0 && ann.Room.ChampionId == ann.ClientId,
                 "disagreeing reports give no result and keep the champion");
 
-            ann.SetMember("Fists", true);
-            cy.SetMember("WEAPON_STAFF", true);
+            ann.SetMember(Loadout(0), true);
+            cy.SetMember(Loadout(2), true);
             Pump(() => ann.Link != null && (cy.Link != null || bo.Link != null));
             var opponent = cy.Link != null ? cy : bo;
             Check(ann.Link.Path == LinkPath.Relay, "forced relay path");
@@ -113,6 +113,8 @@ internal static class RoomTests
             Check(_server.RoomCount == 0, "empty room closes");
 
             Hardening(server, identity);
+            ChatAndPing(server, identity);
+            RoomStateFitsFullLoadouts();
 
             foreach (var client in _clients) client.Dispose();
             Pump(() => _server.ClientCount == 0, 2000);
@@ -155,16 +157,16 @@ internal static class RoomTests
         Check(wide.Room != null, "room with a long multibyte name");
         mate.JoinByCode(wide.Room.Code, "");
         Pump(() => mate.Room != null);
-        wide.SetMember("../../etc/passwd", false);
-        Pump(() => false, 200);
-        Check(wide.Room.Find(wide.ClientId).Weapon == "", "junk weapon ids are ignored");
+        wide.SetMember(Loadout(65000), false);
+        Pump(() => wide.Room.Find(wide.ClientId).Loadout == Loadout(65000) && mate.Room.Find(wide.ClientId).Loadout == Loadout(65000));
+        Check(mate.Room.Find(wide.ClientId).Loadout == Loadout(65000), "loadouts are relayed as they are (the game validates them)");
         wide.RefreshRooms();
         Pump(() => wide.Rooms.Count > 0);
         Check(wide.Rooms.Count >= 1, "room list with multibyte names");
 
         // Asking to queue while still marked in a fight counts once the fight resolves.
-        wide.SetMember("Fists", true);
-        mate.SetMember("Fists", true);
+        wide.SetMember(Loadout(0), true);
+        mate.SetMember(Loadout(0), true);
         Pump(() => wide.Link != null && mate.Link != null);
         uint match = wide.Link.MatchId;
         mate.Kick(wide.ClientId);
@@ -173,7 +175,7 @@ internal static class RoomTests
         Pump(() => (kickError = Drain(wide).Where(e => e.Type == RoomEventType.Error).Select(e => e.Text).FirstOrDefault()) != null);
         Check(kickError != null && mate.Room != null, "the host cannot kick someone mid-fight");
         mate.ReportMatch(match, MatchOutcome.Aborted, "test");
-        mate.SetMember("Fists", true);
+        mate.SetMember(Loadout(0), true);
         Pump(() => false, 200);
         wide.ReportMatch(match, MatchOutcome.Aborted, "test");
         Pump(() => wide.Room.MatchId == 0 && wide.Room.Find(mate.ClientId).Status == MemberStatus.Queued);
@@ -182,6 +184,103 @@ internal static class RoomTests
         wide.LeaveRoom();
         mate.LeaveRoom();
         Pump(() => wide.Room == null && mate.Room == null);
+    }
+
+    private static LoadoutCode Loadout(int weapon) =>
+        new LoadoutCode { Weapon = (ushort)weapon, Armor = 3, Helm = 7, Ranged = 1, Magic = 2 };
+
+    private static void ChatAndPing(IPEndPoint server, Func<string, NetIdentity> identity)
+    {
+        var host = Connect(server, identity("Host"));
+        var guest = Connect(server, identity("Guest"));
+        host.CreateRoom(new RoomSettings { Name = "Chat", Arena = "sakura" }, "");
+        Pump(() => host.Room != null);
+        guest.JoinByCode(host.Room.Code, "");
+        Pump(() => guest.Room != null && host.Room.Members.Count == 2);
+        Pump(() => host.Chat.Exists(line => line.Kind == ChatKind.System && line.Text.Contains("Guest joined")));
+        Check(host.Chat.Exists(line => line.Kind == ChatKind.System && line.Text == "Guest joined."), "members hear who joined");
+
+        guest.SendChat("  hello\u0007   there \n friend ");
+        Pump(() => host.Chat.Exists(line => line.Kind == ChatKind.Player));
+        var said = host.Chat.Find(line => line.Kind == ChatKind.Player);
+        Check(said != null && said.Text == "hello there friend" && said.SenderId == guest.ClientId && said.SenderName == "Guest",
+            "chat arrives cleaned, with the sender (" + (said?.Text ?? "none") + ")");
+        Pump(() => guest.Chat.Exists(line => line.Kind == ChatKind.Player));
+        Check(guest.Chat.Exists(line => line.Kind == ChatKind.Player && line.Text == "hello there friend"), "the sender sees their own line");
+        Check(Drain(host).Exists(e => e.Type == RoomEventType.Chat && e.Chat.Kind == ChatKind.Player), "chat raises a room event");
+
+        guest.SendChat(new string('x', 400));
+        Pump(() => host.Chat.FindAll(line => line.Kind == ChatKind.Player).Count >= 2);
+        var longLine = host.Chat.FindLast(line => line.Kind == ChatKind.Player);
+        Check(longLine.Text.Length == ChatLine.MaxChars, "long lines are cut to " + ChatLine.MaxChars + " characters");
+
+        // A flood: the allowance lets a few through, then the sender alone is told to slow down.
+        int before = host.Chat.FindAll(line => line.Kind == ChatKind.Player).Count;
+        for (int i = 0; i < 12; i++) guest.SendChat("spam " + i);
+        Pump(() => guest.Chat.Exists(line => line.Kind == ChatKind.Notice), 3000);
+        Pump(() => false, 300);
+        int spam = host.Chat.FindAll(line => line.Kind == ChatKind.Player).Count - before;
+        Check(spam >= 1 && spam <= Eclipse.RoomServer.RoomServer.ChatBurst, "flooding is rate limited (" + spam + " of 12 got through)");
+        Check(guest.Chat.Exists(line => line.Kind == ChatKind.Notice) && !host.Chat.Exists(line => line.Kind == ChatKind.Notice),
+            "only the flooder is told to slow down");
+        guest.SendChat("   ");
+        Check(true, "blank lines are not sent");
+
+        // Pings reach the room state for every member.
+        Pump(() => host.Room.Members.TrueForAll(member => member.PingMs >= 0), 6000);
+        Check(host.Room.Members.TrueForAll(member => member.PingMs >= 0 && member.PingMs < 1000),
+            "every member's ping is measured (" + string.Join(", ", host.Room.Members.ConvertAll(member => member.PingMs.ToString())) + " ms)");
+        Check(host.Room.Members.TrueForAll(member => (member.Link & MemberLink.Stale) == 0), "live members are not stale");
+
+        // A member that goes silent shows as stale, and recovers.
+        _clients.Remove(guest);
+        Pump(() => (host.Room.Find(guest.ClientId).Link & MemberLink.Stale) != 0, 8000);
+        Check((host.Room.Find(guest.ClientId).Link & MemberLink.Stale) != 0, "a silent member shows as stale");
+        _clients.Add(guest);
+        Pump(() => (host.Room.Find(guest.ClientId).Link & MemberLink.Stale) == 0, 8000);
+        Check((host.Room.Find(guest.ClientId).Link & MemberLink.Stale) == 0, "a member that speaks again is no longer stale");
+
+        host.RefreshRooms();
+        Pump(() => host.Rooms.Exists(room => room.Name == "Chat"));
+        Check(host.Rooms.Find(room => room.Name == "Chat")?.Arena == "sakura", "room listings carry the arena");
+
+        guest.LeaveRoom();
+        Pump(() => host.Chat.Exists(line => line.Text == "Guest left."));
+        Check(host.Chat.Exists(line => line.Text == "Guest left."), "members hear who left");
+        Pump(() => guest.Room == null);
+        Check(guest.Chat.Count == 0, "leaving a room clears its chat");
+        host.LeaveRoom();
+        Pump(() => host.Room == null);
+    }
+
+    /// <summary>Eight members with the longest names, full loadouts and pings still fit one reliable message.</summary>
+    private static void RoomStateFitsFullLoadouts()
+    {
+        var state = new RoomState
+        {
+            RoomId = uint.MaxValue, Code = "ABCDEF",
+            Settings = new RoomSettings { Name = new string('\u6f22', 32), Arena = new string('a', 32) },
+            HostId = 1, ChampionId = 2, Streak = 9, MatchId = 3, LeftId = 1, RightId = 2,
+        };
+        for (int i = 0; i < RoomProtocol.MaxMembers; i++)
+        {
+            state.Members.Add(new RoomMember
+            {
+                Id = (uint)i + 1, Name = new string('\u6f22', 24), Loadout = Loadout(60000 + i), Status = MemberStatus.Queued,
+                Wins = 999, Losses = 999, PingMs = 65000, Link = MemberLink.Relayed | MemberLink.Stale,
+            });
+            state.Queue.Add((uint)i + 1);
+        }
+        byte[] encoded = state.Encode();
+        Check(encoded.Length <= ReliableChannel.MaxMessageSize, "a full room fits one message (" + encoded.Length + " of " + ReliableChannel.MaxMessageSize + " bytes)");
+        var decoded = RoomState.Decode(new NetReader(encoded, 1, encoded.Length - 1));
+        Check(decoded.Members.Count == RoomProtocol.MaxMembers && decoded.Members[7].Loadout == Loadout(60007) &&
+            decoded.Members[3].PingMs == 65000 && decoded.Members[3].Link == (MemberLink.Relayed | MemberLink.Stale), "full room state round-trips");
+        var unmeasured = new RoomState();
+        unmeasured.Members.Add(new RoomMember { Id = 1, Name = "A" });
+        byte[] small = unmeasured.Encode();
+        var back = RoomState.Decode(new NetReader(small, 1, small.Length - 1));
+        Check(back.Members[0].PingMs == -1 && !back.Members[0].Loadout.IsSet, "an unmeasured ping and an unset loadout survive");
     }
 
     private static RoomClient Connect(IPEndPoint server, NetIdentity identity)

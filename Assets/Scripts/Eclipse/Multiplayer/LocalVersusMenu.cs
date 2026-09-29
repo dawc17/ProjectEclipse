@@ -16,7 +16,8 @@ namespace Eclipse.Multiplayer
         private RectTransform panel;
         private UnityEngine.UI.Text status;
         private EventSystem ownedEventSystem;
-        private int p1Weapon, p2Weapon, arena;
+        private VersusLoadout p1Loadout, p2Loadout;
+        private string arena;
         private bool keyboardPlayerOne = true;
         private bool sharedKeyboard;
         private int winsRequired = 2;
@@ -35,11 +36,12 @@ namespace Eclipse.Multiplayer
         private OnlinePhase builtPhase;
         private UnityEngine.UI.InputField nameField, addressField, portField;
 
-        private enum Page { Hidden, Lobby, Pause, Result, OnlineSetup, OnlineLobby, OnlineHome, RoomBrowser, RoomCreate, Room }
+        private enum Page { Hidden, Lobby, Pause, Result, OnlineSetup, OnlineLobby, OnlineHome, RoomBrowser, RoomCreate, Room, ModeSelect, Armory, Replays, Training, Splash }
 
-        /// <summary>Menu pages drawn on the opaque lobby backdrop rather than over a fight.</summary>
+        /// <summary>Menu pages drawn over the living arena backdrop rather than over a fight.</summary>
         private bool IsBackdropPage => page == Page.Lobby || page == Page.OnlineSetup || page == Page.OnlineLobby ||
-            page == Page.OnlineHome || page == Page.RoomBrowser || page == Page.RoomCreate || page == Page.Room;
+            page == Page.OnlineHome || page == Page.RoomBrowser || page == Page.RoomCreate || page == Page.Room || page == Page.ModeSelect ||
+            page == Page.Armory || page == Page.Replays || page == Page.Training || page == Page.Splash;
 
         public static LocalVersusMenu Ensure()
         {
@@ -63,6 +65,8 @@ namespace Eclipse.Multiplayer
             scaler.uiScaleMode = UnityEngine.UI.CanvasScaler.ScaleMode.ScaleWithScreenSize; scaler.referenceResolution = new Vector2(1280, 720);
             scaler.screenMatchMode = UnityEngine.UI.CanvasScaler.ScreenMatchMode.Expand;
             gameObject.AddComponent<UnityEngine.UI.GraphicRaycaster>();
+            // Behind every page: the living arena (only on pages that have no fight behind them).
+            backdrop = VersusBackdrop.Create(transform);
             panel = Rect(transform, "Local Versus Overlay"); Stretch(panel);
             SceneManager.sceneLoaded += OnSceneLoaded;
             Hide();
@@ -86,13 +90,17 @@ namespace Eclipse.Multiplayer
             if (IsShowing)
                 foreach (var (label, value) in liveLabels)
                     if (label != null) label.text = value();
+            // Pause keys belong to the fight and its pause menu. A menu page that handled
+            // Escape itself (backing out to the title, say) must not also reopen the pause menu.
+            bool overFight = !IsShowing || page == Page.Pause;
+            if (IsShowing) UpdateScreens();
             if (page == Page.Lobby && Time.unscaledTime >= nextDeviceCheck)
             {
                 nextDeviceCheck = Time.unscaledTime + .5f;
                 if (SchemeReady(keyboardPlayerOne, sharedKeyboard) != padsWereReady) RefreshDeviceStatus();
             }
             var fight = Fight.GetCurrentFight();
-            if (fight == null || !fight.IsLocalVersus) return;
+            if (fight == null || !fight.IsLocalVersus || !overFight) return;
             bool pausePressed = UnityEngine.Input.GetKeyDown(KeyCode.Escape);
             if (!pausePressed && (GamePad.GetButtonDown(GamePad.Button.Start, GamePad.Player.One) ||
                 (!CurrentKeyboardPlayerOne() && GamePad.GetButtonDown(GamePad.Button.Start, GamePad.Player.Two))))
@@ -104,6 +112,13 @@ namespace Eclipse.Multiplayer
                     if (FightControllerBindings.Get(action) == (int)GamePad.Button.Start) pausePressed = false;
             }
             if (!pausePressed) return;
+            // Training: Escape (or Start) opens the training menu and closes it again.
+            if (LocalVersusSession.Settings != null && LocalVersusSession.Settings.Mode == VersusMode.Training)
+            {
+                if (IsShowing && page == Page.Pause) ResumeTraining();
+                else if (!IsShowing) Pause("Paused");
+                return;
+            }
             if (LocalVersusSession.IsOnline)
             {
                 if (IsShowing && page == Page.Pause) Resume();
@@ -117,44 +132,19 @@ namespace Eclipse.Multiplayer
             else if (!fight.IsPaused()) Pause(LocalVersusSession.IsReplay ? "Replay paused." : "Match paused.");
         }
 
-        public void ShowLobby()
+        /// <summary>A small line under a button explaining it.</summary>
+        private void AddCaption(RectTransform parent, string text)
         {
-            EnsureEventSystem(); ReadSettings(LocalVersusSession.Settings);
-            page = Page.Lobby;
-            Rebuild("LOCAL VERSUS", "Choose a matchup", body =>
-            {
-                AddChoice(body, "PLAYER 1 WEAPON", () => LocalVersusMatch.WeaponLabels[p1Weapon], () => p1Weapon = (p1Weapon + 1) % LocalVersusMatch.WeaponIds.Length);
-                AddChoice(body, "PLAYER 2 WEAPON", () => LocalVersusMatch.WeaponLabels[p2Weapon], () => p2Weapon = (p2Weapon + 1) % LocalVersusMatch.WeaponIds.Length);
-                AddChoice(body, "ARENA", () => LocalVersusMatch.ArenaLabels[arena], () => arena = (arena + 1) % LocalVersusMatch.ArenaIds.Length);
-                AddChoice(body, "CONTROLS", SchemeLabel, () =>
-                {
-                    // Keyboard + gamepad -> two gamepads -> shared keyboard.
-                    if (sharedKeyboard) { sharedKeyboard = false; keyboardPlayerOne = true; }
-                    else if (keyboardPlayerOne) keyboardPlayerOne = false;
-                    else { sharedKeyboard = true; keyboardPlayerOne = true; }
-                    RefreshDeviceStatus();
-                });
-                AddChoice(body, "FIRST TO", () => winsRequired + (winsRequired == 1 ? " WIN" : " WINS"), () => winsRequired = winsRequired % 3 + 1);
-                AddButton(body, "START MATCH", () =>
-                {
-                    if (!SchemeReady(keyboardPlayerOne, sharedKeyboard)) { SetStatus(PadReason(keyboardPlayerOne)); return; }
-                    TryStart(new LocalVersusSettings(LocalVersusMatch.WeaponIds[p1Weapon], LocalVersusMatch.WeaponIds[p2Weapon], LocalVersusMatch.ArenaIds[arena], keyboardPlayerOne, winsRequired, roundTime,
-                        sharedKeyboard: sharedKeyboard));
-                });
-                var row = AddRow(body);
-                AddButton(row, "PLAY ONLINE", ShowOnlineHome, 0);
-                AddButton(row, "WATCH REPLAY", WatchLastReplay, 0);
-                // A netcode self-test for development; players have no use for it.
-                if (Debug.isDebugBuild) AddButton(row, "ROLLBACK TEST", TestRollbackOnLastReplay, 0);
-                AddButton(body, "RETURN TO TITLE", LocalVersusSession.ReturnToTitle);
-            });
-            RefreshDeviceStatus();
+            var box = Rect(parent, "Caption");
+            box.gameObject.AddComponent<UnityEngine.UI.LayoutElement>().preferredHeight = 24;
+            Label(box, text, 17, new Color(Ink.r, Ink.g, Ink.b, .7f), TextAnchor.UpperCenter);
         }
 
         public void ShowResult(int winner, int playerOneWins, int playerTwoWins, string message = null)
         {
             EnsureEventSystem();
             page = Page.Result;
+            if (LocalVersusSession.Settings != null && LocalVersusSession.Settings.Mode == VersusMode.Training) { ShowTrainingMenu("Round over"); return; }
             if (LocalVersusSession.IsOnline) { ShowOnlineResult(winner, playerOneWins, playerTwoWins, message); return; }
             if (LocalVersusSession.IsReplay) { ShowReplayResult(winner, playerOneWins, playerTwoWins); return; }
             Rebuild(winner == 0 ? "PLAYER 1 WINS" : winner == 1 ? "PLAYER 2 WINS" : "MATCH ENDED",
@@ -171,6 +161,7 @@ namespace Eclipse.Multiplayer
         {
             EnsureEventSystem();
             page = Page.Pause;
+            if (LocalVersusSession.Settings != null && LocalVersusSession.Settings.Mode == VersusMode.Training) { ShowTrainingMenu(reason); return; }
             if (LocalVersusSession.IsOnline)
             {
                 Rebuild("MENU", reason, body =>
@@ -186,7 +177,7 @@ namespace Eclipse.Multiplayer
                 Rebuild("REPLAY PAUSED", ReplayTitle(), body =>
                 {
                     AddButton(body, "RESUME", Resume);
-                    AddButton(body, "STOP REPLAY", LocalVersusSession.ShowLobby);
+                    AddButton(body, "STOP REPLAY", LocalVersusSession.ShowMultiplayerHome);
                     AddButton(body, "RETURN TO TITLE", LocalVersusSession.ReturnToTitle);
                 });
                 return;
@@ -202,6 +193,7 @@ namespace Eclipse.Multiplayer
         public void Hide()
         {
             IsShowing = false; page = Page.Hidden;
+            LeaveBackdrop();
             if (EventSystem.current != null && EventSystem.current.currentSelectedGameObject != null && panel != null &&
                 EventSystem.current.currentSelectedGameObject.transform.IsChildOf(panel)) EventSystem.current.SetSelectedGameObject(null);
             if (panel != null) panel.gameObject.SetActive(false);
@@ -259,11 +251,16 @@ namespace Eclipse.Multiplayer
                 default:
                     Rebuild("ONLINE VERSUS", session.LocalName + "  vs  " + session.RemoteName, body =>
                     {
-                        AddChoice(body, "YOUR WEAPON", () => WeaponLabel(session.LocalWeapon), session.CycleLocalWeapon);
-                        AddInfo(body, "OPPONENT WEAPON", () => WeaponLabel(session.IsHost ? session.Lobby.GuestWeapon : session.Lobby.HostWeapon));
+                        AddChoice(body, "YOUR LOADOUT", () => session.LocalLoadout.WeaponName, () => ShowArmory("Your loadout", session.LocalLoadout, loadout =>
+                        {
+                            OnlineVersusSession.Current?.SetLocalLoadout(loadout);
+                            ShowOnlineLobby();
+                        }));
+                        AddInfo(body, "OPPONENT", () => session.RemoteLoadout?.WeaponName ?? "Choosing...");
                         if (session.IsHost)
                         {
-                            AddChoice(body, "ARENA", () => ArenaLabel(session.Lobby.Arena), session.CycleArena);
+                            AddChoice(body, "ARENA", () => ArenaLabel(session.Lobby.Arena),
+                                () => VersusStagePicker.Open(session.Lobby.Arena, true, picked => OnlineVersusSession.Current?.SetArena(picked)));
                             AddChoice(body, "FIRST TO", () => WinsLabel(session.Lobby.WinsRequired), session.CycleWins);
                             AddChoice(body, "NETCODE", () => NetcodeLabel(session), session.CycleNetcode);
                             AddChoice(body, "INPUT DELAY", () => DelayLabel(session), session.CycleDelay);
@@ -340,7 +337,7 @@ namespace Eclipse.Multiplayer
                     try { LocalVersusSession.StartReplay(replay); }
                     catch (Exception exception) { Debug.LogException(exception); SetStatus(exception.Message); }
                 }, -1, Eclipse.UI.UiSound.Begin);
-                AddButton(body, "BACK TO LOBBY", LocalVersusSession.ShowLobby);
+                AddButton(body, "BACK", LocalVersusSession.ShowMultiplayerHome);
                 AddButton(body, "RETURN TO TITLE", LocalVersusSession.ReturnToTitle);
             });
             var source = VersusTickDriver.Source;
@@ -411,16 +408,26 @@ namespace Eclipse.Multiplayer
             return text;
         }
 
-        private static string WeaponLabel(string id)
+        private static string ArenaLabel(string id) => VersusRoster.ArenaName(id);
+
+        /// <summary>The loadout with the next roster weapon.</summary>
+        private static VersusLoadout NextWeapon(VersusLoadout loadout)
         {
-            int index = Array.IndexOf(LocalVersusMatch.WeaponIds, id);
-            return index >= 0 ? LocalVersusMatch.WeaponLabels[index] : "Choosing...";
+            var weapons = VersusRoster.Items(LoadoutSlot.Weapon);
+            if (weapons.Count == 0) return loadout;
+            int index = VersusRoster.IndexOf(LoadoutSlot.Weapon, loadout.Weapon);
+            return loadout.With(LoadoutSlot.Weapon, weapons[(index + 1) % weapons.Count].Id);
         }
 
-        private static string ArenaLabel(string id)
+        /// <summary>The roster arena after <paramref name="current"/>; "random" joins the cycle when allowed.</summary>
+        private static string NextArena(string current, bool allowRandom)
         {
-            int index = Array.IndexOf(LocalVersusMatch.ArenaIds, id);
-            return index >= 0 ? LocalVersusMatch.ArenaLabels[index] : "-";
+            var arenas = VersusRoster.Arenas;
+            if (arenas.Count == 0) return "dojo";
+            int index = -1;
+            for (int i = 0; i < arenas.Count; i++) if (arenas[i].Id == current) index = i;
+            if (index + 1 < arenas.Count) return arenas[index + 1].Id;
+            return allowRandom ? VersusRoster.RandomArena : arenas[0].Id;
         }
 
         private static string WinsLabel(int wins) => wins + (wins == 1 ? " WIN" : " WINS");
@@ -481,10 +488,14 @@ namespace Eclipse.Multiplayer
 
         private void ReadSettings(LocalVersusSettings settings)
         {
-            if (settings == null) return;
-            int i = Array.IndexOf(LocalVersusMatch.WeaponIds, settings.PlayerOneWeapon); if (i >= 0) p1Weapon = i;
-            i = Array.IndexOf(LocalVersusMatch.WeaponIds, settings.PlayerTwoWeapon); if (i >= 0) p2Weapon = i;
-            i = Array.IndexOf(LocalVersusMatch.ArenaIds, settings.Location); if (i >= 0) arena = i;
+            if (p1Loadout == null) p1Loadout = VersusLoadouts.Load(VersusLoadouts.PlayerOne);
+            if (p2Loadout == null) p2Loadout = VersusLoadouts.Load(VersusLoadouts.PlayerTwo);
+            if (!VersusRoster.IsArena(arena)) arena = VersusRoster.Arenas.Count > 0 ? VersusRoster.Arenas[0].Id : "dojo";
+            // Replays and online matches reuse these settings; only a local matchup carries over.
+            if (settings == null || settings.Mode != VersusMode.Local) return;
+            p1Loadout = settings.PlayerOneLoadout;
+            p2Loadout = settings.PlayerTwoLoadout;
+            if (VersusRoster.IsArena(settings.Location)) arena = settings.Location;
             keyboardPlayerOne = settings.KeyboardPlayerOne; sharedKeyboard = settings.SharedKeyboard; winsRequired = Mathf.Clamp(settings.WinsRequired, 1, 3); roundTime = settings.RoundTimeSeconds;
         }
 
@@ -494,6 +505,8 @@ namespace Eclipse.Multiplayer
         private bool CurrentSchemeReady()
         {
             var settings = LocalVersusSession.Settings;
+            // Only local versus binds devices to players; training takes any device, replays none.
+            if (settings != null && settings.Mode != VersusMode.Local) return true;
             return settings != null ? LocalVersusSession.DevicesReady(settings) : SchemeReady(keyboardPlayerOne, sharedKeyboard);
         }
         private static bool PadsReady(bool keyboard) { return FightGamepadInput.IsConnected(GamePad.Player.One) && (keyboard || FightGamepadInput.IsConnected(GamePad.Player.Two)); }
@@ -518,14 +531,17 @@ namespace Eclipse.Multiplayer
             SetStatus(sharedKeyboard ? SharedKeyboard.Hint : padsWereReady ? InputHint(keyboardPlayerOne) : PadReason(keyboardPlayerOne));
         }
 
-        private void Rebuild(string title, string subtitle, Action<RectTransform> build)
+        private void Rebuild(string title, string subtitle, Action<RectTransform> build, Action back = null, float width = 760)
         {
             panel.gameObject.SetActive(true);
             liveLabels.Clear();
+            shortcuts.Clear();
+            backAction = back;
             for (int i = panel.childCount - 1; i >= 0; i--) { panel.GetChild(i).gameObject.SetActive(false); Destroy(panel.GetChild(i).gameObject); }
-            // The lobby has no match behind it; pause and results keep the fight visible under an ink wash.
-            SetImage(panel, IsBackdropPage ? Ink : new Color(20f / 255f, 14f / 255f, 11f / 255f, .7f));
-            var paper = Rect(panel, "Paper"); paper.anchorMin = paper.anchorMax = paper.pivot = new Vector2(.5f, .5f); paper.sizeDelta = new Vector2(760, 660);
+            // The lobby shows the living arena; pause and results keep the fight visible under an ink wash.
+            SetImage(panel, IsBackdropPage ? new Color(0, 0, 0, 0) : new Color(20f / 255f, 14f / 255f, 11f / 255f, .7f));
+            EnterBackdrop();
+            var paper = Rect(panel, "Paper"); paper.anchorMin = paper.anchorMax = paper.pivot = new Vector2(.5f, .5f); paper.sizeDelta = new Vector2(width, 660);
             var card = paper.gameObject.AddComponent<Eclipse.UI.PaperPanel>(); card.color = Paper; card.raycastTarget = true;
             // Title painted on a red brush stroke rather than a flat band.
             var header = Rect(paper, "Header"); header.anchorMin = new Vector2(0, 1); header.anchorMax = new Vector2(1, 1); header.pivot = new Vector2(.5f, 1); header.anchoredPosition = new Vector2(0, -14); header.sizeDelta = new Vector2(-40, 82);
@@ -534,14 +550,14 @@ namespace Eclipse.Multiplayer
             Eclipse.UI.UiReveal.Play(paper, 0f, .34f, new Vector2(0, -18), .96f);
             StartCoroutine(PaintStroke(stroke));
             var sub = Label(paper, subtitle, 21, Ink, TextAnchor.MiddleCenter); sub.rectTransform.anchorMin = new Vector2(0, 1); sub.rectTransform.anchorMax = new Vector2(1, 1); sub.rectTransform.pivot = new Vector2(.5f, 1); sub.rectTransform.anchoredPosition = new Vector2(0, -105); sub.rectTransform.sizeDelta = new Vector2(-40, 48);
-            var body = Rect(paper, "Options"); body.anchorMin = body.anchorMax = body.pivot = new Vector2(.5f, 1); body.anchoredPosition = new Vector2(0, -150); body.sizeDelta = new Vector2(650, 440);
+            var body = Rect(paper, "Options"); body.anchorMin = body.anchorMax = body.pivot = new Vector2(.5f, 1); body.anchoredPosition = new Vector2(0, -150); body.sizeDelta = new Vector2(width - 110, 440);
             var layout = body.gameObject.AddComponent<UnityEngine.UI.VerticalLayoutGroup>(); layout.spacing = 9; layout.childControlHeight = layout.childControlWidth = true; layout.childForceExpandHeight = false; layout.childForceExpandWidth = true;
             build(body);
             // The card fits its content, so short pages don't stretch their rows or float in empty paper.
             UnityEngine.UI.LayoutRebuilder.ForceRebuildLayoutImmediate(body);
             float content = UnityEngine.UI.LayoutUtility.GetPreferredHeight(body);
-            body.sizeDelta = new Vector2(650, content);
-            paper.sizeDelta = new Vector2(760, Mathf.Clamp(150 + content + 74, 340, 680));
+            body.sizeDelta = new Vector2(width - 110, content);
+            paper.sizeDelta = new Vector2(width, Mathf.Clamp(150 + content + 74, 340, 680));
             status = Label(paper, "", 16, Red, TextAnchor.MiddleCenter); status.rectTransform.anchorMin = new Vector2(0, 0); status.rectTransform.anchorMax = new Vector2(1, 0); status.rectTransform.pivot = new Vector2(.5f, 0); status.rectTransform.anchoredPosition = new Vector2(0, 14); status.rectTransform.sizeDelta = new Vector2(-40, 52);
             IsShowing = true; Cursor.visible = true; Cursor.lockState = CursorLockMode.None;
             Eclipse.UI.EclipseUiAudio.SuppressFocusSound();
@@ -561,13 +577,13 @@ namespace Eclipse.Multiplayer
             }
         }
 
-        private void AddChoice(RectTransform parent, string caption, Func<string> value, Action cycle)
+        private void AddChoice(RectTransform parent, string caption, Func<string> value, Action cycle, float valueWidth = 340)
         {
             var row = Rect(parent, caption); row.gameObject.AddComponent<UnityEngine.UI.LayoutElement>().preferredHeight = 46;
             var horizontal = row.gameObject.AddComponent<UnityEngine.UI.HorizontalLayoutGroup>(); horizontal.spacing = 12; horizontal.childControlWidth = horizontal.childControlHeight = true; horizontal.childForceExpandWidth = false;
             var left = Label(row, caption, 22, Ink, TextAnchor.MiddleLeft); left.gameObject.AddComponent<UnityEngine.UI.LayoutElement>().flexibleWidth = 1;
             UnityEngine.UI.Text valueLabel = null;
-            var button = AddButton(row, value() + "   >", () => { cycle(); valueLabel.text = value() + "   >"; }, 340, Eclipse.UI.UiSound.Toggle);
+            var button = AddButton(row, value() + "   >", () => { cycle(); valueLabel.text = value() + "   >"; }, valueWidth, Eclipse.UI.UiSound.Toggle);
             valueLabel = button.GetComponentInChildren<UnityEngine.UI.Text>();
             liveLabels.Add((valueLabel, () => value() + "   >"));
         }
@@ -633,7 +649,7 @@ namespace Eclipse.Multiplayer
         private static RectTransform Rect(Transform parent, string name) { var rect = new GameObject(name, typeof(RectTransform)).GetComponent<RectTransform>(); rect.SetParent(parent, false); return rect; }
         private static void Stretch(RectTransform rect) { rect.anchorMin = Vector2.zero; rect.anchorMax = Vector2.one; rect.offsetMin = rect.offsetMax = Vector2.zero; }
         private static void AddImage(RectTransform rect, Color color) { var image = rect.gameObject.AddComponent<UnityEngine.UI.Image>(); image.color = color; image.raycastTarget = true; }
-        private static void SetImage(RectTransform rect, Color color) { var image = rect.GetComponent<UnityEngine.UI.Image>() ?? rect.gameObject.AddComponent<UnityEngine.UI.Image>(); image.color = color; image.raycastTarget = true; }
+        private static void SetImage(RectTransform rect, Color color) { var image = Eclipse.UI.ComponentUtility.Ensure<UnityEngine.UI.Image>(rect.gameObject); image.color = color; image.raycastTarget = true; }
         private void SetStatus(string text) { if (status != null) status.text = text ?? string.Empty; }
 
         private void EnsureEventSystem()

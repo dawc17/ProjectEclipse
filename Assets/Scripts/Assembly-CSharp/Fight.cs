@@ -2159,6 +2159,10 @@ public class Fight
 		EGHPHELLOGO.KJDFJPBIGJC.LogDamage(gHHCDAFIKJE.EEDJBBOCFNL, BHLIBKKJNKH(hFIIPNLCIEE), gHHCDAFIKJE.DefenceAttribute);
 		float eclipseHealthBefore = EGHPHELLOGO.KJDFJPBIGJC.KKMCHCNOHMB();
 		UpdateLife(EGHPHELLOGO.KJDFJPBIGJC, 0f - gHHCDAFIKJE.EEDJBBOCFNL);
+		// Eclipse training and replay readouts (damage, combos, frame advantage).
+		if (IsLocalVersus && Eclipse.Multiplayer.VersusTraining.Observing)
+			Eclipse.Multiplayer.VersusTraining.OnHit(EGHPHELLOGO.GAIBPAGPEGK, EGHPHELLOGO.KJDFJPBIGJC, gHHCDAFIKJE.EEDJBBOCFNL,
+				gHHCDAFIKJE.DFOHNJEBDED, gHHCDAFIKJE.DNGKOMPMPCD, gHHCDAFIKJE.PBPDKJNKFCJ != null ? gHHCDAFIKJE.PBPDKJNKFCJ.Name : null);
 		// Presentation only: sf2.fx hit bursts and hit/critical/ko screen effects.
 		Eclipse.Rendering.FighterParticles.Hit(EGHPHELLOGO.KJDFJPBIGJC, gHHCDAFIKJE.Point, gHHCDAFIKJE.DNGKOMPMPCD, gHHCDAFIKJE.DFOHNJEBDED,
 			eclipseHealthBefore > 0f && EGHPHELLOGO.KJDFJPBIGJC.KKMCHCNOHMB() <= 0f, EGHPHELLOGO.GAIBPAGPEGK, gHHCDAFIKJE.Impulse);
@@ -4638,6 +4642,27 @@ public class Fight
 		{
 			preFight.AdvanceScreenSimulationStep(step);
 		}
+	}
+
+	/// <summary>
+	/// Eclipse training: puts both fighters back on the arena's start marks (or swapped)
+	/// at full health, even mid-move or mid-air.
+	/// </summary>
+	internal void TrainingPlaceFighters(bool swapped)
+	{
+		var player = GetPlayerModel();
+		var enemy = GetEnemyModel();
+		if (_location == null || player == null || enemy == null) return;
+		player.TrainingMoveToX((swapped ? _location.CLGGLBHOMCE : _location.JJNMOJLLDEC).GetX());
+		enemy.TrainingMoveToX((swapped ? _location.JJNMOJLLDEC : _location.CLGGLBHOMCE).GetX());
+		SetLife(player, player.Parameters.CIDCNCDFONA);
+		SetLife(enemy, enemy.Parameters.CIDCNCDFONA);
+	}
+
+	/// <summary>Eclipse training: keeps the round clock from running out.</summary>
+	internal void TrainingRefillTime()
+	{
+		if (preFight != null && preFight.get_ViewerFight() != null) preFight.get_ViewerFight().RefillTime(round.timeTotal > 0 ? round.timeTotal : 99);
 	}
 
 	/// <summary>Delivers one tick-aligned versus control event for <paramref name="side"/> (0 left, 1 right).</summary>

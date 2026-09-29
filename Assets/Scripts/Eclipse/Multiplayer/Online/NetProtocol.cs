@@ -8,8 +8,8 @@ namespace Eclipse.Multiplayer.Online
     /// </summary>
     public static class NetProtocol
     {
-        /// <summary>2: rollback netcode, run-length input blocks and time sync.</summary>
-        public const byte Version = 2;
+        /// <summary>2: rollback netcode, run-length input blocks and time sync. 3: full loadouts.</summary>
+        public const byte Version = 3;
         public const int DefaultPort = 7291;
         public const int MaxPacketSize = 1200;
         public const int MaxStringBytes = 200;
@@ -152,9 +152,9 @@ namespace Eclipse.Multiplayer.Online
 
     public enum NetMessageType : byte
     {
-        /// <summary>Guest to host: the guest's chosen weapon and ready flag.</summary>
+        /// <summary>Guest to host: the guest's loadout and ready flag.</summary>
         GuestLobby = 1,
-        /// <summary>Host to guest: the complete lobby, including both weapon choices.</summary>
+        /// <summary>Host to guest: the complete lobby, including both loadouts.</summary>
         HostLobby = 2,
         StartMatch = 3,
         RequestRematch = 4,
@@ -169,8 +169,8 @@ namespace Eclipse.Multiplayer.Online
     /// <summary>Lobby as seen by the host. The host owns arena, format and input delay.</summary>
     public sealed class LobbyState
     {
-        public string HostWeapon = string.Empty;
-        public string GuestWeapon = string.Empty;
+        public LoadoutCode HostLoadout = LoadoutCode.None;
+        public LoadoutCode GuestLoadout = LoadoutCode.None;
         public string Arena = string.Empty;
         public int WinsRequired = 2;
         public int RoundTimeSeconds = 99;
@@ -182,8 +182,8 @@ namespace Eclipse.Multiplayer.Online
         {
             var writer = new NetWriter(256);
             writer.U8((byte)NetMessageType.HostLobby);
-            writer.Str(HostWeapon);
-            writer.Str(GuestWeapon);
+            HostLoadout.Write(writer);
+            GuestLoadout.Write(writer);
             writer.Str(Arena);
             writer.U8((byte)WinsRequired);
             writer.U16((ushort)RoundTimeSeconds);
@@ -197,8 +197,8 @@ namespace Eclipse.Multiplayer.Online
         {
             var state = new LobbyState
             {
-                HostWeapon = reader.Str(),
-                GuestWeapon = reader.Str(),
+                HostLoadout = LoadoutCode.Read(reader),
+                GuestLoadout = LoadoutCode.Read(reader),
                 Arena = reader.Str(),
                 WinsRequired = reader.U8(),
                 RoundTimeSeconds = reader.U16(),
@@ -215,8 +215,8 @@ namespace Eclipse.Multiplayer.Online
     public sealed class MatchStart
     {
         public int MatchIndex;
-        public string HostWeapon = string.Empty;
-        public string GuestWeapon = string.Empty;
+        public LoadoutCode HostLoadout = LoadoutCode.None;
+        public LoadoutCode GuestLoadout = LoadoutCode.None;
         public string Arena = string.Empty;
         public int WinsRequired;
         public int RoundTimeSeconds;
@@ -230,8 +230,8 @@ namespace Eclipse.Multiplayer.Online
             var writer = new NetWriter(256);
             writer.U8((byte)NetMessageType.StartMatch);
             writer.U8((byte)MatchIndex);
-            writer.Str(HostWeapon);
-            writer.Str(GuestWeapon);
+            HostLoadout.Write(writer);
+            GuestLoadout.Write(writer);
             writer.Str(Arena);
             writer.U8((byte)WinsRequired);
             writer.U16((ushort)RoundTimeSeconds);
@@ -246,8 +246,8 @@ namespace Eclipse.Multiplayer.Online
             var start = new MatchStart
             {
                 MatchIndex = reader.U8(),
-                HostWeapon = reader.Str(),
-                GuestWeapon = reader.Str(),
+                HostLoadout = LoadoutCode.Read(reader),
+                GuestLoadout = LoadoutCode.Read(reader),
                 Arena = reader.Str(),
                 WinsRequired = reader.U8(),
                 RoundTimeSeconds = reader.U16(),
@@ -263,11 +263,11 @@ namespace Eclipse.Multiplayer.Online
 
     public static class NetMessages
     {
-        public static byte[] GuestLobby(string weapon, bool ready)
+        public static byte[] GuestLobby(LoadoutCode loadout, bool ready)
         {
-            var writer = new NetWriter(128);
+            var writer = new NetWriter(1 + LoadoutCode.Size + 1);
             writer.U8((byte)NetMessageType.GuestLobby);
-            writer.Str(weapon);
+            loadout.Write(writer);
             writer.Bool(ready);
             return writer.ToArray();
         }

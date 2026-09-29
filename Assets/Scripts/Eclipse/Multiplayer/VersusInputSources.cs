@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using Eclipse.Input;
 using Eclipse.Multiplayer.Online;
@@ -11,6 +12,7 @@ namespace Eclipse.Multiplayer
     {
         protected readonly VersusReplay Replay;
         private bool _saved;
+        private int _lastRound = -1;
 
         protected RecordingInputSource(LocalVersusSettings settings)
         {
@@ -25,9 +27,29 @@ namespace Eclipse.Multiplayer
         {
             Replay.Record(left, right);
             if (hash.HasValue && tick % NetProtocol.ReplayHashInterval == 0) Replay.Hashes[tick] = hash.Value;
+            // Round changes become timeline markers in the replay player.
+            if (TryGetRound(tick, out int round))
+            {
+                if (_lastRound >= 0 && round != _lastRound) Replay.RoundEnds.Add(tick);
+                _lastRound = round;
+            }
         }
 
-        public virtual void OnMatchEnded(int finalTick, int winner, int leftRounds, int rightRounds) => Save(null);
+        /// <summary>The round number after <paramref name="tick"/>, when this source knows it.</summary>
+        protected virtual bool TryGetRound(int tick, out int round)
+        {
+            var snapshot = VersusTickDriver.LastSnapshot;
+            round = snapshot.Round;
+            return snapshot.Tick == tick;
+        }
+
+        public virtual void OnMatchEnded(int finalTick, int winner, int leftRounds, int rightRounds)
+        {
+            Replay.Winner = winner;
+            Replay.LeftRounds = leftRounds;
+            Replay.RightRounds = rightRounds;
+            Save(null);
+        }
 
         public virtual void Stop() => Save(null);
 
@@ -35,6 +57,7 @@ namespace Eclipse.Multiplayer
         {
             if (_saved || Replay.TickCount == 0) return null;
             _saved = true;
+            if (!string.IsNullOrEmpty(suffix)) Replay.Tag = suffix;
             return VersusReplays.Save(Replay, suffix);
         }
     }
@@ -128,6 +151,11 @@ namespace Eclipse.Multiplayer
 
         public void OnTickSimulated(int tick, byte left, byte right, uint? hash)
         {
+            if (VersusTraining.Replay)
+            {
+                VersusTraining.TickReadouts(Fight.GetCurrentFight(), tick);
+                TrainingHud.Record(left, right);
+            }
             if (_trace != null)
             {
                 var fight = Fight.GetCurrentFight();
@@ -164,16 +192,16 @@ namespace Eclipse.Multiplayer
         public static string Directory => Path.Combine(Application.persistentDataPath, "Replays");
         public static string LastPath => Path.Combine(Directory, "last.eclreplay");
 
+        public const int KeepNewest = 40;
+
         public static VersusReplay Create(LocalVersusSettings settings)
         {
-            return new VersusReplay
+            var replay = new VersusReplay
             {
                 Build = OnlineVersusSession.BuildId,
                 Content = OnlineVersusSession.ContentFingerprint(),
                 LeftName = settings.PlayerOneName,
                 RightName = settings.PlayerTwoName,
-                LeftWeapon = settings.PlayerOneWeapon,
-                RightWeapon = settings.PlayerTwoWeapon,
                 Arena = settings.Location,
                 WinsRequired = settings.WinsRequired,
                 RoundTimeSeconds = settings.RoundTimeSeconds,
@@ -181,6 +209,10 @@ namespace Eclipse.Multiplayer
                 Online = settings.Mode == VersusMode.Online,
                 RecordedUnixSeconds = DateTimeOffset.UtcNow.ToUnixTimeSeconds(),
             };
+            var left = settings.PlayerOneLoadout.ToIds();
+            var right = settings.PlayerTwoLoadout.ToIds();
+            for (int slot = 0; slot < VersusReplay.LoadoutSlots; slot++) { replay.LeftLoadout[slot] = left[slot]; replay.RightLoadout[slot] = right[slot]; }
+            return replay;
         }
 
         /// <returns>The saved path, or null when saving failed.</returns>
@@ -196,7 +228,7 @@ namespace Eclipse.Multiplayer
                 replay.Save(path);
                 try { File.Copy(path, LastPath, true); }
                 catch (IOException) { /* Another instance is writing it; the dated copy is saved. */ }
-                Prune(40);
+                Prune(KeepNewest);
                 Debug.Log("[Versus] Replay saved: " + path);
                 return path;
             }
@@ -207,34 +239,121 @@ namespace Eclipse.Multiplayer
             }
         }
 
-        public static bool TryLoadLast(out VersusReplay replay, out string error)
+        public static bool TryLoadLast(out VersusReplay replay, out string error) => TryLoad(LastPath, out replay, out error);
+
+        /// <summary>Loads a replay this build can play back; otherwise a player-facing reason.</summary>
+        public static bool TryLoad(string path, out VersusReplay replay, out string error)
         {
             replay = null;
             error = null;
-            if (!File.Exists(LastPath)) { error = "No replay yet. Finish a versus match first."; return false; }
-            try { replay = VersusReplay.Load(LastPath); }
-            catch (Exception exception) { error = "The last replay could not be read: " + exception.Message; return false; }
+            if (!File.Exists(path)) { error = path == LastPath ? "No replay yet. Finish a versus match first." : "That replay no longer exists."; return false; }
+            try { replay = VersusReplay.Load(path); }
+            catch (Exception exception) { error = "The replay could not be read: " + exception.Message; return false; }
+            error = Incompatibility(replay);
+            if (error == null) return true;
+            replay = null;
+            return false;
+        }
+
+        /// <summary>Why this build cannot play the replay back, or null.</summary>
+        public static string Incompatibility(VersusReplay replay)
+        {
             if (replay.Build != OnlineVersusSession.BuildId)
             {
                 NetIdentity.SplitBuild(replay.Build, out var version, out var runtime);
-                error = version == Application.version && runtime != OnlineVersusSession.Runtime
-                    ? "The last replay was recorded by a " + (runtime.Length > 0 ? runtime : "different") + " build; it only plays back in the same kind of build."
-                    : "The last replay was recorded with another game version.";
-                replay = null;
-                return false;
+                return version == Application.version && runtime != OnlineVersusSession.Runtime
+                    ? "Recorded by a " + (runtime.Length > 0 ? runtime : "different") + " build; it only plays back in the same kind of build."
+                    : "Recorded with another game version (" + replay.Build + ").";
             }
-            if (replay.Content != OnlineVersusSession.ContentFingerprint()) { error = "The last replay was recorded with different mods enabled."; replay = null; return false; }
-            return true;
+            if (replay.Content != OnlineVersusSession.ContentFingerprint()) return "Recorded with different mods or a different versus roster.";
+            return null;
         }
 
+        /// <summary>One saved replay as the browser lists it.</summary>
+        public sealed class Entry
+        {
+            public string Path;
+            public DateTime Saved;
+            /// <summary>Header fields only; <see cref="VersusReplay.HeaderOnly"/> is set.</summary>
+            public VersusReplay Header;
+            /// <summary>Why it cannot be watched in this build, or null.</summary>
+            public string Problem;
+        }
+
+        /// <summary>Every saved replay (not the "last" copy), kept ones first, then newest first.</summary>
+        public static List<Entry> List()
+        {
+            var entries = new List<Entry>();
+            if (!System.IO.Directory.Exists(Directory)) return entries;
+            foreach (var file in new DirectoryInfo(Directory).GetFiles("*.eclreplay"))
+            {
+                if (string.Equals(file.FullName, Path.GetFullPath(LastPath), StringComparison.OrdinalIgnoreCase)) continue;
+                var entry = new Entry { Path = file.FullName, Saved = file.LastWriteTime };
+                try
+                {
+                    entry.Header = VersusReplay.LoadHeader(file.FullName);
+                    entry.Problem = Incompatibility(entry.Header);
+                }
+                catch (Exception exception) { entry.Problem = "Unreadable: " + exception.Message; }
+                entries.Add(entry);
+            }
+            entries.Sort((a, b) =>
+            {
+                bool keptA = a.Header != null && a.Header.Kept, keptB = b.Header != null && b.Header.Kept;
+                if (keptA != keptB) return keptA ? -1 : 1;
+                return b.Saved.CompareTo(a.Saved);
+            });
+            return entries;
+        }
+
+        /// <summary>Rewrites a replay's header fields (kept flag, title); the inputs are unchanged.</summary>
+        public static bool TryUpdate(string path, Action<VersusReplay> change, out string error)
+        {
+            error = null;
+            try
+            {
+                var replay = VersusReplay.Load(path);
+                var saved = File.GetLastWriteTimeUtc(path);
+                change(replay);
+                replay.Save(path);
+                // The browser orders by recording time; editing a flag does not make it "new".
+                File.SetLastWriteTimeUtc(path, saved);
+                return true;
+            }
+            catch (Exception exception) { error = "The replay could not be changed: " + exception.Message; return false; }
+        }
+
+        public static bool SetKept(string path, bool kept, out string error) => TryUpdate(path, replay => replay.Kept = kept, out error);
+
+        public static bool Rename(string path, string title, out string error)
+        {
+            title = (title ?? string.Empty).Trim();
+            if (title.Length > 40) title = title.Substring(0, 40);
+            return TryUpdate(path, replay => replay.Title = title, out error);
+        }
+
+        public static bool Delete(string path, out string error)
+        {
+            error = null;
+            try { File.Delete(path); return true; }
+            catch (Exception exception) { error = "The replay could not be deleted: " + exception.Message; return false; }
+        }
+
+        /// <summary>Keeps the newest <paramref name="keep"/> replays that are not marked kept; kept ones are never removed.</summary>
         private static void Prune(int keep)
         {
-            var files = new DirectoryInfo(Directory).GetFiles("*-*.eclreplay");
-            if (files.Length <= keep) return;
-            Array.Sort(files, (a, b) => a.LastWriteTimeUtc.CompareTo(b.LastWriteTimeUtc));
-            for (int i = 0; i < files.Length - keep; i++)
+            var candidates = new List<FileInfo>();
+            foreach (var file in new DirectoryInfo(Directory).GetFiles("*-*.eclreplay"))
             {
-                try { files[i].Delete(); } catch (Exception) { }
+                bool kept = false;
+                try { kept = VersusReplay.LoadHeader(file.FullName).Kept; } catch (Exception) { }
+                if (!kept) candidates.Add(file);
+            }
+            if (candidates.Count <= keep) return;
+            candidates.Sort((a, b) => a.LastWriteTimeUtc.CompareTo(b.LastWriteTimeUtc));
+            for (int i = 0; i < candidates.Count - keep; i++)
+            {
+                try { candidates[i].Delete(); } catch (Exception) { }
             }
         }
     }

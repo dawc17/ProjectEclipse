@@ -33,7 +33,7 @@ namespace Eclipse.Multiplayer
         public string LocalName { get; private set; }
         public string RemoteName => Peer?.RemoteIdentity?.PlayerName ?? "Opponent";
         public LobbyState Lobby { get; private set; } = new LobbyState();
-        public string LocalWeapon { get; private set; } = LocalVersusMatch.WeaponIds[0];
+        public VersusLoadout LocalLoadout { get; private set; } = VersusLoadouts.Load(VersusLoadouts.Online);
         public bool LocalReady { get; private set; }
         public bool LocalWantsRematch { get; private set; }
         public bool RemoteWantsRematch { get; private set; }
@@ -72,7 +72,8 @@ namespace Eclipse.Multiplayer
             {
                 if (!Eclipse.Modding.ModRuntime.IsInitialized) return "mods:unloaded";
                 var mods = Eclipse.Modding.ModRuntime.Host.EnabledMods.Select(mod => mod.Id + "@" + mod.Version).OrderBy(id => id, StringComparer.Ordinal).ToArray();
-                return mods.Length == 0 ? "mods:none" : "mods:" + string.Join(",", mods);
+                // Loadouts travel as roster indices, so the roster must match too.
+                return (mods.Length == 0 ? "mods:none" : "mods:" + string.Join(",", mods)) + ";roster:" + VersusRoster.Fingerprint;
             }
             catch (Exception exception)
             {
@@ -107,8 +108,8 @@ namespace Eclipse.Multiplayer
             var netcode = SavedNetcode;
             session.Lobby = new LobbyState
             {
-                HostWeapon = session.LocalWeapon,
-                Arena = LocalVersusMatch.ArenaIds[0],
+                HostLoadout = session.LocalLoadout.ToCode(),
+                Arena = SavedArena,
                 Netcode = netcode,
                 InputDelay = netcode == NetcodeMode.Rollback ? NetProtocol.DefaultRollbackDelay : SavedDelay,
             };
@@ -134,22 +135,19 @@ namespace Eclipse.Multiplayer
         /// both sides are ready, and the host starts with the room's settings as soon as
         /// it has a ping sample to pick the input delay from.
         /// </summary>
-        public static void StartRoomFight(NetplayPeer peer, RoomPairing pairing, RoomSettings settings, string playerName, string localWeapon)
+        public static void StartRoomFight(NetplayPeer peer, RoomPairing pairing, RoomSettings settings, string playerName, VersusLoadout localLoadout)
         {
             var session = Create(playerName);
             session.Peer = peer;
             session.RoomMatch = pairing;
             session._roomStartedMs = NowMs;
-            session.LocalWeapon = Array.IndexOf(LocalVersusMatch.WeaponIds, localWeapon) >= 0 ? localWeapon : LocalVersusMatch.WeaponIds[0];
+            session.LocalLoadout = (localLoadout ?? VersusLoadout.Default).Sanitized();
             session.LocalReady = true;
             session.Phase = peer.IsHost ? OnlinePhase.Hosting : OnlinePhase.Connecting;
-            string arena = settings.Arena;
-            if (Array.IndexOf(LocalVersusMatch.ArenaIds, arena) < 0)
-                arena = LocalVersusMatch.ArenaIds[(int)((uint)pairing.Seed % (uint)LocalVersusMatch.ArenaIds.Length)];
             session.Lobby = new LobbyState
             {
-                HostWeapon = session.LocalWeapon,
-                Arena = arena,
+                HostLoadout = session.LocalLoadout.ToCode(),
+                Arena = VersusRoster.ResolveArena(settings.Arena, pairing.Seed),
                 WinsRequired = settings.WinsRequired,
                 RoundTimeSeconds = settings.RoundTimeSeconds,
                 Netcode = NetcodeMode.Rollback,
@@ -311,18 +309,47 @@ namespace Eclipse.Multiplayer
             Notice = IsHost ? RemoteName + " joined." : "Connected to " + RemoteName + ".";
             Debug.Log("[Online] " + Notice);
             if (IsHost) SendLobby();
-            else Peer.SendReliable(NetMessages.GuestLobby(LocalWeapon, LocalReady));
+            else Peer.SendReliable(NetMessages.GuestLobby(LocalLoadout.ToCode(), LocalReady));
             LocalVersusMenu.Ensure().OnOnlineChanged();
         }
 
         // ---- Lobby ----
 
-        public void CycleLocalWeapon()
+        public void SetLocalLoadout(VersusLoadout loadout)
         {
-            int index = (Array.IndexOf(LocalVersusMatch.WeaponIds, LocalWeapon) + 1) % LocalVersusMatch.WeaponIds.Length;
-            LocalWeapon = LocalVersusMatch.WeaponIds[index];
-            if (IsHost) { Lobby.HostWeapon = LocalWeapon; SendLobby(); }
+            LocalLoadout = (loadout ?? VersusLoadout.Default).Sanitized();
+            VersusLoadouts.Save(VersusLoadouts.Online, LocalLoadout);
+            if (IsHost) { Lobby.HostLoadout = LocalLoadout.ToCode(); SendLobby(); }
             else SendGuestLobby();
+        }
+
+        /// <summary>The opponent's loadout as the lobby currently shows it, or null before they chose.</summary>
+        public VersusLoadout RemoteLoadout
+        {
+            get
+            {
+                var code = IsHost ? Lobby.GuestLoadout : Lobby.HostLoadout;
+                return code.IsSet && VersusLoadouts.TryFromCode(code, out var loadout) ? loadout : null;
+            }
+        }
+
+        private const string ArenaPreference = "Eclipse.Online.Arena";
+        public static string SavedArena
+        {
+            get
+            {
+                string arena = PlayerPrefs.GetString(ArenaPreference, VersusRoster.RandomArena);
+                return arena == VersusRoster.RandomArena || VersusRoster.IsArena(arena) ? arena : VersusRoster.RandomArena;
+            }
+            set => PlayerPrefs.SetString(ArenaPreference, value ?? VersusRoster.RandomArena);
+        }
+
+        public void SetArena(string arena)
+        {
+            if (!IsHost || arena != VersusRoster.RandomArena && !VersusRoster.IsArena(arena)) return;
+            Lobby.Arena = arena;
+            SavedArena = arena;
+            SendLobby();
         }
 
         public void ToggleReady()
@@ -335,9 +362,10 @@ namespace Eclipse.Multiplayer
         public void CycleArena()
         {
             if (!IsHost) return;
-            int index = (Array.IndexOf(LocalVersusMatch.ArenaIds, Lobby.Arena) + 1) % LocalVersusMatch.ArenaIds.Length;
-            Lobby.Arena = LocalVersusMatch.ArenaIds[index];
-            SendLobby();
+            var arenas = VersusRoster.Arenas;
+            int index = -1;
+            for (int i = 0; i < arenas.Count; i++) if (arenas[i].Id == Lobby.Arena) index = i;
+            SetArena(index + 1 >= arenas.Count ? VersusRoster.RandomArena : arenas[index + 1].Id);
         }
 
         public void CycleWins()
@@ -387,8 +415,8 @@ namespace Eclipse.Multiplayer
             var start = new MatchStart
             {
                 MatchIndex = _nextMatchIndex & 0xFF,
-                HostWeapon = Lobby.HostWeapon,
-                GuestWeapon = Lobby.GuestWeapon,
+                HostLoadout = Lobby.HostLoadout,
+                GuestLoadout = Lobby.GuestLoadout,
                 Arena = Lobby.Arena,
                 WinsRequired = Lobby.WinsRequired,
                 RoundTimeSeconds = Lobby.RoundTimeSeconds,
@@ -409,7 +437,7 @@ namespace Eclipse.Multiplayer
 
         private void SendGuestLobby()
         {
-            if (Peer.State == NetplayState.Connected) Peer.SendReliable(NetMessages.GuestLobby(LocalWeapon, LocalReady));
+            if (Peer.State == NetplayState.Connected) Peer.SendReliable(NetMessages.GuestLobby(LocalLoadout.ToCode(), LocalReady));
             LocalVersusMenu.Ensure().OnOnlineChanged();
         }
 
@@ -417,8 +445,8 @@ namespace Eclipse.Multiplayer
 
         private void BeginMatch(MatchStart start)
         {
-            if (Array.IndexOf(LocalVersusMatch.WeaponIds, start.HostWeapon) < 0 || Array.IndexOf(LocalVersusMatch.WeaponIds, start.GuestWeapon) < 0 ||
-                Array.IndexOf(LocalVersusMatch.ArenaIds, start.Arena) < 0 || start.WinsRequired < 1 || start.WinsRequired > 5 ||
+            if (!VersusLoadouts.TryFromCode(start.HostLoadout, out var hostLoadout) || !VersusLoadouts.TryFromCode(start.GuestLoadout, out var guestLoadout) ||
+                start.Arena != VersusRoster.RandomArena && !VersusRoster.IsArena(start.Arena) || start.WinsRequired < 1 || start.WinsRequired > 5 ||
                 start.RoundTimeSeconds < 30 || start.RoundTimeSeconds > 300)
             {
                 Peer.Close("The match settings were not recognised.");
@@ -439,12 +467,14 @@ namespace Eclipse.Multiplayer
             Peer.Timeline = timeline;
             string hostName = IsHost ? LocalName : RemoteName;
             string guestName = IsHost ? RemoteName : LocalName;
-            Debug.Log("[Online] Match " + start.MatchIndex + ": " + start.HostWeapon + " vs " + start.GuestWeapon + " at " + start.Arena +
+            // Both peers resolve a random arena from the shared seed.
+            string arena = VersusRoster.ResolveArena(start.Arena, start.Seed);
+            Debug.Log("[Online] Match " + start.MatchIndex + ": " + hostLoadout + " vs " + guestLoadout + " at " + arena +
                 ", input delay " + start.InputDelay + ", " + (start.RollbackWindow > 0 ? "rollback window " + start.RollbackWindow : "delay-based") +
                 ", seed " + start.Seed + ".");
             try
             {
-                var settings = new LocalVersusSettings(start.HostWeapon, start.GuestWeapon, start.Arena, true,
+                var settings = new LocalVersusSettings(hostLoadout, guestLoadout, arena, true,
                     start.WinsRequired, start.RoundTimeSeconds, VersusMode.Online, hostName, guestName, start.Seed);
                 LocalVersusSession.StartMatch(settings, () => _source = new OnlineInputSource(this, settings, timeline, IsHost ? 0 : 1));
             }
@@ -574,10 +604,10 @@ namespace Eclipse.Multiplayer
                 switch ((NetMessageType)message[0])
                 {
                     case NetMessageType.GuestLobby when IsHost:
-                        string weapon = reader.Str();
+                        var guestLoadout = LoadoutCode.Read(reader);
                         bool ready = reader.Bool();
-                        if (Array.IndexOf(LocalVersusMatch.WeaponIds, weapon) >= 0) Lobby.GuestWeapon = weapon;
-                        Lobby.GuestReady = ready && Array.IndexOf(LocalVersusMatch.WeaponIds, Lobby.GuestWeapon) >= 0;
+                        if (VersusLoadouts.TryFromCode(guestLoadout, out _)) Lobby.GuestLoadout = guestLoadout;
+                        Lobby.GuestReady = ready && VersusLoadouts.TryFromCode(Lobby.GuestLoadout, out _);
                         SendLobby();
                         break;
                     case NetMessageType.HostLobby when !IsHost:
@@ -808,6 +838,15 @@ namespace Eclipse.Multiplayer
         }
 
         public override void OnTickSimulated(int tick, byte left, byte right, uint? hash) { }
+
+        // Final ticks are recorded a few ticks after they ran, so the round comes from history.
+        protected override bool TryGetRound(int tick, out int round)
+        {
+            round = 0;
+            if (!TryGetSnapshot(tick, out var snapshot)) return false;
+            round = snapshot.Round;
+            return true;
+        }
 
         public override void OnMatchEnded(int finalTick, int winner, int leftRounds, int rightRounds)
         {

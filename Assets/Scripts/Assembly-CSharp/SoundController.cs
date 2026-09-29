@@ -96,7 +96,7 @@ public class SoundController
 	public static void NDBJCCIBAIO()
 	{
 		IsBackgroundMusicIntro = false;
-		Sound.FAJONFGJBPD();
+		Sound.StopMusic();
 	}
 
 	// best guess for name

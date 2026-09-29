@@ -146,7 +146,7 @@ public class EnterScreen : MonoBehaviour
 		sequence.AppendCallback(() =>
 		{
 			Sound.OAFCOFNOIJK(_originalMusicVolume);
-			Sound.FAJONFGJBPD();
+			Sound.StopMusic();
 		});
 		return sequence;
 	}
@@ -217,7 +217,7 @@ public class EnterScreen : MonoBehaviour
 		if (!Sound.ELHMADOKHHE())
 		{
 			Sound.OAFCOFNOIJK(_originalMusicVolume);
-			Sound.FAJONFGJBPD();
+			Sound.StopMusic();
 			SoundController.IsBackgroundMusicIntro = false;
 			SoundController.KHPHDKFDCLL("act", false);
 		}

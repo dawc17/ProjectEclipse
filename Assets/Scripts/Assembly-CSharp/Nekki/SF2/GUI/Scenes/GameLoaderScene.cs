@@ -131,7 +131,7 @@ namespace Nekki.SF2.GUI.Scenes
 			HOCNNFGOMHL = true;
 			CDCHAOBEMKH = true;
 			SoundController.IsBackgroundMusicIntro = false;
-			Sound.FAJONFGJBPD();
+			Sound.StopMusic();
 			Sound.GKMINHHAMAK();
 		}
 
