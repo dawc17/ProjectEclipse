@@ -53,6 +53,39 @@ per-tick controller input crosses the network (delay-based lockstep over UDP).
   reports whether every recorded state checkpoint matched. This is the quickest
   determinism test and needs only one machine.
 
+## Rooms (no port forwarding)
+
+The room server is `Server/EclipseRooms/`; see its README for deployment. Players
+enter its address once in Online, then browse, create, or join rooms by code.
+
+- **Rooms.** Up to 8 members. The host sets name, password, size, first-to,
+  arena (or random), and winner-stays vs. rotation. Members pick a weapon and join
+  the queue. The server pairs the first two in the queue; in winner-stays the
+  champion goes back to the front and the room waits up to 30 s for them to
+  continue.
+- **Connecting a pair.** `RoomClient` uses one UDP socket for the server,
+  hole-punch probes and the fight, so the opponent punches into the NAT mapping
+  the server observed.
+  - The pairing lists the opponent's public address plus their LAN addresses.
+  - A path counts as **direct** only after our probe is acknowledged, which
+    proves both directions work.
+  - After 2.5 s without that, the link relays through the server, and keeps
+    probing for a while in case it can still upgrade.
+  - `MatchLink` implements `INetTransport`, so `NetplayPeer` and the lockstep
+    code are unchanged.
+- **The fight** runs as `OnlineVersusSession.StartRoomFight`: both sides auto-ready,
+  and the left player (host) starts once it has a ping sample, choosing the delay
+  from it.
+  - Each side reports its outcome: result, forfeit, desync (no result), or the
+    opponent vanishing (a win).
+  - Matching reports count; disagreeing ones count for nobody.
+  - A pairing that fails to connect within 15 s reports no result and returns
+    both players to the room.
+- **Tests.** `Tools/NetplayTests` runs a real server with four clients: listing,
+  mod-mismatch refusal, code joins, winner stays, the champion wait, a
+  hole-punched fight, a forced-relay fight, disputed results, leaving mid-fight,
+  host migration and cleanup.
+
 ## Testing
 
 1. Core netcode, from the repository root. It runs real loopback UDP with

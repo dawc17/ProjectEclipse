@@ -146,7 +146,8 @@ namespace Eclipse.Multiplayer
             var fight = Fight.GetCurrentFight();
             if (fight != null && fight.IsLocalVersus) fight.SetPaused(true);
             if (!HasResult && fight != null && fight.IsLocalVersus) VersusTickDriver.Stop();
-            if (OnlineVersusSession.IsActive) LocalVersusMenu.Ensure().ShowOnlineLobby();
+            if (RoomSession.IsActive && RoomSession.Current.Room != null) LocalVersusMenu.Ensure().ShowRoom();
+            else if (OnlineVersusSession.IsActive) LocalVersusMenu.Ensure().ShowOnlineLobby();
             else LocalVersusMenu.Ensure().ShowLobby();
         }
 
@@ -182,6 +183,7 @@ namespace Eclipse.Multiplayer
             Fight.GetCurrentFight()?.SetPaused(true);
             VersusTickDriver.Stop();
             OnlineVersusSession.Shutdown("Returned to the title screen.");
+            RoomSession.Shutdown("Returned to the title screen.");
             GameController.get_Current()?.StopController();
             LocalVersusMenu.Ensure().Hide();
             Eclipse.UI.TitleScreen.PrepareForRestart();

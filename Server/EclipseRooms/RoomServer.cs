@@ -1,0 +1,670 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Net;
+using Eclipse.Multiplayer.Online;
+using Eclipse.Multiplayer.Online.Rooms;
+
+namespace Eclipse.RoomServer
+{
+    /// <summary>
+    /// The room/rendezvous server. It keeps rooms, queues and results, tells paired
+    /// players each other's addresses so they can hole-punch, and relays fight packets
+    /// for pairs that cannot connect directly. It never simulates or inspects a fight.
+    /// Single-threaded; call <see cref="Update"/> in a loop.
+    /// </summary>
+    public sealed class RoomServer : IDisposable
+    {
+        public const int ClientTimeoutMs = 20000;
+        public const int KeepAliveMs = 1000;
+        public const int MaxClients = 4000;
+        public const int MaxRooms = 1000;
+        public const int RelayBytesPerSecond = 48 * 1024;
+        public const int MatchTimeoutMs = 30 * 60 * 1000;
+        public const int ChampionWaitMs = 30000;
+        public const int MaxClientsPerAddress = 8;
+        /// <summary>After one player reports, the other has this long before the match resolves anyway.</summary>
+        public const int SecondReportWaitMs = 45000;
+        /// <summary>Relay keeps forwarding a finished match briefly, for the final result/disconnect packets.</summary>
+        public const int RelayGraceMs = 10000;
+        public const int MaxFailedJoins = 5;
+        public const int JoinLockoutMs = 30000;
+
+        private sealed class Client
+        {
+            public uint Id, Token;
+            public IPEndPoint EndPoint;
+            public NetIdentity Identity;
+            public readonly List<IPEndPoint> Lan = new List<IPEndPoint>();
+            public readonly ReliableChannel Reliable = new ReliableChannel();
+            public long LastReceiveMs, LastSendMs = long.MinValue;
+            public Room Room;
+            public RoomMember Member;
+            public Match Match;
+            public long RelayWindowMs;
+            public int RelayBytes;
+            /// <summary>Asked to queue while still marked in a fight; applied when the fight resolves.</summary>
+            public bool QueueAfterMatch;
+            public Match LastMatch;
+            public long LastMatchEndedMs;
+            public int FailedJoins;
+            public long JoinLockedUntilMs;
+        }
+
+        private sealed class Room
+        {
+            public uint Id;
+            public string Code, Password;
+            public RoomSettings Settings;
+            public string Build, Content;
+            public readonly List<Client> Members = new List<Client>();
+            public readonly List<uint> Queue = new List<uint>();
+            public uint HostId, ChampionId;
+            public int Streak;
+            public Match Current;
+            public long ChampionAwaySinceMs = -1;
+        }
+
+        private sealed class Match
+        {
+            public uint Id, Secret;
+            public Room Room;
+            public Client Left, Right;
+            public MatchOutcome? LeftReport, RightReport;
+            public bool LeftGone, RightGone;
+            public long StartedMs;
+            public long FirstReportMs = -1;
+        }
+
+        private readonly UdpTransport _socket;
+        private readonly NetWriter _writer = new NetWriter(NetProtocol.MaxPacketSize + 32);
+        private readonly Dictionary<IPEndPoint, Client> _byEndPoint = new Dictionary<IPEndPoint, Client>();
+        private readonly Dictionary<uint, Room> _rooms = new Dictionary<uint, Room>();
+        private readonly Dictionary<string, Room> _byCode = new Dictionary<string, Room>(StringComparer.OrdinalIgnoreCase);
+        private readonly Random _random = new Random();
+        private readonly List<Client> _pendingDrops = new List<Client>();
+        private readonly List<Client> _scratchClients = new List<Client>();
+        private readonly List<Room> _scratchRooms = new List<Room>();
+        private readonly byte[] _cookieKey = new byte[32];
+        private readonly Action<EndPoint, byte[], int> _handler;
+        private uint _nextClientId = 1, _nextRoomId = 1, _nextMatchId = 1;
+        private long _nowMs;
+
+        public Action<string> Log { get; set; } = _ => { };
+        public int Port => _socket.LocalPort;
+        public int ClientCount => _byEndPoint.Count;
+        public int RoomCount => _rooms.Count;
+
+        public RoomServer(int port)
+        {
+            _socket = new UdpTransport(port);
+            _handler = OnDatagram;
+            using (var rng = System.Security.Cryptography.RandomNumberGenerator.Create()) rng.GetBytes(_cookieKey);
+        }
+
+        public void Dispose() => _socket.Dispose();
+
+        public void Update(long nowMs)
+        {
+            _nowMs = nowMs;
+            _socket.Poll(_handler);
+            DropPending();
+            _scratchClients.Clear();
+            _scratchClients.AddRange(_byEndPoint.Values);
+            foreach (var client in _scratchClients)
+            {
+                if (nowMs - client.LastReceiveMs > ClientTimeoutMs) { Drop(client, "timed out"); continue; }
+                if (client.LastSendMs == long.MinValue || nowMs - client.LastSendMs >= KeepAliveMs ||
+                    client.Reliable.PendingCount > 0 && nowMs - client.LastSendMs >= ReliableChannel.ResendMs)
+                    Flush(client);
+            }
+            DropPending();
+            _scratchRooms.Clear();
+            _scratchRooms.AddRange(_rooms.Values);
+            foreach (var room in _scratchRooms)
+            {
+                if (!_rooms.ContainsKey(room.Id)) continue;
+                if (room.Current != null && (nowMs - room.Current.StartedMs > MatchTimeoutMs ||
+                    room.Current.FirstReportMs >= 0 && nowMs - room.Current.FirstReportMs > SecondReportWaitMs))
+                    Resolve(room.Current, force: true);
+                if (room.ChampionAwaySinceMs >= 0 && nowMs - room.ChampionAwaySinceMs > ChampionWaitMs)
+                {
+                    // A champion who never came back gives up the spot.
+                    room.ChampionId = 0;
+                    room.Streak = 0;
+                    room.ChampionAwaySinceMs = -1;
+                    TryPair(room);
+                    Broadcast(room);
+                }
+            }
+            DropPending();
+        }
+
+        private void DropPending()
+        {
+            while (_pendingDrops.Count > 0)
+            {
+                var client = _pendingDrops[_pendingDrops.Count - 1];
+                _pendingDrops.RemoveAt(_pendingDrops.Count - 1);
+                Drop(client, "stopped acknowledging");
+            }
+        }
+
+        // ---- Transport ----
+
+        private void OnDatagram(EndPoint from, byte[] buffer, int length)
+        {
+            // One bad packet or client must never take the server down.
+            try { HandleDatagram(from, buffer, length); }
+            catch (NetFormatException) { }
+            catch (Exception exception) { Log("error handling a packet from " + from + ": " + exception); }
+        }
+
+        private void HandleDatagram(EndPoint from, byte[] buffer, int length)
+        {
+            if (!RoomProtocol.IsServerPacket(buffer, length)) return;
+            var endPoint = (IPEndPoint)from;
+            var reader = new NetReader(buffer, 0, length);
+            reader.U8(); reader.U8();
+            byte version = reader.U8();
+            byte kind = reader.U8();
+            uint token = reader.U32();
+            if (kind == RoomProtocol.KindHello) { HandleHello(endPoint, version, token, reader); return; }
+            if (!_byEndPoint.TryGetValue(endPoint, out var client) || client.Token != token) return;
+            client.LastReceiveMs = _nowMs;
+            switch (kind)
+            {
+                case RoomProtocol.KindData:
+                    client.Reliable.Read(reader);
+                    while (client.Reliable.TryReceive(out var message) && _byEndPoint.ContainsKey(endPoint)) HandleMessage(client, message);
+                    break;
+                case RoomProtocol.KindRelay:
+                    Relay(client, buffer, reader);
+                    break;
+                case RoomProtocol.KindBye:
+                    Drop(client, "left");
+                    break;
+            }
+        }
+
+        private void HandleHello(IPEndPoint from, byte version, uint token, NetReader reader)
+        {
+            if (version != RoomProtocol.Version)
+            {
+                SendReject(from, token, "The room server runs a different online version. Update the game.");
+                return;
+            }
+            if (_byEndPoint.TryGetValue(from, out var existing) && existing.Token == token) { SendWelcome(existing); return; }
+            var identity = NetIdentity.Read(reader);
+            var lanEndPoints = new List<IPEndPoint>();
+            int lan = reader.U8();
+            for (int i = 0; i < lan; i++)
+            {
+                var endPoint = RoomProtocol.ReadEndPoint(reader);
+                if (lanEndPoints.Count < RoomProtocol.MaxCandidates - 1) lanEndPoints.Add(endPoint);
+            }
+            uint cookie = reader.Remaining >= 4 ? reader.U32() : 0;
+            // No state and no reply larger than the request until the sender proves it receives at this address.
+            if (!CookieValid(from, token, cookie))
+            {
+                RoomProtocol.WriteHeader(_writer, RoomProtocol.KindChallenge, token);
+                _writer.U32(Cookie(from, token, _nowMs / 60000));
+                _socket.Send(from, _writer.Buffer, _writer.Length);
+                return;
+            }
+            if (existing != null) Drop(existing, "reconnected");
+            if (_byEndPoint.Count >= MaxClients) { SendReject(from, token, "The room server is full. Try again later."); return; }
+            int sameAddress = 0;
+            foreach (var other in _byEndPoint.Values) if (other.EndPoint.Address.Equals(from.Address)) sameAddress++;
+            if (sameAddress >= MaxClientsPerAddress) { SendReject(from, token, "Too many players from this address."); return; }
+            var client = new Client { Id = _nextClientId++, Token = token, EndPoint = from, Identity = identity, LastReceiveMs = _nowMs };
+            client.Lan.AddRange(lanEndPoints);
+            _byEndPoint[from] = client;
+            Log("client " + client.Id + " '" + identity.PlayerName + "' from " + from + " (" + identity.Build + ", " + identity.Content + ")");
+            SendWelcome(client);
+        }
+
+        private uint Cookie(IPEndPoint from, uint token, long minute)
+        {
+            var data = new byte[4 + 2 + 4 + 8];
+            Array.Copy(from.Address.GetAddressBytes(), 0, data, 0, Math.Min(4, from.Address.GetAddressBytes().Length));
+            data[4] = (byte)from.Port; data[5] = (byte)(from.Port >> 8);
+            BitConverter.GetBytes(token).CopyTo(data, 6);
+            BitConverter.GetBytes(minute).CopyTo(data, 10);
+            using (var hmac = new System.Security.Cryptography.HMACSHA256(_cookieKey))
+            {
+                uint value = BitConverter.ToUInt32(hmac.ComputeHash(data), 0);
+                return value == 0 ? 1u : value;
+            }
+        }
+
+        private bool CookieValid(IPEndPoint from, uint token, uint cookie)
+        {
+            if (cookie == 0) return false;
+            long minute = _nowMs / 60000;
+            return cookie == Cookie(from, token, minute) || cookie == Cookie(from, token, minute - 1);
+        }
+
+        private void SendWelcome(Client client)
+        {
+            RoomProtocol.WriteHeader(_writer, RoomProtocol.KindWelcome, client.Token);
+            _writer.U32(client.Id);
+            RoomProtocol.WriteEndPoint(_writer, client.EndPoint);
+            _socket.Send(client.EndPoint, _writer.Buffer, _writer.Length);
+        }
+
+        private void SendReject(IPEndPoint to, uint token, string reason)
+        {
+            RoomProtocol.WriteHeader(_writer, RoomProtocol.KindReject, token);
+            _writer.Str(reason);
+            _socket.Send(to, _writer.Buffer, _writer.Length);
+        }
+
+        private void Flush(Client client)
+        {
+            RoomProtocol.WriteHeader(_writer, RoomProtocol.KindData, client.Token);
+            client.Reliable.Write(_writer, _nowMs, 0);
+            _socket.Send(client.EndPoint, _writer.Buffer, _writer.Length);
+            client.LastSendMs = _nowMs;
+        }
+
+        private void Send(Client client, byte[] message)
+        {
+            try { client.Reliable.Send(message); }
+            catch (InvalidOperationException)
+            {
+                // Dropping here would change room lists mid-iteration; do it after this packet.
+                if (!_pendingDrops.Contains(client)) _pendingDrops.Add(client);
+            }
+        }
+
+        private void Relay(Client from, byte[] buffer, NetReader reader)
+        {
+            uint matchId = reader.U32();
+            var match = from.Match;
+            if ((match == null || match.Id != matchId) && from.LastMatch != null && from.LastMatch.Id == matchId &&
+                _nowMs - from.LastMatchEndedMs < RelayGraceMs)
+                match = from.LastMatch;
+            int payload = reader.Remaining;
+            if (match == null || match.Id != matchId || payload <= 0 || payload > NetProtocol.MaxPacketSize) return;
+            if (_nowMs - from.RelayWindowMs >= 1000) { from.RelayWindowMs = _nowMs; from.RelayBytes = 0; }
+            from.RelayBytes += payload;
+            if (from.RelayBytes > RelayBytesPerSecond) return;
+            var to = match.Left == from ? match.Right : match.Left;
+            if (to == null || !_byEndPoint.ContainsKey(to.EndPoint)) return;
+            RoomProtocol.WriteHeader(_writer, RoomProtocol.KindRelay, to.Token);
+            _writer.U32(matchId);
+            _writer.Bytes(buffer, reader.Position, payload);
+            _socket.Send(to.EndPoint, _writer.Buffer, _writer.Length);
+        }
+
+        // ---- Messages ----
+
+        private void HandleMessage(Client client, byte[] message)
+        {
+            try
+            {
+                var reader = new NetReader(message, 1, message.Length - 1);
+                switch ((RoomMessage)message[0])
+                {
+                    case RoomMessage.ListRooms: SendRoomList(client); break;
+                    case RoomMessage.CreateRoom: CreateRoom(client, RoomSettings.Read(reader), reader.Str()); break;
+                    case RoomMessage.JoinRoom: JoinRoom(client, reader.U32(), reader.Str(), reader.Str()); break;
+                    case RoomMessage.LeaveRoom: LeaveRoom(client, "You left the room."); break;
+                    case RoomMessage.SetMember: SetMember(client, reader.Str(), reader.Bool()); break;
+                    case RoomMessage.UpdateSettings: UpdateSettings(client, RoomSettings.Read(reader)); break;
+                    case RoomMessage.Kick: Kick(client, reader.U32()); break;
+                    case RoomMessage.MatchReport: Report(client, reader.U32(), (MatchOutcome)reader.U8(), reader.Str()); break;
+                }
+            }
+            catch (NetFormatException)
+            {
+                Send(client, RoomMessages.Error("The server could not read a request."));
+            }
+        }
+
+        private static bool Compatible(Client client, Room room) =>
+            client.Identity.Build == room.Build && client.Identity.Content == room.Content;
+
+        private void SendRoomList(Client client)
+        {
+            var listings = _rooms.Values.Where(room => Compatible(client, room))
+                .OrderByDescending(room => room.Members.Count).ThenBy(room => room.Id).Take(100)
+                .Select(room => new RoomListing
+                {
+                    Id = room.Id,
+                    Name = room.Settings.Name,
+                    HostName = room.Members.FirstOrDefault(member => member.Id == room.HostId)?.Identity.PlayerName ?? "",
+                    Players = room.Members.Count,
+                    MaxPlayers = room.Settings.MaxPlayers,
+                    Locked = !string.IsNullOrEmpty(room.Password),
+                    WinsRequired = room.Settings.WinsRequired,
+                    Rotation = room.Settings.Rotation,
+                }).ToList();
+            int start = 0;
+            do
+            {
+                Send(client, RoomMessages.RoomList(listings, start, out int written));
+                start += written;
+            } while (start < listings.Count);
+        }
+
+        private void CreateRoom(Client client, RoomSettings settings, string password)
+        {
+            string problem = settings.Validate();
+            if (problem != null) { Send(client, RoomMessages.Error(problem)); return; }
+            if (_rooms.Count >= MaxRooms) { Send(client, RoomMessages.Error("The server has too many rooms. Join one instead.")); return; }
+            if (client.Room != null) LeaveRoom(client, null);
+            var room = new Room
+            {
+                Id = _nextRoomId++,
+                Code = NewCode(),
+                Password = password ?? "",
+                Settings = settings.Copy(),
+                Build = client.Identity.Build,
+                Content = client.Identity.Content,
+                HostId = client.Id,
+            };
+            _rooms[room.Id] = room;
+            _byCode[room.Code] = room;
+            Log("room " + room.Id + " '" + settings.Name + "' code " + room.Code + " by client " + client.Id);
+            AddMember(room, client);
+        }
+
+        private void JoinRoom(Client client, uint roomId, string code, string password)
+        {
+            if (_nowMs < client.JoinLockedUntilMs) { Send(client, RoomMessages.Error("Too many failed attempts. Wait a moment.")); return; }
+            Room room = null;
+            if (roomId != 0) _rooms.TryGetValue(roomId, out room);
+            else if (!string.IsNullOrWhiteSpace(code)) _byCode.TryGetValue(code.Trim(), out room);
+            if (room == null) { FailedJoin(client); Send(client, RoomMessages.Error("No room with that code.")); return; }
+            if (client.Room == room) { Send(client, StateFor(room)); return; }
+            if (client.Identity.Build != room.Build)
+            { Send(client, RoomMessages.Error("That room runs a different game build (" + room.Build + ").")); return; }
+            if (client.Identity.Content != room.Content)
+            { Send(client, RoomMessages.Error("That room uses different mods. Everyone needs the same mods and versions.")); return; }
+            if (!string.IsNullOrEmpty(room.Password) && room.Password != password) { FailedJoin(client); Send(client, RoomMessages.Error("Wrong room password.")); return; }
+            client.FailedJoins = 0;
+            if (room.Members.Count >= room.Settings.MaxPlayers) { Send(client, RoomMessages.Error("That room is full.")); return; }
+            if (client.Room != null) LeaveRoom(client, null);
+            AddMember(room, client);
+        }
+
+        private void FailedJoin(Client client)
+        {
+            if (++client.FailedJoins < MaxFailedJoins) return;
+            client.FailedJoins = 0;
+            client.JoinLockedUntilMs = _nowMs + JoinLockoutMs;
+        }
+
+        private void AddMember(Room room, Client client)
+        {
+            client.Room = room;
+            client.Member = new RoomMember { Id = client.Id, Name = client.Identity.PlayerName, Status = MemberStatus.Idle };
+            room.Members.Add(client);
+            Broadcast(room);
+        }
+
+        private void LeaveRoom(Client client, string reason)
+        {
+            var room = client.Room;
+            if (room == null) return;
+            var match = client.Match;
+            if (match != null)
+            {
+                if (match.Left == client) match.LeftGone = true; else match.RightGone = true;
+                client.Match = null;
+                Resolve(match, force: false);
+            }
+            room.Members.Remove(client);
+            room.Queue.Remove(client.Id);
+            client.Room = null;
+            client.Member = null;
+            if (room.ChampionId == client.Id) { room.ChampionId = 0; room.Streak = 0; room.ChampionAwaySinceMs = -1; }
+            if (reason != null) Send(client, RoomMessages.LeftRoom(reason));
+            if (room.Members.Count == 0)
+            {
+                _rooms.Remove(room.Id);
+                _byCode.Remove(room.Code);
+                Log("room " + room.Id + " closed");
+                return;
+            }
+            if (room.HostId == client.Id) room.HostId = room.Members[0].Id;
+            TryPair(room);
+            Broadcast(room);
+        }
+
+        private void SetMember(Client client, string weapon, bool queued)
+        {
+            var room = client.Room;
+            if (room == null || client.Member == null) return;
+            if (IsIdentifier(weapon)) client.Member.Weapon = weapon;
+            if (client.Member.Status == MemberStatus.InMatch) client.QueueAfterMatch = queued;
+            else
+            {
+                if (queued)
+                {
+                    client.Member.Status = MemberStatus.Queued;
+                    if (!room.Queue.Contains(client.Id))
+                    {
+                        // The champion goes straight back to the front.
+                        if (room.ChampionId == client.Id) room.Queue.Insert(0, client.Id);
+                        else room.Queue.Add(client.Id);
+                    }
+                    if (room.ChampionId == client.Id) room.ChampionAwaySinceMs = -1;
+                }
+                else
+                {
+                    client.Member.Status = MemberStatus.Idle;
+                    room.Queue.Remove(client.Id);
+                    if (room.ChampionId == client.Id) { room.ChampionId = 0; room.Streak = 0; room.ChampionAwaySinceMs = -1; }
+                }
+            }
+            TryPair(room);
+            Broadcast(room);
+        }
+
+        /// <summary>Weapon ids are short ASCII identifiers; anything else is ignored.</summary>
+        private static bool IsIdentifier(string value)
+        {
+            if (string.IsNullOrEmpty(value) || value.Length > 24) return false;
+            foreach (char c in value)
+                if (!(c >= 'A' && c <= 'Z' || c >= 'a' && c <= 'z' || c >= '0' && c <= '9' || c == '_')) return false;
+            return true;
+        }
+
+        private void UpdateSettings(Client client, RoomSettings settings)
+        {
+            var room = client.Room;
+            if (room == null) return;
+            if (room.HostId != client.Id) { Send(client, RoomMessages.Error("Only the room host can change settings.")); return; }
+            string problem = settings.Validate();
+            if (problem == null && settings.MaxPlayers < room.Members.Count) problem = "The room already has " + room.Members.Count + " players.";
+            if (problem != null) { Send(client, RoomMessages.Error(problem)); return; }
+            if (room.Settings.Rotation != settings.Rotation) { room.ChampionId = 0; room.Streak = 0; room.ChampionAwaySinceMs = -1; }
+            room.Settings = settings.Copy();
+            TryPair(room);
+            Broadcast(room);
+        }
+
+        private void Kick(Client client, uint memberId)
+        {
+            var room = client.Room;
+            if (room == null || room.HostId != client.Id || memberId == client.Id) return;
+            var target = room.Members.Find(member => member.Id == memberId);
+            if (target == null) return;
+            // Removing a fighter mid-match would hand the host a win by disconnect.
+            if (target.Member.Status == MemberStatus.InMatch) { Send(client, RoomMessages.Error("Wait until their fight ends.")); return; }
+            LeaveRoom(target, "The host removed you from the room.");
+        }
+
+        // ---- Matches ----
+
+        private void TryPair(Room room)
+        {
+            if (room.Current != null) return;
+            room.Queue.RemoveAll(id => room.Members.All(member => member.Id != id || member.Member.Status != MemberStatus.Queued));
+            if (room.Settings.Rotation == RoomRotation.WinnerStays && room.ChampionId != 0)
+            {
+                var champion = room.Members.Find(member => member.Id == room.ChampionId);
+                if (champion == null) { room.ChampionId = 0; room.Streak = 0; }
+                else if (champion.Member.Status == MemberStatus.Away) return; // The winner stays: wait for them to continue.
+            }
+            if (room.Queue.Count < 2) return;
+            var left = room.Members.Find(member => member.Id == room.Queue[0]);
+            var right = room.Members.Find(member => member.Id == room.Queue[1]);
+            room.Queue.RemoveRange(0, 2);
+            var match = new Match
+            {
+                Id = _nextMatchId++,
+                Secret = (uint)_random.Next(1, int.MaxValue),
+                Room = room,
+                Left = left,
+                Right = right,
+                StartedMs = _nowMs,
+            };
+            room.Current = match;
+            left.Match = right.Match = match;
+            left.Member.Status = right.Member.Status = MemberStatus.InMatch;
+            int seed = _random.Next();
+            Send(left, PairingFor(match, left, right, 0, seed).Encode());
+            Send(right, PairingFor(match, right, left, 1, seed).Encode());
+            Log("match " + match.Id + " in room " + room.Id + ": " + left.Identity.PlayerName + " vs " + right.Identity.PlayerName);
+        }
+
+        private static RoomPairing PairingFor(Match match, Client self, Client peer, int side, int seed)
+        {
+            var pairing = new RoomPairing
+            {
+                MatchId = match.Id,
+                Secret = match.Secret,
+                Side = side,
+                PeerId = peer.Id,
+                PeerName = peer.Identity.PlayerName,
+                PeerWeapon = peer.Member.Weapon,
+                Seed = seed,
+            };
+            pairing.Candidates.Add(peer.EndPoint);
+            foreach (var lan in peer.Lan)
+                if (!lan.Equals(peer.EndPoint) && pairing.Candidates.Count < RoomProtocol.MaxCandidates) pairing.Candidates.Add(lan);
+            return pairing;
+        }
+
+        private void Report(Client client, uint matchId, MatchOutcome outcome, string reason)
+        {
+            var match = client.Match;
+            if (match == null || match.Id != matchId || outcome > MatchOutcome.Aborted) return;
+            if (match.Left == client) match.LeftReport = outcome; else match.RightReport = outcome;
+            if (match.FirstReportMs < 0) match.FirstReportMs = _nowMs;
+            if (outcome == MatchOutcome.Aborted) Log("match " + match.Id + " aborted by " + client.Identity.PlayerName + ": " + reason);
+            Resolve(match, force: false);
+        }
+
+        private void Resolve(Match match, bool force)
+        {
+            var room = match.Room;
+            if (room.Current != match) return;
+            bool leftDone = match.LeftReport.HasValue || match.LeftGone;
+            bool rightDone = match.RightReport.HasValue || match.RightGone;
+            if (!force && !(leftDone && rightDone)) return;
+            MatchOutcome outcome;
+            if (match.LeftReport.HasValue && match.RightReport.HasValue)
+                outcome = match.LeftReport == match.RightReport ? match.LeftReport.Value : MatchOutcome.Aborted;
+            else if (match.LeftReport.HasValue && match.RightGone)
+                outcome = match.LeftReport == MatchOutcome.LeftWon ? MatchOutcome.LeftWon : MatchOutcome.Aborted;
+            else if (match.RightReport.HasValue && match.LeftGone)
+                outcome = match.RightReport == MatchOutcome.RightWon ? MatchOutcome.RightWon : MatchOutcome.Aborted;
+            else outcome = MatchOutcome.Aborted;
+
+            room.Current = null;
+            foreach (var player in new[] { match.Left, match.Right })
+            {
+                if (player.Match == match) player.Match = null;
+                player.LastMatch = match;
+                player.LastMatchEndedMs = _nowMs;
+                if (player.Room == room && player.Member != null) player.Member.Status = MemberStatus.Away;
+            }
+            if (outcome == MatchOutcome.LeftWon || outcome == MatchOutcome.RightWon)
+            {
+                var winner = outcome == MatchOutcome.LeftWon ? match.Left : match.Right;
+                var loser = outcome == MatchOutcome.LeftWon ? match.Right : match.Left;
+                if (winner.Member != null) winner.Member.Wins++;
+                if (loser.Member != null) loser.Member.Losses++;
+                if (room.Settings.Rotation == RoomRotation.WinnerStays && winner.Room == room)
+                {
+                    room.Streak = room.ChampionId == winner.Id ? room.Streak + 1 : 1;
+                    room.ChampionId = winner.Id;
+                    room.ChampionAwaySinceMs = _nowMs;
+                }
+                else { room.ChampionId = 0; room.Streak = 0; }
+            }
+            else if (room.ChampionId != 0 && (room.ChampionId == match.Left.Id || room.ChampionId == match.Right.Id))
+            {
+                room.ChampionAwaySinceMs = _nowMs;
+            }
+            Log("match " + match.Id + " result " + outcome);
+            // Anyone who already asked to queue again (continued before the other report) goes straight in.
+            foreach (var player in new[] { match.Left, match.Right })
+            {
+                if (!player.QueueAfterMatch || player.Room != room || player.Member == null) continue;
+                player.QueueAfterMatch = false;
+                player.Member.Status = MemberStatus.Queued;
+                if (!room.Queue.Contains(player.Id))
+                {
+                    if (room.ChampionId == player.Id) { room.Queue.Insert(0, player.Id); room.ChampionAwaySinceMs = -1; }
+                    else room.Queue.Add(player.Id);
+                }
+            }
+            TryPair(room);
+            Broadcast(room);
+        }
+
+        // ---- Helpers ----
+
+        private void Drop(Client client, string why)
+        {
+            if (!_byEndPoint.Remove(client.EndPoint)) return;
+            LeaveRoom(client, null);
+            Log("client " + client.Id + " " + why);
+        }
+
+        private byte[] StateFor(Room room)
+        {
+            var state = new RoomState
+            {
+                RoomId = room.Id,
+                Code = room.Code,
+                Settings = room.Settings,
+                Locked = !string.IsNullOrEmpty(room.Password),
+                HostId = room.HostId,
+                ChampionId = room.ChampionId,
+                Streak = room.Streak,
+                MatchId = room.Current?.Id ?? 0,
+                LeftId = room.Current?.Left.Id ?? 0,
+                RightId = room.Current?.Right.Id ?? 0,
+            };
+            foreach (var member in room.Members) state.Members.Add(member.Member);
+            state.Queue.AddRange(room.Queue);
+            return state.Encode();
+        }
+
+        private void Broadcast(Room room)
+        {
+            if (!_rooms.ContainsKey(room.Id)) return;
+            byte[] state = StateFor(room);
+            foreach (var member in room.Members.ToArray()) Send(member, state);
+        }
+
+        private string NewCode()
+        {
+            const string alphabet = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+            for (;;)
+            {
+                var chars = new char[6];
+                for (int i = 0; i < chars.Length; i++) chars[i] = alphabet[_random.Next(alphabet.Length)];
+                string code = new string(chars);
+                if (!_byCode.ContainsKey(code)) return code;
+            }
+        }
+    }
+}

@@ -6,7 +6,7 @@ using UnityEngine.SceneManagement;
 
 namespace Eclipse.Multiplayer
 {
-    public sealed class LocalVersusMenu : MonoBehaviour
+    public sealed partial class LocalVersusMenu : MonoBehaviour
     {
         private static readonly Color Ink = new Color32(30, 25, 22, 255);
         private static readonly Color Paper = new Color32(223, 207, 177, 255);
@@ -27,8 +27,7 @@ namespace Eclipse.Multiplayer
         private Page page;
         public bool IsShowing { get; private set; }
         // Lets the loading overlay step aside once the local versus lobby is up.
-        public static bool LobbyVisible => instance != null && instance.IsShowing &&
-            (instance.page == Page.Lobby || instance.page == Page.OnlineSetup || instance.page == Page.OnlineLobby);
+        public static bool LobbyVisible => instance != null && instance.IsShowing && instance.IsBackdropPage;
         /// <summary>While any versus menu covers the fight, local devices send neutral input.</summary>
         public static bool BlocksFightInput => instance != null && instance.IsShowing;
         private readonly System.Collections.Generic.List<(UnityEngine.UI.Text label, Func<string> value)> liveLabels =
@@ -36,7 +35,11 @@ namespace Eclipse.Multiplayer
         private OnlinePhase builtPhase;
         private UnityEngine.UI.InputField nameField, addressField, portField;
 
-        private enum Page { Hidden, Lobby, Pause, Result, OnlineSetup, OnlineLobby }
+        private enum Page { Hidden, Lobby, Pause, Result, OnlineSetup, OnlineLobby, OnlineHome, RoomBrowser, RoomCreate, Room }
+
+        /// <summary>Menu pages drawn on the opaque lobby backdrop rather than over a fight.</summary>
+        private bool IsBackdropPage => page == Page.Lobby || page == Page.OnlineSetup || page == Page.OnlineLobby ||
+            page == Page.OnlineHome || page == Page.RoomBrowser || page == Page.RoomCreate || page == Page.Room;
 
         public static LocalVersusMenu Ensure()
         {
@@ -139,7 +142,7 @@ namespace Eclipse.Multiplayer
                         sharedKeyboard: sharedKeyboard));
                 });
                 var row = AddRow(body);
-                AddButton(row, "PLAY ONLINE", ShowOnlineSetup, 0);
+                AddButton(row, "PLAY ONLINE", ShowOnlineHome, 0);
                 AddButton(row, "WATCH LAST REPLAY", WatchLastReplay, 0);
                 AddButton(body, "RETURN TO TITLE", LocalVersusSession.ReturnToTitle);
             });
@@ -209,7 +212,7 @@ namespace Eclipse.Multiplayer
             if (OnlineVersusSession.IsActive) { ShowOnlineLobby(); return; }
             EnsureEventSystem();
             page = Page.OnlineSetup;
-            Rebuild("ONLINE VERSUS", "Host a match, or join a friend's", body =>
+            Rebuild("DIRECT CONNECT", "Host a match, or join a friend's address", body =>
             {
                 nameField = AddTextField(body, "YOUR NAME", OnlineVersusSession.SavedName, 24);
                 addressField = AddTextField(body, "HOST ADDRESS", OnlineVersusSession.SavedAddress, 80, "e.g. 192.168.1.20:" + NetProtocolPort());
@@ -217,7 +220,7 @@ namespace Eclipse.Multiplayer
                 portField.contentType = UnityEngine.UI.InputField.ContentType.IntegerNumber;
                 AddButton(body, "HOST GAME", HostOnline);
                 AddButton(body, "JOIN GAME", JoinOnline);
-                AddButton(body, "BACK", ShowLobby);
+                AddButton(body, "BACK", ShowOnlineHome);
             });
             SetStatus("Both players need the same game version and mods. Hosting over the internet needs the UDP port forwarded, or a VPN such as Tailscale.");
         }
@@ -305,6 +308,7 @@ namespace Eclipse.Multiplayer
             int localSide = session != null && !session.IsHost ? 1 : 0;
             string title = winner < 0 ? "MATCH ENDED" : winner == localSide ? "YOU WIN" : "YOU LOSE";
             var settings = LocalVersusSession.Settings;
+            if (session != null && session.RoomMatch != null) { ShowRoomResult(title, playerOneWins, playerTwoWins, message); return; }
             Rebuild(title, settings.PlayerOneName + "  " + playerOneWins + "  :  " + playerTwoWins + "  " + settings.PlayerTwoName, body =>
             {
                 if (session != null && session.Phase != OnlinePhase.Closed)
@@ -502,7 +506,7 @@ namespace Eclipse.Multiplayer
             liveLabels.Clear();
             for (int i = panel.childCount - 1; i >= 0; i--) { panel.GetChild(i).gameObject.SetActive(false); Destroy(panel.GetChild(i).gameObject); }
             // The lobby has no match behind it; pause and results keep the fight visible under an ink wash.
-            SetImage(panel, page == Page.Lobby || page == Page.OnlineSetup || page == Page.OnlineLobby ? Ink : new Color(20f / 255f, 14f / 255f, 11f / 255f, .7f));
+            SetImage(panel, IsBackdropPage ? Ink : new Color(20f / 255f, 14f / 255f, 11f / 255f, .7f));
             var paper = Rect(panel, "Paper"); paper.anchorMin = paper.anchorMax = paper.pivot = new Vector2(.5f, .5f); paper.sizeDelta = new Vector2(760, 660);
             var card = paper.gameObject.AddComponent<Eclipse.UI.PaperPanel>(); card.color = Paper; card.raycastTarget = true;
             // Title painted on a red brush stroke rather than a flat band.

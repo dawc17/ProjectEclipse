@@ -10,8 +10,9 @@ namespace Eclipse.Multiplayer.Online
     /// </summary>
     public sealed class ReliableChannel
     {
-        public const int MaxMessageSize = 400;
+        public const int MaxMessageSize = 1000;
         public const int MaxPending = 256;
+        public const int MaxEarly = 32;
         public const int ResendMs = 120;
 
         private sealed class Outgoing
@@ -91,7 +92,8 @@ namespace Eclipse.Multiplayer.Online
             if (SeqLess(seq, _nextReceiveSeq)) return; // duplicate
             if (seq != _nextReceiveSeq)
             {
-                if (_early.Count < MaxPending) _early[seq] = payload;
+                // Only a short window ahead is buffered; the sender resends anything dropped.
+                if (_early.Count < MaxEarly && (ushort)(seq - _nextReceiveSeq) < MaxEarly) _early[seq] = payload;
                 return;
             }
             _delivered.Enqueue(payload);

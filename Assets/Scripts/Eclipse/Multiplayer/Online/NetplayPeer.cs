@@ -26,9 +26,10 @@ namespace Eclipse.Multiplayer.Online
         public const int KeepAliveMs = 100;
         public const int TimeoutMs = 20000;
 
-        private readonly System.Net.Sockets.Socket _socket;
+        private readonly INetTransport _transport;
+        private readonly bool _ownsTransport;
+        private readonly Action<EndPoint, byte[], int> _handler;
         private readonly NetWriter _writer = new NetWriter();
-        private readonly byte[] _receiveBuffer = new byte[2048];
         private readonly NetIdentity _identity;
         private ReliableChannel _reliable = new ReliableChannel();
         private EndPoint _remote;
@@ -45,7 +46,7 @@ namespace Eclipse.Multiplayer.Online
         public NetplayState State { get; private set; }
         public string CloseReason { get; private set; } = string.Empty;
         public NetIdentity RemoteIdentity { get; private set; }
-        public int LocalPort => ((IPEndPoint)_socket.LocalEndPoint).Port;
+        public int LocalPort => _transport.LocalPort;
         public EndPoint RemoteEndPoint => _remote;
         /// <summary>Smoothed round-trip time in milliseconds, or -1 before the first sample.</summary>
         public int RttMs { get; private set; } = -1;
@@ -63,42 +64,62 @@ namespace Eclipse.Multiplayer.Online
         private readonly Random _simulationRandom = new Random(7);
         private long _nowMs;
 
-        private NetplayPeer(bool host, NetIdentity identity, int port, long nowMs)
+        private NetplayPeer(bool host, NetIdentity identity, INetTransport transport, bool ownsTransport, long nowMs)
         {
             IsHost = host;
             _identity = identity ?? throw new ArgumentNullException(nameof(identity));
-            _socket = new System.Net.Sockets.Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp) { Blocking = false };
-            DisableConnectionReset(_socket);
-            _socket.Bind(new IPEndPoint(IPAddress.Any, port));
+            _transport = transport ?? throw new ArgumentNullException(nameof(transport));
+            _ownsTransport = ownsTransport;
+            _handler = (from, buffer, length) => Handle(from, buffer, length, _nowMs);
             _startedMs = nowMs;
             LastReceiveMs = nowMs;
             State = host ? NetplayState.WaitingForGuest : NetplayState.Connecting;
         }
 
+        /// <summary>Hosts on its own UDP socket (direct connect).</summary>
         public static NetplayPeer Host(int port, NetIdentity identity, long nowMs)
         {
-            return new NetplayPeer(true, identity, port, nowMs);
+            return new NetplayPeer(true, identity, new UdpTransport(port), true, nowMs);
         }
 
+        /// <summary>Joins a host from its own UDP socket (direct connect).</summary>
         public static NetplayPeer Join(IPEndPoint host, NetIdentity identity, long nowMs)
         {
             if (host == null) throw new ArgumentNullException(nameof(host));
-            var peer = new NetplayPeer(false, identity, 0, nowMs)
+            return Join(new UdpTransport(0), true, host, identity, nowMs);
+        }
+
+        /// <summary>Hosts over a transport someone else owns, such as a room's routed path.</summary>
+        public static NetplayPeer Host(INetTransport transport, NetIdentity identity, long nowMs)
+        {
+            return new NetplayPeer(true, identity, transport, false, nowMs);
+        }
+
+        public static NetplayPeer Join(INetTransport transport, EndPoint host, NetIdentity identity, long nowMs)
+        {
+            return Join(transport, false, host, identity, nowMs);
+        }
+
+        private static NetplayPeer Join(INetTransport transport, bool owns, EndPoint host, NetIdentity identity, long nowMs)
+        {
+            return new NetplayPeer(false, identity, transport, owns, nowMs)
             {
-                _remote = host,
+                _remote = host ?? throw new ArgumentNullException(nameof(host)),
                 _token = (uint)new Random().Next(1, int.MaxValue),
             };
-            return peer;
         }
 
         /// <summary>Parses "host", "host:port", "[v6]:port" is not supported; IPv4 and DNS names are.</summary>
-        public static bool TryParseAddress(string text, out IPEndPoint endPoint, out string error)
+        public static bool TryParseAddress(string text, out IPEndPoint endPoint, out string error) =>
+            TryParseAddress(text, NetProtocol.DefaultPort, out endPoint, out error);
+
+        public static bool TryParseAddress(string text, int defaultPort, out IPEndPoint endPoint, out string error)
         {
             endPoint = null;
             error = null;
             text = (text ?? string.Empty).Trim();
             if (text.Length == 0) { error = "Enter the host's address."; return false; }
-            int port = NetProtocol.DefaultPort;
+            int port = defaultPort;
             string hostName = text;
             int colon = text.LastIndexOf(':');
             if (colon >= 0)
@@ -191,34 +212,19 @@ namespace Eclipse.Multiplayer.Online
         public void Dispose()
         {
             Close("Left the session.");
-            _socket.Close();
+            if (_ownsTransport) _transport.Dispose();
         }
 
         private void Receive(long nowMs)
         {
-            for (int guard = 0; guard < 256; guard++)
-            {
-                EndPoint from = new IPEndPoint(IPAddress.Any, 0);
-                int length;
-                try
-                {
-                    if (_socket.Available <= 0) return;
-                    length = _socket.ReceiveFrom(_receiveBuffer, ref from);
-                }
-                catch (SocketException exception) when (exception.SocketErrorCode == SocketError.WouldBlock ||
-                    exception.SocketErrorCode == SocketError.ConnectionReset || exception.SocketErrorCode == SocketError.MessageSize)
-                {
-                    continue;
-                }
-                try { Handle(from, length, nowMs); }
-                catch (NetFormatException) { /* Malformed datagram; drop it. */ }
-                if (State == NetplayState.Closed) return;
-            }
+            _nowMs = nowMs;
+            _transport.Poll(_handler);
         }
 
-        private void Handle(EndPoint from, int length, long nowMs)
+        private void Handle(EndPoint from, byte[] buffer, int length, long nowMs)
         {
-            var reader = new NetReader(_receiveBuffer, 0, length);
+            if (State == NetplayState.Closed) return;
+            var reader = new NetReader(buffer, 0, length);
             if (!NetProtocol.TryReadHeader(reader, out var version, out var kind, out var token)) return;
             if (IsHost && kind == NetProtocol.KindConnect) { HandleConnect(from, version, token, reader, nowMs); return; }
             if (_remote == null || !from.Equals(_remote) || token != _token) return;
@@ -324,12 +330,7 @@ namespace Eclipse.Multiplayer.Online
             SendBytes(to, _writer.Buffer, _writer.Length);
         }
 
-        private void SendBytes(EndPoint to, byte[] data, int length)
-        {
-            try { _socket.SendTo(data, 0, length, SocketFlags.None, to); }
-            catch (SocketException) { /* Transient network failures surface as timeouts. */ }
-            catch (ObjectDisposedException) { }
-        }
+        private void SendBytes(EndPoint to, byte[] data, int length) => _transport.Send(to, data, length);
 
         private void ReleaseDelayed(long nowMs)
         {
@@ -355,16 +356,5 @@ namespace Eclipse.Multiplayer.Online
             return text.Length > 120 ? text.Substring(0, 120) : text;
         }
 
-        private static void DisableConnectionReset(System.Net.Sockets.Socket socket)
-        {
-            // Windows reports ICMP port-unreachable as ConnectionReset on later receives.
-            if (Environment.OSVersion.Platform != PlatformID.Win32NT) return;
-            try
-            {
-                const int SioUdpConnReset = -1744830452;
-                socket.IOControl(SioUdpConnReset, new byte[] { 0 }, null);
-            }
-            catch (Exception) { }
-        }
     }
 }

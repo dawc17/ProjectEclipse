@@ -10,7 +10,7 @@ internal static class Program
 {
     private static int _checks;
 
-    private static void Check(bool condition, string message)
+    internal static void Check(bool condition, string message)
     {
         _checks++;
         if (!condition) throw new Exception("FAIL: " + message);
@@ -31,6 +31,7 @@ internal static class Program
             UdpMatch(latencyMs: 0, lossPercent: 0, delay: 2);
             UdpMatch(latencyMs: 40, lossPercent: 10, delay: 4);
             UdpDisconnectNotifies();
+            RoomTests.Run(Check);
             Console.WriteLine("PASS: " + _checks + " online versus core checks.");
             return 0;
         }

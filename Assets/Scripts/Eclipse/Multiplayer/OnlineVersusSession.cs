@@ -2,6 +2,7 @@ using System;
 using System.Diagnostics;
 using System.Linq;
 using Eclipse.Multiplayer.Online;
+using Eclipse.Multiplayer.Online.Rooms;
 using UnityEngine;
 using Debug = UnityEngine.Debug;
 
@@ -120,6 +121,77 @@ namespace Eclipse.Multiplayer
             Debug.Log("[Online] Joining " + endPoint + ".");
         }
 
+        /// <summary>
+        /// One fight arranged by a room: the peer is already routed (punched or relayed),
+        /// both sides are ready, and the host starts with the room's settings as soon as
+        /// it has a ping sample to pick the input delay from.
+        /// </summary>
+        public static void StartRoomFight(NetplayPeer peer, RoomPairing pairing, RoomSettings settings, string playerName, string localWeapon)
+        {
+            var session = Create(playerName);
+            session.Peer = peer;
+            session.RoomMatch = pairing;
+            session._roomStartedMs = NowMs;
+            session.LocalWeapon = Array.IndexOf(LocalVersusMatch.WeaponIds, localWeapon) >= 0 ? localWeapon : LocalVersusMatch.WeaponIds[0];
+            session.LocalReady = true;
+            session.Phase = peer.IsHost ? OnlinePhase.Hosting : OnlinePhase.Connecting;
+            string arena = settings.Arena;
+            if (Array.IndexOf(LocalVersusMatch.ArenaIds, arena) < 0)
+                arena = LocalVersusMatch.ArenaIds[(int)((uint)pairing.Seed % (uint)LocalVersusMatch.ArenaIds.Length)];
+            session.Lobby = new LobbyState
+            {
+                HostWeapon = session.LocalWeapon,
+                Arena = arena,
+                WinsRequired = settings.WinsRequired,
+                RoundTimeSeconds = settings.RoundTimeSeconds,
+                InputDelay = NetProtocol.DefaultInputDelay,
+            };
+            Debug.Log("[Online] Room match " + pairing.MatchId + " vs " + pairing.PeerName + " as " + (peer.IsHost ? "host" : "guest") + ".");
+        }
+
+        /// <summary>Set when this session is one fight arranged by a room.</summary>
+        public RoomPairing RoomMatch { get; private set; }
+        /// <summary>Raised once with this side's view of how the room fight ended.</summary>
+        public static event Action<RoomPairing, MatchOutcome, string> RoomFightOver;
+        private long _roomStartedMs, _roomConnectedMs = -1;
+        private bool _roomReported;
+
+        private void ReportRoomFight(MatchOutcome outcome, string reason)
+        {
+            if (RoomMatch == null || _roomReported) return;
+            _roomReported = true;
+            Debug.Log("[Online] Room match " + RoomMatch.MatchId + " over: " + outcome + (string.IsNullOrEmpty(reason) ? "" : " (" + reason + ")"));
+            RoomFightOver?.Invoke(RoomMatch, outcome, reason ?? "");
+        }
+
+        /// <summary>This side's winner (0 left, 1 right, -1 none) as a room outcome.</summary>
+        private static MatchOutcome OutcomeFor(int winner) =>
+            winner == 0 ? MatchOutcome.LeftWon : winner == 1 ? MatchOutcome.RightWon : MatchOutcome.Draw;
+
+        public const int RoomConnectTimeoutMs = 15000;
+
+        private void UpdateRoomFight()
+        {
+            if (RoomMatch == null) return;
+            if ((Phase == OnlinePhase.Hosting || Phase == OnlinePhase.Connecting) && NowMs - _roomStartedMs > RoomConnectTimeoutMs)
+            {
+                // The opponent never arrived (crashed, or no path either way).
+                Peer.Close("Could not connect to " + RoomMatch.PeerName + ".", false);
+                return;
+            }
+            if (!IsHost || Phase != OnlinePhase.Lobby || !Lobby.GuestReady) return;
+            if (_roomConnectedMs < 0) _roomConnectedMs = NowMs;
+            // Wait briefly for a ping sample so the delay suits the connection.
+            if (Peer.RttMs < 0 && NowMs - _roomConnectedMs < 2500) return;
+            if (NowMs - _roomConnectedMs < 600) return;
+            Lobby.InputDelay = SuggestedDelay;
+            _seedOverride = RoomMatch.Seed;
+            try { HostStart(); }
+            catch (Exception exception) { Debug.LogException(exception); }
+        }
+
+        private int? _seedOverride;
+
         public static void Shutdown(string reason = "Left the session.")
         {
             var session = Current;
@@ -212,6 +284,7 @@ namespace Eclipse.Multiplayer
             if (Peer == null) return;
             if (_source != null && _source.Timeline.DesyncTick >= 0 && SyncProblem == null) OnDesync(_source.Timeline.DesyncTick);
             if (Peer.State == NetplayState.Closed && Phase != OnlinePhase.Closed) OnClosed(Peer.CloseReason);
+            UpdateRoomFight();
         }
 
         private void OnConnected()
@@ -289,8 +362,9 @@ namespace Eclipse.Multiplayer
                 WinsRequired = Lobby.WinsRequired,
                 RoundTimeSeconds = Lobby.RoundTimeSeconds,
                 InputDelay = Lobby.InputDelay,
-                Seed = new System.Random().Next(),
+                Seed = _seedOverride ?? new System.Random().Next(),
             };
+            _seedOverride = null;
             Peer.SendReliable(start.Encode());
             BeginMatch(start);
         }
@@ -377,6 +451,7 @@ namespace Eclipse.Multiplayer
             _localResult = (winner, leftRounds, rightRounds, finalTick);
             if (CurrentMatch != null) Peer.SendReliable(NetMessages.MatchResult(CurrentMatch.MatchIndex, winner < 0 ? 255 : winner, leftRounds, rightRounds, finalTick));
             CompareResults();
+            ReportRoomFight(OutcomeFor(winner), null);
             if (_remoteLeftToLobby) ShowLobbyFromResult();
         }
 
@@ -386,6 +461,7 @@ namespace Eclipse.Multiplayer
             Peer.SendReliable(NetMessages.Simple(NetMessageType.Forfeit, CurrentMatch.MatchIndex));
             Notice = "You forfeited the match.";
             Phase = OnlinePhase.Result;
+            ReportRoomFight(OutcomeFor(IsHost ? 1 : 0), "forfeit");
             EndMatchEarly(IsHost ? 1 : 0, Notice);
         }
 
@@ -437,6 +513,7 @@ namespace Eclipse.Multiplayer
         {
             if (SyncProblem != null || Phase == OnlinePhase.Closed) return;
             SyncProblem = "The games fell out of sync at tick " + tick + ". A replay was saved for diagnosis.";
+            ReportRoomFight(MatchOutcome.Aborted, "desync at tick " + tick);
             Debug.LogError("[Online] Desync at tick " + tick + ". " + VersusStateHash.Describe(Fight.GetCurrentFight()));
             if (CurrentMatch != null)
             {
@@ -517,6 +594,7 @@ namespace Eclipse.Multiplayer
                         {
                             Notice = RemoteName + " forfeited the match.";
                             Phase = OnlinePhase.Result;
+                            ReportRoomFight(OutcomeFor(IsHost ? 0 : 1), "opponent forfeit");
                             EndMatchEarly(IsHost ? 0 : 1, Notice);
                         }
                         break;
@@ -535,6 +613,17 @@ namespace Eclipse.Multiplayer
             Phase = OnlinePhase.Closed;
             Notice = string.IsNullOrEmpty(reason) ? "The session ended." : reason;
             Debug.Log("[Online] Session closed: " + Notice);
+            // An opponent who already reached the result and then left finished the match normally:
+            // take their result. One who vanishes mid-fight forfeits. A fight that never started has no result.
+            if (previous == OnlinePhase.InMatch && _remoteResult.HasValue)
+            {
+                int winner = _remoteResult.Value.winner;
+                ReportRoomFight(OutcomeFor(winner), "opponent finished first");
+                EndMatchEarly(winner, RemoteName + " finished the match and left.");
+                return;
+            }
+            if (previous == OnlinePhase.InMatch) ReportRoomFight(OutcomeFor(IsHost ? 0 : 1), "opponent disconnected");
+            else if (previous != OnlinePhase.Result) ReportRoomFight(MatchOutcome.Aborted, Notice);
             _source?.SaveDiagnostic("disconnect");
             if (previous == OnlinePhase.InMatch || previous == OnlinePhase.Starting)
                 EndMatchEarly(-1, "Connection lost. " + Notice);
@@ -551,6 +640,7 @@ namespace Eclipse.Multiplayer
         private readonly VersusInputSampler _sampler = new VersusInputSampler(GamePad.Player.One, true, true, true);
         private readonly int _localSide;
         private long _stallStartedMs = -1;
+        private long _lastStallFlushMs = long.MinValue / 2;
         private readonly VersusSnapshot[] _history = new VersusSnapshot[256];
 
         /// <summary>This peer's state after <paramref name="tick"/>, if still in the recent history.</summary>
@@ -591,8 +681,10 @@ namespace Eclipse.Multiplayer
             }
             if (!_timeline.TryGetInputs(tick, out var local, out var remote))
             {
-                if (_stallStartedMs < 0) _stallStartedMs = OnlineVersusSession.NowMs;
-                _session.Peer?.Flush(OnlineVersusSession.NowMs);
+                long now = OnlineVersusSession.NowMs;
+                if (_stallStartedMs < 0) _stallStartedMs = now;
+                // While stalled, resend at most at the tick rate (not every fixed step).
+                if (now - _lastStallFlushMs >= 16) { _lastStallFlushMs = now; _session.Peer?.Flush(now); }
                 left = right = 0;
                 return false;
             }

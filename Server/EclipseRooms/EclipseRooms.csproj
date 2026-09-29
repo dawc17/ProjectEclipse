@@ -1,0 +1,24 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- The online room / rendezvous / relay server. Shares the wire format with the game
+       by compiling the Unity-independent netcode sources directly. -->
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <LangVersion>9.0</LangVersion>
+    <Nullable>disable</Nullable>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+    <AssemblyName>EclipseRooms</AssemblyName>
+    <InvariantGlobalization>true</InvariantGlobalization>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="../../Assets/Scripts/Eclipse/Multiplayer/Online/NetBuffer.cs" />
+    <Compile Include="../../Assets/Scripts/Eclipse/Multiplayer/Online/NetInput.cs" />
+    <Compile Include="../../Assets/Scripts/Eclipse/Multiplayer/Online/NetProtocol.cs" />
+    <Compile Include="../../Assets/Scripts/Eclipse/Multiplayer/Online/NetTransport.cs" />
+    <Compile Include="../../Assets/Scripts/Eclipse/Multiplayer/Online/ReliableChannel.cs" />
+    <Compile Include="../../Assets/Scripts/Eclipse/Multiplayer/Online/Rooms/RoomProtocol.cs" />
+    <Compile Include="RoomServer.cs" />
+    <Compile Include="Program.cs" />
+  </ItemGroup>
+</Project>

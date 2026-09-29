@@ -51,6 +51,26 @@ namespace Eclipse.Multiplayer.Online
             Bytes(bytes, 0, bytes.Length);
         }
 
+        /// <summary>Writes a string cut to at most <paramref name="maxBytes"/> UTF-8 bytes (never throws for length).</summary>
+        public void StrClamped(string value, int maxBytes = NetProtocol.MaxStringBytes)
+        {
+            U8Str(Clamp(value, Math.Min(maxBytes, NetProtocol.MaxStringBytes)));
+        }
+
+        private void U8Str(string value) => Str(value);
+
+        /// <summary>Shortens <paramref name="value"/> until its UTF-8 form fits in <paramref name="maxBytes"/>.</summary>
+        public static string Clamp(string value, int maxBytes)
+        {
+            value = value ?? string.Empty;
+            if (Encoding.UTF8.GetByteCount(value) <= maxBytes) return value;
+            int length = Math.Min(value.Length, maxBytes);
+            while (length > 0 && Encoding.UTF8.GetByteCount(value.Substring(0, length)) > maxBytes) length--;
+            // Do not split a surrogate pair.
+            if (length > 0 && char.IsHighSurrogate(value[length - 1])) length--;
+            return value.Substring(0, length);
+        }
+
         public int Remaining => _buffer.Length - Length;
 
         public byte[] ToArray()
