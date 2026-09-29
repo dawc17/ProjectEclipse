@@ -147,6 +147,21 @@ internal static class RollbackTests
         snapshotter.Capture(b, 0, new object[] { root });
         string difference = snapshotter.FirstDifference(a, b);
         Check(difference != null && difference.Contains("Node.Count"), "difference names the field: " + difference);
+        // Fresh objects with the same contents (a tick that allocates) still compare equal.
+        root.Count = 1;
+        root.Next = new Node { X = 4f };
+        snapshotter.Capture(a, 0, new object[] { root });
+        root.Next = new Node { X = 4f };
+        snapshotter.Capture(b, 0, new object[] { root });
+        Check(snapshotter.FirstDifference(a, b) == null, "reallocated but equal state compares equal: " + snapshotter.FirstDifference(a, b));
+        root.Next = new Node { X = 5f };
+        snapshotter.Capture(b, 0, new object[] { root });
+        Check(snapshotter.FirstDifference(a, b)?.Contains("Node.X") == true, "a changed value inside a new object is found");
+        var other = new Node();
+        root.Next = other;
+        root.Children.Add(other);
+        snapshotter.Capture(b, 0, new object[] { root });
+        Check(snapshotter.FirstDifference(a, b) != null, "a changed reference structure is found");
     }
 
     // ---- Timeline ----

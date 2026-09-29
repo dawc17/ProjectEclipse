@@ -220,52 +220,45 @@ namespace Eclipse.Multiplayer.Online
         }
 
         /// <summary>
-        /// Describes the first saved value that differs between two snapshots of the same
-        /// graph, or returns null when they match. Used to find state a rollback misses.
+        /// Describes the saved values that differ between two snapshots, or returns null
+        /// when they match. Objects are matched by their position in the saved graph, so a
+        /// tick that allocates fresh objects with the same contents still compares equal.
+        /// Used to find state a rollback fails to restore.
         /// </summary>
         public string FirstDifference(StateSnapshot a, StateSnapshot b, int maxReports = 8)
         {
             var report = new System.Text.StringBuilder();
             int found = 0;
+            var indexA = IndexOf(a);
+            var indexB = IndexOf(b);
             if (a.Objects.Count != b.Objects.Count)
             {
                 report.Append("object count ").Append(a.Objects.Count).Append(" vs ").Append(b.Objects.Count).Append("; ");
                 found++;
             }
             int count = Math.Min(a.Objects.Count, b.Objects.Count);
-            a.Tape.Rewind();
-            b.Tape.Rewind();
             for (int i = 0; i < count && found < maxReports; i++)
             {
                 object left = a.Objects[i], right = b.Objects[i];
-                if (!ReferenceEquals(left, right))
+                var type = left.GetType();
+                if (type != right.GetType())
                 {
-                    report.Append("graph order differs at #").Append(i).Append(" (").Append(left.GetType().Name).Append(" vs ")
+                    report.Append("graph shape differs at #").Append(i).Append(" (").Append(type.Name).Append(" vs ")
                         .Append(right.GetType().Name).Append("); ");
                     found++;
                     break;
                 }
-                var info = Info(left.GetType());
+                var info = Info(type);
                 switch (info.Kind)
                 {
                     case Kind.Class:
                     case Kind.FieldCopy:
-                        foreach (var field in info.Fields)
+                        for (int f = 0; f < info.Fields.Length + info.Properties.Length && found < maxReports; f++)
                         {
-                            object x = ValueOf(info, a.Saved[i], field), y = ValueOf(info, b.Saved[i], field);
-                            if (!SameValue(x, y))
-                            {
-                                report.Append(left.GetType().Name).Append('.').Append(field.Name).Append(": ")
-                                    .Append(Show(x)).Append(" vs ").Append(Show(y)).Append("; ");
-                                if (++found >= maxReports) break;
-                            }
-                        }
-                        for (int p = 0; p < info.Properties.Length && found < maxReports; p++)
-                        {
-                            object x = ((object[])a.Saved[i])[info.Fields.Length + p], y = ((object[])b.Saved[i])[info.Fields.Length + p];
-                            if (SameValue(x, y)) continue;
-                            report.Append(left.GetType().Name).Append('.').Append(info.Properties[p].Name).Append(": ")
-                                .Append(Show(x)).Append(" vs ").Append(Show(y)).Append("; ");
+                            object x = SavedValue(info, a.Saved[i], f), y = SavedValue(info, b.Saved[i], f);
+                            if (Same(x, y, indexA, indexB)) continue;
+                            string name = f < info.Fields.Length ? info.Fields[f].Name : info.Properties[f - info.Fields.Length].Name;
+                            report.Append(Describe(type)).Append('.').Append(name).Append(": ").Append(Show(x)).Append(" vs ").Append(Show(y)).Append("; ");
                             found++;
                         }
                         break;
@@ -274,11 +267,11 @@ namespace Eclipse.Multiplayer.Online
                     case Kind.StructArray:
                         var arrayA = (Array)a.Saved[i];
                         var arrayB = (Array)b.Saved[i];
-                        if (arrayA.Length != arrayB.Length) { report.Append(left.GetType().Name).Append(" length differs; "); found++; break; }
+                        if (arrayA.Length != arrayB.Length) { report.Append(Describe(type)).Append(" length differs; "); found++; break; }
                         for (int j = 0; j < arrayA.Length; j++)
                         {
-                            if (SameValue(arrayA.GetValue(j), arrayB.GetValue(j))) continue;
-                            report.Append(left.GetType().Name).Append('[').Append(j).Append("]: ").Append(Show(arrayA.GetValue(j)))
+                            if (Same(arrayA.GetValue(j), arrayB.GetValue(j), indexA, indexB)) continue;
+                            report.Append(Describe(type)).Append('[').Append(j).Append("]: ").Append(Show(arrayA.GetValue(j)))
                                 .Append(" vs ").Append(Show(arrayB.GetValue(j))).Append("; ");
                             found++;
                             break;
@@ -286,13 +279,13 @@ namespace Eclipse.Multiplayer.Online
                         break;
                 }
             }
-            if (a.Tape.FloatCount != b.Tape.FloatCount) { report.Append("custom state size differs; "); found++; }
+            if (a.Tape.FloatCount != b.Tape.FloatCount) { report.Append("vector count differs; "); found++; }
             else
             {
                 for (int i = 0; i < a.Tape.FloatCount && found < maxReports; i++)
                 {
                     if (FloatBits(a.Tape.FloatAt(i)) == FloatBits(b.Tape.FloatAt(i))) continue;
-                    report.Append("custom float #").Append(i).Append(": ").Append(a.Tape.FloatAt(i).ToString("R")).Append(" vs ")
+                    report.Append("vector value #").Append(i).Append(": ").Append(a.Tape.FloatAt(i).ToString("R")).Append(" vs ")
                         .Append(b.Tape.FloatAt(i).ToString("R")).Append("; ");
                     found++;
                     break;
@@ -300,6 +293,54 @@ namespace Eclipse.Multiplayer.Online
             }
             return found == 0 ? null : report.ToString();
         }
+
+        private static Dictionary<object, int> IndexOf(StateSnapshot snapshot)
+        {
+            var index = new Dictionary<object, int>(snapshot.Objects.Count, ReferenceComparer.Instance);
+            for (int i = 0; i < snapshot.Objects.Count; i++) index[snapshot.Objects[i]] = i;
+            return index;
+        }
+
+        private static object SavedValue(TypeInfo info, object saved, int slot)
+        {
+            if (info.Kind == Kind.FieldCopy) return ((object[])saved)[slot];
+            return info.Fields[slot].GetValue(saved);
+        }
+
+        private static string Describe(Type type) => type.DeclaringType != null ? type.DeclaringType.Name + "." + type.Name : type.Name;
+
+        /// <summary>Equal values, or references to objects at the same place in each graph.</summary>
+        private static bool Same(object x, object y, Dictionary<object, int> indexA, Dictionary<object, int> indexB)
+        {
+            if (x == null || y == null) return x == null && y == null;
+            var type = x.GetType();
+            if (type != y.GetType()) return false;
+            if (x is float fx) return FloatBits(fx) == FloatBits((float)y);
+            if (x is double dx) return BitConverter.DoubleToInt64Bits(dx) == BitConverter.DoubleToInt64Bits((double)y);
+            if (type.IsPrimitive || type.IsEnum || x is string) return x.Equals(y);
+            if (x is Delegate dxd) return dxd.Method == ((Delegate)y).Method;
+            if (type.IsValueType)
+            {
+                foreach (var field in type.GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic))
+                    if (!Same(field.GetValue(x), field.GetValue(y), indexA, indexB)) return false;
+                return true;
+            }
+            bool savedX = indexA.TryGetValue(x, out int at), savedY = indexB.TryGetValue(y, out int bt);
+            if (savedX || savedY) return savedX && savedY && at == bt;
+            // Neither was saved (opaque): the same object must be referenced.
+            return ReferenceEquals(x, y);
+        }
+
+        private static string Show(object value)
+        {
+            if (value == null) return "null";
+            if (value is float f) return f.ToString("R", System.Globalization.CultureInfo.InvariantCulture);
+            var type = value.GetType();
+            if (type.IsPrimitive || type.IsEnum || value is string) return value.ToString();
+            return type.Name;
+        }
+
+        private static int FloatBits(float value) => BitConverter.ToInt32(BitConverter.GetBytes(value), 0);
 
         private void Push(object value)
         {
@@ -401,42 +442,6 @@ namespace Eclipse.Multiplayer.Online
                 for (int i = 0; i < fields.Length; i++) fields[i].SetValue(target, fields[i].GetValue(saved));
             }
         }
-
-        private static object ValueOf(TypeInfo info, object saved, FieldInfo field)
-        {
-            if (info.Kind == Kind.FieldCopy) return ((object[])saved)[Array.IndexOf(info.Fields, field)];
-            return field.GetValue(saved);
-        }
-
-        private static bool SameValue(object x, object y)
-        {
-            if (ReferenceEquals(x, y)) return true;
-            if (x == null || y == null) return false;
-            if (x is float fx && y is float fy) return FloatBits(fx) == FloatBits(fy);
-            if (x is double dx && y is double dy) return BitConverter.DoubleToInt64Bits(dx) == BitConverter.DoubleToInt64Bits(dy);
-            var type = x.GetType();
-            if (type != y.GetType()) return false;
-            if (type.IsPrimitive || type.IsEnum || x is string) return x.Equals(y);
-            if (type.IsValueType)
-            {
-                foreach (var field in type.GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic))
-                    if (!SameValue(field.GetValue(x), field.GetValue(y))) return false;
-                return true;
-            }
-            // Distinct reference-type objects: identity is what the saved field holds.
-            return false;
-        }
-
-        private static string Show(object value)
-        {
-            if (value == null) return "null";
-            if (value is float f) return f.ToString("R", System.Globalization.CultureInfo.InvariantCulture);
-            var type = value.GetType();
-            if (type.IsPrimitive || type.IsEnum || value is string) return value.ToString();
-            return type.Name + "@" + RuntimeHelpers.GetHashCode(value).ToString("X");
-        }
-
-        private static int FloatBits(float value) => BitConverter.ToInt32(BitConverter.GetBytes(value), 0);
 
         private TypeInfo Info(Type type)
         {

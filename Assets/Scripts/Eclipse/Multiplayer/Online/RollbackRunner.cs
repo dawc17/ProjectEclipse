@@ -80,8 +80,16 @@ namespace Eclipse.Multiplayer.Online
             return true;
         }
 
-        /// <summary>How many ticks to attempt this step.</summary>
-        public int StepsWanted => _timeline.IsRollback && _timeline.FrameAdvantage <= -CatchUpThreshold ? 2 : 1;
+        /// <summary>How many ticks to attempt this step: two when this peer has fallen behind.</summary>
+        public int StepsWanted
+        {
+            get
+            {
+                if (_timeline.IsRollback) return _timeline.FrameAdvantage <= -CatchUpThreshold ? 2 : 1;
+                // Lockstep: the opponent's inputs are more than two ticks ahead of ours.
+                return _timeline.RemoteFrames - _timeline.Delay - 1 > Tick + 2 ? 2 : 1;
+            }
+        }
 
         /// <summary>Undoes and re-simulates any ticks that ran on a wrong prediction.</summary>
         public void Resolve()

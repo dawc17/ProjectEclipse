@@ -20,6 +20,7 @@ namespace Eclipse.Multiplayer
         private const string AddressPreference = "Eclipse.Online.LastAddress";
         private const string PortPreference = "Eclipse.Online.Port";
         private const string DelayPreference = "Eclipse.Online.InputDelay";
+        private const string NetcodePreference = "Eclipse.Online.Netcode";
         private static readonly Stopwatch Clock = Stopwatch.StartNew();
         public static long NowMs => Clock.ElapsedMilliseconds;
 
@@ -87,6 +88,11 @@ namespace Eclipse.Multiplayer
         public static string SavedAddress { get => PlayerPrefs.GetString(AddressPreference, ""); set => PlayerPrefs.SetString(AddressPreference, value ?? ""); }
         public static int SavedPort { get => PlayerPrefs.GetInt(PortPreference, NetProtocol.DefaultPort); set => PlayerPrefs.SetInt(PortPreference, value); }
         public static int SavedDelay { get => Mathf.Clamp(PlayerPrefs.GetInt(DelayPreference, NetProtocol.DefaultInputDelay), 0, NetProtocol.MaxInputDelay); set => PlayerPrefs.SetInt(DelayPreference, value); }
+        public static NetcodeMode SavedNetcode
+        {
+            get => PlayerPrefs.GetInt(NetcodePreference, (int)NetcodeMode.Rollback) == (int)NetcodeMode.Delay ? NetcodeMode.Delay : NetcodeMode.Rollback;
+            set => PlayerPrefs.SetInt(NetcodePreference, (int)value);
+        }
 
         public static void Host(string playerName, int port)
         {
@@ -98,11 +104,13 @@ namespace Eclipse.Multiplayer
                 throw new InvalidOperationException("Could not open port " + port + ": " + exception.Message, exception);
             }
             session.Phase = OnlinePhase.Hosting;
+            var netcode = SavedNetcode;
             session.Lobby = new LobbyState
             {
                 HostWeapon = session.LocalWeapon,
                 Arena = LocalVersusMatch.ArenaIds[0],
-                InputDelay = SavedDelay,
+                Netcode = netcode,
+                InputDelay = netcode == NetcodeMode.Rollback ? NetProtocol.DefaultRollbackDelay : SavedDelay,
             };
             Debug.Log("[Online] Hosting on UDP port " + session.Peer.LocalPort + " (" + BuildId + ", " + ContentFingerprint() + ").");
         }
@@ -144,7 +152,8 @@ namespace Eclipse.Multiplayer
                 Arena = arena,
                 WinsRequired = settings.WinsRequired,
                 RoundTimeSeconds = settings.RoundTimeSeconds,
-                InputDelay = NetProtocol.DefaultInputDelay,
+                Netcode = NetcodeMode.Rollback,
+                InputDelay = NetProtocol.DefaultRollbackDelay,
             };
             Debug.Log("[Online] Room match " + pairing.MatchId + " vs " + pairing.PeerName + " as " + (peer.IsHost ? "host" : "guest") + ".");
         }
@@ -259,7 +268,16 @@ namespace Eclipse.Multiplayer
             string ping = Peer.RttMs >= 0 ? Peer.RttMs + " ms" : "-- ms";
             var line = new Rect(0, Screen.height - 26 * scale, Screen.width, 24 * scale);
             GUI.color = new Color(1f, 1f, 1f, .75f);
-            GUI.Label(line, "PING " + ping + "   DELAY " + _source.Timeline.Delay + "F", _hudStyle);
+            var timeline = _source.Timeline;
+            string readout = "PING " + ping + "   DELAY " + timeline.Delay + "F";
+            if (timeline.IsRollback)
+            {
+                // How many ticks ran ahead on a guess, and the deepest correction so far.
+                int ahead = Mathf.Max(0, timeline.SimulatedTicks - timeline.RemoteFrames);
+                readout += "   ROLLBACK " + ahead + "F (MAX " + timeline.LongestRollback + ")";
+            }
+            if (Peer.LossPercent > 0) readout += "   LOSS " + Peer.LossPercent + "%";
+            GUI.Label(line, readout, _hudStyle);
             GUI.color = Color.white;
             // Show after a real stall, and keep it up briefly so short, repeated stalls
             // (an opponent whose game runs slowly) read as one steady notice.
@@ -333,13 +351,26 @@ namespace Eclipse.Multiplayer
         {
             if (!IsHost) return;
             Lobby.InputDelay = Lobby.InputDelay >= 8 ? 0 : Lobby.InputDelay + 1;
-            SavedDelay = Lobby.InputDelay;
+            if (Lobby.Netcode == NetcodeMode.Delay) SavedDelay = Lobby.InputDelay;
             SendLobby();
         }
 
-        /// <summary>A delay that hides the measured one-way latency at 60 ticks per second.</summary>
-        public int SuggestedDelay => Peer == null || Peer.RttMs < 0 ? NetProtocol.DefaultInputDelay
-            : Mathf.Clamp(Mathf.CeilToInt(Peer.RttMs / 2f / (1000f / 60f)) + 1, 1, 8);
+        /// <summary>Switches between rollback and delay-based netcode, with the delay each suggests.</summary>
+        public void CycleNetcode()
+        {
+            if (!IsHost) return;
+            Lobby.Netcode = Lobby.Netcode == NetcodeMode.Rollback ? NetcodeMode.Delay : NetcodeMode.Rollback;
+            SavedNetcode = Lobby.Netcode;
+            Lobby.InputDelay = Peer != null && Peer.RttMs >= 0 ? SuggestedDelay
+                : Lobby.Netcode == NetcodeMode.Rollback ? NetProtocol.DefaultRollbackDelay : SavedDelay;
+            SendLobby();
+        }
+
+        /// <summary>
+        /// The input delay suited to the measured connection: in delay mode it hides the
+        /// whole one-way trip; with rollback it stays small so input feels immediate.
+        /// </summary>
+        public int SuggestedDelay => NetcodeModes.SuggestedDelay(Lobby.Netcode, Peer != null ? Peer.RttMs : -1, Peer != null ? Peer.JitterMs : 0);
 
         public string StartBlocker()
         {
@@ -363,6 +394,7 @@ namespace Eclipse.Multiplayer
                 RoundTimeSeconds = Lobby.RoundTimeSeconds,
                 InputDelay = Lobby.InputDelay,
                 Seed = _seedOverride ?? new System.Random().Next(),
+                RollbackWindow = Lobby.Netcode == NetcodeMode.Rollback ? NetProtocol.DefaultRollbackWindow : 0,
             };
             _seedOverride = null;
             Peer.SendReliable(start.Encode());
@@ -403,12 +435,13 @@ namespace Eclipse.Multiplayer
             SyncProblem = null;
             Notice = string.Empty;
             Phase = OnlinePhase.Starting;
-            var timeline = new LockstepTimeline(start.MatchIndex, start.InputDelay);
+            var timeline = new InputTimeline(start.MatchIndex, start.InputDelay, start.RollbackWindow);
             Peer.Timeline = timeline;
             string hostName = IsHost ? LocalName : RemoteName;
             string guestName = IsHost ? RemoteName : LocalName;
             Debug.Log("[Online] Match " + start.MatchIndex + ": " + start.HostWeapon + " vs " + start.GuestWeapon + " at " + start.Arena +
-                ", input delay " + start.InputDelay + ", seed " + start.Seed + ".");
+                ", input delay " + start.InputDelay + ", " + (start.RollbackWindow > 0 ? "rollback window " + start.RollbackWindow : "delay-based") +
+                ", seed " + start.Seed + ".");
             try
             {
                 var settings = new LocalVersusSettings(start.HostWeapon, start.GuestWeapon, start.Arena, true,
@@ -632,16 +665,25 @@ namespace Eclipse.Multiplayer
         }
     }
 
-    /// <summary>The local player's device plus the remote player's inputs, in lockstep.</summary>
-    public sealed class OnlineInputSource : RecordingInputSource
+    /// <summary>
+    /// The local player's device plus the remote player's inputs. Runs the fixed step
+    /// itself through a <see cref="RollbackRunner"/>: in rollback mode it predicts the
+    /// opponent and re-simulates when a guess was wrong; in delay mode (no prediction
+    /// window) the same runner simply waits for both inputs.
+    /// </summary>
+    public sealed class OnlineInputSource : RecordingInputSource, IVersusStepRunner
     {
         private readonly OnlineVersusSession _session;
-        private readonly LockstepTimeline _timeline;
+        private readonly InputTimeline _timeline;
         private readonly VersusInputSampler _sampler = new VersusInputSampler(GamePad.Player.One, true, true, true);
         private readonly int _localSide;
         private long _stallStartedMs = -1;
         private long _lastStallFlushMs = long.MinValue / 2;
         private readonly VersusSnapshot[] _history = new VersusSnapshot[256];
+        private Eclipse.Multiplayer.Rollback.FightRollback _rollback;
+        private RollbackRunner _runner;
+        private int _recorded;
+        private bool _started;
 
         /// <summary>This peer's state after <paramref name="tick"/>, if still in the recent history.</summary>
         public bool TryGetSnapshot(int tick, out VersusSnapshot snapshot)
@@ -650,14 +692,16 @@ namespace Eclipse.Multiplayer
             return tick >= 0 && snapshot.Tick == tick && (tick != 0 || snapshot.Left.Present);
         }
 
-        public OnlineInputSource(OnlineVersusSession session, LocalVersusSettings settings, LockstepTimeline timeline, int localSide) : base(settings)
+        public OnlineInputSource(OnlineVersusSession session, LocalVersusSettings settings, InputTimeline timeline, int localSide) : base(settings)
         {
             _session = session;
             _timeline = timeline;
             _localSide = localSide;
         }
 
-        public LockstepTimeline Timeline => _timeline;
+        public InputTimeline Timeline => _timeline;
+        public RollbackRunner Runner => _runner;
+        internal Eclipse.Multiplayer.Rollback.FightRollback FightState => _rollback;
         public int LocalSide => _localSide;
         /// <summary>Milliseconds the simulation has been waiting for the opponent, or 0.</summary>
         public long StalledMs => _stallStartedMs < 0 ? 0 : OnlineVersusSession.NowMs - _stallStartedMs;
@@ -669,48 +713,107 @@ namespace Eclipse.Multiplayer
             peer.Update(OnlineVersusSession.NowMs);
         }
 
-        /// <summary>Run two ticks when the opponent is more than two ticks ahead of us.</summary>
-        public override int StepsWanted => _timeline.RemoteFrames - _timeline.Delay - 1 > VersusTickDriver.Tick + 2 ? 2 : 1;
-
         public override bool TryGetTick(int tick, out byte left, out byte right)
         {
-            if (_timeline.NeedsLocalInput(tick))
+            // Unused: this source runs the step itself (RunStep).
+            left = right = 0;
+            return false;
+        }
+
+        public void RunStep(Fight fight)
+        {
+            if (_runner == null)
             {
-                bool enabled = Application.isFocused && !LocalVersusMenu.BlocksFightInput;
-                _timeline.AddLocal(_sampler.SampleWithTouch(enabled));
+                _rollback = new Eclipse.Multiplayer.Rollback.FightRollback(fight, _timeline.MaxPrediction);
+                _rollback.TickSimulated = OnTick;
+                _runner = new RollbackRunner(_timeline, _rollback, _localSide);
             }
-            if (!_timeline.TryGetInputs(tick, out var local, out var remote))
+            bool advanced = false, waited = false;
+            _runner.Resolve();
+            if (_runner.ShouldWait()) waited = true;
+            else
             {
-                long now = OnlineVersusSession.NowMs;
+                int steps = _runner.StepsWanted;
+                for (int i = 0; i < steps && _runner.Failure == null; i++)
+                {
+                    SampleLocal(_runner.Tick);
+                    if (!_runner.Advance()) break;
+                    advanced = true;
+                    if (!VersusTickDriver.Owns(fight)) return;
+                }
+            }
+            if (_runner.Failure != null)
+            {
+                Debug.LogError("[Rollback] " + _runner.Failure);
+                _session.OnDesync(_timeline.FinalTicks);
+                return;
+            }
+            long now = OnlineVersusSession.NowMs;
+            bool stalled = !advanced && !waited;
+            VersusTickDriver.MarkStalled(stalled);
+            if (stalled)
+            {
                 if (_stallStartedMs < 0) _stallStartedMs = now;
                 // While stalled, resend at most at the tick rate (not every fixed step).
                 if (now - _lastStallFlushMs >= 16) { _lastStallFlushMs = now; _session.Peer?.Flush(now); }
-                left = right = 0;
-                return false;
             }
-            _stallStartedMs = -1;
-            left = _localSide == 0 ? local : remote;
-            right = _localSide == 0 ? remote : local;
-            return true;
-        }
-
-        public override void OnTickSimulated(int tick, byte left, byte right, uint? hash)
-        {
-            base.OnTickSimulated(tick, left, right, hash);
-            if (tick == 0) _session.OnFightStarted();
-            if (hash.HasValue)
+            else
             {
-                _history[tick & (_history.Length - 1)] = VersusTickDriver.LastSnapshot;
-                _timeline.RecordLocalHash(tick, hash.Value);
+                _stallStartedMs = -1;
+                _session.Peer?.Flush(now);
             }
-            _session.Peer?.Flush(OnlineVersusSession.NowMs);
+            RecordFinal(_timeline.FinalTicks);
+            Eclipse.Multiplayer.Rollback.RollbackObjects.Finalized(_timeline.FinalTicks);
             if (_timeline.DesyncTick >= 0) _session.OnDesync(_timeline.DesyncTick);
         }
 
+        private void SampleLocal(int tick)
+        {
+            if (!_timeline.NeedsLocalInput(tick)) return;
+            bool enabled = Application.isFocused && !LocalVersusMenu.BlocksFightInput;
+            _timeline.AddLocal(_sampler.SampleWithTouch(enabled));
+        }
+
+        private void OnTick(int tick)
+        {
+            _history[tick & (_history.Length - 1)] = VersusTickDriver.LastSnapshot;
+            if (!_started && tick == 0) { _started = true; _session.OnFightStarted(); }
+        }
+
+        /// <summary>Replays keep only confirmed ticks, in order.</summary>
+        private void RecordFinal(int finalTicks)
+        {
+            for (; _recorded < finalTicks; _recorded++)
+            {
+                byte local = _timeline.GetLocal(_recorded), remote = _timeline.GetRemote(_recorded);
+                uint? hash = _timeline.TryGetLocalHash(_recorded, out var value) ? value : (uint?)null;
+                base.OnTickSimulated(_recorded, _localSide == 0 ? local : remote, _localSide == 0 ? remote : local, hash);
+            }
+        }
+
+        public override void OnTickSimulated(int tick, byte left, byte right, uint? hash) { }
+
         public override void OnMatchEnded(int finalTick, int winner, int leftRounds, int rightRounds)
         {
+            // The final tick ran on confirmed input, and so did every tick before it; its
+            // result is not marked final until the runner finishes it, so record it here.
+            RecordFinal(Math.Min(finalTick, _timeline.FinalTicks));
+            if (_recorded == finalTick && finalTick < _timeline.LocalFrames && finalTick < _timeline.RemoteFrames)
+            {
+                byte local = _timeline.GetLocal(finalTick), remote = _timeline.GetRemote(finalTick);
+                base.OnTickSimulated(finalTick, _localSide == 0 ? local : remote, _localSide == 0 ? remote : local,
+                    VersusStateHash.Hash(VersusTickDriver.LastSnapshot));
+                _recorded++;
+            }
             base.OnMatchEnded(finalTick, winner, leftRounds, rightRounds);
             _session.OnLocalResult(winner, leftRounds, rightRounds, finalTick);
+        }
+
+        public override void Stop()
+        {
+            RecordFinal(_timeline.FinalTicks);
+            Eclipse.Multiplayer.Rollback.RollbackObjects.Clear();
+            base.Stop();
         }
 
         internal void SaveDiagnostic(string suffix) => Save(suffix);

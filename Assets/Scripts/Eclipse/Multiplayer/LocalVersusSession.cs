@@ -95,13 +95,14 @@ namespace Eclipse.Multiplayer
             }
         }
 
-        public static void StartReplay(Online.VersusReplay replay)
+        /// <param name="rollbackTest">Force a rollback every tick and report any state it fails to restore.</param>
+        public static void StartReplay(Online.VersusReplay replay, bool rollbackTest = false)
         {
             if (replay == null) throw new ArgumentNullException(nameof(replay));
             if (OnlineVersusSession.IsActive) throw new InvalidOperationException("Leave the online session before watching a replay.");
             var settings = new LocalVersusSettings(replay.LeftWeapon, replay.RightWeapon, replay.Arena, true, replay.WinsRequired,
                 replay.RoundTimeSeconds, VersusMode.Replay, replay.LeftName, replay.RightName, replay.Seed);
-            StartMatch(settings, () => new ReplayInputSource(replay));
+            StartMatch(settings, rollbackTest ? (Func<IVersusInputSource>)(() => new Rollback.RollbackSelfTest(replay)) : () => new ReplayInputSource(replay));
             CurrentReplay = replay;
         }
 
@@ -228,7 +229,8 @@ namespace Eclipse.Multiplayer
             var fight = Fight.GetCurrentFight();
             // A replay that stops short of a result (a disconnect, say) ends where its inputs end.
             if (IsReplay && fight != null && fight.IsLocalVersus && !HasResult &&
-                VersusTickDriver.Source is ReplayInputSource replay && replay.ReachedEnd)
+                (VersusTickDriver.Source is ReplayInputSource replay && replay.ReachedEnd ||
+                 VersusTickDriver.Source is Rollback.RollbackSelfTest test && test.ReachedEnd))
                 Complete(fight, true);
             if (Settings != null && Settings.Mode == VersusMode.Local && fight != null && fight.IsLocalVersus && !HasResult && !fight.IsPaused() &&
                 !DevicesReady(Settings)) Pause("A controller disconnected. Reconnect it, then resume.");

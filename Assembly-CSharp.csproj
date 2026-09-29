@@ -805,7 +805,12 @@
     <Compile Include="Assets/Scripts/Assembly-CSharp/UIFigures/UIFrameRectBorder.cs" />
     <Compile Include="Assets/Scripts/Eclipse/UI/BattleInfoText.cs" />
     <Compile Include="Assets/Scripts/Assembly-CSharp/WinStyleRule.cs" />
-    <Compile Include="Assets/Scripts/Eclipse/Multiplayer/Online/LockstepTimeline.cs" />
+    <Compile Include="Assets/Scripts/Eclipse/Multiplayer/Online/InputTimeline.cs" />
+    <Compile Include="Assets/Scripts/Eclipse/Multiplayer/Online/ObjectGraphSnapshot.cs" />
+    <Compile Include="Assets/Scripts/Eclipse/Multiplayer/Online/RollbackRunner.cs" />
+    <Compile Include="Assets/Scripts/Eclipse/Multiplayer/Rollback/FightRollback.cs" />
+    <Compile Include="Assets/Scripts/Eclipse/Multiplayer/Rollback/RollbackObjects.cs" />
+    <Compile Include="Assets/Scripts/Eclipse/Multiplayer/Rollback/RollbackSelfTest.cs" />
     <Compile Include="Assets/Scripts/Assembly-CSharp/PerkConditionStyle.cs" />
     <Compile Include="Assets/Scripts/Assembly-CSharp/Nekki/SF2/GUI/Shop/PropertiesPanelContent.cs" />
     <Compile Include="Assets/Scripts/Assembly-CSharp/StatisticsEvent.cs" />
