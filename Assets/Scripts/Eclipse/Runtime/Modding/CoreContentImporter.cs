@@ -17,44 +17,59 @@ namespace Eclipse.Modding
             string[] files = Directory.GetFiles(root, "*.xml", SearchOption.AllDirectories);
             Array.Sort(files, StringComparer.Ordinal);
             var pending = new Dictionary<DefinitionId, string>();
-            // Streams each file (every gameplay XML file is read, most without quests) instead
-            // of building its whole document: quests are elements at /Quests/Quest, /Root/Quest
-            // or /Root/Quests/Quest, taken in document order. A malformed file still fails.
-            var path = new List<string>();
+            // Only these shallow paths can declare quests. Skip every other subtree,
+            // including quest bodies, rather than dispatching each nested XML node.
+            // XmlReader.Skip still checks well-formedness; malformed files still fail.
+            var settings = new XmlReaderSettings { DtdProcessing = DtdProcessing.Prohibit, XmlResolver = null };
             foreach (string file in files)
             {
                 string source = file.Substring(root.Length + 1).Replace('\\', '/');
-                path.Clear();
-                using (var reader = XmlReader.Create(file, new XmlReaderSettings { DtdProcessing = DtdProcessing.Prohibit, XmlResolver = null }))
-                while (reader.Read())
+                using (var reader = XmlReader.Create(file, settings))
                 {
-                    if (reader.NodeType == XmlNodeType.EndElement) { path.RemoveAt(path.Count - 1); continue; }
-                    if (reader.NodeType != XmlNodeType.Element) continue;
-                    bool empty = reader.IsEmptyElement;
-                    path.Add(reader.NamespaceURI.Length == 0 ? reader.LocalName : string.Empty);
-                    bool quest = IsQuestPath(path);
-                    string name = quest ? reader.GetAttribute("Name") ?? string.Empty : null;
-                    if (empty) path.RemoveAt(path.Count - 1);
-                    if (!quest) continue;
-                    if (string.IsNullOrWhiteSpace(name) || name.Contains("#") || source.Contains("#"))
-                        throw new ModContentException("Invalid core quest identity in '" + source + "'.");
-                    DefinitionId id = DefinitionId.Parse("core:quests/" + source + "/" + name);
-                    string key = source + "#" + name;
-                    if (pending.TryGetValue(id, out string previous) && previous != key)
-                        throw new ModContentException("Core quest identity collision: '" + id + "'.");
-                    pending[id] = key;
+                    bool rootContainer = false, quests = false, nestedQuests = false;
+                    reader.MoveToContent();
+                    while (!reader.EOF)
+                    {
+                        if (reader.NodeType == XmlNodeType.Element)
+                        {
+                            bool unqualified = reader.NamespaceURI.Length == 0;
+                            if (reader.Depth == 0)
+                            {
+                                rootContainer = unqualified && reader.LocalName == "Root";
+                                quests = unqualified && reader.LocalName == "Quests";
+                                if (rootContainer || quests) { reader.Read(); continue; }
+                            }
+                            else if (reader.Depth == 1 && rootContainer && unqualified && reader.LocalName == "Quests")
+                            {
+                                nestedQuests = !reader.IsEmptyElement;
+                                reader.Read();
+                                continue;
+                            }
+                            bool quest = unqualified && reader.LocalName == "Quest" &&
+                                (reader.Depth == 1 && (rootContainer || quests) || reader.Depth == 2 && rootContainer && nestedQuests);
+                            if (quest)
+                            {
+                                string name = reader.GetAttribute("Name") ?? string.Empty;
+                                if (string.IsNullOrWhiteSpace(name) || name.Contains("#") || source.Contains("#"))
+                                    throw new ModContentException("Invalid core quest identity in '" + source + "'.");
+                                DefinitionId id = DefinitionId.Parse("core:quests/" + source + "/" + name);
+                                string key = source + "#" + name;
+                                if (pending.TryGetValue(id, out string previous) && previous != key)
+                                    throw new ModContentException("Core quest identity collision: '" + id + "'.");
+                                pending[id] = key;
+                            }
+                            reader.Skip(); // Already positioned at the next sibling after this call.
+                            continue;
+                        }
+                        if (reader.NodeType == XmlNodeType.EndElement && reader.Depth == 1) nestedQuests = false;
+                        reader.Read();
+                    }
                 }
             }
             foreach (var entry in pending) catalog.AddCoreQuestSource(entry.Key, entry.Value);
             return pending.Count;
         }
 
-        private static bool IsQuestPath(List<string> path)
-        {
-            if (path[path.Count - 1] != "Quest") return false;
-            if (path.Count == 2) return path[0] == "Quests" || path[0] == "Root";
-            return path.Count == 3 && path[0] == "Root" && path[1] == "Quests";
-        }
         public static DefinitionId WeaponId(string legacyName)
         {
             return DefinitionId.Parse("core:items/weapon/" + legacyName);

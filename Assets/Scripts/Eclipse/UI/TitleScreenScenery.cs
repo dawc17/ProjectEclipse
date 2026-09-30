@@ -324,18 +324,36 @@ namespace Eclipse.UI
                     camera.targetTexture = Texture;
                     camera.aspect = (float)width / height;
                 }
-                try { render.UpdateMenuBackdrop(camera, false); }
+                try { UpdateBackdrop(false); }
                 catch (Exception error) { Debug.LogWarning("[Title] Stage update: " + error.Message); }
             }
 
             public void Advance()
             {
                 if (camera == null) return;
-                try { render.UpdateMenuBackdrop(camera, true); }
-                catch (Exception error) { Debug.LogWarning("[Title] Stage animation: " + error.Message); }
+                try
+                {
+                    if (sparring != null && !sparring.AdvanceTitleSparring())
+                        ShowFighters(leftLoadout, rightLoadout, leftStart, rightStart);
+                    UpdateBackdrop(true);
+                }
+                catch (Exception error)
+                {
+                    RemoveFighters();
+                    Debug.LogWarning("[Title] Stage animation: " + error);
+                }
             }
 
-            private readonly List<GameObject> fighters = new List<GameObject>();
+            private Fight sparring;
+            private Eclipse.Multiplayer.VersusLoadout leftLoadout, rightLoadout;
+            private float leftStart, rightStart;
+
+            private void UpdateBackdrop(bool advanceAnimation)
+            {
+                float? center = null;
+                if (sparring != null) center = sparring.TitleSparringCenterX;
+                render.UpdateMenuBackdrop(camera, advanceAnimation, center);
+            }
 
             // Converts a horizontal page offset from the picture's centre (in page units, at
             // the given viewport aspect) to the fight's x coordinate (0 at the left wall).
@@ -346,39 +364,24 @@ namespace Eclipse.UI
                 return width * .5f + pageOffset * visible / (720f * StageOverscan);
             }
 
-            // Stands two fighters in the location's game layer, where a fight's fighters are:
-            // each in a menu ModelContainer (its idle and pose animations, a model tinted in
-            // the location's fighter colour) placed as the stage's own RenderContainer is
-            // (RenderContainer.Init), so the model's fight coordinates are the location's.
+            // The title owns presentation; the encounter owns detached CPU fighters and
+            // native combat only. Page changes retain it; stage changes and entry dispose it.
             public void ShowFighters(Eclipse.Multiplayer.VersusLoadout left, Eclipse.Multiplayer.VersusLoadout right, float leftX, float rightX)
             {
                 RemoveFighters();
-                AddFighter(left, true, leftX, location.JJNMOJLLDEC.GetY(), false);
-                AddFighter(right, false, rightX, location.CLGGLBHOMCE.GetY(), true);
-            }
-
-            private void AddFighter(Eclipse.Multiplayer.VersusLoadout loadout, bool playerOne, float x, float y, bool faceLeft)
-            {
-                var host = new GameObject(playerOne ? "Title fighter left" : "Title fighter right");
-                host.transform.SetParent(location.gameLayer.MJNPBMOAFML().transform, false);
-                // The container's origin is the fighter's own x, so mirroring it turns the
-                // fighter round in place.
-                host.transform.localPosition = new Vector3(-location.JMLAKAKDBBL * .5f + x, -location.FEIHFIPFNKF * .5f + location.GBNPHCHGKDO, 0f);
-                host.transform.localScale = new Vector3(faceLeft ? -1f : 1f, 1f, 1f);
-                fighters.Add(host);
-                var container = host.AddComponent<Nekki.SF2.Core.Fights.ModelContainer>();
-                container.Init();
-                container.SetPreviewPosition(new Vector2(0f, y));
-                // Both are built as the player: the profile scene's animations are selected for
-                // the player only (ConditionPlayer), and a model with no animation never shows.
-                container.ShowParameters(Eclipse.Multiplayer.LocalVersusMatch.PrepareFighter(loadout, true, string.Empty),
-                    StageType.FDBBPEGEGMK.STAGE_SHOP_START, "Profile", location.modelsColor);
+                leftLoadout = left; rightLoadout = right;
+                leftStart = leftX; rightStart = rightX;
+                var first = Eclipse.Multiplayer.LocalVersusMatch.PrepareTitleFighter(left, true, "Standard");
+                var second = Eclipse.Multiplayer.LocalVersusMatch.PrepareTitleFighter(right, false, "Aggressive");
+                sparring = Fight.CreateTitleSparring(location, render, first, second, leftX, rightX,
+                    location.MFAPMDDJBBL, location.JMLAKAKDBBL - location.MFAPMDDJBBL);
             }
 
             public void RemoveFighters()
             {
-                foreach (var fighter in fighters) if (fighter != null) UnityEngine.Object.Destroy(fighter);
-                fighters.Clear();
+                var previous = sparring;
+                sparring = null;
+                previous?.DisposeTitleSparring();
             }
 
             // Where fighters stand, as a fraction of the picture's height from its top. The
@@ -415,8 +418,8 @@ namespace Eclipse.UI
             }
         }
 
-        // Two live fighters in randomized loadouts, standing in the stage itself either side of
-        // the menu and facing each other: drawn by the stage camera at fight scale, on the
+        // Two CPU fighters in randomized loadouts sparring in the stage itself: drawn by
+        // the stage camera at fight scale, on the
         // floor and among the location's layers as in a fight (StageView.ShowFighters).
         // Re-rolled on every scene change; page changes keep them (the stage persists).
         // Where they stand, as a fraction of the visible viewport's width.
@@ -448,17 +451,20 @@ namespace Eclipse.UI
         // The game loader reads items, animations and models only after the title closes.
         // For the sparring fighters, the title runs the part of that boot they need early
         // (with the enabled mods, so Apply & Restart re-runs it with a new selection) against a
-        // sandbox user directory, then throws it all away before the real boot.
+        // sandbox user directory. Entry keeps the content and replaces the sandbox profile;
+        // a mod restart or failed preview still discards the entire content session.
         // It never touches a real save: CampaignSaveSession.PreviewDirectory redirects every
         // user-data path, and the save-version step (AttachFileModule) is left out.
         private static class TitleGameData
         {
             public static bool Active { get; private set; }
+            public static bool PendingEntry { get; private set; }
             private static string sandbox;
 
             public static void Load()
             {
                 if (Active || Eclipse.Multiplayer.VersusRoster.GameDataLoaded) return;
+                PendingEntry = false;
                 var watch = System.Diagnostics.Stopwatch.StartNew();
                 try
                 {
@@ -539,12 +545,46 @@ namespace Eclipse.UI
                 XmlUtils.ONLDJNLKKAL(profile, Path.Combine(sandbox, Constants.OJMIJINKBPJ).Replace('\\', '/'));
             }
 
-            public static void Discard()
+            public static void PrepareForEntry()
             {
                 if (!Active) return;
+                if (!ListSF.CanResumeTitlePreview) { Discard(); return; }
+                ListSF.GetInstance().DetachTitleProfile();
                 Active = false;
+                PendingEntry = true;
+                ReleaseSandbox();
+            }
+
+            public static bool TryResume()
+            {
+                if (!PendingEntry) return false;
+                if (!ListSF.CanResumeTitlePreview) { Discard(); return false; }
+                try
+                {
+                    ListSF.GetInstance().ResumeTitlePreview();
+                    PendingEntry = false;
+                    Debug.Log("[Title] Reused loaded game content; selected profile and campaign data loaded.");
+                    return true;
+                }
+                catch
+                {
+                    Discard();
+                    throw;
+                }
+            }
+
+            public static void Discard()
+            {
+                if (!Active && !PendingEntry) return;
+                Active = false;
+                PendingEntry = false;
                 try { Nekki.SF2.GUI.Scenes.GameLoaderScene.DiscardTitlePreview(); }
                 catch (Exception error) { Debug.LogWarning("[Title] Game data preview cleanup: " + error.Message); }
+                ReleaseSandbox();
+            }
+
+            private static void ReleaseSandbox()
+            {
                 Eclipse.Multiplayer.VersusRoster.Reset();
                 Eclipse.Saves.CampaignSaveSession.PreviewDirectory = null;
                 try { if (sandbox != null && Directory.Exists(sandbox)) Directory.Delete(sandbox, true); }
@@ -560,6 +600,14 @@ namespace Eclipse.UI
             if (stageView != null) stageView.RemoveFighters();
             TitleGameData.Discard();
         }
+
+        private void PrepareGameDataForEntry()
+        {
+            if (stageView != null) stageView.RemoveFighters();
+            TitleGameData.PrepareForEntry();
+        }
+
+        internal static bool TryResumeGameDataPreview() => TitleGameData.TryResume();
 
         // Whatever suits each stage (none where nothing would drift, such as the moon), and
         // autumn leaves at the fallback gate.

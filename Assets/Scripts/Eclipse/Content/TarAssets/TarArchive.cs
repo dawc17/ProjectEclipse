@@ -89,6 +89,12 @@ namespace Eclipse.Content.TarAssets
             return _entries.TryGetValue(NormalizeEntryPath(path), out ignored);
         }
 
+        internal bool ContainsNonEmptyFile(string path)
+        {
+            Entry entry;
+            return _entries.TryGetValue(NormalizeEntryPath(path), out entry) && entry.Size > 0;
+        }
+
         public byte[] ReadBytes(string path)
         {
             Entry entry;
@@ -123,6 +129,7 @@ namespace Eclipse.Content.TarAssets
         {
             private readonly TarArchive _archive;
             private readonly FileStream _input;
+            private byte[] _textBuffer = Array.Empty<byte>();
 
             public Reader(TarArchive archive)
             {
@@ -134,10 +141,11 @@ namespace Eclipse.Content.TarAssets
             {
                 if (entry.Size > int.MaxValue)
                     throw new InvalidDataException("TAR entry is too large to load into memory: " + entry.Name);
-                byte[] bytes = new byte[(int)entry.Size];
+                int length = (int)entry.Size;
+                if (_textBuffer.Length < length) _textBuffer = new byte[length];
                 _input.Position = entry.Offset;
-                ReadExact(_input, bytes, 0, bytes.Length);
-                return Encoding.UTF8.GetString(bytes);
+                ReadExact(_input, _textBuffer, 0, length);
+                return Encoding.UTF8.GetString(_textBuffer, 0, length);
             }
 
             public void Dispose()

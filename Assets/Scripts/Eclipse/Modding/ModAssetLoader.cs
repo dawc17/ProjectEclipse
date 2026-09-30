@@ -743,6 +743,9 @@ namespace Eclipse.Modding
         // builds only those moves: the whole document is megabytes, a removal needs a few.
         private static Dictionary<string, XmlNode> ReadRecoveredMoves(HashSet<string> wanted)
         {
+            // Animation startup already read this source. Reuse its pre-expansion
+            // direct locks instead of loading/adapting/scanning moves.xml a second time.
+            if (MovesParser.TryReadBaseMoveLockSources(wanted, out var sources)) return sources;
             string path = SF2Paths.MCFPDHOLNGB() + "/moves.xml";
             string text = path.StartsWith(SF2Paths.FFKEDOBDLOL) ? ResourceManager.KIHHJGJKMIC(path) : ResourceManager.GetText(path);
             var result = new Dictionary<string, XmlNode>(StringComparer.Ordinal);

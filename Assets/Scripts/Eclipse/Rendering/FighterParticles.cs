@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.Text;
 using Eclipse.Modding;
 using Eclipse.Rendering.Interpolation;
 using UnityEngine;
@@ -88,9 +87,14 @@ namespace Eclipse.Rendering
 		private float _nextKnockdown, _nextSlide;
 		private bool _inWallHit;
 		private readonly List<Shadow> _shadows = new List<Shadow>();
-		private string _key;
+		private readonly List<ModFxDefinition> _active = new List<ModFxDefinition>();
+		private readonly List<ModFxDefinition> _activeBursts = new List<ModFxDefinition>();
+		private readonly List<ModFxDefinition> _activeContacts = new List<ModFxDefinition>();
+		private readonly List<ModFxDefinition> _selected = new List<ModFxDefinition>();
+		private readonly List<ModFxDefinition> _selection = new List<ModFxDefinition>();
+		private readonly List<ModFxDefinition> _activeShadows = new List<ModFxDefinition>();
+		private Dictionary<string, ModelNode> _nodes;
 		private int _nodeCount = -1;
-		private string _shadowKey;
 
 		// 0..1: how far this fighter's rim light has turned to ink (see RimLight).
 		public float InkWeight { get; private set; }
@@ -177,38 +181,36 @@ namespace Eclipse.Rendering
 		{
 			bool inFight = FightInterpolation.IsFightActive;
 			string location = inFight ? LocationAtmosphere.CurrentLocationName : null;
-			var active = new List<ModFxDefinition>();
-			var bursts = new List<ModFxDefinition>();
-			var contacts = new List<ModFxDefinition>();
-			var key = new StringBuilder();
-			foreach (ModFxDefinition definition in ModVisuals.ActiveFx(ModFxKind.Particles))
+			_active.Clear(); _activeBursts.Clear(); _activeContacts.Clear(); _selected.Clear();
+			foreach (ModFxDefinition definition in ModVisuals.EnumerateActiveFx(ModFxKind.Particles))
 			{
 				if (definition.Placement != ModFxPlacement.Node && definition.Placement != ModFxPlacement.Hit &&
 					definition.Placement != ModFxPlacement.Contact) continue;
 				if (definition.Scenes == ModFxScenes.Fights && !inFight) continue;
 				if (inFight && !definition.MatchesLocation(location)) continue;
 				if (!FighterMatches(definition.Fighters)) continue;
-				(definition.Placement == ModFxPlacement.Hit ? bursts : definition.Placement == ModFxPlacement.Contact ? contacts : active).Add(definition);
-				key.Append(definition.Name).Append('|');
+				(definition.Placement == ModFxPlacement.Hit ? _activeBursts : definition.Placement == ModFxPlacement.Contact ? _activeContacts : _active).Add(definition);
+				_selected.Add(definition);
 			}
 			Dictionary<string, ModelNode> nodes = _model.CLDMEJKGLBA()?.HKCFFKKFFFE();
 			int nodeCount = nodes != null ? nodes.Count : 0;
-			string built = key.ToString();
-			if (built == _key && nodeCount == _nodeCount) return;
-			_key = built; _nodeCount = nodeCount;
+			bool changed = _selected.Count != _selection.Count || !ReferenceEquals(nodes, _nodes) || nodeCount != _nodeCount;
+			for (int i = 0; !changed && i < _selected.Count; i++) changed = _selected[i] != _selection[i];
+			if (!changed) return;
+			_selection.Clear(); _selection.AddRange(_selected); _nodes = nodes; _nodeCount = nodeCount;
 			foreach (Emitter old in _emitters) if (old.System != null) Destroy(old.System.gameObject);
 			_emitters.Clear();
 			foreach (Burst old in _bursts) if (old.System != null) Destroy(old.System.gameObject);
 			_bursts.Clear();
-			foreach (ModFxDefinition definition in bursts)
+			foreach (ModFxDefinition definition in _activeBursts)
 				_bursts.Add(new Burst { Definition = definition, System = FxBuilder.CreateBurst(transform, definition) });
 			foreach (Burst old in _contacts) if (old.System != null) Destroy(old.System.gameObject);
 			_contacts.Clear();
-			foreach (ModFxDefinition definition in contacts)
+			foreach (ModFxDefinition definition in _activeContacts)
 				_contacts.Add(new Burst { Definition = definition, System = FxBuilder.CreateBurst(transform, definition) });
 			ModelObject body = _model.CLDMEJKGLBA();
 			if (body == null) return;
-			foreach (ModFxDefinition definition in active)
+			foreach (ModFxDefinition definition in _active)
 			{
 				ModelNode node = body.KLAPIGGACMM(definition.Nodes[0]);
 				if (node == null) continue;
@@ -231,7 +233,7 @@ namespace Eclipse.Rendering
 				burst.System.Emit(Mathf.Max(1, Mathf.RoundToInt(burst.Definition.Number("count"))));
 			}
 			if (blocked || !FightInterpolation.IsFightActive || _groundY == float.MaxValue) return;
-			foreach (ModFxDefinition stain in ModVisuals.ActiveFx(ModFxKind.Stain))
+			foreach (ModFxDefinition stain in ModVisuals.EnumerateActiveFx(ModFxKind.Stain))
 			{
 				if (!stain.MatchesLocation(LocationAtmosphere.CurrentLocationName) || !FighterMatches(stain.Fighters)) continue;
 				bool fire = stain.Trigger == ModFxTrigger.Hit || (stain.Trigger == ModFxTrigger.Critical && critical) ||
@@ -359,7 +361,7 @@ namespace Eclipse.Rendering
 		private bool WantsMotion()
 		{
 			if (_contacts.Count != 0) return true;
-			foreach (ModFxDefinition definition in ModVisuals.ActiveFx(ModFxKind.Screen))
+			foreach (ModFxDefinition definition in ModVisuals.EnumerateActiveFx(ModFxKind.Screen))
 				if (ModFxParameters.IsMotionTrigger(definition.Trigger)) return true;
 			return false;
 		}
@@ -465,22 +467,20 @@ namespace Eclipse.Rendering
 		private void UpdateShadows(float alpha)
 		{
 			bool inFight = FightInterpolation.IsFightActive;
-			var active = new List<ModFxDefinition>();
-			var key = new StringBuilder();
+			_activeShadows.Clear();
 			if (inFight)
-				foreach (ModFxDefinition definition in ModVisuals.ActiveFx(ModFxKind.Shadow))
+				foreach (ModFxDefinition definition in ModVisuals.EnumerateActiveFx(ModFxKind.Shadow))
 				{
 					if (!definition.MatchesLocation(LocationAtmosphere.CurrentLocationName) || !FighterMatches(definition.Fighters)) continue;
-					active.Add(definition);
-					key.Append(definition.Name).Append('|');
+					_activeShadows.Add(definition);
 				}
-			string built = key.ToString();
-			if (built != _shadowKey)
+			bool changed = _activeShadows.Count != _shadows.Count;
+			for (int i = 0; !changed && i < _shadows.Count; i++) changed = _activeShadows[i] != _shadows[i].Definition;
+			if (changed)
 			{
-				_shadowKey = built;
 				foreach (Shadow old in _shadows) if (old.Renderer != null) Destroy(old.Renderer.gameObject);
 				_shadows.Clear();
-				foreach (ModFxDefinition definition in active)
+				foreach (ModFxDefinition definition in _activeShadows)
 				{
 					var renderer = new GameObject("Effect " + definition.Name).AddComponent<SpriteRenderer>();
 					renderer.transform.SetParent(transform, false);
@@ -546,7 +546,7 @@ namespace Eclipse.Rendering
 				ModelObject body = _model.CLDMEJKGLBA();
 				InfoAnimation current = _model.OCPMJKIEPIG()?.NNMAFFCCMHC();
 				float unit = Mathf.Max(Mathf.Abs(transform.lossyScale.y), 1e-5f);
-				foreach (ModFxDefinition d in ModVisuals.ActiveFx(ModFxKind.Light))
+				foreach (ModFxDefinition d in ModVisuals.EnumerateActiveFx(ModFxKind.Light))
 				{
 					if (d.Scenes == ModFxScenes.Fights && !inFight) continue;
 					if (inFight && !d.MatchesLocation(LocationAtmosphere.CurrentLocationName)) continue;

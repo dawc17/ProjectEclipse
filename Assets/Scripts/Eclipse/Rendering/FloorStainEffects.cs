@@ -20,6 +20,7 @@ namespace Eclipse.Rendering
 
         private readonly List<Drop> _airborne = new List<Drop>();
         private readonly List<Drop> _landed = new List<Drop>();
+        private readonly List<ModFxDefinition> _activeDefinitions = new List<ModFxDefinition>();
         private readonly Stack<SpriteRenderer> _pool = new Stack<SpriteRenderer>();
         private Material _alpha, _additive;
         private bool _shaderChecked;
@@ -101,16 +102,18 @@ namespace Eclipse.Rendering
         private void Update()
         {
             // Disabling a mod switch removes its existing drops and pools too.
-            List<ModFxDefinition> active = ModVisuals.ActiveFx(ModFxKind.Stain);
+            _activeDefinitions.Clear();
+            foreach (ModFxDefinition definition in ModVisuals.EnumerateActiveFx(ModFxKind.Stain))
+                _activeDefinitions.Add(definition);
             for (int i = _landed.Count - 1; i >= 0; i--)
-                if (!active.Contains(_landed[i].Definition))
+                if (!_activeDefinitions.Contains(_landed[i].Definition))
                 { Recycle(_landed[i]); _landed.RemoveAt(i); }
             Fight fight = Fight.GetCurrentFight();
             bool advance = fight != null && !fight.IsPaused();
             for (int i = _airborne.Count - 1; i >= 0; i--)
             {
                 Drop drop = _airborne[i];
-                if (!active.Contains(drop.Definition))
+                if (!_activeDefinitions.Contains(drop.Definition))
                 { Recycle(drop); _airborne.RemoveAt(i); continue; }
                 if (!advance) continue;
                 float seconds = Mathf.Min(Time.deltaTime, MaxFlightSeconds - drop.Age);

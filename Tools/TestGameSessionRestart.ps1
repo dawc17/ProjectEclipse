@@ -11,7 +11,8 @@ using System;
 using System.Collections.Generic;
 using Eclipse.UI;
 public static class Calls { public static readonly List<string> Log = new(); }
-namespace Eclipse.Modding { }
+namespace Eclipse.Modding { public static class ModRuntime { public static void UnbindProfile() {} } }
+namespace Eclipse.Saves { public static class CampaignSaveSession { public static void Clear() {} } }
 namespace UnityEngine {
     public enum RuntimeInitializeLoadType { SubsystemRegistration }
     public class RuntimeInitializeOnLoadMethodAttribute : Attribute { public RuntimeInitializeOnLoadMethodAttribute(RuntimeInitializeLoadType t) {} }
@@ -23,7 +24,7 @@ namespace UnityEngine {
 namespace Eclipse.UI { public static class TitleScreen { public static void PrepareForRestart() => Calls.Log.Add("title"); } }
 public class Roster { public bool Fail; public void GGGEHAGCLGC() { Calls.Log.Add("save"); if (Fail) throw new Exception("save failed"); } }
 public static class ListSF { public static Roster Current; public static Roster CCDKHLAMKKO() => Current; }
-public static class Sound { public static void FAJONFGJBPD() => Calls.Log.Add("music-stop"); public static void GKMINHHAMAK() => Calls.Log.Add("effects-stop"); }
+public static class Sound { public static void StopMusic() => Calls.Log.Add("music-stop"); public static void GKMINHHAMAK() => Calls.Log.Add("effects-stop"); }
 public enum ScreenType { ModulePreloader }
 public static class SceneManagerSF { public static void Load(ScreenType t) => Calls.Log.Add("load"); }
 public static class Program {

@@ -112,7 +112,9 @@ public class PerkTree
 	public void LJHPGKAOIAE()
 	{
 		FAGKACLCCPE();
-		PPHJHENDCLL = GameUtils.FDEJIIDIPBI.GFPFNILGJML();
+		// Profile initialization removes learned perks from this working list. Keep
+		// the content catalog intact when replacing the title's preview profile.
+		PPHJHENDCLL = new List<PerkInfoItem>(GameUtils.FDEJIIDIPBI.GFPFNILGJML());
 		List<PerkBranch> list = GBPBIPFIOJH().LGGMDGDHJJP();
 		for (int i = 0; i < list.Count; i++)
 		{

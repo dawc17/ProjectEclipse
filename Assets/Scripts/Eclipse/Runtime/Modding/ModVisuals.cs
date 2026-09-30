@@ -88,8 +88,9 @@ namespace Eclipse.Modding
 	{
 		private readonly Dictionary<ModVisualEffect, ModVisualDefinition> _visuals = new Dictionary<ModVisualEffect, ModVisualDefinition>();
 		private readonly List<ModSettingToggle> _settings = new List<ModSettingToggle>();
+		private IReadOnlyList<ModSettingToggle> _settingsView;
 		public IReadOnlyDictionary<ModVisualEffect, ModVisualDefinition> Visuals => _visuals;
-		public IReadOnlyList<ModSettingToggle> SettingToggles => _settings.AsReadOnly();
+		public IReadOnlyList<ModSettingToggle> SettingToggles => _settingsView ?? (_settingsView = _settings.AsReadOnly());
 
 		internal void CommitVisuals(IEnumerable<ModVisualDefinition> visuals, IEnumerable<ModSettingToggle> settings)
 		{

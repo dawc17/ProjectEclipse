@@ -36,6 +36,8 @@ Fight-attached [behavior rules](../rules/#sf2rulesbehavior) also receive these c
 Player perk callbacks use active learned perks and equipped enchantments; opponent
 callbacks use active behavior-backed warrior perks. Normal fight rules may
 suppress a perk. The dojo punchbag does not use this normal fight lifecycle.
+The title screen's background CPU sparring also does not dispatch these callbacks;
+it uses detached preview fighters without mod save state, progress, or rewards.
 
 Keep callbacks short. Fighter and effect methods expire at callback return.
 A failing callback is logged and isolated; successful gameplay operations that

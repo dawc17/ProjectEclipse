@@ -357,7 +357,7 @@ namespace Eclipse.Modding
                 // Where the load's time goes: "scripts" includes the core-content import and
                 // the core asset descriptions mods asked for.
                 Debug.Log("[ModContent] Loaded in " + total.ElapsedMilliseconds + " ms" + timings +
-                    "; within scripts: core import " + _coreImportMs + " ms, " + CoreAssetProvider.DescribeCount +
+                    "; within scripts: core import " + _coreImportMs + " ms, " + scripts.StartupTimings + "; " + CoreAssetProvider.DescribeCount +
                     " core asset description(s) " + CoreAssetProvider.DescribeTime.ElapsedMilliseconds + " ms (" +
                     CoreAssetProvider.DescribeLoads + " loaded whole, " + CoreAssetProvider.DescribeLoadTime.ElapsedMilliseconds + " ms; " +
                     CoreAssetProvider.DescribeLooseLoads + " loose UI sprite(s) " + CoreAssetProvider.DescribeLooseTime.ElapsedMilliseconds +
@@ -458,6 +458,9 @@ namespace Eclipse.Modding
 
         public static void RecordSaveContext(System.Xml.XmlNode warrior, Roster roster = null)
         {
+            // The title's disposable roster supplies models, never a mod save session.
+            // Bind state and run migrations only when the selected gameplay profile loads.
+            if (Eclipse.Saves.CampaignSaveSession.PreviewDirectory != null) return;
             if (_profileMutationState == 1) throw new InvalidOperationException("Cannot replace the profile during settlement.");
             ModActScreenPresenter.CancelActive();
             ModStoryDialogPresenter.CancelActive();
@@ -1758,11 +1761,14 @@ namespace Eclipse.Modding
         private static void ImportCoreContent(ModContentCatalog content)
         {
             LoadTimings.Group("core import");
+            // In players resolving this root loads and hashes the packaged XML archive.
+            // All imports in this pass use the same source directory.
+            string xmlRoot = GameplayContentArchive.GetXmlRoot();
             var nodes = new List<XmlNode>();
             foreach (ItemInfo item in ListSF.GetItems().HCDLKHKBEPF())
                 if (item.Name.IndexOf(':') < 0 && item.NodeXML != null) nodes.Add(item.NodeXML);
             var languages = CoreContentImporter.ReadLocalizations(
-                Path.Combine(GameplayContentArchive.GetXmlRoot(), "localizations"));
+                Path.Combine(xmlRoot, "localizations"));
             LoadTimings.Mark("localizations");
             int weapons = nodes.Count == 0 ? 0 : CoreContentImporter.ImportWeapons(content, nodes, languages);
             int armors = nodes.Count == 0 ? 0 : CoreContentImporter.ImportArmors(content, nodes, languages);
@@ -1784,7 +1790,7 @@ namespace Eclipse.Modding
             int forgeProfiles = CoreContentImporter.ImportForgeEconomicProfiles(content, forgeProfileNames);
             LoadTimings.Mark("forge");
             int perks = 0;
-            string perksPath = Path.Combine(GameplayContentArchive.GetXmlRoot(), "perks.xml");
+            string perksPath = Path.Combine(xmlRoot, "perks.xml");
             var perksDocument = new XmlDocument { XmlResolver = null };
             using (XmlReader reader = XmlReader.Create(perksPath, new XmlReaderSettings
                 { DtdProcessing = DtdProcessing.Prohibit, XmlResolver = null })) perksDocument.Load(reader);
@@ -1792,7 +1798,7 @@ namespace Eclipse.Modding
             if (perksRoot != null) perks = CoreContentImporter.ImportPerks(content, EnumerateChildren(perksRoot));
             LoadTimings.Mark("perks");
             int fights = 0;
-            string stagesPath = Path.Combine(GameplayContentArchive.GetXmlRoot(), "stages.xml");
+            string stagesPath = Path.Combine(xmlRoot, "stages.xml");
             var stagesDocument = new XmlDocument { XmlResolver = null };
             using (XmlReader reader = XmlReader.Create(stagesPath, new XmlReaderSettings
                 { DtdProcessing = DtdProcessing.Prohibit, XmlResolver = null })) stagesDocument.Load(reader);
@@ -1803,7 +1809,7 @@ namespace Eclipse.Modding
             int warriorTemplates = CoreContentImporter.ImportWarriorTemplates(content,
                 stagesDocument["Stages"]?["Warriors"]?["Templates"]);
             LoadTimings.Mark("warrior templates");
-            CoreContentImporter.ImportQuestSources(content, GameplayContentArchive.GetXmlRoot());
+            CoreContentImporter.ImportQuestSources(content, xmlRoot);
             LoadTimings.Mark("quest sources");
             Debug.Log("[ModContent] Imported core items: " + weapons + " weapons, " + armors +
                 " armors, " + helms + " helms, " + ranged + " ranged, " + magic + " magic, " + nonEquipment +

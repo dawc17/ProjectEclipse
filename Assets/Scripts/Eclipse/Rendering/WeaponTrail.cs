@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.Text;
 using Eclipse.Modding;
 using Eclipse.Rendering.Interpolation;
 using UnityEngine;
@@ -69,7 +68,11 @@ namespace Eclipse.Rendering
 		private Model _model;
 		private ModelPresentation _presentation;
 		private readonly List<Stream> _streams = new List<Stream>();
-		private string _key;
+		private readonly List<ModFxDefinition> _custom = new List<ModFxDefinition>();
+		private readonly List<ModFxDefinition> _glints = new List<ModFxDefinition>();
+		private readonly List<ModFxDefinition> _selected = new List<ModFxDefinition>();
+		private ModVisualDefinition _preset;
+		private Dictionary<string, ModelNode> _nodes;
 		private int _nodeCount = -1;
 		private Mesh _alphaMesh, _additiveMesh, _glintMesh;
 		private MeshRenderer _additiveRenderer;
@@ -146,8 +149,9 @@ namespace Eclipse.Rendering
 						: 1f;
 					if (blade.HasLast && samples.Count > 0) AddArc(blade, pose);
 					else samples.Add(pose);
-					while (samples.Count > 0 && (now - samples[0].Time > stream.Lifetime || samples.Count > MaxSamples))
-						samples.RemoveAt(0);
+					int expired = Mathf.Max(0, samples.Count - MaxSamples);
+					while (expired < samples.Count && now - samples[expired].Time > stream.Lifetime) expired++;
+					if (expired > 0) samples.RemoveRange(0, expired);
 					blade.PreviousGrip = blade.HasLast ? blade.Last.Grip : pose.Grip;
 					blade.Last = pose;
 					blade.HasLast = true;
@@ -234,46 +238,48 @@ namespace Eclipse.Rendering
 		{
 			bool inFight = FightInterpolation.IsFightActive;
 			string location = inFight ? LocationAtmosphere.CurrentLocationName : null;
-			var key = new StringBuilder();
 			ModVisualDefinition preset = ModVisuals.Active(ModVisualEffect.WeaponTrails);
-			if (preset != null) key.Append("preset|");
-			var custom = new List<ModFxDefinition>();
-			foreach (ModFxDefinition definition in ModVisuals.ActiveFx(ModFxKind.Trail))
+			_selected.Clear();
+			bool changed = preset != _preset;
+			foreach (ModFxDefinition definition in ModVisuals.EnumerateActiveFx(ModFxKind.Trail))
 			{
 				if (definition.Scenes == ModFxScenes.Fights && !inFight) continue;
 				if (inFight && !definition.MatchesLocation(location)) continue;
 				if (!FighterMatches(definition.Fighters)) continue;
-				custom.Add(definition);
-				key.Append(definition.Name).Append('|');
+				_selected.Add(definition);
 			}
-			var glints = new List<ModFxDefinition>();
-			foreach (ModFxDefinition definition in ModVisuals.ActiveFx(ModFxKind.Glint))
+			changed |= UpdateSelection(_custom, _selected);
+			_selected.Clear();
+			foreach (ModFxDefinition definition in ModVisuals.EnumerateActiveFx(ModFxKind.Glint))
 			{
 				if (definition.Scenes == ModFxScenes.Fights && !inFight) continue;
 				if (inFight && !definition.MatchesLocation(location)) continue;
 				if (!FighterMatches(definition.Fighters)) continue;
-				glints.Add(definition);
-				key.Append(definition.Name).Append('|');
+				_selected.Add(definition);
 			}
+			changed |= UpdateSelection(_glints, _selected);
 			Dictionary<string, ModelNode> nodes = _model.CLDMEJKGLBA()?.HKCFFKKFFFE();
 			int nodeCount = nodes != null ? nodes.Count : 0;
-			string built = key.ToString();
-			if (built == _key && nodeCount == _nodeCount)
-			{
-				UpdateStreamSettings(preset, custom);
-				UpdateGlintSettings(glints);
-				return;
-			}
-			_key = built; _nodeCount = nodeCount;
+			if (!changed && ReferenceEquals(nodes, _nodes) && nodeCount == _nodeCount) return;
+			_preset = preset; _nodes = nodes; _nodeCount = nodeCount;
 			_streams.Clear();
 			if (preset != null) _streams.Add(new Stream { Weapon = true });
-			foreach (ModFxDefinition definition in custom)
+			foreach (ModFxDefinition definition in _custom)
 				_streams.Add(new Stream { Weapon = definition.Weapon, Nodes = definition.Nodes.Count == 2 ? new[] { definition.Nodes[0], definition.Nodes[1] } : null });
-			foreach (ModFxDefinition definition in glints)
+			foreach (ModFxDefinition definition in _glints)
 				_streams.Add(new Stream { Weapon = true, Glint = true, Lifetime = 0.1f });
-			UpdateStreamSettings(preset, custom);
-			UpdateGlintSettings(glints);
+			UpdateStreamSettings(preset, _custom);
+			UpdateGlintSettings(_glints);
 			foreach (Stream stream in _streams) ResolveBlades(stream);
+		}
+
+		private static bool UpdateSelection(List<ModFxDefinition> previous, List<ModFxDefinition> selected)
+		{
+			bool changed = previous.Count != selected.Count;
+			for (int i = 0; !changed && i < previous.Count; i++) changed = previous[i] != selected[i];
+			if (!changed) return false;
+			previous.Clear(); previous.AddRange(selected);
+			return true;
 		}
 
 		private void UpdateStreamSettings(ModVisualDefinition preset, List<ModFxDefinition> custom)
@@ -514,8 +520,9 @@ namespace Eclipse.Rendering
 		{
 			Color clear = color; clear.a = 0f;
 			float thin = size * 0.16f;
-			foreach (var arms in new[] { new Vector2(size, thin), new Vector2(thin, size) })
+			for (int arm = 0; arm < 2; arm++)
 			{
+				Vector2 arms = arm == 0 ? new Vector2(size, thin) : new Vector2(thin, size);
 				int c = _vertices.Count;
 				_vertices.Add(centre); _colors.Add(color);
 				_vertices.Add(centre + new Vector3(arms.x, 0f, 0f)); _colors.Add(clear);

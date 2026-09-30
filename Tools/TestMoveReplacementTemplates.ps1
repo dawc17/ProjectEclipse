@@ -7,6 +7,7 @@ $methods += [regex]::Match($animationSource,'(?ms)^\tprivate static void SwapTem
 $methods += [regex]::Match($animationSource,'(?ms)^\tinternal static void RebuildCapabilityTables\(.*?^\t\}').Value
 $methods += [regex]::Match($animationSource,'(?ms)^\tpublic static void CreateCapabilityTables\(.*?^\t\}').Value
 $methods += [regex]::Match($animationSource,'(?ms)^\tpublic static void CreateCapabilityTable\(.*?^\t\}').Value
+$methods += [regex]::Match($animationSource,'(?ms)^\tprivate static void CreateCapabilityTable\(.*?^\t\}').Value
 if(($methods -split 'ReplaceExternalMoves\(').Count -lt 2 -or $methods -notmatch 'SwapTemplateMember\(' -or $methods -notmatch 'class ExternalMoveReplacementLifetime'){throw 'Move replacement extraction failed.'}
 $templateSource=Get-Content -Raw -LiteralPath (Join-Path $root 'Assets/Scripts/Assembly-CSharp/TemplateAnimation.cs')
 $fixture=Join-Path $root ('Temp/MoveReplacementTemplates-'+[Guid]::NewGuid().ToString('N'))
@@ -38,7 +39,7 @@ public class InfoAnimation
     public int Priority;
     public CapabilityTable PriorityConflicts = new CapabilityTable();
     public readonly List<string> TemplateNames = new List<string>();
-    public List<ConditionKeys> MOPMGFIIFGA() => new List<ConditionKeys>();
+    public List<ConditionKeys> CollectKeyConditions() => new List<ConditionKeys>();
     public void AddTemplateName(string name) { if (!TemplateNames.Contains(name)) TemplateNames.Add(name); }
 }
 static class MovesParser

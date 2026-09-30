@@ -39,6 +39,9 @@ namespace Eclipse.Modding
         }
         public AssetId Resolve(AssetId id)
         {
+            // Most startup reads have no redirect (and registrations run before
+            // replacements are installed). Avoid allocating cycle state for that path.
+            if (!_redirects.ContainsKey(id)) return id;
             var seen = new HashSet<AssetId>();
             while(_redirects.TryGetValue(id,out var next))
             { if(!seen.Add(id)) throw new InvalidOperationException("Asset redirect cycle."); id=next; }

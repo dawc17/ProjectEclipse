@@ -170,12 +170,19 @@ public class Render
 
 	// Reuse native location layers/animation and mod atmosphere in menu previews.
 	// The shop's fighter preview keeps its own authored position and renderer.
-	public void UpdateMenuBackdrop(UnityEngine.Camera camera, bool advanceAnimation)
+	public void UpdateMenuBackdrop(UnityEngine.Camera camera, bool advanceAnimation, float? fightCenterX = null)
 	{
 		if (camera == null || _location == null || _location.JMLAKAKDBBL <= 0f || _location.FEIHFIPFNKF <= 0f) return;
 		float height = camera.orthographicSize * 2f;
 		float scale = Mathf.Max(height / _location.FEIHFIPFNKF, height * camera.aspect / _location.JMLAKAKDBBL);
-		_UnityObject.transform.position = new Vector3(camera.transform.position.x, camera.transform.position.y, 100f + _location.layers.Count * 3f);
+		float offset = 0f;
+		if (fightCenterX.HasValue)
+		{
+			float halfVisible = height * camera.aspect / scale * .5f;
+			float center = Mathf.Clamp(fightCenterX.Value, halfVisible, _location.JMLAKAKDBBL - halfVisible);
+			offset = (_location.JMLAKAKDBBL * .5f - center) * scale;
+		}
+		_UnityObject.transform.position = new Vector3(camera.transform.position.x + offset, camera.transform.position.y, 100f + _location.layers.Count * 3f);
 		_UnityObject.transform.localScale = new Vector3(scale, -scale, 1f);
 		EAJGDJLHJFD.gameObject.SetActive(false);
 		if (advanceAnimation) JACOKNMGNDF();

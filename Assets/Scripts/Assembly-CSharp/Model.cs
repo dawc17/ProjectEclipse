@@ -3481,6 +3481,7 @@ public class Model : global::EventDispatcher<object>
 
 	public void OPPIKLBKMPN(ActionSound IBODMPMJELJ)
 	{
+		if (Fight.GetCurrentFight()?.IsTitleSparring == true) return;
 		if (IBODMPMJELJ.SameGender(Parameters.OLPCELPEDKD))
 		{
 			Sound.IFKCCDAIADF(IBODMPMJELJ.get_Name(), IBODMPMJELJ.DBIOMDEIIKI(), IBODMPMJELJ.AFKMLMCCJLI());
@@ -3489,11 +3490,13 @@ public class Model : global::EventDispatcher<object>
 
 	public void OPPIKLBKMPN(ActionStopSound IBODMPMJELJ)
 	{
+		if (Fight.GetCurrentFight()?.IsTitleSparring == true) return;
 		Sound.StopSound(IBODMPMJELJ.get_Name());
 	}
 
 	public void OPPIKLBKMPN(ActionRandomSound IBODMPMJELJ)
 	{
+		if (Fight.GetCurrentFight()?.IsTitleSparring == true) return;
 		if (IBODMPMJELJ.SameGender(Parameters.OLPCELPEDKD))
 		{
 			Sound.IFKCCDAIADF(IBODMPMJELJ.get_Name());

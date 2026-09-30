@@ -453,7 +453,7 @@ public class InfoAnimation
 	{
 		get
 		{
-			return MOPMGFIIFGA();
+			return CollectKeyConditions();
 		}
 	}
 
@@ -1309,7 +1309,8 @@ public class InfoAnimation
 		return null;
 	}
 
-	public List<ConditionKeys> MOPMGFIIFGA()
+	// best guess for name
+	public List<ConditionKeys> CollectKeyConditions()
 	{
 		List<ConditionKeys> list = new List<ConditionKeys>();
 		CIEHMPCOKGK(MoveData.JIFAHHGNPFH, list);

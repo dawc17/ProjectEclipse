@@ -79,8 +79,29 @@ namespace Eclipse.Content.TarAssets
 
         public T LoadAsset<T>(string address) where T : UnityEngine.Object
         {
-            T[] values = LoadAssetWithSubAssets<T>(address);
-            return values == null || values.Length == 0 ? null : values[0];
+            List<TarAssetMeta> metas;
+            if (!_assets.TryGetValue(TarAssetMeta.NormalizeAddress(address), out metas)) return null;
+            // A single sprite/audio request must not decode every member of its atlas/group.
+            foreach (TarAssetMeta meta in metas)
+            {
+                if (meta.Type == "sprite")
+                {
+                    if (typeof(T) == typeof(Sprite)) return LoadSprite(meta) as T;
+                    if (typeof(T) == typeof(Texture2D)) return LoadTexture(meta) as T;
+                }
+                if (meta.Type == "audio" && typeof(T) == typeof(AudioClip)) return LoadAudio(meta) as T;
+            }
+            return null;
+        }
+
+        internal bool ContainsText(string address, string type)
+        {
+            List<TarAssetMeta> metas;
+            if (!_assets.TryGetValue(TarAssetMeta.NormalizeAddress(address), out metas)) return false;
+            foreach (TarAssetMeta meta in metas)
+                if (string.Equals(meta.Type, type, StringComparison.OrdinalIgnoreCase))
+                    return _archive.ContainsNonEmptyFile(meta.File);
+            return false;
         }
 
         public T[] LoadAssetWithSubAssets<T>(string address) where T : UnityEngine.Object

@@ -21,7 +21,9 @@ namespace Eclipse.Rendering
 		private Sprite _whiteSprite;
 		private Material _particleMaterial;
 		private Texture2D _particleTexture;
-		private string _fxKey;
+		private readonly List<ModFxDefinition> _selectedFx = new List<ModFxDefinition>();
+		private readonly List<ModFxDefinition> _currentFx = new List<ModFxDefinition>();
+		private Location _fxLocation;
 		private readonly List<GameObject> _fxObjects = new List<GameObject>();
 
 		private struct Flicker { public SpriteRenderer Renderer; public Color Base; public float Amount, Speed, Seed; }
@@ -63,10 +65,15 @@ namespace Eclipse.Rendering
 			}
 			if (_particles != null && _particles.activeSelf != particles) _particles.SetActive(particles);
 
-			string fxKey = ModVisuals.ActiveFxKey(ModFxKind.Particles) + "#" + ModVisuals.ActiveFxKey(ModFxKind.Overlay);
-			if (fxKey != _fxKey)
+			_selectedFx.Clear();
+			foreach (ModFxDefinition definition in ModVisuals.EnumerateActiveFx(ModFxKind.Particles)) _selectedFx.Add(definition);
+			foreach (ModFxDefinition definition in ModVisuals.EnumerateActiveFx(ModFxKind.Overlay)) _selectedFx.Add(definition);
+			bool changed = _fxLocation != _location || _selectedFx.Count != _currentFx.Count;
+			for (int i = 0; !changed && i < _selectedFx.Count; i++) changed = _selectedFx[i] != _currentFx[i];
+			if (changed)
 			{
-				_fxKey = fxKey;
+				_fxLocation = _location;
+				_currentFx.Clear(); _currentFx.AddRange(_selectedFx);
 				BuildLocationFx();
 			}
 			// Flickering overlays: two out-of-step noise waves on the alpha, like a flame.
@@ -91,7 +98,7 @@ namespace Eclipse.Rendering
 			if (_location.gameLayer == null) return;
 			float width = Mathf.Max(_location.JMLAKAKDBBL, 1f);
 			float height = Mathf.Max(_location.FEIHFIPFNKF, 1f);
-			foreach (ModFxDefinition definition in ModVisuals.ActiveFx(ModFxKind.Particles))
+			foreach (ModFxDefinition definition in ModVisuals.EnumerateActiveFx(ModFxKind.Particles))
 			{
 				if (definition.Placement == ModFxPlacement.Node || definition.Placement == ModFxPlacement.Hit ||
 					definition.Placement == ModFxPlacement.Contact ||
@@ -106,7 +113,7 @@ namespace Eclipse.Rendering
 					new Vector3(definition.Number("x"), -definition.Number("y"), z), new Vector3(1f, -1f, 1f), definition, area, false);
 				_fxObjects.Add(system.gameObject);
 			}
-			foreach (ModFxDefinition definition in ModVisuals.ActiveFx(ModFxKind.Overlay))
+			foreach (ModFxDefinition definition in ModVisuals.EnumerateActiveFx(ModFxKind.Overlay))
 			{
 				if (!definition.MatchesLocation(_location.name)) continue;
 				Transform parent; float z;

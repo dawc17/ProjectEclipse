@@ -55,6 +55,16 @@ namespace Eclipse.Modding
 		private readonly string[] _nodes;
 		private string[] _weapons = Array.Empty<string>();
 		private ModFxSound[] _sounds = Array.Empty<ModFxSound>();
+		private LocationMatch _locationMatch;
+
+		// Definitions are immutable. Each renderer checks the same location every
+		// frame; retain just the last result rather than splitting it into a set again.
+		private sealed class LocationMatch
+		{
+			public readonly string Location;
+			public readonly bool Matches;
+			public LocationMatch(string location, bool matches) { Location = location; Matches = matches; }
+		}
 
 		public string Name { get; }
 		public ModId Owner { get; }
@@ -115,12 +125,20 @@ namespace Eclipse.Modding
 		public bool MatchesLocation(string location)
 		{
 			if (_match.Length == 0 && _exclude.Length == 0) return true;
+			LocationMatch cached = _locationMatch;
+			if (cached != null && cached.Location == location) return cached.Matches;
 			var words = new HashSet<string>((location ?? string.Empty).ToLowerInvariant().Split(new[] { '_', '-', ' ', ':', '/', '0', '1', '2', '3',
 				'4', '5', '6', '7', '8', '9' }, StringSplitOptions.RemoveEmptyEntries));
-			foreach (string word in _exclude) if (words.Contains(word)) return false;
-			if (_match.Length == 0) return true;
-			foreach (string word in _match) if (words.Contains(word)) return true;
-			return false;
+			foreach (string word in _exclude) if (words.Contains(word)) return CacheLocationMatch(location, false);
+			if (_match.Length == 0) return CacheLocationMatch(location, true);
+			foreach (string word in _match) if (words.Contains(word)) return CacheLocationMatch(location, true);
+			return CacheLocationMatch(location, false);
+		}
+
+		private bool CacheLocationMatch(string location, bool matches)
+		{
+			_locationMatch = new LocationMatch(location, matches);
+			return matches;
 		}
 	}
 
@@ -208,7 +226,8 @@ namespace Eclipse.Modding
 	public sealed partial class ModContentCatalog
 	{
 		private readonly List<ModFxDefinition> _fx = new List<ModFxDefinition>();
-		public IReadOnlyList<ModFxDefinition> Effects => _fx.AsReadOnly();
+		private IReadOnlyList<ModFxDefinition> _fxView;
+		public IReadOnlyList<ModFxDefinition> Effects => _fxView ?? (_fxView = _fx.AsReadOnly());
 		internal void CommitFx(IEnumerable<ModFxDefinition> fx) => _fx.AddRange(fx);
 	}
 

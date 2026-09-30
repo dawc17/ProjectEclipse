@@ -5,6 +5,25 @@ description: The small amount of Lua you need to read examples and write your fi
 
 Eclipse runs Lua scripts through its built-in scripting runtime. Start with `scripts/main.lua` in a mod folder; a separate Lua installation is not needed. This guide explains the notation used throughout the wiki.
 
+## When scripts load
+
+Eclipse runs each enabled mod's entrypoint when it initializes game content. This
+can happen at the title screen so its fighter previews use modded equipment and
+animations. Entering a campaign or local versus from that title keeps the loaded
+content and Lua environment; it does not run the entrypoint again. Applying a
+changed mod selection and restarting initializes a new content session.
+
+Use the entrypoint to register definitions, state schemas and callbacks. The title
+preview uses a disposable roster and does not bind mod save state or run state
+migrations. Eclipse binds state to the selected gameplay profile during entry;
+access saved values only at the times documented by the relevant callback or
+[state API](../../api/mod-state/).
+
+The title's background sparring uses native CPU tactics and detached equipment
+copies. It does not run Lua AI handlers, combat callbacks, or equipment perk and
+enchantment behavior, and it does not award progress or rewards. Modded equipment
+appearance and animation definitions remain visible in the preview.
+
 ## Load the API and keep a value
 
 ```lua

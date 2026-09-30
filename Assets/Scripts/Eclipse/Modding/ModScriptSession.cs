@@ -16,6 +16,7 @@ namespace Eclipse.Modding
         public IReadOnlyList<ModDiagnostic> Diagnostics { get; }
         public IReadOnlyList<ModDiagnostic> StateDiagnostics => _stateDiagnostics.AsReadOnly();
         public ModContentCatalog Content { get; }
+        internal string StartupTimings { get; private set; }
         public ModStateRuntime State { get; }
 
         public bool HasErrors
@@ -110,6 +111,8 @@ namespace Eclipse.Modding
             var content = new ModContentCatalog();
             var state = new ModStateRuntime();
             importCore?.Invoke(content);
+            long localizationMs = 0, contextMs = 0, executeMs = 0, commitMs = 0;
+            var watch = new System.Diagnostics.Stopwatch();
 
             foreach (ModDescriptor mod in host.EnabledMods)
             {
@@ -126,12 +129,20 @@ namespace Eclipse.Modding
                 try
                 {
                     registration = content.BeginRegistration(mod);
+                    watch.Restart();
                     ModLocalizationLoader.Load(mod, host.Assets, registration);
+                    localizationMs += watch.ElapsedMilliseconds;
                     var api = new ModApiFacade(mod, host.Assets, registration, state, logger);
+                    watch.Restart();
                     context = runtime.CreateContext(mod, api);
+                    contextMs += watch.ElapsedMilliseconds;
                     if (context == null) throw new InvalidOperationException("Script runtime returned a null context.");
+                    watch.Restart();
                     context.ExecuteEntrypoint();
+                    executeMs += watch.ElapsedMilliseconds;
+                    watch.Restart();
                     registration.Commit();
+                    commitMs += watch.ElapsedMilliseconds;
                     contexts.Add(context);
                     active.Add(mod);
                     activeIds.Add(mod.Id);
@@ -154,10 +165,16 @@ namespace Eclipse.Modding
                 }
             }
 
+            watch.Restart();
             content.Freeze();
             host.Assets.SetReplacements(content.AssetReplacements);
             state.FreezeDefinitions();
-            return new ModScriptSession(runtime.Name, contexts, active.ToArray(), diagnostics.ToArray(), content, state);
+            return new ModScriptSession(runtime.Name, contexts, active.ToArray(), diagnostics.ToArray(), content, state)
+            {
+                StartupTimings = "mod localizations " + localizationMs + " ms, contexts " + contextMs +
+                    " ms, entrypoints " + executeMs + " ms (includes asset descriptions), commits " + commitMs +
+                    " ms, finalize " + watch.ElapsedMilliseconds + " ms"
+            };
         }
 
         public string FormatReport()

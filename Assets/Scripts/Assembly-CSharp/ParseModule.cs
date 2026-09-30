@@ -5,14 +5,21 @@ public class ParseModule : LoadingModule
 		if (!CHIHBINEGFL)
 		{
 			GameUtils.InitVariables();
-			GameSettings.OCIPKAONMOP();
-			GameLoader.BJLLJHDFMOO();
-			GameLoader.POLKDKOOACO();
-			ListSF.GetInstance().IIKDNMBIHCM();
+			bool reusedTitleContent = Eclipse.UI.TitleScreen.TryResumeGameDataPreview();
+			if (!reusedTitleContent)
+			{
+				GameSettings.OCIPKAONMOP();
+				GameLoader.BJLLJHDFMOO();
+				GameLoader.POLKDKOOACO();
+				ListSF.GetInstance().IIKDNMBIHCM();
+			}
 			PerkTree.GBPBIPFIOJH().LJHPGKAOIAE();
 			GameSettings.LNNLDPLDABI();
-			GameLoader.SetSound();
-			LocalizationManager.Init();
+			if (!reusedTitleContent)
+			{
+				GameLoader.SetSound();
+				LocalizationManager.Init();
+			}
 			Eclipse.Modding.ModRuntime.ApplyLocaleMetadata();
 			Eclipse.Modding.ModRuntime.ApplyLegacyLocalization();
 			ListSF.CCDKHLAMKKO().AFAKCAMAACM();

@@ -14,10 +14,14 @@ public static class MovesParser
 
 	private static Dictionary<string, XmlNode> _BaseLegacyTemplateNodes = new Dictionary<string, XmlNode>();
 
+	private static Dictionary<string, XmlNode> _baseMoveLockSources;
+
 	public static void Parse(string path, List<InfoAnimation> DPPDBCBFHIL, Dictionary<string, TemplateAnimation> CBNKICJENCB, List<Trick> IAGDAAPCDNI, List<Trigger> CMHFKBKKKOK, bool OOJAEKEOEFJ)
 	{
+		_baseMoveLockSources = null;
 		MovesMaps.Init();
 		XmlDocument xmlDocument = XmlUtils.OpenXMLDocument(path + "/moves.xml", string.Empty);
+		var moveLockSources = CaptureBaseMoveLockSources(xmlDocument["Movesxml"]?["Moves"]);
 #if UNITY_EDITOR
 		Eclipse.Content.LocalAnimationPreview.Apply(xmlDocument);
 #endif
@@ -41,6 +45,37 @@ public static class MovesParser
 		_TemplateTemp = null;
 		_LegacyTemplateTemp.Clear();
 		_LegacyTemplateTemp = null;
+		_baseMoveLockSources = moveLockSources;
+	}
+
+	private static Dictionary<string, XmlNode> CaptureBaseMoveLockSources(XmlNode moves)
+	{
+		if (moves == null) return null;
+		var sources = new Dictionary<string, XmlNode>(System.StringComparer.Ordinal);
+		// The parser expands templates in place. Keep just the direct base Locks
+		// before that expansion, in a separate document so we do not retain all XML.
+		var snapshot = new XmlDocument { XmlResolver = null };
+		foreach (XmlNode move in moves.ChildNodes)
+		{
+			if (move.NodeType != XmlNodeType.Element || move.Name != "Move") continue;
+			string name = move.Attributes?["Name"]?.Value;
+			if (string.IsNullOrEmpty(name)) continue;
+			XmlElement source = snapshot.CreateElement("Move");
+			source.SetAttribute("Name", name);
+			if (move["Locks"] != null) source.AppendChild(snapshot.ImportNode(move["Locks"], true));
+			sources[name] = source; // Match the recovered reader's last duplicate wins.
+		}
+		return sources;
+	}
+
+	internal static bool TryReadBaseMoveLockSources(HashSet<string> wanted, out Dictionary<string, XmlNode> sources)
+	{
+		sources = null;
+		if (_baseMoveLockSources == null) return false;
+		sources = new Dictionary<string, XmlNode>(System.StringComparer.Ordinal);
+		foreach (string name in wanted)
+			if (_baseMoveLockSources.TryGetValue(name, out XmlNode source)) sources.Add(name, source.CloneNode(true));
+		return true;
 	}
 
 	internal static int ParseAdditional(XmlDocument xmlDocument, List<InfoAnimation> moves,
@@ -717,6 +752,7 @@ public static class MovesParser
 
 	public static void CHILAIJNEHG()
 	{
+		_baseMoveLockSources = null;
 		MovesMaps.Clear();
 		_BaseTemplateNodes.Clear();
 		_BaseLegacyTemplateNodes.Clear();

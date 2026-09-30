@@ -11,6 +11,10 @@ State is registered during startup but can only be read or changed after a playe
 profile loads. Put reads and writes inside a supported callback, not at the top
 of your entrypoint.
 
+The title's disposable fighter-preview roster does not bind saved mod state or
+run migrations. State becomes available when the selected gameplay profile loads,
+even when the title has already initialized the mod's content and Lua environment.
+
 For reproducible encounter choices, use [saved random streams](../random/)
 backed by declared integer fields. They share this API's ownership, schema and
 normal profile-save behavior.

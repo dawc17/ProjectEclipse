@@ -10,6 +10,129 @@ using UnityEngine;
 
 public class Fight
 {
+    internal bool IsTitleSparring { get; private set; }
+    internal float TitleSparringCenterX => (_playerModel.PLBNCDCFPML().GetX() + CKNCPOABFBO.PLBNCDCFPML().GetX()) * .5f;
+    private float _titleOldLeftWall, _titleOldRightWall;
+    private int _titleOldSpeed, _titleRoundEndFrame = -1;
+    private bool _titleOldAiOn;
+
+    // A presentation encounter: no campaign boot, HUD, controller, rules, rewards,
+    // music or Lua lifecycle. Models still use native AI, animation and hit physics.
+    internal static Fight CreateTitleSparring(Location location, Render render,
+        ModelParameters left, ModelParameters right, float leftX, float rightX, float minX, float maxX)
+    {
+        if (GetCurrentFight() != null) throw new InvalidOperationException("A fight already owns the combat engine.");
+        var fight = new Fight();
+        fight.IsTitleSparring = true;
+        fight._titleOldLeftWall = GameUtils.CKOPPGCIHPL();
+        fight._titleOldRightWall = GameUtils.FBOGLADLJML();
+        fight._titleOldSpeed = GameUtils.GGBABPJBGJB();
+        fight._titleOldAiOn = ModelAi.get_AiOn();
+        _currentFight = fight;
+        try
+        {
+            fight._UnityObject = new GameObject("Title sparring simulation");
+            fight._location = location;
+            fight.FightDefinition = new FightList { TrackFightProgress = false, HealthRecovery = 1f };
+            fight.FightDefinition.set_Type(BattleType.FightPVP);
+            fight.NMNCKBPFCCP = left;
+            fight.AKBNKDBHCEO = right;
+            fight.IDAAONBIBJM = new List<ModelParameters> { right };
+            fight._rulesInspector = new RulesInspector(fight, fight.FightDefinition);
+            left.JJCKADKCDIF.Set(leftX, location.JJNMOJLLDEC.GetY(), 0f);
+            right.JJCKADKCDIF.Set(rightX, location.CLGGLBHOMCE.GetY(), 0f);
+            GameUtils.OKIEEBMCGHE(minX);
+            GameUtils.MJAPCKDDAMK(maxX);
+            GameUtils.CEPJBBGGMDP(1);
+            fight._Camera = new Camera(fight._UnityObject.transform);
+            fight._Camera.InitTitleBackdrop(location, render);
+            fight._playerModel = fight.AddModel(left);
+            fight.CKNCPOABFBO = fight.AddModel(right);
+            fight.ResetParameters();
+            fight.round.round = 1;
+            fight.round.processing = true;
+            fight.SetStage(StageType.FDBBPEGEGMK.STAGE_FIGHT);
+            fight.ActionModels(true);
+            // Gameplay normally enters through the start-stance stage. A title
+            // encounter skips that presentation, so seed native idle selection
+            // explicitly; the AI cannot decide until its first move exists.
+            fight._SelectAnimation.PrepareFormAnimation(fight._playerModel);
+            fight._SelectAnimation.PrepareFormAnimation(fight.CKNCPOABFBO);
+            ModelAi.set_AiOn(true);
+            return fight;
+        }
+        catch
+        {
+            fight.DisposeTitleSparring();
+            throw;
+        }
+    }
+
+    private Fight() { }
+
+    internal bool AdvanceTitleSparring()
+    {
+        if (!IsTitleSparring || GetCurrentFight() != this) return false;
+        fightTimeInFrame++;
+        EPBDEDGLHJE.Render();
+        foreach (var model in LNDLFINJHDB) model.Render();
+        if (HCPGFOCGDAA.Count > 0)
+        {
+            LNDLFINJHDB.AddRange(HCPGFOCGDAA);
+            HCPGFOCGDAA.Clear();
+        }
+        RenderCollisions();
+        _SelectAnimation.UpdateConditions();
+        foreach (var model in LNDLFINJHDB) model.RenderAi();
+        _SelectAnimation.Render();
+        EPBDEDGLHJE.PAHPCIFKDEA();
+        BELLAEIMEAB();
+        ResetModelsHitData();
+        frame++;
+        if (_titleRoundEndFrame < 0 &&
+            (NMNCKBPFCCP.PCALDKCJGCK || AKBNKDBHCEO.PCALDKCJGCK || frame >= 2400))
+        {
+            _titleRoundEndFrame = frame;
+            round.processing = false;
+            ActionModels(false);
+        }
+        return _titleRoundEndFrame < 0 || frame - _titleRoundEndFrame < 90;
+    }
+
+    internal void DisposeTitleSparring()
+    {
+        if (!IsTitleSparring) return;
+        try
+        {
+            var models = new HashSet<Model>(LNDLFINJHDB);
+            models.UnionWith(HCPGFOCGDAA);
+            models.UnionWith(JLEFIKJODGG);
+            foreach (var model in models)
+            {
+                try { RemoveModel(model); }
+                catch (Exception error) { UnityEngine.Debug.LogWarning("[Title] Fighter cleanup: " + error); }
+            }
+            LNDLFINJHDB.Clear();
+            HCPGFOCGDAA.Clear();
+            JLEFIKJODGG.Clear();
+            _SelectAnimation.FDBHLFMBECM();
+            EPBDEDGLHJE.Reset();
+        }
+        finally
+        {
+            if (_currentFight == this)
+            {
+                _currentFight = null;
+                GameUtils.OKIEEBMCGHE(_titleOldLeftWall);
+                GameUtils.MJAPCKDDAMK(_titleOldRightWall);
+                GameUtils.CEPJBBGGMDP(_titleOldSpeed);
+                ModelAi.set_AiOn(_titleOldAiOn);
+            }
+            IsTitleSparring = false;
+            if (_UnityObject != null) UnityEngine.Object.Destroy(_UnityObject);
+        }
+    }
+
     public bool IsLocalVersus => FightDefinition is Eclipse.Multiplayer.LocalVersusMatch;
     internal sealed class PreparedFormModel : IDisposable
     {
@@ -1564,10 +1687,10 @@ public class Fight
 		switch (LFLGCDNKNJI)
 		{
 		case StageType.FDBBPEGEGMK.STAGE_FIGHT:
-			Controller.StartController();
+			Controller?.StartController();
 			break;
 		case StageType.FDBBPEGEGMK.STAGE_END_STANCE:
-			Controller.StopController();
+			Controller?.StopController();
 			break;
 		}
 		stageType = LFLGCDNKNJI;
@@ -2223,7 +2346,7 @@ public class Fight
 		}
 		// Eclipse: the archival DE CriticalEffect trigger plays snd_crit with the critical hit
 		// effect; the shipped moves data only carries the effect, so play the sound once here.
-		if (gHHCDAFIKJE.DNGKOMPMPCD && !gHHCDAFIKJE.DFOHNJEBDED)
+		if (!IsTitleSparring && gHHCDAFIKJE.DNGKOMPMPCD && !gHHCDAFIKJE.DFOHNJEBDED)
 		{
 			Sound.IFKCCDAIADF("snd_crit");
 		}
@@ -2271,6 +2394,7 @@ public class Fight
 
 	public void PPDEKDMGIMH(object data)
 	{
+		if (IsTitleSparring) return;
 		Model.EventActBtnSettings bOMCDIIDKPD = (Model.EventActBtnSettings)data;
 		float num = bOMCDIIDKPD.Value * 100f;
 		if (bOMCDIIDKPD.NBIBIANJLEA == FightCID.MagicButton && num > 97f && num < 100f)
@@ -2283,6 +2407,7 @@ public class Fight
 
 	public void BHBGIMOHFPI(object data)
 	{
+		if (IsTitleSparring) return;
 		Model.EventActBtnSettings bOMCDIIDKPD = (Model.EventActBtnSettings)data;
 		ActionButtons actionButtons = Controller.GetActionButtons();
 		actionButtons.SetBulletsCountToActBtn(bOMCDIIDKPD.NBIBIANJLEA, bOMCDIIDKPD.PKMHOICGDIM);
@@ -3702,6 +3827,7 @@ public class Fight
 
 	private void KCACCJNMOFM(Model.EventModel EGHPHELLOGO)
 	{
+		if (IsTitleSparring) return;
 		if (!round.processing || FightDefinition.get_Type() == BattleType.FightNone || FCCPOLAMJNO || LKCNBFEINCM || !EGHPHELLOGO.KJDFJPBIGJC.LLBJPPAJOHE())
 		{
 			return;
@@ -3909,6 +4035,7 @@ public class Fight
 
 	private void CheckFightRules(FightEvent KOJNCHKPLLN, RuleAppliance EJPOJJKKICO)
 	{
+		if (IsTitleSparring) return;
 		UpdateFightData(KOJNCHKPLLN);
 		if (_rulesInspector != null)
 		{

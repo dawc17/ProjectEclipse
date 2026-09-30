@@ -93,6 +93,18 @@ namespace Eclipse.Multiplayer
             return parameters;
         }
 
+        internal static ModelParameters PrepareTitleFighter(VersusLoadout loadout, bool left, string tactic)
+        {
+            var parameters = PrepareFighter(loadout, left, string.Empty, tactic);
+            if (!parameters.AiControlled) throw new InvalidOperationException("Title CPU tactic is unavailable: " + tactic);
+            // A preview has no saved mod state or combat callbacks. Native weapon moves
+            // still play, but authored perk/enchantment behavior belongs to gameplay.
+            foreach (var item in new[] { parameters.Skeleton, parameters.Weapon, parameters.Armor,
+                parameters.Helm, parameters.Ranged, parameters.Magic })
+                if (item != null) item.InnatePerks.Clear();
+            return parameters;
+        }
+
         private static ItemInfo CopyItem(string name)
         {
             var source = ListSF.GetItems().GetItemByName(name);

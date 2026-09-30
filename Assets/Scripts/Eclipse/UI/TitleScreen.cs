@@ -884,8 +884,7 @@ namespace Eclipse.UI
         {
             if (leaving) return;
             leaving = true;
-            // The real boot starts once the title closes, from a clean slate.
-            DiscardGameDataPreview();
+            PrepareGameDataForEntry();
             // The loading screen fades in over the title (and the gong) and stays up until the
             // campaign or the local versus lobby is actually on screen.
             enterAt = Time.realtimeSinceStartup + .6f;
@@ -1039,7 +1038,7 @@ namespace Eclipse.UI
             ClearPendingModZip();
             if (!optionsOnly) EclipseUiAudio.StopTitleMusic();
             ReleaseStage();
-            if (!optionsOnly) TitleGameData.Discard();
+            if (!optionsOnly && !leaving) TitleGameData.Discard();
             foreach (var texture in autumnTextures.Values) Destroy(texture);
             foreach (var pair in filteredTextures) if (pair.Key != null) pair.Key.filterMode = pair.Value;
             if (logoInk != null) Destroy(logoInk);

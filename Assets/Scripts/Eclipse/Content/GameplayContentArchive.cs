@@ -26,6 +26,14 @@ namespace Eclipse.Content
 
         private static string _editableRoot;
         private static bool _editableRootInit;
+        private static string _packagedRoot;
+
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+        private static void ResetRootCache()
+        {
+            _editableRoot = _packagedRoot = null;
+            _editableRootInit = false;
+        }
 
         public static string GetXmlRoot()
         {
@@ -36,17 +44,26 @@ namespace Eclipse.Content
             if (editable != null)
                 return editable;
 
+            // The packaged resource is immutable for this player run. Resolving its
+            // directory again must not reload its bytes and hash the entire archive.
+            // Loose/editor XML still gets read by callers; only the directory is cached.
+            if (_packagedRoot != null)
+                return _packagedRoot;
+
             TextAsset asset = Resources.Load<TextAsset>(ResourcePath);
             if (asset == null)
                 throw new InvalidDataException("Packaged gameplay XML is missing. Rebuild using SF2's content build processor.");
+            string root;
             try
             {
-                return ExtractArchive(asset.bytes, Path.Combine(Application.persistentDataPath, "Content/gameplay"));
+                root = ExtractArchive(asset.bytes, Path.Combine(Application.persistentDataPath, "Content/gameplay"));
             }
             finally
             {
                 Resources.UnloadAsset(asset);
             }
+            _packagedRoot = root;
+            return root;
         }
 
         // Only honoured on desktop players, and only when the build step wrote the

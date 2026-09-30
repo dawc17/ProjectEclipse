@@ -17,6 +17,7 @@ public static class Extensions {
 public static class XmlUtils {public static XmlDocument Input; public static XmlDocument AIFIAKNJMHG(string a,string b)=>Input;}
 public static class SF2Paths {public static string GetUserDataDirectory()=>"";}
 namespace Eclipse.Multiplayer {public static class LocalVersusSession {public static bool IsActive;}}
+namespace Eclipse.Saves {public static class CampaignSaveSession {public static string PreviewDirectory;}}
 public static class Constants {public static string OJMIJINKBPJ="";}
 public static class GameUtils {public static string GetDefaultItem(string slot)=>"default";}
 public class ModelParameters {public XmlNode Node;public void NOBKKLBJFIL(){}}
@@ -87,5 +88,9 @@ public static class ActivationChecks {
 $temp=Join-Path $root ('Temp/ProfileActivation-'+[Guid]::NewGuid().ToString('N'))
 New-Item -ItemType Directory -Path $temp | Out-Null
 $fixture.Replace('/* METHODS */',($methods -join [Environment]::NewLine)) | Set-Content -Encoding UTF8 -LiteralPath (Join-Path $temp 'Fixture.cs')
-Add-Type -Path (Join-Path $temp 'Fixture.cs') -CompilerOptions '/nowarn:0219,0649'
-[ActivationChecks]::Run()
+@'
+<Project Sdk="Microsoft.NET.Sdk"><PropertyGroup><OutputType>Exe</OutputType><TargetFramework>net10.0</TargetFramework><NoWarn>0219;0649</NoWarn></PropertyGroup></Project>
+'@ | Set-Content -Encoding UTF8 -LiteralPath (Join-Path $temp 'Fixture.csproj')
+'public static class Program { public static void Main() { ActivationChecks.Run(); } }' | Set-Content -Encoding UTF8 -LiteralPath (Join-Path $temp 'Program.cs')
+dotnet run --project (Join-Path $temp 'Fixture.csproj') --verbosity quiet
+if ($LASTEXITCODE -ne 0) { throw 'Profile activation checks failed.' }

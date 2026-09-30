@@ -148,7 +148,17 @@ namespace Eclipse.Content
             if (string.IsNullOrEmpty(modelName)) return false;
             string path = modelName.Replace('\\', '/').Trim();
             path = GetLastSegment(StripXmlExtension(path));
-            return !string.IsNullOrEmpty(LoadModelText("gamedata/models/" + path));
+            string address = "gamedata/models/" + path;
+            // Keep replacement precedence, but core availability only needs metadata.
+            if (Eclipse.Modding.ModRuntime.TryResolveCoreReplacement(address, out var replacement))
+                return !string.IsNullOrEmpty(Eclipse.Modding.ModRuntime.Host.TypedAssets.LoadModelText(replacement));
+            EnsureIndex();
+            foreach (BundleAsset entry in FindCandidates(address, typeof(TextAsset)))
+            {
+                NativeAssetGroup bundle = OpenBundle(entry.BundleName);
+                if (bundle != null && bundle.ContainsText(entry.AssetPath, "model")) return true;
+            }
+            return false;
         }
 
         public static bool ContainsExactAddress(string resourcePath)
@@ -653,8 +663,23 @@ namespace Eclipse.Content
             }
             public T LoadAsset<T>(string address) where T : UnityEngine.Object
             {
+                if (!assets.ContainsKey(address)) return null;
+                if (!string.IsNullOrEmpty(record.file) &&
+                    typeof(T) != typeof(Font) && typeof(T) != typeof(Material))
+                {
+                    if (tarBundle == null) tarBundle = new TarAssetBundle(record);
+                    T asset = tarBundle.LoadAsset<T>(address);
+                    if (asset != null) return asset;
+                }
                 T[] results = LoadAssetWithSubAssets<T>(address);
                 return results == null || results.Length == 0 ? null : results[0];
+            }
+
+            public bool ContainsText(string address, string type)
+            {
+                if (!assets.ContainsKey(address) || string.IsNullOrEmpty(record.file)) return false;
+                if (tarBundle == null) tarBundle = new TarAssetBundle(record);
+                return tarBundle.ContainsText(address, type);
             }
             public T[] LoadAssetWithSubAssets<T>(string address) where T : UnityEngine.Object
             {

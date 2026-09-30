@@ -338,8 +338,11 @@ public class ListSF
 
 	// Eclipse: the part of IIKDNMBIHCM the title's sparring fighters need (items with the
 	// enabled mods' content, which often changes how fighters look, and a profile), without
-	// warriors, zones, quests or the roster timer. The title discards it
-	// (GameLoaderScene.DiscardTitlePreview) before the real load.
+	// warriors, zones, quests or the roster timer. Campaign entry retains this content
+	// and replaces the sandbox profile before completing the remaining steps.
+	private bool _titleContentReady;
+	internal static bool CanResumeTitlePreview => _instance != null && _instance._titleContentReady;
+
 	internal void LoadTitlePreview()
 	{
 		TimeStep("battle types", EAFEBFMIDLF);
@@ -347,7 +350,27 @@ public class ListSF
 		TimeStep("items", NMMBHENGDJO);
 		TimeStep("mod content", () => Eclipse.Modding.ModRuntime.StartGameContent());
 		TimeStep("profile", PBNNPBEDOOJ);
+		// Prices must remain in their source denomination until a real profile loads.
+		_titleContentReady = true;
+	}
+
+	internal void DetachTitleProfile()
+	{
+		Eclipse.Modding.ModRuntime.UnbindProfile();
+		if (ANEHEDFAPCH != null) ANEHEDFAPCH.RemoveEventListener(0, EJANJEEGOOE);
+		ANEHEDFAPCH = null;
+		_CurrentUserNode = null;
+		IEDEFCBFJAD = null;
+		GJEJCLBAPMP = false;
+	}
+
+	internal void ResumeTitlePreview()
+	{
+		if (!_titleContentReady) throw new InvalidOperationException("Title content is not available.");
+		_titleContentReady = false;
+		TimeStep("profile", PBNNPBEDOOJ);
 		TimeStep("item denominations", () => ItemInfo.DenominateItems());
+		CompleteGameContentLoad();
 	}
 
 	public void IIKDNMBIHCM()
@@ -358,6 +381,11 @@ public class ListSF
 		TimeStep("mod content", () => Eclipse.Modding.ModRuntime.StartGameContent());
 		TimeStep("profile", PBNNPBEDOOJ);
 		TimeStep("item denominations", () => ItemInfo.DenominateItems());
+		CompleteGameContentLoad();
+	}
+
+	private void CompleteGameContentLoad()
+	{
 		TimeStep("warriors", OFIPOGGCKIN);
 		TimeStep("zones", KIEEPEOPJGB);
 		TimeStep("mod stages", () => Eclipse.Modding.ModRuntime.ApplyStageContent());
@@ -2606,7 +2634,7 @@ public class ListSF
 		}
 		ANEHEDFAPCH.get_Parameters().NOBKKLBJFIL();
 		XmlNode hKPPBKPJOEO = IEDEFCBFJAD["Root"]["Billing"];
-		JMDJEEFELCD(hKPPBKPJOEO);
+		if (Eclipse.Saves.CampaignSaveSession.PreviewDirectory == null) JMDJEEFELCD(hKPPBKPJOEO);
 	}
 
 	private int HFPJDOEEDCA()

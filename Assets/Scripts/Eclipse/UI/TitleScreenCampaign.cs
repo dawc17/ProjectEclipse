@@ -118,7 +118,6 @@ namespace Eclipse.UI
             if (leaving) return;
             try
             {
-                DiscardGameDataPreview();
                 CampaignSaveSession.Select(campaignStore, save.Id);
                 BeginCampaign();
             }

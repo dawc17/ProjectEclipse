@@ -74,7 +74,7 @@ namespace Eclipse.Modding
 		public static float CurrentTimeScale()
 		{
 			float scale = 1f;
-			foreach (ModFxDefinition definition in ActiveFx(ModFxKind.Screen))
+			foreach (ModFxDefinition definition in EnumerateActiveFx(ModFxKind.Screen))
 			{
 				if (definition.Trigger == ModFxTrigger.Always || definition.Number("time_scale") >= 1f) continue;
 				if (!definition.MatchesLocation(CurrentLocation)) continue;
@@ -141,7 +141,7 @@ namespace Eclipse.Modding
 		private static void PlayTriggerSounds(ModFxTrigger trigger)
 		{
 			if (PlayEffectSound == null || _catalog == null) return;
-			foreach (ModFxDefinition definition in ActiveFx(ModFxKind.Screen))
+			foreach (ModFxDefinition definition in EnumerateActiveFx(ModFxKind.Screen))
 			{
 				if (definition.Sounds.Count == 0 || definition.Trigger != trigger || !definition.MatchesLocation(CurrentLocation)) continue;
 				ModFxSound sound = definition.Sounds[UnityEngine.Random.Range(0, definition.Sounds.Count)];
@@ -154,7 +154,7 @@ namespace Eclipse.Modding
 		public static List<string> EffectSoundReferences()
 		{
 			var references = new List<string>();
-			foreach (ModFxDefinition definition in ActiveFx(ModFxKind.Screen))
+			foreach (ModFxDefinition definition in EnumerateActiveFx(ModFxKind.Screen))
 				foreach (ModFxSound sound in definition.Sounds)
 					if (!references.Contains(sound.Reference)) references.Add(sound.Reference);
 			return references;
@@ -169,7 +169,7 @@ namespace Eclipse.Modding
 		public static float CurrentMuffle()
 		{
 			float muffle = 0f;
-			foreach (ModFxDefinition definition in ActiveFx(ModFxKind.Screen))
+			foreach (ModFxDefinition definition in EnumerateActiveFx(ModFxKind.Screen))
 			{
 				if (definition.Number("muffle") <= 0f || !definition.MatchesLocation(CurrentLocation)) continue;
 				muffle = Mathf.Max(muffle, definition.Number("muffle") * TriggerWeight(definition));
@@ -231,37 +231,70 @@ namespace Eclipse.Modding
 		public static ModVisualDefinition Active(ModVisualEffect effect)
 		{
 			if (_catalog == null || !_catalog.Visuals.TryGetValue(effect, out var definition)) return null;
-			if (definition.Setting == null) return definition;
-			foreach (ModSettingToggle toggle in _catalog.SettingToggles)
-				if (toggle.Name == definition.Setting) return ModSettingsStore.Get(toggle) ? definition : null;
-			return null;
+			return SettingOn(definition.Setting) ? definition : null;
 		}
 
 		private static bool SettingOn(string setting)
 		{
 			if (setting == null) return true;
-			foreach (ModSettingToggle toggle in _catalog.SettingToggles)
+			if (_catalog == null) return false;
+			IReadOnlyList<ModSettingToggle> settings = _catalog.SettingToggles;
+			for (int i = 0; i < settings.Count; i++)
+			{
+				ModSettingToggle toggle = settings[i];
 				if (toggle.Name == setting) return ModSettingsStore.Get(toggle);
+			}
 			return false;
+		}
+
+		// Native renderer iteration avoids a temporary list and boxed enumerator.
+		// Settings are evaluated as we iterate, so a toggle takes effect immediately.
+		public static ActiveFxEnumerable EnumerateActiveFx(ModFxKind kind) =>
+			new ActiveFxEnumerable(_catalog?.Effects, kind);
+
+		public readonly struct ActiveFxEnumerable
+		{
+			private readonly IReadOnlyList<ModFxDefinition> _effects;
+			private readonly ModFxKind _kind;
+			internal ActiveFxEnumerable(IReadOnlyList<ModFxDefinition> effects, ModFxKind kind)
+			{ _effects = effects; _kind = kind; }
+			public Enumerator GetEnumerator() => new Enumerator(_effects, _kind);
+
+			public struct Enumerator
+			{
+				private readonly IReadOnlyList<ModFxDefinition> _effects;
+				private readonly ModFxKind _kind;
+				private int _index;
+				public ModFxDefinition Current { get; private set; }
+				internal Enumerator(IReadOnlyList<ModFxDefinition> effects, ModFxKind kind)
+				{ _effects = effects; _kind = kind; _index = 0; Current = null; }
+				public bool MoveNext()
+				{
+					while (_effects != null && _index < _effects.Count)
+					{
+						ModFxDefinition definition = _effects[_index++];
+						if (definition.Kind != _kind || !SettingOn(definition.Setting)) continue;
+						Current = definition;
+						return true;
+					}
+					Current = null;
+					return false;
+				}
+			}
 		}
 
 		// sf2.fx effects of one kind whose switch (if any) is on, in load order.
 		public static List<ModFxDefinition> ActiveFx(ModFxKind kind)
 		{
 			var result = new List<ModFxDefinition>();
-			if (_catalog == null) return result;
-			foreach (ModFxDefinition definition in _catalog.Effects)
-				if (definition.Kind == kind && SettingOn(definition.Setting)) result.Add(definition);
+			foreach (ModFxDefinition definition in EnumerateActiveFx(kind)) result.Add(definition);
 			return result;
 		}
 
 		// Whether any effect of one kind is active, without building a list.
 		public static bool HasActiveFx(ModFxKind kind)
 		{
-			if (_catalog == null) return false;
-			foreach (ModFxDefinition definition in _catalog.Effects)
-				if (definition.Kind == kind && SettingOn(definition.Setting)) return true;
-			return false;
+			return EnumerateActiveFx(kind).GetEnumerator().MoveNext();
 		}
 
 		// A stable key for the active set of one kind, so renderers rebuild only on change.
@@ -269,8 +302,7 @@ namespace Eclipse.Modding
 		{
 			if (_catalog == null) return string.Empty;
 			var key = new System.Text.StringBuilder();
-			foreach (ModFxDefinition definition in _catalog.Effects)
-				if (definition.Kind == kind && SettingOn(definition.Setting)) key.Append(definition.Name).Append('|');
+			foreach (ModFxDefinition definition in EnumerateActiveFx(kind)) key.Append(definition.Name).Append('|');
 			return key.ToString();
 		}
 
@@ -299,7 +331,7 @@ namespace Eclipse.Modding
 			var grade = new ScreenGrade { Saturation = 1f, Contrast = 1f, Tint = Color.white, HalationColor = DefaultHalation,
 				HalationThreshold = 0.75f, Accent = Color.red, AccentWidth = 0.08f };
 			float now = Time.unscaledTime;
-			foreach (ModFxDefinition definition in ActiveFx(ModFxKind.Screen))
+			foreach (ModFxDefinition definition in EnumerateActiveFx(ModFxKind.Screen))
 			{
 				if (!definition.MatchesLocation(CurrentLocation)) continue;
 				float w = TriggerWeight(definition);

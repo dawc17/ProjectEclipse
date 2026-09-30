@@ -416,6 +416,17 @@ public class Camera : global::EventDispatcher<object>
 		_RenderInterpolation.ResetZoomScale(0f);
 	}
 
+	// The title already owns the location renderer and its fixed Unity camera.
+	internal void InitTitleBackdrop(Location location, Render render)
+	{
+		_location = location;
+		BMBGCIEFJGB = render;
+		// The title frames the borrowed renderer. The gameplay interpolation
+		// driver otherwise applies an uninitialized fight camera in LateUpdate,
+		// shifting/scaling the location layers after the title has drawn them.
+		_UnityObject.GetComponent<CameraRenderInterpolationDriver>().enabled = false;
+	}
+
 	public void Render()
 	{
 		if (PMNEFPDLPCC)
@@ -566,6 +577,7 @@ public class Camera : global::EventDispatcher<object>
 
 	public void FIEBIONJCCI(GameUtils.HitEffect HJLADIDMFOM)
 	{
+		if (Fight.GetCurrentFight()?.IsTitleSparring == true) return;
 		if (HJLADIDMFOM != null)
 		{
 			IONLHJIDACJ = HJLADIDMFOM;
@@ -586,6 +598,7 @@ public class Camera : global::EventDispatcher<object>
 
 	public void FFIAMGHGPPA(GameUtils.ZoomEffect DCLANCDBJLM)
 	{
+		if (Fight.GetCurrentFight()?.IsTitleSparring == true) return;
 		if (DCLANCDBJLM != null)
 		{
 			NOLKMEPOJIE = true;

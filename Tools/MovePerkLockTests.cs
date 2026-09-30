@@ -76,11 +76,17 @@ public static class AnimationData
 {
     public static readonly List<InfoAnimation> Animations=new List<InfoAnimation>();
 }
-public static class SF2Paths { public static string MCFPDHOLNGB()=>"fixture"; }
+public static class SF2Paths { public static string FFKEDOBDLOL = "userdata"; public static string MCFPDHOLNGB()=>"fixture"; }
 public static class XmlUtils
 {
     public static XmlDocument Source;
     public static XmlDocument OpenXMLDocument(string path,string file)=>Source;
+}
+public static class ResourceManager
+{
+    public static int Reads;
+    public static string GetText(string path) { Reads++; return XmlUtils.Source.OuterXml; }
+    public static string KIHHJGJKMIC(string path) => GetText(path);
 }
 
 internal static class Program
@@ -114,6 +120,29 @@ internal static class Program
         var vanilla=new XmlDocument(); vanilla.Load(Path.Combine(root,"Assets/vanillaXml/animations/moves.xml"));
         var de=new XmlDocument(); de.Load(Path.Combine(root,"Assets/DExml/animations/moves.xml"));
         XmlUtils.Source=vanilla;
+        var wanted = new HashSet<string>(Moves, StringComparer.Ordinal);
+        var probe = new XmlDocument(); probe.LoadXml("<Moves><Move Name='A'><Locks><Perk Name='First'/></Locks></Move><Move Name='A'><Locks><Perk Name='Last'/></Locks></Move><Move Name='Empty'/><Other Name='Ignored'/></Moves>");
+        MovesParser.Seed(probe.DocumentElement);
+        Assert(MovesParser.TryReadBaseMoveLockSources(new HashSet<string> { "A", "Empty", "Missing" }, out var cached), "Base snapshot unavailable");
+        Assert(cached.Count == 2 && cached["A"]["Locks"]["Perk"].GetAttribute("Name") == "Last" && cached["Empty"]["Locks"] == null, "Snapshot duplicate, missing or empty lock semantics changed");
+        Assert(!ReferenceEquals(cached["A"].OwnerDocument, probe), "Snapshot retains the whole source XML document");
+        cached["A"]["Locks"].RemoveAll(); probe.DocumentElement.RemoveAll();
+        MovesParser.TryReadBaseMoveLockSources(new HashSet<string> { "A" }, out cached);
+        Assert(cached["A"]["Locks"]["Perk"].GetAttribute("Name") == "Last", "Caller or parser mutation changed base locks");
+        MovesParser.CHILAIJNEHG();
+        Assert(!MovesParser.TryReadBaseMoveLockSources(wanted, out _), "Parser reset retained a stale base snapshot");
+        var read = typeof(ExternalCombatContentRuntime).GetMethod("ReadRecoveredMoves", BindingFlags.Static | BindingFlags.NonPublic);
+        var fallback = (Dictionary<string, XmlNode>)read.Invoke(null, new object[] { wanted });
+        Assert(ResourceManager.Reads == 1, "Cold source fallback did not read XML once");
+        MovesParser.Seed(vanilla["Movesxml"]["Moves"]);
+        var fromCache = (Dictionary<string, XmlNode>)read.Invoke(null, new object[] { wanted });
+        foreach (string name in Moves) Assert(fromCache[name]["Locks"].OuterXml == fallback[name]["Locks"].OuterXml, "Cached direct locks differ from recovered reader for " + name);
+        Assert(ResourceManager.Reads == 1, "Warm lock lookup reread moves.xml");
+        var nextBoot = new XmlDocument(); nextBoot.LoadXml("<Moves><Move Name='Fresh'><Locks><Perk Name='New'/></Locks></Move></Moves>");
+        MovesParser.CHILAIJNEHG(); MovesParser.Seed(nextBoot.DocumentElement);
+        MovesParser.TryReadBaseMoveLockSources(new HashSet<string> { "Fresh", Moves[0] }, out cached);
+        Assert(cached.Count == 1 && cached.ContainsKey("Fresh"), "Next boot reused old XML locks");
+        MovesParser.Seed(vanilla["Movesxml"]["Moves"]);
         AnimationData.Animations.Clear();
         var original=new Dictionary<string,string[]>();
         for(int i=0;i<Moves.Length;i++)
@@ -128,6 +157,7 @@ internal static class Program
         var removals=new List<MovePerkLockRemoval>();
         for(int i=0;i<Moves.Length;i++) removals.Add(new MovePerkLockRemoval(Moves[i],new DefinitionId("core","perks",Perks[i].ToLowerInvariant()),Perks[i]));
         var rollback=ExternalCombatContentRuntime.ApplyMovePerkLocks(removals);
+        Assert(ResourceManager.Reads == 1, "Applying perk locks reloaded parsed base XML");
         for(int i=0;i<Moves.Length;i++)
         {
             var locks=AnimationData.Animations[i].MoveData.Locks;
@@ -164,6 +194,6 @@ internal static class Program
 
         var facade=new ModApiFacade{Transaction=new ModRegistrationTransaction(new ModContentCatalog())}; facade.Transaction.Known[perkId]=new PerkDefinition(perkId,Perks[0]);
         facade.RemoveMovePerkLock(Moves[0],perkId); Assert(facade.Capability=="content.patch","Facade capability mismatch");
-        Console.WriteLine("PASS: 6 XML-authoritative move locks across 5 gate perks removed exactly; siblings/inherited locks preserved; rollback, exact casing, duplicate conflicts and capability validated.");
+        Console.WriteLine("PASS: base XML read once, cache matches original reader, template/caller mutations isolated, reset/reload fresh; 6 XML-authoritative move locks across 5 gate perks removed exactly; siblings/inherited locks, rollback, exact casing, duplicate conflicts and capability validated.");
     }
 }

@@ -306,27 +306,41 @@ public static class AnimationData
 
 	public static void CreateCapabilityTables()
 	{
-		foreach (InfoAnimation lNKJIIGBEDum in _Animations)
-		{
-			CreateCapabilityTable(lNKJIIGBEDum, _Animations);
-		}
+		// Key-condition discovery walks a move's condition tree and allocates a list.
+		// Snapshot it once per move for this pass, rather than once per move pair.
+		// This cache is deliberately local: mod patches can replace keys before a rebuild.
+		var keys = new List<ConditionKeys>[_Animations.Count];
+		for (int i = 0; i < _Animations.Count; i++) keys[i] = _Animations[i].CollectKeyConditions();
+		for (int i = 0; i < _Animations.Count; i++)
+			CreateCapabilityTable(_Animations[i], keys[i], _Animations, keys);
 	}
 
 	public static void CreateCapabilityTable(InfoAnimation DBOLBEOCEME, List<InfoAnimation> MAHEJFLCCHP)
 	{
-		List<ConditionKeys> list = DBOLBEOCEME.MOPMGFIIFGA();
+		List<ConditionKeys> list = DBOLBEOCEME.CollectKeyConditions();
+		if (list.Count == 0) return;
+		var keys = new List<ConditionKeys>[MAHEJFLCCHP.Count];
+		for (int i = 0; i < MAHEJFLCCHP.Count; i++)
+			if (DBOLBEOCEME.Priority < MAHEJFLCCHP[i].Priority) keys[i] = MAHEJFLCCHP[i].CollectKeyConditions();
+		CreateCapabilityTable(DBOLBEOCEME, list, MAHEJFLCCHP, keys);
+	}
+
+	private static void CreateCapabilityTable(InfoAnimation DBOLBEOCEME, List<ConditionKeys> list,
+		List<InfoAnimation> MAHEJFLCCHP, List<ConditionKeys>[] keys)
+	{
 		int count = list.Count;
 		if (0 >= count)
 		{
 			return;
 		}
-		foreach (InfoAnimation item in MAHEJFLCCHP)
+		for (int candidate = 0; candidate < MAHEJFLCCHP.Count; candidate++)
 		{
+			InfoAnimation item = MAHEJFLCCHP[candidate];
 			if (DBOLBEOCEME.Priority >= item.Priority)
 			{
 				continue;
 			}
-			List<ConditionKeys> list2 = item.MOPMGFIIFGA();
+			List<ConditionKeys> list2 = keys[candidate];
 			int count2 = list2.Count;
 			if (0 >= count2)
 			{

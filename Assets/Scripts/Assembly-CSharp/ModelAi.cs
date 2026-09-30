@@ -341,7 +341,8 @@ public class ModelAi
         // Likewise for the controller's own move: a fighter handed to the AI after its idle
         // loop began (the Eclipse training dummy) never gets that start notification, and
         // IsFitIntervalAndMove refuses every decision until it does.
-        if (CGPDPHJIDPA == null && _ModelAnimation.NMEEPBDJHMG() && Fight.GetCurrentFight() != null && Fight.GetCurrentFight().IsLocalVersus)
+        if (CGPDPHJIDPA == null && _ModelAnimation.NMEEPBDJHMG() && Fight.GetCurrentFight() != null &&
+            (Fight.GetCurrentFight().IsLocalVersus || Fight.GetCurrentFight().IsTitleSparring))
         {
             StartAnimationBot(_ModelAnimation.NNMAFFCCMHC());
         }
@@ -446,7 +447,7 @@ public class ModelAi
 			return null;
 		}
         string modTactic = get_Tactic()?.get_Name();
-        if (Eclipse.Modding.ModRuntime.HasAiHandler(modTactic))
+        if (Fight.GetCurrentFight()?.IsTitleSparring != true && Eclipse.Modding.ModRuntime.HasAiHandler(modTactic))
         {
             // The native argument is the controller's last key-input frame. It
             // can remain zero throughout an idle fight, so Lua decisions use

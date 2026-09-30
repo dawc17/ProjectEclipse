@@ -281,7 +281,10 @@ public class UserItem
 
 	public void KIGHKCOCJFJ(ItemInfo value)
 	{
-		EOFKPLMPGLD = value;
+		// Preview inventory must not unlock shared shop definitions or mark seals new.
+		// It can outlive the title through recovered timer listeners, so keep its
+		// item instances detached even after the sandbox directory is released.
+		EOFKPLMPGLD = Eclipse.Saves.CampaignSaveSession.PreviewDirectory != null ? value.Clone() : value;
 		EOFKPLMPGLD.DCHJDPCEODD = true;
 		if (IKNDJDEODFD == -1)
 		{
