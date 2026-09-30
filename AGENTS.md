@@ -137,7 +137,7 @@ python .\Deobfuscation\apply_reviewed_maps.py
 python .\Deobfuscation\apply_reviewed_maps.py --dry-run
 ```
 
-When Unity is available, use the matching 2022.3.62f3 editor and run the
+When Unity is available, use the matching editor and run the
 relevant menu validator under `SF2` or `Tools > SF2` after importing modified
 assets. Managed compilation and static audits cannot validate Unity native
 sprite import or thumbnail rendering.
