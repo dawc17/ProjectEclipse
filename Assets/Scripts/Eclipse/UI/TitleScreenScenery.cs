@@ -12,11 +12,42 @@ namespace Eclipse.UI
     // with device-aware hints.
     public sealed partial class TitleScreen
     {
-        private enum Season { Autumn, Spring }
+        // The autumn gate and the spring village are authored framings; the rest are real fight
+        // locations drawn by the game's own location renderer (see StageView), floors included.
+        private enum SceneId
+        {
+            Autumn, Spring,
+            BambooGrove, Sakura, NightBridge, Fuji, Waterfall,
+            SnowyPeak, FloodedVillage, LanternsOnWater, Moon, Heaven,
+        }
+        private static readonly int SceneCount = Enum.GetValues(typeof(SceneId)).Length;
+
+        // A fight location shown whole behind the menu.
+        private sealed class Stage
+        {
+            public string Location;     // location id (gamedata/locations/<id>)
+            public Color32 Accent;      // secondary menu copy on this scene
+            public TitleLeaf.Kind? Particles;
+        }
+
+        private static readonly Dictionary<SceneId, Stage> Stages = new Dictionary<SceneId, Stage>
+        {
+            { SceneId.BambooGrove, new Stage { Location = "bamboo_grove", Accent = new Color32(196, 226, 132, 255), Particles = TitleLeaf.Kind.Leaf } },
+            { SceneId.Sakura, new Stage { Location = "sakura", Accent = new Color32(255, 196, 214, 255), Particles = TitleLeaf.Kind.Petal } },
+            { SceneId.NightBridge, new Stage { Location = "night_bridge", Accent = new Color32(168, 196, 255, 255) } },
+            { SceneId.Fuji, new Stage { Location = "fuji", Accent = new Color32(255, 196, 214, 255), Particles = TitleLeaf.Kind.Petal } },
+            { SceneId.Waterfall, new Stage { Location = "waterfall", Accent = new Color32(150, 220, 206, 255), Particles = TitleLeaf.Kind.Leaf } },
+            { SceneId.SnowyPeak, new Stage { Location = "snowy_peak", Accent = new Color32(200, 224, 245, 255) } },
+            { SceneId.FloodedVillage, new Stage { Location = "flooded_village", Accent = new Color32(250, 171, 62, 255), Particles = TitleLeaf.Kind.Leaf } },
+            { SceneId.LanternsOnWater, new Stage { Location = "lamps_on_water", Accent = new Color32(255, 186, 98, 255) } },
+            { SceneId.Moon, new Stage { Location = "moon", Accent = new Color32(214, 206, 255, 255) } },
+            { SceneId.Heaven, new Stage { Location = "heaven", Accent = new Color32(255, 226, 150, 255), Particles = TitleLeaf.Kind.Petal } },
+        };
 
         // Title music per scene (Resources paths). The ambience is an Eclipse-owned track;
-        // Fuji is the game's own fight18_fuji.
-        private static string SceneMusic => season == Season.Spring ? "gamedata/music/fight18_fuji" : "EclipseTitle/the_ambience";
+        // Fuji is the game's own fight18_fuji, for the spring village and the Fuji stage.
+        private static string SceneMusic => scene == SceneId.Spring || scene == SceneId.Fuji
+            ? "gamedata/music/fight18_fuji" : "EclipseTitle/the_ambience";
 
         // A packaged seasonal dojo panorama. Rects are in sprite pixels, top-left origin.
         private sealed class Panorama
@@ -29,30 +60,48 @@ namespace Eclipse.UI
             public float SunRadius;
         }
 
-        private static readonly Dictionary<Season, Panorama> Panoramas = new Dictionary<Season, Panorama>
+        private static readonly Dictionary<SceneId, Panorama> Panoramas = new Dictionary<SceneId, Panorama>
         {
             // Lunar New Year village at night, lanterns lit; the eclipse rises over the peaks.
-            { Season.Spring, new Panorama { Address = "Textures/Locations/dojo_cny25/StaticImage/BG",
+            { SceneId.Spring, new Panorama { Address = "Textures/Locations/dojo_cny25/StaticImage/BG",
                 Art = new Rect(0, 0, 1960, 653), FocusX = 918, Ground = 552, Sun = new Vector2(1290, 96), SunRadius = 30 } },
         };
 
-        private const string SeasonPreference = "Eclipse.TitleSceneIndex";
-        private static Season season;
-        private static bool seasonChosen;
+        private const string ScenePreference = "Eclipse.TitleSceneIndex";
+        private static SceneId scene;
+        private static bool sceneChosen;
 
         // Opaque seasonal accents keep secondary copy distinct from the main
         // paper-colored labels: amber leaves at the gate, pink petals at night.
-        private static Color SceneryAccent => season == Season.Spring
-            ? new Color32(255, 196, 214, 255) : new Color32(250, 171, 62, 255);
+        private static Color SceneryAccent
+        {
+            get
+            {
+                Stage stage;
+                if (Stages.TryGetValue(scene, out stage)) return stage.Accent;
+                return scene == SceneId.Spring ? new Color32(255, 196, 214, 255) : new Color32(250, 171, 62, 255);
+            }
+        }
 
         private sealed class Layer { public RectTransform Rect; public Vector2 Home; public float Depth; public bool Live; }
         private readonly List<Layer> layers = new List<Layer>();
-        private RectTransform scenery;
+        // sceneryHost survives page rebuilds (Clear skips it), so opening Options or going
+        // back to Home never reloads the stage or the fighters. It holds the current
+        // `scenery` and, above it, the veil a scene change fades through.
+        private RectTransform sceneryHost, scenery;
+        private Image sceneVeil;
+        private Coroutine sceneChange;
         private RawImage panoramaImage;
         private Sprite panoramaSprite;
         private Vector2 parallax, parallaxVelocity;
         private float groundY = 662f;
         private float viewLeft, viewWidth = 1280f;
+
+        // The live fight location behind a stage scene, and its picture in `scenery`.
+        private StageView stageView;
+        private RawImage stageImage;
+        private const float StageOverscan = 1.04f;
+
 
         // Eclipse
         private RectTransform sunRoot;
@@ -76,56 +125,474 @@ namespace Eclipse.UI
 
         private static Texture2D softDot, ringTexture;
 
-        private static void ChooseSeason()
+        // Picks the scene for this launch, once. Manual cycling (CycleScene, below) reuses
+        // the same persisted counter via AdvanceScene, so it also decides what the next
+        // launch opens on.
+        private static void ChooseScene()
         {
-            if (seasonChosen) return;
-            seasonChosen = true;
-            int index = 0;
-            try { index = PlayerPrefs.GetInt(SeasonPreference, 0); PlayerPrefs.SetInt(SeasonPreference, index + 1); PlayerPrefs.Save(); }
-            catch (Exception error) { Debug.LogWarning("[Title] Scene rotation unavailable: " + error.Message); }
-            season = (Season)(Mathf.Abs(index) % 2);
+            if (sceneChosen) return;
+            sceneChosen = true;
+            AdvanceScene();
         }
 
-        // --- Scene construction (called from Clear) ---------------------------------------
+        // Reads the persisted scene counter, advances it (for the next launch, or the next
+        // manual cycle this run) and selects the scene it now points at.
+        private static void AdvanceScene()
+        {
+            int index = 0;
+            try { index = PlayerPrefs.GetInt(ScenePreference, 0); PlayerPrefs.SetInt(ScenePreference, index + 1); PlayerPrefs.Save(); }
+            catch (Exception error) { Debug.LogWarning("[Title] Scene rotation unavailable: " + error.Message); }
+            scene = (SceneId)(Mathf.Abs(index) % SceneCount);
+        }
+
+        // Manually advances to the next scene in rotation. Only reachable from Home (see
+        // DrawSceneCycleButton and the Update() shortcut); the menu itself is never rebuilt.
+        private void CycleScene()
+        {
+            if (leaving || rebuilding || currentPage != "Home" || sceneChange != null || sceneryHost == null) return;
+            EclipseUiAudio.Play(UiSound.Tab);
+            sceneChange = StartCoroutine(ChangeScene());
+        }
+
+        private const float SceneFadeOut = .35f, SceneFadeIn = .6f;
+
+        // Dips only the scenery (and its leaves) to ink, swaps the scene while none of it
+        // shows, then lifts the veil. The menu, logo and footer stay live throughout. The
+        // costly part (loading a location and the fighter models) happens under the veil,
+        // and the fades clamp their time step so a slow frame cannot skip them.
+        private System.Collections.IEnumerator ChangeScene()
+        {
+            string music = SceneMusic;
+            yield return FadeScene(0f, 1f, SceneFadeOut);
+            AdvanceScene();
+            RebuildScenery();
+            // The leaf layer survives page rebuilds, so reseed it for the new scene here.
+            if (leafLayer != null)
+            {
+                for (int i = leafLayer.childCount - 1; i >= 0; i--) Destroy(leafLayer.GetChild(i).gameObject);
+                ScatterParticles(leafLayer);
+            }
+            if (versusCaption != null) versusCaption.color = SceneryAccent;
+            if (SceneMusic != music) EclipseUiAudio.StartTitleMusic(SceneMusic, 1.2f);
+            // Let the location and the fighter models load and draw before anything shows.
+            for (int i = 0; i < 4; i++) yield return null;
+            // The new scene settles in and its eclipse gathers again, as on opening.
+            sceneOpened = Time.unscaledTime;
+            eclipse = eclipseVelocity = 0f;
+            yield return FadeScene(1f, 0f, SceneFadeIn);
+            sceneChange = null;
+        }
+
+        private System.Collections.IEnumerator FadeScene(float from, float to, float duration)
+        {
+            CanvasGroup leaves = null;
+            if (leafLayer != null)
+            {
+                leaves = leafLayer.GetComponent<CanvasGroup>();
+                if (leaves == null) leaves = leafLayer.gameObject.AddComponent<CanvasGroup>();
+            }
+            float t = 0f;
+            while (true)
+            {
+                t = Mathf.Min(1f, t + Mathf.Min(Time.unscaledDeltaTime, .05f) / duration);
+                float veil = Mathf.Lerp(from, to, t * t * (3f - 2f * t));
+                if (sceneVeil != null) sceneVeil.color = new Color(Ink.r, Ink.g, Ink.b, veil);
+                if (leaves != null) leaves.alpha = 1f - veil;
+                if (t >= 1f) yield break;
+                yield return null;
+            }
+        }
+
+        // --- Scene construction ------------------------------------------------------------
+
+        // Called from every Clear(): builds the scenery the first time only.
+        private void EnsureScenery()
+        {
+            if (sceneryHost != null) return;
+            sceneryHost = Rect(page, "Scenery host", 0, 0, 1280, 720);
+            sceneVeil = Box(sceneryHost, "Scene veil", -400, 0, 2080, 720, new Color(Ink.r, Ink.g, Ink.b, 0f)).GetComponent<Image>();
+            sceneVeil.raycastTarget = false;
+            RebuildScenery();
+        }
+
+        private void RebuildScenery()
+        {
+            if (scenery != null)
+            {
+                scenery.gameObject.SetActive(false);
+                Destroy(scenery.gameObject);
+            }
+            DrawScenery();
+            scenery.SetAsFirstSibling(); // under the veil
+        }
 
         private void DrawScenery()
         {
-            ChooseSeason();
+            ChooseScene();
             layers.Clear();
             panoramaImage = null;
+            stageImage = null;
+            skyLeft = skyRight = null;
             sunRoot = null; moonDisc = null; sunGlow = corona = null; totality = null;
-            scenery = Rect(page, "Scenery", 0, 0, 1280, 720);
+            scenery = Rect(sceneryHost, "Scenery", 0, 0, 1280, 720);
             scenery.pivot = new Vector2(.5f, .5f);
             scenery.anchoredPosition = new Vector2(640, -360);
             if (sceneOpened <= 0f) sceneOpened = Time.unscaledTime;
-            bool panorama = season != Season.Autumn && TryDrawPanorama();
-            if (!panorama) DrawAutumnGate();
+            // The in-game options overlay stays light: no live location over a running fight.
+            bool stage = Stages.ContainsKey(scene) && !optionsOnly && TryDrawStage();
+            if (!stage) ReleaseStage();
+            bool panorama = !stage && Panoramas.ContainsKey(scene) && TryDrawPanorama();
+            if (!stage && !panorama) DrawAutumnGate();
+            if (stage) DrawSparringFighters();
             if (totality != null) totality.transform.SetAsLastSibling();
             // On a panorama the sun sits over the painted sky; at the gate it hides behind the roof and trees.
             if (panorama && sunRoot != null) sunRoot.SetAsLastSibling();
         }
 
+        // Draws the scene's fight location through the game's own renderer (layers, floor
+        // and animation) into a texture. Kept across page rebuilds; replaced on a scene change.
+        private bool TryDrawStage()
+        {
+            var info = Stages[scene];
+            if (stageView == null || stageView.Location != info.Location)
+            {
+                ReleaseStage();
+                stageView = StageView.Open(info.Location);
+            }
+            if (stageView == null)
+            {
+                Debug.LogWarning("[Title] Could not draw stage " + info.Location + "; showing the autumn gate.");
+                scene = SceneId.Autumn;
+                return false;
+            }
+            stageImage = Rect(scenery, "Stage", 0, 0, 1280, 720).gameObject.AddComponent<RawImage>();
+            stageImage.raycastTarget = false;
+            // The location renders mirrored for the fight camera; show it upright.
+            stageImage.uvRect = new Rect(0, 1, 1, -1);
+            LayoutStage(Vector2.zero);
+            return true;
+        }
+
+        private void ReleaseStage()
+        {
+            if (stageView != null) stageView.Dispose();
+            stageView = null;
+        }
+
+        // The stage picture fills the viewport with overscan for the parallax; the floor line
+        // follows from where the renderer puts the location's own Floor.
+        private void LayoutStage(Vector2 offset)
+        {
+            if (stageImage == null || stageView == null) return;
+            float width = viewWidth * StageOverscan, height = 720f * StageOverscan;
+            var rect = stageImage.rectTransform;
+            rect.anchoredPosition = new Vector2(viewLeft - (width - viewWidth) * .5f, (height - 720f) * .5f) + offset;
+            rect.sizeDelta = new Vector2(width, height);
+            float pixels = Mathf.Clamp(Screen.height * StageOverscan, 256f, 2304f);
+            stageView.Tick(Mathf.RoundToInt(pixels * width / height), Mathf.RoundToInt(pixels));
+            stageImage.texture = stageView.Texture;
+            groundY = Mathf.Min(stageView.GroundFraction(width / height) * height - (height - 720f) * .5f, 700f);
+        }
+
+        // The game's location renderer drawing one location into a private texture, far
+        // from anything a scene places (as the versus lobby backdrop does).
+        private sealed class StageView
+        {
+            private const float FarX = 80000f;
+            public string Location { get; private set; }
+            public RenderTexture Texture { get; private set; }
+            private global::Location location;
+            private global::Render render;
+            private GameObject root;
+            private UnityEngine.Camera camera;
+
+            public static StageView Open(string name)
+            {
+                var view = new StageView { Location = name };
+                try
+                {
+                    view.location = new global::Location(name, string.Empty);
+                    view.location.init();
+                    if (view.location.layers == null || view.location.layers.Count == 0 || view.location.gameLayer == null)
+                        throw new InvalidOperationException("no layers");
+                    view.root = new GameObject("Title stage (" + name + ")");
+                    view.root.transform.position = new Vector3(FarX, 0, 0);
+                    view.render = new global::Render(view.root);
+                    view.render.Init(view.location);
+                    var host = new GameObject("Title stage camera");
+                    host.transform.position = new Vector3(FarX, 0, 0);
+                    view.camera = host.AddComponent<UnityEngine.Camera>();
+                    view.camera.orthographic = true;
+                    view.camera.orthographicSize = 5f;
+                    view.camera.nearClipPlane = .1f;
+                    view.camera.farClipPlane = 2000f;
+                    view.camera.clearFlags = CameraClearFlags.SolidColor;
+                    view.camera.backgroundColor = Ink;
+                    view.camera.depth = -100;
+                    view.camera.allowHDR = false;
+                    view.camera.allowMSAA = false;
+                    return view;
+                }
+                catch (Exception error)
+                {
+                    Debug.LogWarning("[Title] Stage " + name + " could not be drawn: " + error.Message);
+                    view.Dispose();
+                    return null;
+                }
+            }
+
+            // Keeps the texture at the picture's pixel size and the location framed on the camera.
+            public void Tick(int width, int height)
+            {
+                if (camera == null) return;
+                width = Mathf.Max(64, width); height = Mathf.Max(64, height);
+                if (Texture == null || Texture.width != width || Texture.height != height)
+                {
+                    ReleaseTexture();
+                    Texture = new RenderTexture(width, height, 16, RenderTextureFormat.ARGB32) { name = "Title stage", useMipMap = false };
+                    Texture.Create();
+                    camera.targetTexture = Texture;
+                    camera.aspect = (float)width / height;
+                }
+                try { render.UpdateMenuBackdrop(camera, false); }
+                catch (Exception error) { Debug.LogWarning("[Title] Stage update: " + error.Message); }
+            }
+
+            public void Advance()
+            {
+                if (camera == null) return;
+                try { render.UpdateMenuBackdrop(camera, true); }
+                catch (Exception error) { Debug.LogWarning("[Title] Stage animation: " + error.Message); }
+            }
+
+            private readonly List<GameObject> fighters = new List<GameObject>();
+
+            // Converts a horizontal page offset from the picture's centre (in page units, at
+            // the given viewport aspect) to the fight's x coordinate (0 at the left wall).
+            public float PageToFightX(float pageOffset, float aspect)
+            {
+                float height = location.FEIHFIPFNKF, width = location.JMLAKAKDBBL;
+                float visible = Mathf.Min(height, width / Mathf.Max(.01f, aspect));
+                return width * .5f + pageOffset * visible / (720f * StageOverscan);
+            }
+
+            // Stands two fighters in the location's game layer, where a fight's fighters are:
+            // each in a menu ModelContainer (its idle and pose animations, a model tinted in
+            // the location's fighter colour) placed as the stage's own RenderContainer is
+            // (RenderContainer.Init), so the model's fight coordinates are the location's.
+            public void ShowFighters(Eclipse.Multiplayer.VersusLoadout left, Eclipse.Multiplayer.VersusLoadout right, float leftX, float rightX)
+            {
+                RemoveFighters();
+                AddFighter(left, true, leftX, location.JJNMOJLLDEC.GetY(), false);
+                AddFighter(right, false, rightX, location.CLGGLBHOMCE.GetY(), true);
+            }
+
+            private void AddFighter(Eclipse.Multiplayer.VersusLoadout loadout, bool playerOne, float x, float y, bool faceLeft)
+            {
+                var host = new GameObject(playerOne ? "Title fighter left" : "Title fighter right");
+                host.transform.SetParent(location.gameLayer.MJNPBMOAFML().transform, false);
+                // The container's origin is the fighter's own x, so mirroring it turns the
+                // fighter round in place.
+                host.transform.localPosition = new Vector3(-location.JMLAKAKDBBL * .5f + x, -location.FEIHFIPFNKF * .5f + location.GBNPHCHGKDO, 0f);
+                host.transform.localScale = new Vector3(faceLeft ? -1f : 1f, 1f, 1f);
+                fighters.Add(host);
+                var container = host.AddComponent<Nekki.SF2.Core.Fights.ModelContainer>();
+                container.Init();
+                container.SetPreviewPosition(new Vector2(0f, y));
+                // Both are built as the player: the profile scene's animations are selected for
+                // the player only (ConditionPlayer), and a model with no animation never shows.
+                container.ShowParameters(Eclipse.Multiplayer.LocalVersusMatch.PrepareFighter(loadout, true, string.Empty),
+                    StageType.FDBBPEGEGMK.STAGE_SHOP_START, "Profile", location.modelsColor);
+            }
+
+            public void RemoveFighters()
+            {
+                foreach (var fighter in fighters) if (fighter != null) UnityEngine.Object.Destroy(fighter);
+                fighters.Clear();
+            }
+
+            // Where fighters stand, as a fraction of the picture's height from its top. The
+            // renderer centres the location on the camera and covers it (Render.UpdateMenuBackdrop);
+            // the fight floor sits Floor units above the location's bottom edge.
+            public float GroundFraction(float aspect)
+            {
+                float height = location.FEIHFIPFNKF, width = location.JMLAKAKDBBL;
+                float visible = Mathf.Min(height, width / Mathf.Max(.01f, aspect));
+                float ground = height * .5f - location.GBNPHCHGKDO;
+                return .5f + ground / visible;
+            }
+
+            private void ReleaseTexture()
+            {
+                if (Texture == null) return;
+                if (camera != null) camera.targetTexture = null;
+                Texture.Release();
+                UnityEngine.Object.Destroy(Texture);
+                Texture = null;
+            }
+
+            public void Dispose()
+            {
+                RemoveFighters();
+                try { render?.DestroyMenuBackdrop(); }
+                catch (Exception error) { Debug.LogWarning("[Title] Stage cleanup: " + error.Message); }
+                render = null;
+                if (root != null) UnityEngine.Object.Destroy(root);
+                root = null;
+                ReleaseTexture();
+                if (camera != null) UnityEngine.Object.Destroy(camera.gameObject);
+                camera = null;
+            }
+        }
+
         private bool TryDrawPanorama()
         {
-            var info = Panoramas[season];
+            var info = Panoramas[scene];
             if (panoramaSprite == null) panoramaSprite = Eclipse.Content.PackagedArtCatalog.Load<Sprite>(info.Address);
             if (panoramaSprite == null)
             {
                 Debug.LogWarning("[Title] Missing seasonal scene " + info.Address + "; showing the autumn gate.");
-                season = Season.Autumn;
+                scene = SceneId.Autumn;
                 return false;
             }
             panoramaImage = Rect(scenery, "Panorama", 0, 0, 1280, 720).gameObject.AddComponent<RawImage>();
             panoramaImage.texture = panoramaSprite.texture;
             panoramaImage.raycastTarget = false;
             if (info.Sun.HasValue) DrawSun(info.SunRadius);
+            LayoutPanorama(Vector2.zero); // sets groundY for the fighters
             return true;
         }
 
-        // Autumn leaves at the gate, cherry petals over the spring village.
+        // Two live fighters in randomized loadouts, standing in the stage itself either side of
+        // the menu and facing each other: drawn by the stage camera at fight scale, on the
+        // floor and among the location's layers as in a fight (StageView.ShowFighters).
+        // Re-rolled on every scene change; page changes keep them (the stage persists).
+        // Where they stand, as a fraction of the visible viewport's width.
+        private const float SparringStand = .16f;
+
+        private void DrawSparringFighters()
+        {
+            // Fighters need the game's items, animations and models, which the game loader
+            // only reads after the title closes (so title mod choices apply to them).
+            if (stageView == null || !Eclipse.Multiplayer.VersusRoster.GameDataLoaded) return;
+            try
+            {
+                var random = new System.Random();
+                var left = Eclipse.Multiplayer.VersusLoadout.Random(random);
+                var right = Eclipse.Multiplayer.VersusLoadout.Random(random);
+                float aspect = viewWidth / 720f;
+                stageView.ShowFighters(left, right,
+                    stageView.PageToFightX(viewLeft + viewWidth * SparringStand - 640f, aspect),
+                    stageView.PageToFightX(viewLeft + viewWidth * (1f - SparringStand) - 640f, aspect));
+            }
+            catch (Exception error)
+            {
+                // The roster needs the game data; without it the stage simply stands empty.
+                Debug.LogWarning("[Title] Sparring fighters unavailable: " + error.Message);
+                stageView.RemoveFighters();
+            }
+        }
+
+        // The game loader reads items, animations and models only after the title closes.
+        // For the sparring fighters, the title runs the data-parsing part of that boot early
+        // (with the enabled mods, so Apply & Restart re-runs it with a new selection) against
+        // an empty sandbox user directory, then throws it all away before the real boot.
+        // It never touches a real save: CampaignSaveSession.PreviewDirectory redirects every
+        // user-data path, and the save-version step (AttachFileModule) is left out.
+        private static class TitleGameData
+        {
+            public static bool Active { get; private set; }
+            private static string sandbox;
+
+            public static void Load()
+            {
+                if (Active || Eclipse.Multiplayer.VersusRoster.GameDataLoaded) return;
+                var watch = System.Diagnostics.Stopwatch.StartNew();
+                try
+                {
+                    Active = true;
+                    var modules = new LoadingModule[]
+                    {
+                        new PreInitializationModule(), new AntichitingModule(), new InitializationModule(), new ParseModule(),
+                    };
+                    foreach (var module in modules)
+                    {
+                        // SF2Paths is set up by PreInitializationModule (once per process).
+                        if (module is AntichitingModule) CreateSandbox();
+                        if (module is ParseModule) SeedSandboxProfile();
+                        module.Start();
+                        for (int step = 0; !module.GCHANFIHDGH(); step++)
+                        {
+                            if (step > 16) throw new InvalidOperationException(module.GetType().Name + " did not finish.");
+                            module.JLPMOKPFECK();
+                        }
+                    }
+                    Debug.Log("[Title] Game data preview loaded in " + watch.ElapsedMilliseconds + " ms.");
+                }
+                catch (Exception error)
+                {
+                    Debug.LogWarning("[Title] Game data preview unavailable; no sparring fighters. " + error);
+                    Discard();
+                }
+            }
+
+            // The game reads user data from disk only under its data root (XmlUtils.OpenXMLDocument
+            // treats any other path as a bundled resource), so the sandbox sits beside userdata.
+            private static void CreateSandbox()
+            {
+                string root = SF2Paths.FFKEDOBDLOL;
+                if (string.IsNullOrEmpty(root)) throw new InvalidOperationException("The game data root is not set up.");
+                sandbox = (root.TrimEnd('/', '\\') + "/EclipseTitlePreview").Replace('\\', '/');
+                if (Directory.Exists(sandbox)) Directory.Delete(sandbox, true);
+                Directory.CreateDirectory(sandbox);
+                Eclipse.Saves.CampaignSaveSession.PreviewDirectory = sandbox;
+            }
+
+            // A new campaign's first boot gets its profile from the game's usersDefault.xml
+            // (GameSettings.AMOMFPOENBF, run by AttachFileModule). Do the same copy into the
+            // sandbox directly, leaving that module's version bookkeeping untouched.
+            private static void SeedSandboxProfile()
+            {
+                var profile = XmlUtils.OpenXMLDocument(SF2Paths.KKIDGPBOBNI(), "usersDefault.xml", XmlUtils.EBLFEPIOMOL.Normal, true,
+                    XmlCryptoUtils.NNLGALNDJCL());
+                if (profile == null) throw new InvalidOperationException("usersDefault.xml is missing.");
+                XmlUtils.ONLDJNLKKAL(profile, Path.Combine(sandbox, Constants.OJMIJINKBPJ).Replace('\\', '/'));
+            }
+
+            public static void Discard()
+            {
+                if (!Active) return;
+                Active = false;
+                try { Nekki.SF2.GUI.Scenes.GameLoaderScene.DiscardTitlePreview(); }
+                catch (Exception error) { Debug.LogWarning("[Title] Game data preview cleanup: " + error.Message); }
+                Eclipse.Multiplayer.VersusRoster.Reset();
+                Eclipse.Saves.CampaignSaveSession.PreviewDirectory = null;
+                try { if (sandbox != null && Directory.Exists(sandbox)) Directory.Delete(sandbox, true); }
+                catch (Exception error) { Debug.LogWarning("[Title] Game data preview sandbox: " + error.Message); }
+                sandbox = null;
+            }
+        }
+
+        // Drops the fighters (their models use the preview's animation data) and the preview.
+        // Called before anything that starts real game content or saves the loaded profile.
+        private void DiscardGameDataPreview()
+        {
+            if (stageView != null) stageView.RemoveFighters();
+            TitleGameData.Discard();
+        }
+
+        // Autumn leaves at the gate, cherry petals over the spring village, and whatever
+        // suits each stage (none where nothing would drift, such as the moon).
         private void ScatterParticles(RectTransform parent)
         {
-            if (season == Season.Spring)
+            Stage stage;
+            if (Stages.TryGetValue(scene, out stage))
+            {
+                if (stage.Particles.HasValue)
+                    TitleLeaf.Scatter(parent, stage.Particles == TitleLeaf.Kind.Petal ? 26 : 20, stage.Particles.Value,
+                        viewLeft - 300f, viewLeft + viewWidth + 100f, -40f, 700f, groundY);
+            }
+            else if (scene == SceneId.Spring)
                 TitleLeaf.Scatter(parent, 30, TitleLeaf.Kind.Petal, viewLeft - 300f, viewLeft + viewWidth + 100f, -40f, 700f, groundY);
             else
                 TitleLeaf.Scatter(parent, 24, TitleLeaf.Kind.Leaf, -400f, 1600f, -40f, 700f, groundY);
@@ -143,7 +610,7 @@ namespace Eclipse.UI
         // parallax), keeps FocusX centred and puts the floor near GroundTarget when it can.
         private void Crop(Vector2 offset, out float cover, out float cropX, out float cropY, out float cropW, out float cropH)
         {
-            var info = Panoramas[season];
+            var info = Panoramas[scene];
             cover = Mathf.Max(viewWidth / info.Art.width, 720f / info.Art.height) * 1.04f;
             cropW = viewWidth / cover;
             cropH = 720f / cover;
@@ -155,7 +622,7 @@ namespace Eclipse.UI
         // Maps a point in the panorama's sprite pixels to page coordinates for the current crop.
         private Vector2 PanoramaToPage(Vector2 sprite, out float scale)
         {
-            var info = Panoramas[season];
+            var info = Panoramas[scene];
             float cropX, cropY, cropW, cropH;
             Crop(Vector2.zero, out scale, out cropX, out cropY, out cropW, out cropH);
             return new Vector2(viewLeft + (sprite.x - info.Art.x - cropX) * scale, (sprite.y - info.Art.y - cropY) * scale);
@@ -164,7 +631,7 @@ namespace Eclipse.UI
         private void LayoutPanorama(Vector2 offset)
         {
             if (panoramaImage == null || panoramaSprite == null) return;
-            var info = Panoramas[season];
+            var info = Panoramas[scene];
             float cover, cropX, cropY, cropW, cropH;
             Crop(offset, out cover, out cropX, out cropY, out cropW, out cropH);
             var texture = panoramaSprite.texture;
@@ -326,6 +793,8 @@ namespace Eclipse.UI
                 layer.Rect.anchoredPosition = home + offset * layer.Depth;
             }
             LayoutPanorama(offset * .35f);
+            // The whole stage moves with its floor, so with the fighters standing on it.
+            LayoutStage(offset * GroundPlaneDepth);
             // Slow breathing zoom of the whole scene.
             float breath = 1.012f + .012f * Mathf.Sin(Time.unscaledTime * .09f);
             // On opening, the scene settles in from slightly closer over about three seconds.
@@ -371,6 +840,24 @@ namespace Eclipse.UI
             wash.texture = SoftDot();
             wash.color = new Color(Ink.r, Ink.g, Ink.b, .62f);
             wash.raycastTarget = false;
+        }
+
+        // A small ink chip in the top-right corner (clear of the sign, the menu column and the
+        // footer) that manually advances the title's scene rotation. Reuses CycleScene's
+        // persisted counter, so this also changes what the next launch opens on.
+        private void DrawSceneCycleButton()
+        {
+            var chip = Box(page, "Stage cycle", 1120, 24, 136, 32, new Color(Ink.r, Ink.g, Ink.b, .4f));
+            var edge = Box(chip, "Edge", 0, 0, 0, 0, new Color(Paper.r, Paper.g, Paper.b, .32f));
+            edge.anchorMin = Vector2.zero; edge.anchorMax = new Vector2(1, 0); edge.pivot = new Vector2(.5f, 0);
+            edge.anchoredPosition = Vector2.zero; edge.sizeDelta = new Vector2(0, 2);
+            var label = Label(chip, "STAGE  >", 0, 0, 136, 32, 13, Paper, TextAnchor.MiddleCenter);
+            label.raycastTarget = false;
+            var button = chip.gameObject.AddComponent<Button>();
+            button.targetGraphic = chip.GetComponent<Image>();
+            button.transition = Selectable.Transition.None;
+            button.navigation = new Navigation { mode = Navigation.Mode.None };
+            button.onClick.AddListener(CycleScene);
         }
 
         // --- Footer --------------------------------------------------------------------------

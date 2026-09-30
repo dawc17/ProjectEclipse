@@ -121,6 +121,9 @@ namespace Nekki.SF2.Core.Fights
 			_location.gameLayer = new LocationSelector(0);
 			_location.gameLayer.MJNPBMOAFML().transform.SetParent(base.transform, false);
 			NFFPENNBCMB();
+			// The title's sparring previews run before any save is loaded. Their fighter comes
+			// from ShowParameters, and UpdateModel replaces this saved-player placeholder anyway.
+			if (ListSF.CCDKHLAMKKO() == null || ListSF.GAMMAIGEIOB() == null) return;
 			HEGIABHIPHA = GameUtils.LBMPHBNJMGG();
 			HEGIABHIPHA.AiControlled = false;
 			HEGIABHIPHA.UserControlled = false;
@@ -273,6 +276,16 @@ namespace Nekki.SF2.Core.Fights
 			UpdateModel(null, stage, scene);
 			// A preview is not framed by the scene camera; keep its walls well clear of the pose.
 			_playerModel?.SetWalls(-4000f, 4000f, 0, 0);
+		}
+
+		/// <summary>
+		/// Eclipse: where the model stands, in the container's fight coordinates (the menu
+		/// scenes serialize this). The title stands its sparring fighters on a stage with it.
+		/// </summary>
+		internal void SetPreviewPosition(Vector2 position)
+		{
+			_modelPosition = position;
+			ResetModelPosition();
 		}
 
 		public void PlayAnimation(string name, int AOJJBKLCHJO = 1)

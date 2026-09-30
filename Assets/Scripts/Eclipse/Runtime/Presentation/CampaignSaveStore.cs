@@ -328,7 +328,11 @@ namespace Eclipse.Saves
     public static class CampaignSaveSession
     {
         private static CampaignSaveLease _lease;
-        public static string UserDataDirectory => _lease?.UserDataDirectory;
+        // While the title holds its throwaway game-data preview, every user-data read and
+        // write goes to that sandbox, even after a campaign is selected; the title discards
+        // the preview before the real load starts.
+        public static string PreviewDirectory { get; set; }
+        public static string UserDataDirectory => PreviewDirectory ?? _lease?.UserDataDirectory;
         public static void Select(CampaignSaveStore store, string id)
         {
             if (_lease != null) throw new InvalidOperationException("Return to the title before switching campaigns.");

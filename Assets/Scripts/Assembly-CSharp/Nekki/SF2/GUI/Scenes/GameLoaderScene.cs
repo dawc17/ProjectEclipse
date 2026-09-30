@@ -163,6 +163,17 @@ namespace Nekki.SF2.GUI.Scenes
 			AiData.ClearAll();
 		}
 
+		// Eclipse: drops the title's early game-data preview (Eclipse.UI.TitleScreen) the way
+		// Stop() resets a session, without changing this scene's own restart bookkeeping.
+		public static void DiscardTitlePreview()
+		{
+			bool loaded = PIHEPFHMJHJ, online = GameUtils.OBJEKOBDMOE, first = GameUtils.GCDIGFODNFO;
+			Stop();
+			PIHEPFHMJHJ = loaded;
+			GameUtils.OBJEKOBDMOE = online;
+			GameUtils.GCDIGFODNFO = first;
+		}
+
 		private void Clear()
 		{
 			FCFFELHCEEA.ClearModules(true);

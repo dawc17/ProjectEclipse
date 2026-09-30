@@ -109,10 +109,32 @@ namespace Eclipse.Multiplayer
             return _arenas[(int)((uint)seed % (uint)_arenas.Count)].Id;
         }
 
+        /// <summary>
+        /// True once the game's item list is loaded. ListSF always holds an item container, but
+        /// it stays empty until the game loader runs, which only happens after the title closes.
+        /// </summary>
+        public static bool GameDataLoaded
+        {
+            get
+            {
+                var items = ListSF.GetItems();
+                return items != null && items.AllItems != null && items.AllItems.Count > 0;
+            }
+        }
+
+        /// <summary>Forgets the lists, so the next use rebuilds them from the game data then loaded.</summary>
+        public static void Reset()
+        {
+            _loaded = false;
+            _arenas.Clear();
+            _fingerprint = null;
+        }
+
         public static void EnsureLoaded()
         {
             if (_loaded) return;
-            if (ListSF.GetItems() == null) throw new InvalidOperationException("The versus roster needs the game data loaded first.");
+            // Never latch an empty roster: it would stay empty for the rest of the session.
+            if (!GameDataLoaded) throw new InvalidOperationException("The versus roster needs the game data loaded first.");
             _loaded = true;
             for (int i = 0; i < _slots.Length; i++) { _slots[i] = new List<VersusItem>(); _byId[i] = new Dictionary<string, VersusItem>(); }
             var asset = Resources.Load<TextAsset>("EclipseVersus/roster");

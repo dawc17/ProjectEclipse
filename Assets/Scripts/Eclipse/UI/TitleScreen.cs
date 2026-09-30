@@ -73,7 +73,7 @@ namespace Eclipse.UI
             Eclipse.Saves.CampaignSaveSession.Clear();
             IsOpen = false;
             introPlayed = false;
-            seasonChosen = false;
+            sceneChosen = false;
             splashShown = false;
         }
 
@@ -96,7 +96,10 @@ namespace Eclipse.UI
         public static void ShowOptions(Action closed)
         {
             if (IsOpen) return;
-            var screen = new GameObject("Eclipse Options", typeof(RectTransform)).AddComponent<TitleScreen>();
+            creatingOptions = true;
+            TitleScreen screen;
+            try { screen = new GameObject("Eclipse Options", typeof(RectTransform)).AddComponent<TitleScreen>(); }
+            finally { creatingOptions = false; }
             screen.optionsOnly = true;
             screen.optionsClosed = closed;
             screen.Settings("Display");
@@ -105,9 +108,15 @@ namespace Eclipse.UI
         // A restart returns to Home with its full intro entrance (the veil lifting off the scene).
         public static void PrepareForRestart() { enteredCampaign = false; introPlayed = false; }
 
+        // Set while ShowOptions builds the in-game overlay, which is known only after Awake.
+        private static bool creatingOptions;
+
         private void Awake()
         {
             IsOpen = true;
+            // Before anything is drawn, so the one long parse frame never freezes the title
+            // itself (it lands on the loader's black screen instead).
+            if (!creatingOptions && !Application.isBatchMode) TitleGameData.Load();
             SoundController.ApplySavedVolumes();
             font = Resources.Load<Font>("ui/fonts/AGOpusBold");
             if (font == null) font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
@@ -257,7 +266,7 @@ namespace Eclipse.UI
             try { SoundController.NDBJCCIBAIO(); }
             catch (Exception error) { Debug.LogWarning("[Title] Could not stop game music: " + error.Message); }
             // The track follows the scene; on a cold launch it rises slowly under the splash.
-            ChooseSeason();
+            ChooseScene();
             EclipseUiAudio.StartTitleMusic(SceneMusic, splashing ? 4f : 1.2f);
         }
 
@@ -274,7 +283,7 @@ namespace Eclipse.UI
             selected = 0;
             foreach (Transform child in page)
             {
-                if (child == leafLayer) continue;
+                if (child == leafLayer || child == sceneryHost) continue;
                 child.gameObject.SetActive(false);
                 Destroy(child.gameObject);
             }
@@ -282,7 +291,8 @@ namespace Eclipse.UI
             homeRows.Clear();
             strokeTarget = null;
             paperBackground = Box(page, "Paper", 0, 0, 1280, 720, Paper);
-            DrawScenery();
+            paperBackground.SetAsFirstSibling(); // behind the scenery, which outlives page rebuilds
+            EnsureScenery();
             // Seasonal particles drift across the whole (up to 21:9) scene. The layer survives
             // page rebuilds so they keep moving instead of respawning, and sits behind every page.
             if (leafLayer == null)
@@ -319,6 +329,12 @@ namespace Eclipse.UI
         {
             LayoutViewport();
             ApplyParallax();
+        }
+
+        // Advances the stage location's own animation at the fight's fixed rate.
+        private void FixedUpdate()
+        {
+            if (stageView != null) stageView.Advance();
         }
 
         private void LayoutViewport()
@@ -476,6 +492,7 @@ namespace Eclipse.UI
                 new Rect(0, 368f / 1024, 610f / 1024, 489f / 1024));
             DrawPlaque();
             DrawMenuWash();
+            DrawSceneCycleButton();
             // One brush stroke under the labels glides to whichever entry has focus.
             var stroke = Rect(page, "Brush highlight", 385, 280, 510, 60);
             homeStroke = stroke.gameObject.AddComponent<InkStroke>();
@@ -868,6 +885,8 @@ namespace Eclipse.UI
         {
             if (leaving) return;
             leaving = true;
+            // The real boot starts once the title closes, from a clean slate.
+            DiscardGameDataPreview();
             // The loading screen fades in over the title (and the gong) and stays up until the
             // campaign or the local versus lobby is actually on screen.
             enterAt = Time.realtimeSinceStartup + .6f;
@@ -906,6 +925,10 @@ namespace Eclipse.UI
             int padHorizontal;
             int padVertical = PadNavigation(out padConfirm, out padBack, out padHorizontal);
             if (UnityEngine.Input.GetKeyDown(KeyCode.Escape) || padBack) { EclipseUiAudio.Play(UiSound.Back); Back(); return; }
+            // Discoverable shortcut for the Home-only "STAGE >" corner chip: C on keyboard,
+            // Y on a controller (both otherwise unused on this screen).
+            if (currentPage == "Home" && (UnityEngine.Input.GetKeyDown(KeyCode.C) || GamePad.GetButtonDown(GamePad.Button.Y, GamePad.Player.Any)))
+            { CycleScene(); return; }
             if (campaignNameField != null && campaignNameField.isFocused)
             {
                 // Let text entry own letters, spaces and arrows; they must not submit
@@ -1016,6 +1039,8 @@ namespace Eclipse.UI
         {
             ClearPendingModZip();
             if (!optionsOnly) EclipseUiAudio.StopTitleMusic();
+            ReleaseStage();
+            if (!optionsOnly) TitleGameData.Discard();
             foreach (var texture in autumnTextures.Values) Destroy(texture);
             foreach (var pair in filteredTextures) if (pair.Key != null) pair.Key.filterMode = pair.Value;
             if (logoInk != null) Destroy(logoInk);

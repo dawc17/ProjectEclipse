@@ -117,6 +117,8 @@ namespace Eclipse.UI
         private void ApplyMods()
         {
             if (ResolveModSelection().HasErrors) { DrawMods(); return; }
+            // The restart saves the loaded profile; the title's preview must not be it.
+            DiscardGameDataPreview();
             if (!GameSessionRestart.TryRestart(() => modSelection.Save(modSelectionPath), out var error))
             {
                 modMessage = error ?? "Restart already in progress.";
