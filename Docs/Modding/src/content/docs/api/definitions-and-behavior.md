@@ -9,6 +9,8 @@ A mod usually has two parts: definitions that describe its content, and function
 
 Your entry script runs when Eclipse loads the selected mods. Use it to register items, shop listings, battles, opponents, quests, perks, and other content. Lookups and registrations return handles you pass into later definitions. Define dependencies before the content that uses them.
 
+Your entry script can run more than once in a single launch. The title screen loads the enabled mods once to show their equipment on its sparring fighters (no campaign or profile is loaded then) and discards that load before a campaign or versus session starts, which then loads the mods again. Keep the entry script to registrations and lookups, so every run produces the same content. Anything a player does happens only in the later session load.
+
 Registration does not mean the player has received an item or that a fight is visible: a weapon needs a shop listing or reward, and a battle needs the appropriate quest/map and fight connections.
 
 ## Callbacks respond to gameplay

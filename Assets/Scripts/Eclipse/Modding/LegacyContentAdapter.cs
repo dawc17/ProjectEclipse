@@ -50,6 +50,7 @@ namespace Eclipse.Modding
             ThrowIfDisposed();
             if (_itemsApplied) throw new InvalidOperationException("Legacy items are already applied.");
             _items = items ?? throw new ArgumentNullException(nameof(items));
+            ModRuntime.LoadTimings.Group("items");
 
             foreach (ItemDefinition definition in ExternalEquipment())
             {
@@ -67,6 +68,7 @@ namespace Eclipse.Modding
                     ItemInfo item = _items.AddExternalItem(BuildNonEquipmentItemNode(definition));
                     _itemNames.Add(item.Name);
                 }
+                ModRuntime.LoadTimings.Mark("non-equipment");
                 var listings = new Dictionary<DefinitionId, ShopListingDefinition>();
                 foreach (ShopListingDefinition listing in _content.ShopListings)
                     listings.Add(listing.Item, listing);
@@ -77,15 +79,20 @@ namespace Eclipse.Modding
                     ItemInfo item = _items.AddExternalItem(node);
                     _itemNames.Add(item.Name);
                 }
+                ModRuntime.LoadTimings.Mark("equipment");
                 foreach (ItemSetDefinition definition in _content.ItemSets)
                 {
                     if (definition.IsCore) continue;
                     ItemSet itemSet = _items.DGKMILIPLLF().AddExternalSet(BuildItemSetNode(definition));
                     _itemSetNames.Add(itemSet.Name);
                 }
+                ModRuntime.LoadTimings.Mark("sets");
                 ApplyInitialProfiles();
+                ModRuntime.LoadTimings.Mark("initial profiles");
                 ApplyShopPrices();
+                ModRuntime.LoadTimings.Mark("shop prices");
                 ApplyItemPresentations();
+                ModRuntime.LoadTimings.Mark("presentations");
                 _itemsApplied = true;
             }
             catch
@@ -1338,16 +1345,34 @@ namespace Eclipse.Modding
             return result;
         }
 
+        // Each runtime item's definition, first item in list order per definition: the same
+        // item a scan of the list for that definition finds. Resolving every item once per
+        // pass, instead of the whole list once per definition, keeps a large mod's load
+        // linear (the resolution also serializes each item's XML). The overrides applied in
+        // these passes never change an item's name or XML, so the map stays valid for a pass.
+        private Dictionary<DefinitionId, ItemInfo> RuntimeItemsByDefinition()
+        {
+            var result = new Dictionary<DefinitionId, ItemInfo>();
+            if (_items == null) return result;
+            foreach (ItemInfo candidate in _items.AllItems)
+            {
+                if (candidate == null) continue;
+                if (_content.TryResolveRuntimeItem(candidate.Name, candidate.NodeXML?.OuterXml, out var id) && !result.ContainsKey(id))
+                    result.Add(id, candidate);
+            }
+            return result;
+        }
+
         private void ApplyCombatSubtypes()
         {
+            var runtimeItems = RuntimeItemsByDefinition();
             foreach (var definition in _content.ItemCombatSubtypes)
             {
                 if (_items == null || !_content.TryGetItem(definition.Item, out var target))
                     throw new InvalidOperationException("Combat subtype requires applied items: " + definition.Item);
                 // Resolve the original node identity as well as its name: recovered
                 // ranged definitions can share a legacy name (e.g. GlaivebowArrow).
-                var item = _items.AllItems.Find(candidate => candidate != null &&
-                    _content.TryResolveRuntimeItem(candidate.Name, candidate.NodeXML?.OuterXml, out var id) && id == target.Id);
+                runtimeItems.TryGetValue(target.Id, out var item);
                 if (item == null || !item.TryOverrideCombatSubtype(definition.Subtype, out var lifetime))
                     throw new InvalidOperationException("Could not apply combat subtype for '" + definition.Owner + "': " + definition.Item);
                 _combatSubtypeLifetimes.Add(lifetime);
@@ -1356,12 +1381,12 @@ namespace Eclipse.Modding
 
         private void ApplyInitialProfiles()
         {
+            var runtimeItems = RuntimeItemsByDefinition();
             foreach (var definition in _content.ItemInitialProfiles)
             {
                 if (_items == null || !_content.TryGetItem(definition.Item, out var target))
                     throw new InvalidOperationException("Initial profile requires applied items: " + definition.Item);
-                var item = _items.AllItems.Find(candidate => candidate != null &&
-                    _content.TryResolveRuntimeItem(candidate.Name, candidate.NodeXML?.OuterXml, out var id) && id == target.Id);
+                runtimeItems.TryGetValue(target.Id, out var item);
                 if (definition.UpgradeTemplate != null && _items.GetUpgradeDataContainerByName(definition.UpgradeTemplate) == null)
                     throw new InvalidOperationException("Initial profile upgrade template is unavailable: " + definition.UpgradeTemplate);
                 string paid = definition.LegacyPaidItem == "none" ? "None" :
@@ -1377,12 +1402,12 @@ namespace Eclipse.Modding
 
         private void ApplyShopPrices()
         {
+            var runtimeItems = RuntimeItemsByDefinition();
             foreach (var definition in _content.ItemShopPrices)
             {
                 if (_items == null || !_content.TryGetItem(definition.Item, out var target))
                     throw new InvalidOperationException("Shop price requires applied items: " + definition.Item);
-                var item = _items.AllItems.Find(candidate => candidate != null &&
-                    _content.TryResolveRuntimeItem(candidate.Name, candidate.NodeXML?.OuterXml, out var id) && id == target.Id);
+                runtimeItems.TryGetValue(target.Id, out var item);
                 long coins = definition.Price.Currency == ModPriceCurrency.Coins ? definition.Price.Amount : 0;
                 long gems = definition.Price.Currency == ModPriceCurrency.Gems ? definition.Price.Amount : 0;
                 if (definition.SecondaryPrice.HasValue)
@@ -1399,12 +1424,12 @@ namespace Eclipse.Modding
 
         private void ApplyItemPresentations()
         {
+            var runtimeItems = RuntimeItemsByDefinition();
             foreach (var definition in _content.ItemPresentations)
             {
                 if (_items == null || !_content.TryGetItem(definition.Item, out var target))
                     throw new InvalidOperationException("Item presentation requires applied items: " + definition.Item);
-                var item = _items.AllItems.Find(candidate => candidate != null &&
-                    _content.TryResolveRuntimeItem(candidate.Name, candidate.NodeXML?.OuterXml, out var id) && id == target.Id);
+                runtimeItems.TryGetValue(target.Id, out var item);
                 string icon = definition.Icon == default(AssetId) ? null : definition.Icon.ToString();
                 string model = definition.Model == default(AssetId) ? null : definition.Model.ToString();
                 if (item == null || !item.TryOverridePresentation(icon, model, out var lifetime))

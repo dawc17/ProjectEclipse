@@ -447,8 +447,8 @@ namespace Eclipse.UI
 
         // The game loader reads items, animations and models only after the title closes.
         // For the sparring fighters, the title runs the part of that boot they need early
-        // (base-game content only, no mods) against a sandbox user directory, then throws it
-        // all away before the real boot.
+        // (with the enabled mods, so Apply & Restart re-runs it with a new selection) against a
+        // sandbox user directory, then throws it all away before the real boot.
         // It never touches a real save: CampaignSaveSession.PreviewDirectory redirects every
         // user-data path, and the save-version step (AttachFileModule) is left out.
         private static class TitleGameData
@@ -493,9 +493,9 @@ namespace Eclipse.UI
                 }
             }
 
-            // ParseModule.JLPMOKPFECK, step by step, minus what fighters never use: mod content
-            // (most of the full load's time), warriors, zones, quests and the mod locale. So the
-            // title's fighters wear base-game equipment only.
+            // ParseModule.JLPMOKPFECK, step by step, minus what fighters never use: warriors,
+            // zones, quests and the mod locale. Mod content stays: mods often change how
+            // fighters look.
             private static void Parse(Action<string, long> record)
             {
                 Action<string, Action> step = (name, action) =>

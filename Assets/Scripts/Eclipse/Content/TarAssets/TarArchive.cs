@@ -112,6 +112,40 @@ namespace Eclipse.Content.TarAssets
             return Encoding.UTF8.GetString(ReadBytes(path));
         }
 
+        // Reads many entries through one open file. Indexing a bundle reads every .meta entry,
+        // and opening the archive once per entry dominated a bundle's first use.
+        public Reader OpenReader()
+        {
+            return new Reader(this);
+        }
+
+        internal sealed class Reader : IDisposable
+        {
+            private readonly TarArchive _archive;
+            private readonly FileStream _input;
+
+            public Reader(TarArchive archive)
+            {
+                _archive = archive;
+                _input = File.Open(archive._path, FileMode.Open, FileAccess.Read, FileShare.Read);
+            }
+
+            public string ReadText(Entry entry)
+            {
+                if (entry.Size > int.MaxValue)
+                    throw new InvalidDataException("TAR entry is too large to load into memory: " + entry.Name);
+                byte[] bytes = new byte[(int)entry.Size];
+                _input.Position = entry.Offset;
+                ReadExact(_input, bytes, 0, bytes.Length);
+                return Encoding.UTF8.GetString(bytes);
+            }
+
+            public void Dispose()
+            {
+                _input.Dispose();
+            }
+        }
+
         public static string NormalizeEntryPath(string path)
         {
             if (string.IsNullOrWhiteSpace(path))

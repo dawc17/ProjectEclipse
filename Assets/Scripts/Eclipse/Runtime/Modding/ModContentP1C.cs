@@ -484,15 +484,58 @@ namespace Eclipse.Modding
                 id = external.Id;
                 return true;
             }
-            ItemDefinition match = FindCoreRuntimeItem(_weapons.Values, runtimeName, runtimeXml) ??
-                FindCoreRuntimeItem(_armors.Values, runtimeName, runtimeXml) ??
-                FindCoreRuntimeItem(_helms.Values, runtimeName, runtimeXml) ??
-                FindCoreRuntimeItem(_ranged.Values, runtimeName, runtimeXml) ??
-                FindCoreRuntimeItem(_magic.Values, runtimeName, runtimeXml) ??
-                FindCoreRuntimeItem(_nonEquipmentItemValues, runtimeName, runtimeXml);
+            ItemDefinition match;
+            if (IsFrozen)
+            {
+                // Once frozen the registries never change, so resolve through a name index
+                // (the load resolves every runtime item, often repeatedly).
+                if (_coreRuntimeItems == null) _coreRuntimeItems = BuildCoreRuntimeIndex();
+                match = null;
+                for (int i = 0; i < _coreRuntimeItems.Length && match == null; i++)
+                {
+                    List<ItemDefinition> named;
+                    if (_coreRuntimeItems[i].TryGetValue(runtimeName, out named))
+                        match = FindCoreRuntimeItem(named, runtimeName, runtimeXml);
+                }
+            }
+            else
+            {
+                match = FindCoreRuntimeItem(_weapons.Values, runtimeName, runtimeXml) ??
+                    FindCoreRuntimeItem(_armors.Values, runtimeName, runtimeXml) ??
+                    FindCoreRuntimeItem(_helms.Values, runtimeName, runtimeXml) ??
+                    FindCoreRuntimeItem(_ranged.Values, runtimeName, runtimeXml) ??
+                    FindCoreRuntimeItem(_magic.Values, runtimeName, runtimeXml) ??
+                    FindCoreRuntimeItem(_nonEquipmentItemValues, runtimeName, runtimeXml);
+            }
             if (match == null) return false;
             id = match.Id;
             return true;
+        }
+
+        // Per category, in the order TryResolveRuntimeItem searches them: core items by legacy
+        // name, each list in registry order, so a lookup matches the linear search exactly.
+        private Dictionary<string, List<ItemDefinition>>[] _coreRuntimeItems;
+
+        private Dictionary<string, List<ItemDefinition>>[] BuildCoreRuntimeIndex()
+        {
+            return new[]
+            {
+                IndexCore(_weapons.Values), IndexCore(_armors.Values), IndexCore(_helms.Values),
+                IndexCore(_ranged.Values), IndexCore(_magic.Values), IndexCore(_nonEquipmentItemValues),
+            };
+        }
+
+        private static Dictionary<string, List<ItemDefinition>> IndexCore<T>(IEnumerable<T> items) where T : ItemDefinition
+        {
+            var index = new Dictionary<string, List<ItemDefinition>>(StringComparer.Ordinal);
+            foreach (T item in items)
+            {
+                if (!item.IsCore || item.LegacyName == null) continue;
+                List<ItemDefinition> named;
+                if (!index.TryGetValue(item.LegacyName, out named)) index.Add(item.LegacyName, named = new List<ItemDefinition>(1));
+                named.Add(item);
+            }
+            return index;
         }
 
         private static ItemDefinition FindCoreRuntimeItem<T>(IReadOnlyList<T> items, string runtimeName,

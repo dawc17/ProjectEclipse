@@ -28,9 +28,30 @@ namespace Eclipse.Content.TarAssets
         public TextureWrapMode WrapU;
         public TextureWrapMode WrapV;
         public bool Mipmaps;
-        public Vector2[] Vertices;
-        public ushort[] Triangles;
-        public Vector2[] Uv;
+        // Sprite geometry is parsed on first use: most of a bundle's metadata is geometry,
+        // and indexing a bundle only needs addresses and names. A sprite's geometry is
+        // checked for completeness when it is first read (that is, when the sprite loads).
+        private string _verticesText, _trianglesText, _uvText;
+        private Vector2[] _vertices, _uv;
+        private ushort[] _triangles;
+
+        public Vector2[] Vertices { get { EnsureGeometry(); return _vertices; } }
+        public ushort[] Triangles { get { EnsureGeometry(); return _triangles; } }
+        public Vector2[] Uv { get { EnsureGeometry(); return _uv; } }
+
+        private void EnsureGeometry()
+        {
+            if (_vertices != null) return;
+            var vertices = ParseVector2Array(_verticesText ?? string.Empty, "vertices", MetaPath);
+            var triangles = ParseUShortArray(_trianglesText ?? string.Empty, "triangles", MetaPath);
+            var uv = ParseVector2Array(_uvText ?? string.Empty, "uv", MetaPath);
+            bool hasGeometry = vertices.Length != 0 || triangles.Length != 0 || uv.Length != 0;
+            if (hasGeometry && (vertices.Length == 0 || triangles.Length == 0 || uv.Length != vertices.Length))
+                throw new InvalidDataException("Incomplete sprite geometry in " + MetaPath);
+            _triangles = triangles;
+            _uv = uv;
+            _vertices = vertices;
+        }
 
         public static TarAssetMeta Parse(string metaPath, string text)
         {
@@ -66,14 +87,11 @@ namespace Eclipse.Content.TarAssets
                 result.Rect = ParseRect(Required(values, "rect"), metaPath);
                 result.Pivot = ParseVector2(Optional(values, "pivot", "0.5,0.5"), "pivot", metaPath);
                 result.Border = ParseVector4(Optional(values, "border", "0,0,0,0"), "border", metaPath);
-                result.Vertices = ParseVector2Array(Optional(values, "vertices", string.Empty), "vertices", metaPath);
-                result.Triangles = ParseUShortArray(Optional(values, "triangles", string.Empty), "triangles", metaPath);
-                result.Uv = ParseVector2Array(Optional(values, "uv", string.Empty), "uv", metaPath);
+                result._verticesText = Optional(values, "vertices", string.Empty);
+                result._trianglesText = Optional(values, "triangles", string.Empty);
+                result._uvText = Optional(values, "uv", string.Empty);
                 if (string.IsNullOrEmpty(result.Name))
                     throw new InvalidDataException("Sprite name is missing in " + metaPath);
-                bool hasGeometry = result.Vertices.Length != 0 || result.Triangles.Length != 0 || result.Uv.Length != 0;
-                if (hasGeometry && (result.Vertices.Length == 0 || result.Triangles.Length == 0 || result.Uv.Length != result.Vertices.Length))
-                    throw new InvalidDataException("Incomplete sprite geometry in " + metaPath);
             }
             else
             {
@@ -193,6 +211,8 @@ namespace Eclipse.Content.TarAssets
 
         private static string Unescape(string value)
         {
+            // Nothing to unescape in almost every value (sprite geometry is most of the text).
+            if (value.IndexOf('\\') < 0) return value;
             var output = new StringBuilder(value.Length);
             bool escaped = false;
             foreach (char c in value)

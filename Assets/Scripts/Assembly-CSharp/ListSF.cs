@@ -336,14 +336,16 @@ public class ListSF
 		StepTimer(name, watch.ElapsedMilliseconds);
 	}
 
-	// Eclipse: the part of IIKDNMBIHCM the title's sparring fighters need (base-game items and
-	// a profile), without mod content, warriors, zones, quests or the roster timer. The
-	// title discards it (GameLoaderScene.DiscardTitlePreview) before the real load.
+	// Eclipse: the part of IIKDNMBIHCM the title's sparring fighters need (items with the
+	// enabled mods' content, which often changes how fighters look, and a profile), without
+	// warriors, zones, quests or the roster timer. The title discards it
+	// (GameLoaderScene.DiscardTitlePreview) before the real load.
 	internal void LoadTitlePreview()
 	{
 		TimeStep("battle types", EAFEBFMIDLF);
 		TimeStep("conditions", () => GameUtils.OJNHPHEPFLI.AEPHNNABOEK());
 		TimeStep("items", NMMBHENGDJO);
+		TimeStep("mod content", () => Eclipse.Modding.ModRuntime.StartGameContent());
 		TimeStep("profile", PBNNPBEDOOJ);
 		TimeStep("item denominations", () => ItemInfo.DenominateItems());
 	}

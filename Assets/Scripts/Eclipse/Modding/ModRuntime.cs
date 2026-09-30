@@ -231,7 +231,12 @@ namespace Eclipse.Modding
             ModModeRuntime.Warning = message => Debug.LogWarning(message);
             ModPolicies.Content = null;
             _scripts = Host.StartScripts(new MoonSharpScriptRuntime(Eclipse.UI.Modding.ModUiGameBridge.Attach,
-                () => LocalizationManager.ILAJKOBCHFH == null ? LocalizationManager.POIPGLLCCKC : LocalizationManager.ILAJKOBCHFH.name, DojoSelection, StoryEvents), LogScript, ImportCoreContent);
+                () => LocalizationManager.ILAJKOBCHFH == null ? LocalizationManager.POIPGLLCCKC : LocalizationManager.ILAJKOBCHFH.name, DojoSelection, StoryEvents), LogScript, content =>
+                {
+                    var import = System.Diagnostics.Stopwatch.StartNew();
+                    ImportCoreContent(content);
+                    _coreImportMs = import.ElapsedMilliseconds;
+                });
             ModVisuals.Bind(_scripts.Content);
             var dojoChoices = new List<DefinitionId>();
             foreach (var location in _scripts.Content.Locations)
@@ -292,6 +297,29 @@ namespace Eclipse.Modding
             return _legacyContent.BuildFormParameters(character, player);
         }
 
+        private static long _coreImportMs;
+
+        // Load profiling: sections of the mod content load add their time here, and
+        // StartGameContent prints and clears them with its breakdown.
+        internal static class LoadTimings
+        {
+            private static readonly System.Text.StringBuilder Report = new System.Text.StringBuilder();
+            private static readonly System.Diagnostics.Stopwatch Watch = new System.Diagnostics.Stopwatch();
+
+            public static void Start() { Report.Length = 0; Watch.Restart(); }
+            public static void Mark(string name)
+            {
+                Report.Append(Report.Length == 0 ? string.Empty : ", ").Append(name).Append(' ').Append(Watch.ElapsedMilliseconds).Append(" ms");
+                Watch.Restart();
+            }
+            public static void Group(string name)
+            {
+                Report.Append(Report.Length == 0 ? string.Empty : "; ").Append(name).Append(':');
+                Watch.Restart();
+            }
+            public static string Take() { string text = Report.ToString(); Report.Length = 0; return text; }
+        }
+
         public static void StartGameContent()
         {
             StartGameContent(ModHost.GetDefaultModsRoot());
@@ -299,14 +327,43 @@ namespace Eclipse.Modding
 
         public static void StartGameContent(string modsRoot)
         {
+            var total = System.Diagnostics.Stopwatch.StartNew();
+            var timings = new System.Text.StringBuilder();
+            var watch = System.Diagnostics.Stopwatch.StartNew();
+            Action<string> mark = name => { timings.Append(", ").Append(name).Append(' ').Append(watch.ElapsedMilliseconds).Append(" ms"); watch.Restart(); };
+            CoreAssetProvider.DescribeCount = CoreAssetProvider.DescribeLoads = CoreAssetProvider.DescribeLooseLoads = 0;
+            CoreAssetProvider.DescribeTime.Reset();
+            CoreAssetProvider.DescribeLoadTime.Reset();
+            CoreAssetProvider.DescribeLooseTime.Reset();
+            Eclipse.Content.TarAssets.TarAssetBundle.OpenCount = 0;
+            Eclipse.Content.TarAssets.TarAssetBundle.OpenTime.Reset();
+            _coreImportMs = 0;
+            LoadTimings.Start();
+            LoadTimings.Take();
             try
             {
                 Initialize(modsRoot);
+                mark("host");
                 ModScriptSession scripts = StartScripts();
+                mark("scripts");
                 _legacyContent = new LegacyContentAdapter(scripts.Content);
+                mark("adapter");
                 _legacyContent.ApplyItems(ListSF.GetItems());
+                mark("items");
                 _legacyContent.ApplyPerksAndEnchantments(GameUtils.FDEJIIDIPBI, ForgeManager.ELEBLBJKDBI());
+                mark("perks and enchantments");
                 ApplyP1DContent();
+                mark("P1D");
+                // Where the load's time goes: "scripts" includes the core-content import and
+                // the core asset descriptions mods asked for.
+                Debug.Log("[ModContent] Loaded in " + total.ElapsedMilliseconds + " ms" + timings +
+                    "; within scripts: core import " + _coreImportMs + " ms, " + CoreAssetProvider.DescribeCount +
+                    " core asset description(s) " + CoreAssetProvider.DescribeTime.ElapsedMilliseconds + " ms (" +
+                    CoreAssetProvider.DescribeLoads + " loaded whole, " + CoreAssetProvider.DescribeLoadTime.ElapsedMilliseconds + " ms; " +
+                    CoreAssetProvider.DescribeLooseLoads + " loose UI sprite(s) " + CoreAssetProvider.DescribeLooseTime.ElapsedMilliseconds +
+                    " ms). Sections: " + LoadTimings.Take() + ". Throughout: " +
+                    Eclipse.Content.TarAssets.TarAssetBundle.OpenCount + " art bundle(s) opened " +
+                    Eclipse.Content.TarAssets.TarAssetBundle.OpenTime.ElapsedMilliseconds + " ms.");
                 Debug.Log("[ModContent] Catalog equipment: " + scripts.Content.Weapons.Count + " weapons, " +
                     scripts.Content.Armors.Count + " armor, " + scripts.Content.Helms.Count + " helms, " +
                     scripts.Content.Ranged.Count + " ranged, " + scripts.Content.Magic.Count + " magic; applied " +
@@ -1700,17 +1757,20 @@ namespace Eclipse.Modding
 
         private static void ImportCoreContent(ModContentCatalog content)
         {
+            LoadTimings.Group("core import");
             var nodes = new List<XmlNode>();
             foreach (ItemInfo item in ListSF.GetItems().HCDLKHKBEPF())
                 if (item.Name.IndexOf(':') < 0 && item.NodeXML != null) nodes.Add(item.NodeXML);
             var languages = CoreContentImporter.ReadLocalizations(
                 Path.Combine(GameplayContentArchive.GetXmlRoot(), "localizations"));
+            LoadTimings.Mark("localizations");
             int weapons = nodes.Count == 0 ? 0 : CoreContentImporter.ImportWeapons(content, nodes, languages);
             int armors = nodes.Count == 0 ? 0 : CoreContentImporter.ImportArmors(content, nodes, languages);
             int helms = nodes.Count == 0 ? 0 : CoreContentImporter.ImportHelms(content, nodes, languages);
             int ranged = nodes.Count == 0 ? 0 : CoreContentImporter.ImportRanged(content, nodes, languages);
             int magic = nodes.Count == 0 ? 0 : CoreContentImporter.ImportMagic(content, nodes, languages);
             int nonEquipment = nodes.Count == 0 ? 0 : CoreContentImporter.ImportNonEquipment(content, nodes);
+            LoadTimings.Mark("equipment");
             var forgeProfileNames = new List<string>();
             ForgeManager forge = ForgeManager.ELEBLBJKDBI();
             if (forge != null)
@@ -1722,6 +1782,7 @@ namespace Eclipse.Modding
                 }
             }
             int forgeProfiles = CoreContentImporter.ImportForgeEconomicProfiles(content, forgeProfileNames);
+            LoadTimings.Mark("forge");
             int perks = 0;
             string perksPath = Path.Combine(GameplayContentArchive.GetXmlRoot(), "perks.xml");
             var perksDocument = new XmlDocument { XmlResolver = null };
@@ -1729,16 +1790,21 @@ namespace Eclipse.Modding
                 { DtdProcessing = DtdProcessing.Prohibit, XmlResolver = null })) perksDocument.Load(reader);
             XmlNode perksRoot = perksDocument["Perks"];
             if (perksRoot != null) perks = CoreContentImporter.ImportPerks(content, EnumerateChildren(perksRoot));
+            LoadTimings.Mark("perks");
             int fights = 0;
             string stagesPath = Path.Combine(GameplayContentArchive.GetXmlRoot(), "stages.xml");
             var stagesDocument = new XmlDocument { XmlResolver = null };
             using (XmlReader reader = XmlReader.Create(stagesPath, new XmlReaderSettings
                 { DtdProcessing = DtdProcessing.Prohibit, XmlResolver = null })) stagesDocument.Load(reader);
+            LoadTimings.Mark("stages.xml");
             XmlNode zonesRoot = stagesDocument["Stages"]?["Zones"];
             if (zonesRoot != null) fights = CoreContentImporter.ImportStages(content, zonesRoot);
+            LoadTimings.Mark("stages");
             int warriorTemplates = CoreContentImporter.ImportWarriorTemplates(content,
                 stagesDocument["Stages"]?["Warriors"]?["Templates"]);
+            LoadTimings.Mark("warrior templates");
             CoreContentImporter.ImportQuestSources(content, GameplayContentArchive.GetXmlRoot());
+            LoadTimings.Mark("quest sources");
             Debug.Log("[ModContent] Imported core items: " + weapons + " weapons, " + armors +
                 " armors, " + helms + " helms, " + ranged + " ranged, " + magic + " magic, " + nonEquipment +
                 " non-equipment; " + perks + " perks; " + forgeProfiles + " immutable forge economic profiles.");

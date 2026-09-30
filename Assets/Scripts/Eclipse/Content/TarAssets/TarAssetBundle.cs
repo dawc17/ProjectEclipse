@@ -19,11 +19,21 @@ namespace Eclipse.Content.TarAssets
         private readonly Dictionary<string, AudioClip> _audio =
             new Dictionary<string, AudioClip>(StringComparer.OrdinalIgnoreCase);
 
+        // Load profiling (ModRuntime.StartGameContent reports and resets these).
+        internal static int OpenCount;
+        internal static readonly System.Diagnostics.Stopwatch OpenTime = new System.Diagnostics.Stopwatch();
+
         public TarAssetBundle(PackagedArtCatalog.BundleRecord record)
         {
-            _record = record ?? throw new ArgumentNullException("record");
-            _archive = TarArchive.Open(Lz4BundleCache.OpenTar(record));
-            IndexMetadata();
+            OpenCount++;
+            OpenTime.Start();
+            try
+            {
+                _record = record ?? throw new ArgumentNullException("record");
+                _archive = TarArchive.Open(Lz4BundleCache.OpenTar(record));
+                IndexMetadata();
+            }
+            finally { OpenTime.Stop(); }
         }
 
         // Primarily used by the migration/validation tooling before a compressed bundle is committed
@@ -37,11 +47,12 @@ namespace Eclipse.Content.TarAssets
 
         private void IndexMetadata()
         {
+            using (TarArchive.Reader reader = _archive.OpenReader())
             foreach (TarArchive.Entry entry in _archive.Entries.OrderBy(x => x.Name, StringComparer.Ordinal))
             {
                 if (!entry.Name.EndsWith(".meta", StringComparison.OrdinalIgnoreCase))
                     continue;
-                TarAssetMeta meta = TarAssetMeta.Parse(entry.Name, _archive.ReadText(entry.Name));
+                TarAssetMeta meta = TarAssetMeta.Parse(entry.Name, reader.ReadText(entry));
                 if (!string.Equals(meta.Namespace, string.IsNullOrEmpty(_record.namespaceId) ? "core" : _record.namespaceId,
                         StringComparison.OrdinalIgnoreCase))
                     throw new InvalidDataException("Asset namespace differs from bundle namespace: " + entry.Name);
