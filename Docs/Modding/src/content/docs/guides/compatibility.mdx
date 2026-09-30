@@ -16,3 +16,30 @@ The current API supports typed content definitions, combat behavior callbacks, s
 A successful registration confirms that the supplied definitions passed validation. It cannot prove that a sprite looks right, an opponent behaves well, a reward is balanced, or an update preserves every intended player experience. Test your mod in Eclipse, including restart, failure, and existing-save cases relevant to your feature.
 
 Use <a href={pageUrl('examples')}>working examples</a> as starting points. Keep version numbers and saved IDs deliberate, and follow <a href={pageUrl('api/save-compatibility')}>save compatibility</a> when retiring content or changing state schemas.
+
+## Numeric values in XML
+
+Write fractional XML values with a decimal point, such as `0.25`, and no
+thousands separators. Scientific notation such as `1e-5` is supported. This
+applies to model coordinates, node weights, cloth damping, and other numeric XML
+attributes. Eclipse reads these values independently of the player's Windows
+regional format, including languages that normally use a decimal comma.
+
+## Multiplayer combat and recordings
+
+Local and online versus use equal combat ratings for both fighters. Native
+strike damage is multiplied by `0.5` for unblocked hits and `0.25` for blocked
+hits, after the native block and critical modifiers. For example, a strike that
+previously dealt 20% of full health now deals 10%; a blocked strike that previously
+dealt 4% now deals 1%. Training uses these same versus damage rules. Campaign
+and title-screen sparring keep their own rules.
+
+The multiplier is applied before lethal damage is capped to remaining health,
+so a reduced hit can leave the target alive. This does not change hit reactions,
+knockback, or block detection. Lua and equipment behavior that separately apply
+health changes do not receive this native strike multiplier.
+
+Online peers and replay playback must match the combat balance identifier as
+well as enabled mods and the equipment roster. Recordings made with the previous
+damage balance are rejected instead of playing with different outcomes. Both
+online players need the updated balance.

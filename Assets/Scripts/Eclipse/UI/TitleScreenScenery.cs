@@ -345,13 +345,17 @@ namespace Eclipse.UI
             }
 
             private Fight sparring;
+            public bool HasSparring => sparring != null;
             private Eclipse.Multiplayer.VersusLoadout leftLoadout, rightLoadout;
             private float leftStart, rightStart;
 
             private void UpdateBackdrop(bool advanceAnimation)
             {
                 float? center = null;
-                if (sparring != null) center = sparring.TitleSparringCenterX;
+                // Fixed updates draw the current state. LateUpdate's Tick draws
+                // the same interpolated pose as the fighter meshes and capsules.
+                if (sparring != null) center = sparring.GetTitleSparringCenterX(advanceAnimation
+                    ? 1f : Eclipse.Rendering.Interpolation.FightInterpolation.FightAlpha);
                 render.UpdateMenuBackdrop(camera, advanceAnimation, center);
             }
 
@@ -740,7 +744,8 @@ namespace Eclipse.UI
             float t = now - gustAt;
             // Rise over .7 s, hold 1.2 s, die away over 2.4 s.
             float gust = t < 0f ? 0f : t < .7f ? t / .7f : t < 1.9f ? 1f : Mathf.Clamp01(1f - (t - 1.9f) / 2.4f);
-            TitleLeaf.Gust = gust * gust * (3f - 2f * gust);
+            float breeze = .3f * Mathf.Clamp01(1f - (now - selectionBreezeAt) / .65f);
+            TitleLeaf.Gust = Mathf.Max(gust * gust * (3f - 2f * gust), breeze);
         }
 
         // --- Parallax ----------------------------------------------------------------------

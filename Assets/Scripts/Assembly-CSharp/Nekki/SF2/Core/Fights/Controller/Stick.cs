@@ -264,6 +264,8 @@ namespace Nekki.SF2.Core.Fights.Controller
         public void SetInputDirectionVisual(FightCID direction, bool pressed)
         {
             if (touching || direction < FightCID.QuadrantUp || direction > FightCID.QuadrantUpBack) return;
+            if (pressed && visualDirection == direction && _selectedController.gameObject.activeSelf) return;
+            if (!pressed && visualDirection != direction) return;
             if (pressed) visualDirection = direction;
             else if (visualDirection == direction) visualDirection = FightCID.QuadrantZero;
             bool active = visualDirection != FightCID.QuadrantZero;

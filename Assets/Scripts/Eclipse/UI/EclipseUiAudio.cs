@@ -34,6 +34,83 @@ namespace Eclipse.UI
         private readonly Dictionary<string, AudioClip> clips = new Dictionary<string, AudioClip>();
         private AudioSource effects, music;
         private float musicLevel, musicTarget;
+        private float titleFightFocus;
+        private sealed class FightVoice
+        {
+            public AudioSource Source;
+            public string Name;
+            public float Volume;
+        }
+        private readonly List<FightVoice> fightVoices = new List<FightVoice>();
+        private readonly Dictionary<string, AudioClip> fightClips = new Dictionary<string, AudioClip>();
+
+        internal static void SetTitleFightFocus(float focus)
+        {
+            if (instance == null && focus <= 0f) return;
+            var self = Instance;
+            self.titleFightFocus = Mathf.Clamp01(focus);
+            self.UpdateFightVolumes();
+            if (focus <= 0f) StopTitleFightSounds();
+        }
+
+        internal static void PlayTitleFightSound(string name, bool loop, float volume, System.Func<string, AudioClip> load)
+        {
+            // Muted menu fights neither load clips nor queue sounds for later playback.
+            if (instance == null || instance.titleFightFocus <= 0f || SoundController.GetSoundVolume() <= 0f
+                || string.IsNullOrEmpty(name)) return;
+            var self = instance;
+            AudioClip clip;
+            if (!self.fightClips.TryGetValue(name, out clip))
+            {
+                clip = load(name);
+                self.fightClips.Add(name, clip);
+            }
+            if (clip == null) return;
+            if (loop && self.fightVoices.Exists(v => v.Name == name && v.Source.loop && v.Source.isPlaying)) return;
+            var voice = self.fightVoices.Find(v => !v.Source.isPlaying);
+            if (voice == null && self.fightVoices.Count < 10)
+            {
+                voice = new FightVoice { Source = self.gameObject.AddComponent<AudioSource>() };
+                voice.Source.playOnAwake = false;
+                voice.Source.spatialBlend = 0f;
+                self.fightVoices.Add(voice);
+            }
+            // Prefer replacing a one-shot to interrupting an active loop.
+            if (voice == null) voice = self.fightVoices.Find(v => !v.Source.loop);
+            if (voice == null) return;
+            voice.Source.Stop();
+            voice.Name = name;
+            voice.Volume = Mathf.Clamp01(volume);
+            voice.Source.clip = clip;
+            voice.Source.loop = loop;
+            voice.Source.volume = voice.Volume * self.titleFightFocus * SoundController.GetSoundVolume();
+            voice.Source.Play();
+        }
+
+        internal static void StopTitleFightSound(string name)
+        {
+            if (instance == null) return;
+            foreach (var voice in instance.fightVoices)
+                if (voice.Name == name) voice.Source.Stop();
+        }
+
+        internal static void StopTitleFightSounds(bool clearClips = false)
+        {
+            if (instance == null) return;
+            foreach (var voice in instance.fightVoices)
+            {
+                voice.Source.Stop();
+                voice.Source.clip = null;
+                voice.Name = null;
+            }
+            if (clearClips) instance.fightClips.Clear();
+        }
+
+        private void UpdateFightVolumes()
+        {
+            float level = titleFightFocus * SoundController.GetSoundVolume();
+            foreach (var voice in fightVoices) voice.Source.volume = voice.Volume * level;
+        }
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
         private static void ResetSession() { instance = null; muteFocusUntilFrame = 0; lastFocusAt = -1f; }
@@ -112,6 +189,7 @@ namespace Eclipse.UI
 
         private void Update()
         {
+            UpdateFightVolumes();
             if (music == null || !music.isPlaying) return;
             // Capped per frame so a launch hitch cannot jump the fade.
             musicLevel = Mathf.MoveTowards(musicLevel, musicTarget, Mathf.Min(Time.unscaledDeltaTime, .05f) / musicFade);

@@ -1,4 +1,5 @@
 using System;
+using System.Globalization;
 using System.Runtime.CompilerServices;
 using System.Xml;
 using UnityEngine;
@@ -458,7 +459,7 @@ public class Vector3f : Vector2f
 		Vector3f eMAFACPEPDK = new Vector3f();
 		try
 		{
-			eMAFACPEPDK.X = float.Parse(MEEAKLDGLDF.Attributes["X"].Value);
+			eMAFACPEPDK.X = float.Parse(MEEAKLDGLDF.Attributes["X"].Value, NumberStyles.Float, CultureInfo.InvariantCulture);
 		}
 		catch
 		{
@@ -466,7 +467,7 @@ public class Vector3f : Vector2f
 		}
 		try
 		{
-			eMAFACPEPDK.Y = float.Parse(MEEAKLDGLDF.Attributes["Y"].Value);
+			eMAFACPEPDK.Y = float.Parse(MEEAKLDGLDF.Attributes["Y"].Value, NumberStyles.Float, CultureInfo.InvariantCulture);
 			return eMAFACPEPDK;
 		}
 		catch

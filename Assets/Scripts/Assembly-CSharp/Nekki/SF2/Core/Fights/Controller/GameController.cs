@@ -52,7 +52,7 @@ namespace Nekki.SF2.Core.Fights.Controller
 
 		private bool DGEIJHIPFIG = true;
 
-		private bool JKDKBHNKCPH;
+		private bool _deviceInputEnabled; // best guess for name
 
 			private FightGamepadInput _gamepadInput;
 			private FightGamepadInput _localVersusPlayerTwoInput;
@@ -60,6 +60,8 @@ namespace Nekki.SF2.Core.Fights.Controller
 			private bool _localVersusKeyboardPlayerOne;
 			private bool _hasFocus = true;
 			private byte _versusTouch;
+            private byte _versusVisualInput;
+            private FightCID _versusVisualDirection;
 
 			/// <summary>Held on-screen stick and buttons as a versus input byte; sampled per tick by the versus driver.</summary>
 			public byte VersusTouchInput => _versusTouch;
@@ -148,8 +150,9 @@ namespace Nekki.SF2.Core.Fights.Controller
                 _joystick.transform.parent as RectTransform, (RectTransform)_actionButtons.transform);
             Eclipse.UI.ControlLayout.Apply((RectTransform)transform);
             SyncModUiCapture();
+            if (_localVersusInputEnabled) RefreshVersusInputVisual();
 				if (!_localVersusInputEnabled) NBMONJPAMHI.Render();
-				if (JKDKBHNKCPH)
+				if (_deviceInputEnabled)
 			{
 				// Versus devices are sampled per simulation tick by Eclipse.Multiplayer.VersusTickDriver.
 				if (!_localVersusInputEnabled)
@@ -173,7 +176,7 @@ namespace Nekki.SF2.Core.Fights.Controller
 				_hasFocus = Application.isFocused;
 				// Local input owns complete keyboard snapshots, including key releases.
 				// The campaign's legacy keyboard/debug dispatcher remains separate.
-				NBMONJPAMHI.DCHJDPCEODD = JKDKBHNKCPH && !enabled;
+				NBMONJPAMHI.DCHJDPCEODD = _deviceInputEnabled && !enabled;
 		}
 
 		public void Init(bool DFDCOMCCEEP = true, bool GJHOPBBMHDA = true, bool BIMHGOMADEJ = true)
@@ -414,11 +417,11 @@ namespace Nekki.SF2.Core.Fights.Controller
 
 		private void BFMNHIPMDMG(bool value)
 		{
-			if (!value && JKDKBHNKCPH)
+			if (!value && _deviceInputEnabled)
 			{
 				GetGamepadInput().ReleaseAll();
 			}
-			JKDKBHNKCPH = value;
+			_deviceInputEnabled = value;
 				NBMONJPAMHI.DCHJDPCEODD = value && !_localVersusInputEnabled;
 			if (!value)
 			{
@@ -446,7 +449,44 @@ namespace Nekki.SF2.Core.Fights.Controller
 			{
 				_gamepadInput?.ReleaseAll();
 				_localVersusPlayerTwoInput?.ReleaseAll();
+                SetVersusInputVisual(Eclipse.Multiplayer.Online.NetInput.Neutral);
 			}
+
+        // Versus applies controls directly to Fight on its tick timeline. The HUD
+        // observes the local device snapshot without emitting another combat event.
+        internal void SetVersusInputVisual(byte input)
+        {
+            _versusVisualInput = input;
+            RefreshVersusInputVisual();
+        }
+
+        private void RefreshVersusInputVisual()
+        {
+            byte input = _localVersusInputEnabled && _deviceInputEnabled && _hasFocus
+                && !Eclipse.Multiplayer.LocalVersusMenu.BlocksFightInput
+                && !Eclipse.UI.Modding.ModUiGameBridge.BlocksGameplayInput
+                ? _versusVisualInput : Eclipse.Multiplayer.Online.NetInput.Neutral;
+            var direction = (FightCID)Eclipse.Multiplayer.Online.NetInput.Direction(input);
+            if (!IsQuadrantEnabled(direction)) direction = FightCID.QuadrantZero;
+            if (_joystick != null)
+            {
+                if (direction != _versusVisualDirection && _versusVisualDirection != FightCID.QuadrantZero)
+                    _joystick.SetInputDirectionVisual(_versusVisualDirection, false);
+                if (direction != FightCID.QuadrantZero) _joystick.SetInputDirectionVisual(direction, true);
+            }
+            _versusVisualDirection = direction;
+            SetVersusButtonVisual(input, Eclipse.Multiplayer.Online.NetInput.Punch, FightCID.Punch);
+            SetVersusButtonVisual(input, Eclipse.Multiplayer.Online.NetInput.Kick, FightCID.Kick);
+            SetVersusButtonVisual(input, Eclipse.Multiplayer.Online.NetInput.Ranged, FightCID.MissileButton);
+            SetVersusButtonVisual(input, Eclipse.Multiplayer.Online.NetInput.Magic, FightCID.MagicButton);
+        }
+
+        private void SetVersusButtonVisual(byte input, byte bit, FightCID control)
+        {
+            if (_actionButtons != null)
+                _actionButtons.SetInputPressedVisual(control, (input & bit) != 0
+                    && IsQuadrantEnabled(control) && !_controlRestrictions.IsBlocked(control));
+        }
 
 		private void SendGamepadControlEvent(int eventType, FightCID control)
         {

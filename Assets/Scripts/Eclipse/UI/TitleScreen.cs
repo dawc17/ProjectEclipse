@@ -65,6 +65,11 @@ namespace Eclipse.UI
         private readonly Dictionary<GameObject, Vector2> homeRows = new Dictionary<GameObject, Vector2>();
         private GameObject strokeTarget;
         private float strokeY, strokeVelocity, strokeFill;
+        private const float ShowcaseDelay = 8f;
+        private CanvasGroup homePresentation;
+        private float lastTitleActivity, showcaseBlend, selectionBreezeAt = -99f;
+        private Vector2 lastTitlePointer;
+        private int showcaseWakeFrame = -1;
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
         private static void ResetSession()
@@ -272,6 +277,7 @@ namespace Eclipse.UI
 
         private void Clear(string name)
         {
+            ResetShowcase();
             previousPage = currentPage;
             bindingAction = -1;
             bindingLabels.Clear();
@@ -510,6 +516,78 @@ namespace Eclipse.UI
             HomeButton("OPTIONS", 496, 52, () => Settings("Display"), UiSound.Open, 25);
             HomeButton("QUIT", 548, 48, QuitPrompt, UiSound.Open, 23);
             FocusFirst();
+            BuildHomePresentation();
+        }
+
+        // A separate parent multiplies the existing entrance fades without touching scenery.
+        private void BuildHomePresentation()
+        {
+            var host = Rect(page, "Home presentation", 0, 0, 1280, 720);
+            homePresentation = host.gameObject.AddComponent<CanvasGroup>();
+            var children = new List<Transform>();
+            foreach (Transform child in page)
+                if (child != host && child != sceneryHost && child != leafLayer && child != paperBackground)
+                    children.Add(child);
+            foreach (var child in children) child.SetParent(host, false);
+        }
+
+        private void ResetShowcase()
+        {
+            if (homePresentation != null)
+            {
+                homePresentation.alpha = 1f;
+                homePresentation.blocksRaycasts = homePresentation.interactable = true;
+            }
+            homePresentation = null;
+            showcaseBlend = 0f;
+            lastTitleActivity = Time.unscaledTime;
+            lastTitlePointer = UnityEngine.Input.mousePosition;
+            EclipseUiAudio.SetTitleFightFocus(0f);
+            if (!optionsOnly) Cursor.visible = true;
+        }
+
+        private bool TitleActivity()
+        {
+            Vector2 pointer = UnityEngine.Input.mousePosition;
+            bool moved = (pointer - lastTitlePointer).sqrMagnitude > .25f;
+            lastTitlePointer = pointer;
+            return moved || UnityEngine.Input.anyKey || UnityEngine.Input.mouseScrollDelta.sqrMagnitude > 0f
+                || GamePad.GetStick(GamePad.Stick.Dpad, GamePad.Player.Any).sqrMagnitude > .16f
+                || GamePad.GetStick(GamePad.Stick.LeftStick, GamePad.Player.Any).sqrMagnitude > .16f
+                || GamePad.GetStick(GamePad.Stick.RightStick, GamePad.Player.Any).sqrMagnitude > .16f
+                || Mathf.Abs(GamePad.GetTrigger(GamePad.Trigger.LeftTrigger, GamePad.Player.Any)) > .4f
+                || Mathf.Abs(GamePad.GetTrigger(GamePad.Trigger.RightTrigger, GamePad.Player.Any)) > .4f;
+        }
+
+        // The first input wakes the menu. It cannot also activate a hidden control.
+        private bool AdvanceShowcase(float now, float deltaTime, bool activity, bool focused)
+        {
+            bool eligible = !optionsOnly && !splashing && !leaving && !rebuilding && currentPage == "Home"
+                && sceneChange == null && stageView != null && stageView.HasSparring && focused
+                && !GameSessionRestart.IsRestarting && !ControlLayoutEditor.BlocksInput;
+            bool waking = activity && showcaseBlend > 0f;
+            if (activity || !eligible) lastTitleActivity = now;
+            if (waking) showcaseWakeFrame = Time.frameCount;
+            float target = eligible && now - lastTitleActivity >= ShowcaseDelay ? 1f : 0f;
+            showcaseBlend = Mathf.MoveTowards(showcaseBlend, target, Mathf.Min(deltaTime, .05f) / (target > 0f ? 1.2f : .25f));
+            float focus = Mathf.SmoothStep(0f, 1f, showcaseBlend);
+            if (homePresentation != null)
+            {
+                homePresentation.alpha = 1f - focus;
+                bool interactive = showcaseBlend == 0f && Time.frameCount != showcaseWakeFrame;
+                homePresentation.blocksRaycasts = homePresentation.interactable = interactive;
+            }
+            if (stageImage != null) stageImage.color = Color.Lerp(new Color(.78f, .78f, .78f, 1f), Color.white, focus);
+            // Fight audio rises only as the menu finishes disappearing. Waking mutes immediately.
+            EclipseUiAudio.SetTitleFightFocus(target > 0f ? Mathf.SmoothStep(0f, 1f, Mathf.InverseLerp(.8f, 1f, focus)) : 0f);
+            if (!optionsOnly) Cursor.visible = focus < .99f;
+            return waking || showcaseBlend > 0f || Time.frameCount == showcaseWakeFrame;
+        }
+
+        private void OnApplicationFocus(bool focused)
+        {
+            lastTitleActivity = Time.unscaledTime;
+            if (!focused) EclipseUiAudio.SetTitleFightFocus(0f);
         }
 
         private GameObject HomeButton(string text, float y, float h, Action action, UiSound sound, int size)
@@ -536,6 +614,7 @@ namespace Eclipse.UI
             float targetY = row.x;
             if (focused != strokeTarget)
             {
+                if (strokeTarget != null && showcaseBlend == 0f) selectionBreezeAt = Time.unscaledTime;
                 if (strokeTarget == null) { strokeY = targetY; strokeVelocity = 0f; }
                 strokeTarget = focused;
                 strokeFill = 0f;
@@ -895,12 +974,14 @@ namespace Eclipse.UI
 
         private void Update()
         {
+            bool showcasing = AdvanceShowcase(Time.unscaledTime, Time.unscaledDeltaTime, TitleActivity(), Application.isFocused);
             UpdateHomeStroke();
             UpdateParallax();
             UpdateGust();
             UpdateEclipse();
             UpdateInputDevice();
             if (GameSessionRestart.IsRestarting || splashing || ControlLayoutEditor.BlocksInput) return;
+            if (showcasing) return;
             if (currentPage == "Checking")
             {
                 if (ReleaseCheck.Current != ReleaseCheck.Result.Pending) Home();
@@ -1035,6 +1116,8 @@ namespace Eclipse.UI
 
         private void OnDestroy()
         {
+            EclipseUiAudio.SetTitleFightFocus(0f);
+            EclipseUiAudio.StopTitleFightSounds(true);
             ClearPendingModZip();
             if (!optionsOnly) EclipseUiAudio.StopTitleMusic();
             ReleaseStage();
@@ -1144,7 +1227,7 @@ namespace Eclipse.UI
             }
             if (action != null) button.onClick.AddListener(() =>
             {
-                if (rebuilding || bindingAction >= 0) return;
+                if (rebuilding || bindingAction >= 0 || showcaseBlend > 0f || Time.frameCount == showcaseWakeFrame) return;
                 fx.Punch();
                 EclipseUiAudio.Play(sound);
                 action();

@@ -79,8 +79,9 @@ namespace Nekki.SF2.GUI.Scenes
 			{
 			}
 			AtlasCache.Clear();
-			Resources.UnloadUnusedAssets();
-			GC.Collect();
+			// The Single-mode LoadSceneAsync below already unloads unused assets.
+			// An extra sweep here scans the same objects twice, followed by a forced
+			// full collection, producing long stalls even when nothing is reclaimed.
 			if (get_PrevScene() == ScreenType.ModulePreloader)
 			{
 				_LoaderType1.SetActive(true);

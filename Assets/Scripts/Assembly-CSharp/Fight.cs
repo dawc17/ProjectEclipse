@@ -11,9 +11,16 @@ using UnityEngine;
 public class Fight
 {
     internal bool IsTitleSparring { get; private set; }
-    internal float TitleSparringCenterX => (_playerModel.PLBNCDCFPML().GetX() + CKNCPOABFBO.PLBNCDCFPML().GetX()) * .5f;
+    internal float GetTitleSparringCenterX(float alpha)
+    {
+        Eclipse.Rendering.Interpolation.FightInterpolation.SamplePosition(_playerModel.CLDMEJKGLBA().HOFFDCFEBGA(), alpha,
+            out float leftX, out _, out _);
+        Eclipse.Rendering.Interpolation.FightInterpolation.SamplePosition(CKNCPOABFBO.CLDMEJKGLBA().HOFFDCFEBGA(), alpha,
+            out float rightX, out _, out _);
+        return (leftX + rightX) * .5f;
+    }
     private float _titleOldLeftWall, _titleOldRightWall;
-    private int _titleOldSpeed, _titleRoundEndFrame = -1;
+    private int _titleOldSpeed;
     private bool _titleOldAiOn;
 
     // A presentation encounter: no campaign boot, HUD, controller, rules, rewards,
@@ -49,6 +56,8 @@ public class Fight
             fight._playerModel = fight.AddModel(left);
             fight.CKNCPOABFBO = fight.AddModel(right);
             fight.ResetParameters();
+            left.set_IsImmortalityEnabled(true);
+            right.set_IsImmortalityEnabled(true);
             fight.round.round = 1;
             fight.round.processing = true;
             fight.SetStage(StageType.FDBBPEGEGMK.STAGE_FIGHT);
@@ -86,24 +95,28 @@ public class Fight
         foreach (var model in LNDLFINJHDB) model.RenderAi();
         _SelectAnimation.Render();
         EPBDEDGLHJE.PAHPCIFKDEA();
+        // Native magic effects are manually ticked by RenderFight, rather than
+        // CocosAnimation.Update. Title combat needs the same advance/expiry pass.
+        _Camera.KKFIJLOMOJI().GOCPBKNDKMC().DHOMHKADCFG();
+        _Camera.KKFIJLOMOJI().GDBMKMFFOCF().DHOMHKADCFG();
+        _Camera.KKFIJLOMOJI().IFDHBLGKEHN();
         BELLAEIMEAB();
         ResetModelsHitData();
         frame++;
-        if (_titleRoundEndFrame < 0 &&
-            (NMNCKBPFCCP.PCALDKCJGCK || AKBNKDBHCEO.PCALDKCJGCK || frame >= 2400))
-        {
-            _titleRoundEndFrame = frame;
-            round.processing = false;
-            ActionModels(false);
-        }
-        return _titleRoundEndFrame < 0 || frame - _titleRoundEndFrame < 90;
+        // Native immortality preserves hit reactions while keeping both CPUs alive.
+        // Presentation sparring has no round timer or knockout/rematch interruption.
+        return true;
     }
 
     internal void DisposeTitleSparring()
     {
         if (!IsTitleSparring) return;
+        Eclipse.UI.EclipseUiAudio.StopTitleFightSounds();
         try
         {
+            // The renderer survives title rematches; its old looping effects
+            // must not survive the fighters that owned them.
+            _Camera?.KKFIJLOMOJI()?.JPPGJBHLAGC();
             var models = new HashSet<Model>(LNDLFINJHDB);
             models.UnionWith(HCPGFOCGDAA);
             models.UnionWith(JLEFIKJODGG);
@@ -2346,7 +2359,7 @@ public class Fight
 		}
 		// Eclipse: the archival DE CriticalEffect trigger plays snd_crit with the critical hit
 		// effect; the shipped moves data only carries the effect, so play the sound once here.
-		if (!IsTitleSparring && gHHCDAFIKJE.DNGKOMPMPCD && !gHHCDAFIKJE.DFOHNJEBDED)
+        if (gHHCDAFIKJE.DNGKOMPMPCD && !gHHCDAFIKJE.DFOHNJEBDED)
 		{
 			Sound.IFKCCDAIADF("snd_crit");
 		}

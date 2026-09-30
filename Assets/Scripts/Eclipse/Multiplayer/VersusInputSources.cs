@@ -265,7 +265,7 @@ namespace Eclipse.Multiplayer
                     ? "Recorded by a " + (runtime.Length > 0 ? runtime : "different") + " build; it only plays back in the same kind of build."
                     : "Recorded with another game version (" + replay.Build + ").";
             }
-            if (replay.Content != OnlineVersusSession.ContentFingerprint()) return "Recorded with different mods or a different versus roster.";
+            if (replay.Content != OnlineVersusSession.ContentFingerprint()) return "Recorded with different mods, equipment roster, or combat balance.";
             return null;
         }
 

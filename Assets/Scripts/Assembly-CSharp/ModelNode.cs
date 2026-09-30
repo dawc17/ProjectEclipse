@@ -1,4 +1,4 @@
-public class ModelNode
+public partial class ModelNode
 {
 	public enum NodeType
 	{
@@ -30,7 +30,8 @@ public class ModelNode
 
 	private bool _IsPhysics;
 
-	private bool PALHLKDCAAC;
+	// best guess for name
+	private bool _defaultPhysics;
 
     // Evidence Points that this is a Fixed Boolean but OBCDNOHNEEM is directly set from the model loader as Fixed so I have no clue which one is which
 	// so I temporarily named it from the conditional statement.
@@ -39,7 +40,8 @@ public class ModelNode
 	private bool _Visible;
 
 	// No Clue what this is...
-	private bool JLDCCMPMAAB;
+	// best guess for name
+	private bool _physicsActive;
 
 	private bool _IsShock;
 
@@ -48,7 +50,8 @@ public class ModelNode
 	private bool _Weak;
 
 	// no clue what this is either
-	protected bool BCIPCPOJJGN;
+	// best guess for name
+	protected bool _skipMacroUpdate;
 
 	private static Vector3f _TimeStepVector = new Vector3f();
 
@@ -265,9 +268,9 @@ public class ModelNode
 		_IsFixed = true;
 		_IsCloth = false;
 		_Visible = false;
-		JLDCCMPMAAB = false;
-		PALHLKDCAAC = false;
-		BCIPCPOJJGN = false;
+		_physicsActive = false;
+		_defaultPhysics = false;
+		_skipMacroUpdate = false;
 		SetType(NodeType.Node);
 	}
 
@@ -281,9 +284,9 @@ public class ModelNode
 		_IsFixed = true;
 		_IsCloth = false;
 		_Visible = false;
-		JLDCCMPMAAB = false;
-		PALHLKDCAAC = false;
-		BCIPCPOJJGN = false;
+		_physicsActive = false;
+		_defaultPhysics = false;
+		_skipMacroUpdate = false;
 		CopyFrom(NPDJNAMFIKD);
 	}
 
@@ -399,7 +402,7 @@ public class ModelNode
 			_IsPhysics = _IsCloth && _IsNode;
 		}
 		_IsPhysics = _IsCloth && _IsNode;
-		PALHLKDCAAC = _IsPhysics;
+		_defaultPhysics = _IsPhysics;
 	}
 
 	public bool IsPhysics()
@@ -424,12 +427,12 @@ public class ModelNode
 
 	public bool NEEJAPDCCMJ()
 	{
-		return JLDCCMPMAAB;
+		return _physicsActive;
 	}
 
 	public void BGDMKGMEIDH(bool value)
 	{
-		JLDCCMPMAAB = value;
+		_physicsActive = value;
 	}
 
 	public bool IsShock()
@@ -464,12 +467,12 @@ public class ModelNode
 
 	public bool GGIDOLBCAMN()
 	{
-		return BCIPCPOJJGN;
+		return _skipMacroUpdate;
 	}
 
 	public void OHMNDOKBGGA(bool value)
 	{
-		BCIPCPOJJGN = value;
+		_skipMacroUpdate = value;
 	}
 
 	public void CopyFrom(ModelNode NPDJNAMFIKD)
@@ -486,19 +489,19 @@ public class ModelNode
 		_IsPhysics = NPDJNAMFIKD._IsPhysics;
 		_IsFixedAndNotNode = NPDJNAMFIKD._IsFixedAndNotNode;
 		_Visible = NPDJNAMFIKD._Visible;
-		JLDCCMPMAAB = NPDJNAMFIKD.JLDCCMPMAAB;
+		_physicsActive = NPDJNAMFIKD._physicsActive;
 	}
 
 	public void HBPBKNDPBMG()
 	{
 		if (_IsNode)
 		{
-			if (_IsPhysics != PALHLKDCAAC)
+			if (_IsPhysics != _defaultPhysics)
 			{
 				int num = 0;
 				num++;
 			}
-			_IsPhysics = PALHLKDCAAC;
+			_IsPhysics = _defaultPhysics;
 		}
 	}
 

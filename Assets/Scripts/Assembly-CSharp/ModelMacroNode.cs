@@ -1,10 +1,12 @@
 using System.Collections.Generic;
 
-public class ModelMacroNode : ModelNode
+public partial class ModelMacroNode : ModelNode
 {
-	public List<global::Pair<string, float>> LMPPCKACMNB = new List<global::Pair<string, float>>();
+	// best guess for name
+	public List<global::Pair<string, float>> NamedWeights = new List<global::Pair<string, float>>();
 
-	private List<global::Pair<ModelNode, float>> LKBADGFHJHK = new List<global::Pair<ModelNode, float>>();
+	// best guess for name
+	private List<global::Pair<ModelNode, float>> _nodeWeights = new List<global::Pair<ModelNode, float>>();
 
 	public List<global::Pair<ModelNode, float>> AAHADKFKDPN
 	{
@@ -23,34 +25,34 @@ public class ModelMacroNode : ModelNode
 	public ModelMacroNode(ModelMacroNode AHJOLBKABMC)
 		: base(AHJOLBKABMC)
 	{
-		LKBADGFHJHK = new List<global::Pair<ModelNode, float>>(AHJOLBKABMC.LKBADGFHJHK);
+		_nodeWeights = new List<global::Pair<ModelNode, float>>(AHJOLBKABMC._nodeWeights);
 		SetType(NodeType.MacroNode);
 	}
 
 	public List<global::Pair<ModelNode, float>> LDEBJOPLCKO()
 	{
-		return LKBADGFHJHK;
+		return _nodeWeights;
 	}
 
 	public void DNCHNPNABFH(ModelNode BFEBLBKODLK, float EBIFKGEMHLK)
 	{
-		LKBADGFHJHK.Add(new global::Pair<ModelNode, float>(BFEBLBKODLK, EBIFKGEMHLK));
+		_nodeWeights.Add(new global::Pair<ModelNode, float>(BFEBLBKODLK, EBIFKGEMHLK));
 	}
 
 	public void FPKMHOMMFKB()
 	{
-		if (BCIPCPOJJGN)
+		if (_skipMacroUpdate)
 		{
-			BCIPCPOJJGN = false;
+			_skipMacroUpdate = false;
 			return;
 		}
 		_End.Set(_Start);
 		_Start.Reset();
 		global::Pair<ModelNode, float> cCKLNOPEKHO = null;
-		int count = LKBADGFHJHK.Count;
+		int count = _nodeWeights.Count;
 		for (int i = 0; i < count; i++)
 		{
-			cCKLNOPEKHO = LKBADGFHJHK[i];
+			cCKLNOPEKHO = _nodeWeights[i];
 			_Start.GLGNIMKANCA(cCKLNOPEKHO.First.GetStart(), cCKLNOPEKHO.Second);
 		}
 	}

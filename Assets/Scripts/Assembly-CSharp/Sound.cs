@@ -433,6 +433,11 @@ public static class Sound
 
 	public static int IFKCCDAIADF(string DPBKBKDCIOI, bool KKHJAJFEPPA = false, float JIJAJFEJJHK = 1f)
 	{
+		if (Fight.GetCurrentFight()?.IsTitleSparring == true)
+		{
+			Eclipse.UI.EclipseUiAudio.PlayTitleFightSound(DPBKBKDCIOI, KKHJAJFEPPA, JIJAJFEJJHK, LoadSoundClip);
+			return -1;
+		}
 		// A rollback re-simulation replays ticks whose one-shot sounds already played.
 		if (!KKHJAJFEPPA && Eclipse.Multiplayer.VersusTickDriver.IsResimulating)
 		{
@@ -488,6 +493,11 @@ public static class Sound
 	// best guess for name
 	public static void StopLoopedSounds()
 	{
+		if (Fight.GetCurrentFight()?.IsTitleSparring == true)
+		{
+			Eclipse.UI.EclipseUiAudio.StopTitleFightSounds();
+			return;
+		}
 		foreach (KeyValuePair<string, uint> item in HLLDPAAADKK)
 		{
 			StopSound((int)item.Value);
@@ -518,6 +528,11 @@ public static class Sound
 
 	public static void StopSound(string path)
 	{
+		if (Fight.GetCurrentFight()?.IsTitleSparring == true)
+		{
+			Eclipse.UI.EclipseUiAudio.StopTitleFightSound(path);
+			return;
+		}
 		KeyValuePair<string, uint> keyValuePair = BKDELGBHEDP(path);
 		if (keyValuePair.Key != string.Empty)
 		{
@@ -662,15 +677,21 @@ public static class Sound
 
 	public static bool IOIEJHLMBLI(string DPBKBKDCIOI, float JIJAJFEJJHK = 1f)
 	{
+		AudioClip audioClip = LoadSoundClip(DPBKBKDCIOI);
+		if (audioClip != null) AudioManager.AddAudio(audioClip, DPBKBKDCIOI, JIJAJFEJJHK);
+		return audioClip != null;
+	}
+
+	private static AudioClip LoadSoundClip(string DPBKBKDCIOI)
+	{
 		AudioClip externalClip;
 		if (Eclipse.Modding.ModAssetBinding.TryLoadAudio(DPBKBKDCIOI, out externalClip))
 		{
-			AudioManager.AddAudio(externalClip, DPBKBKDCIOI, JIJAJFEJJHK);
-			return true;
+			return externalClip;
 		}
 		if (Eclipse.Modding.ModAssetBinding.IsQualified(DPBKBKDCIOI))
 		{
-			return false;
+			return null;
 		}
 		string text = AJLAODNPHFB();
 		text += DPBKBKDCIOI;
@@ -678,9 +699,7 @@ public static class Sound
 		{
 			text += GMGNDGCHFFG();
 		}
-		AudioClip audioClip = ResourceManager.GetAudioClip(text);
-		AudioManager.AddAudio(audioClip, DPBKBKDCIOI, JIJAJFEJJHK);
-		return audioClip != null;
+		return ResourceManager.GetAudioClip(text);
 	}
 
 	private static void KCLJDFLJMDO(string path, uint OKNNNLIPODI)

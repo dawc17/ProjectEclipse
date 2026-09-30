@@ -22,6 +22,8 @@ internal static class RollbackTests
             SnapshotReportsDifferences();
             SnapshotCollections();
             CodecFramesRestoreWhole();
+            CodecArraysReportStructure();
+            SnapshotRecyclesReorderedObjects();
             RollbackInMemory(latencySteps: 0, lossPercent: 0, delay: 1, window: 8, seed: 3);
             RollbackInMemory(latencySteps: 5, lossPercent: 0, delay: 1, window: 8, seed: 4);
             RollbackInMemory(latencySteps: 9, lossPercent: 25, delay: 2, window: 8, seed: 5);
@@ -30,6 +32,7 @@ internal static class RollbackTests
         }
         Raw = null;
         RawLayoutMismatchFallsBack();
+        RawStructArrayWalksAndFallsBack();
         RunLengthInputs();
         PredictionAndRollbackBookkeeping();
         TimeSyncSlowsTheLeader();
@@ -38,6 +41,57 @@ internal static class RollbackTests
     }
 
     // ---- Object graph snapshots ----
+
+    private struct ArrayInner { public Node Other; public int Number; }
+    private struct ArrayEntry { public Node Target; public ArrayInner Nested; }
+
+    private sealed class ArrayMemory : IRawObjectMemory, IRawArrayMemory
+    {
+        public bool WrongLayout;
+        public int Reads;
+        public int FieldOffset(FieldInfo field) => -1; // Class copies use the reference path.
+        public int SizeOf(Type type) => type == typeof(ArrayEntry) ? 24 : type == typeof(ArrayInner) ? 16 : 8;
+        public void CopyBlocks(object a, object b, int[] offsets, int[] sizes) => throw new Exception("unexpected raw class");
+        public void CopyReferences(object a, object b, int[] offsets) => throw new Exception("unexpected raw class");
+        public object ReadReference(object target, int offset) => throw new Exception("unexpected raw class");
+        public int StructFieldOffset(FieldInfo field) =>
+            field.DeclaringType == typeof(ArrayEntry) ? (field.Name == "Target" ? 0 : 8) :
+            field.DeclaringType == typeof(ArrayInner) ? (field.Name == "Other" ? 0 : 8) : -1;
+        public void ReadArrayReferences(Array array, int stride, int[] offsets, List<object> into)
+        {
+            Reads++;
+            Check(stride == 24, "raw array element stride includes nested struct");
+            foreach (ArrayEntry entry in array)
+                foreach (int offset in offsets)
+                    into.Add(WrongLayout ? null : offset == 0 ? entry.Target : offset == 8 ? entry.Nested.Other : throw new Exception("wrong reference offset"));
+        }
+    }
+
+    private static void RawStructArrayWalksAndFallsBack()
+    {
+        foreach (bool wrong in new[] { false, true })
+        {
+            var memory = new ArrayMemory { WrongLayout = wrong };
+            var walker = new ObjectGraphSnapshotter(new TestPolicy(), memory);
+            var a = new Node { X = 3 };
+            var b = new Node { X = 7 };
+            var entries = new ArrayEntry[4];
+            var snapshot = new StateSnapshot();
+            object[] roots = { entries };
+            walker.Capture(snapshot, 0, roots); // All-null slots cannot verify a layout.
+            entries[1] = new ArrayEntry { Target = a, Nested = new ArrayInner { Other = b, Number = 73 } };
+            entries[3] = new ArrayEntry { Target = b, Nested = new ArrayInner { Other = a, Number = 42 } };
+            walker.Capture(snapshot, 1, roots);
+            int reads = memory.Reads;
+            a.X = -1; b.X = -2; entries[1] = default;
+            walker.Restore(snapshot);
+            Check(a.X == 3 && b.X == 7 && entries[1].Nested.Number == 73, "raw struct array restores values and reachable objects");
+            Check(ReferenceEquals(entries[1].Target, entries[3].Nested.Other), "raw struct array preserves cross-element aliases");
+            Check(walker.RawFallbacks == (wrong ? 1 : 0), "raw struct array verifies populated layouts against reflection");
+            walker.Capture(snapshot, 2, roots);
+            Check(!wrong || memory.Reads == reads, "bad array plan is retired after the first disagreement");
+        }
+    }
 
     private sealed class Node
     {
@@ -165,11 +219,99 @@ internal static class RollbackTests
     private sealed class FramePolicy : ISnapshotPolicy
     {
         private static readonly SnapshotCodec Codec = new FrameCodec();
+        private static readonly SnapshotCodec Arrays = new PointArrayCodec();
         public bool IsOpaque(Type type) => false;
         public bool Captures(FieldInfo field) => true;
         public bool NeedsFieldCopy(Type type) => false;
-        public SnapshotCodec CodecFor(Type type) => type == typeof(Frame) ? Codec : null;
+        public SnapshotCodec CodecFor(Type type) => type == typeof(Frame) ? Codec : type == typeof(Point[]) ? Arrays : null;
         public PropertyInfo[] ExtraProperties(Type type) => null;
+    }
+
+    // Like the fight's vector-array codec: null slots have references but no floats.
+    private sealed class PointArrayCodec : SnapshotCodec
+    {
+        public override void Save(object target, SnapshotTape tape)
+        {
+            foreach (var point in (Point[])target)
+            {
+                tape.Object(point);
+                if (point != null) { tape.Float(point.X); tape.Float(point.Y); }
+            }
+        }
+
+        public override void Load(object target, SnapshotTape tape)
+        {
+            var points = (Point[])target;
+            for (int i = 0; i < points.Length; i++)
+            {
+                var point = points[i] = (Point)tape.ReadObject();
+                if (point != null) { point.X = tape.ReadFloat(); point.Y = tape.ReadFloat(); }
+            }
+        }
+    }
+
+    private static void CodecArraysReportStructure()
+    {
+        var snapshotter = new ObjectGraphSnapshotter(new FramePolicy(), Raw);
+        var a = new StateSnapshot();
+        var b = new StateSnapshot();
+        var point = new Point { X = 3, Y = 4 };
+        var array = new[] { point, null, point };
+        snapshotter.Capture(a, 0, new object[] { array });
+        array[0] = null; array[1] = point;
+        snapshotter.Capture(b, 0, new object[] { array });
+        Check(snapshotter.FirstDifference(a, b) != null, "codec array null-slot changes are reported even when floats match");
+        point.X = 99;
+        snapshotter.Restore(a);
+        Check(array[0] == point && array[1] == null && array[2] == point && point.X == 3,
+            "codec array restores null slots, aliases and point values");
+
+        var fresh = new Point { X = 3, Y = 4 };
+        snapshotter.Capture(b, 0, new object[] { new[] { fresh, null, fresh } });
+        Check(snapshotter.FirstDifference(a, b) == null, "fresh codec objects with matching alias structure compare equal");
+        snapshotter.Capture(b, 0, new object[] { new[] { fresh, null, new Point { X = 3, Y = 4 } } });
+        Check(snapshotter.FirstDifference(a, b) != null, "codec array shared and distinct points do not compare equal");
+
+        snapshotter.Capture(a, 0, new object[] { new Point[1], new Point[3] });
+        snapshotter.Capture(b, 0, new object[] { new Point[2], new Point[2] });
+        Check(snapshotter.FirstDifference(a, b) != null, "codec arrays with equal total capacity still compare individual lengths");
+
+        // A point can also be reached through an ordinary graph field/root.
+        snapshotter.Capture(a, 0, new object[] { new[] { point }, point });
+        snapshotter.Capture(b, 0, new object[] { new[] { fresh }, fresh });
+        Check(snapshotter.FirstDifference(a, b) == null, "codec references agree with normal graph references");
+        snapshotter.Capture(b, 0, new object[] { new[] { point }, fresh });
+        Check(snapshotter.FirstDifference(a, b) != null, "codec reference detached from its graph alias is reported");
+    }
+
+    private static void SnapshotRecyclesReorderedObjects()
+    {
+        var snapshotter = NewSnapshotter();
+        var a = new[] { 1 };
+        var b = new[] { 2 };
+        var snapshot = new StateSnapshot();
+        var older = new StateSnapshot();
+        snapshotter.Capture(snapshot, 0, new object[] { a, b });
+        snapshotter.Capture(older, 0, new object[] { a, b });
+        object copyA = snapshot.Saved[snapshot.Objects.IndexOf(a)];
+        object copyB = snapshot.Saved[snapshot.Objects.IndexOf(b)];
+        for (int tick = 1; tick <= 4; tick++)
+        {
+            a[0] = tick + 10; b[0] = tick + 20;
+            snapshotter.Capture(snapshot, tick, tick % 2 == 0 ? new object[] { a, b } : new object[] { b, new int[3], a });
+            Check(ReferenceEquals(copyA, snapshot.Saved[snapshot.Objects.IndexOf(a)]) &&
+                ReferenceEquals(copyB, snapshot.Saved[snapshot.Objects.IndexOf(b)]), "reordered arrays reuse their own saved buffers");
+            a[0] = b[0] = -1;
+            snapshotter.Restore(snapshot);
+            Check(a[0] == tick + 10 && b[0] == tick + 20, "reordered recycled buffers restore the latest capture");
+        }
+        snapshotter.Restore(older);
+        Check(a[0] == 1 && b[0] == 2, "recycling one ring slot does not alter an older snapshot");
+        snapshot.Clear();
+        snapshotter.Capture(snapshot, 5, new object[] { b });
+        b[0] = -1;
+        snapshotter.Restore(snapshot);
+        Check(b[0] == 2, "cleared recycling state can capture again");
     }
 
     /// <summary>Saves a frame whole: ints, object references and floats interleaved on the tape.</summary>

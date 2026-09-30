@@ -246,6 +246,6 @@ public class ParametersQuest
 	public void set_FightAvgFPS(float value)
 	{
 		_fightAvgFPS = value;
-		Node["FightAvgFPS"].Attributes["Value"].Value = _fightAvgFPS.ToString();
+		Node["FightAvgFPS"].Attributes["Value"].Value = _fightAvgFPS.ToString(System.Globalization.CultureInfo.InvariantCulture);
 	}
 }

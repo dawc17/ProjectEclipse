@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Text;
 using System.Xml;
@@ -58,7 +59,9 @@ public static class XmlUtils
 			return KDLNPAGLMHF;
 		}
 		float result;
-		return (!float.TryParse(CJBEMNNNHDM.Value, out result)) ? KDLNPAGLMHF : result;
+		// Game XML always uses decimal points. The player's locale may treat a
+		// point as a thousands separator, corrupting rig coordinates and weights.
+		return (!float.TryParse(CJBEMNNNHDM.Value, NumberStyles.Float, CultureInfo.InvariantCulture, out result)) ? KDLNPAGLMHF : result;
 	}
 
 	public static bool ParseBool(this XmlAttribute CJBEMNNNHDM, bool KDLNPAGLMHF = false)

@@ -22,7 +22,9 @@ access saved values only at the times documented by the relevant callback or
 The title's background sparring uses native CPU tactics and detached equipment
 copies. It does not run Lua AI handlers, combat callbacks, or equipment perk and
 enchantment behavior, and it does not award progress or rewards. Modded equipment
-appearance and animation definitions remain visible in the preview.
+appearance and animation definitions remain visible in the preview. Both title
+fighters have infinite health: hits and knockdowns still animate, but the
+background encounter has no knockout, round timer, or automatic rematch.
 
 ## Load the API and keep a value
 

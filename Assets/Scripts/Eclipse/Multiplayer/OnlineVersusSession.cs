@@ -69,16 +69,18 @@ namespace Eclipse.Multiplayer
         /// <summary>Enabled mods and versions; peers and replays must agree on gameplay content.</summary>
         public static string ContentFingerprint()
         {
+            const string combat = ";combat:" + LocalVersusMatch.CombatBalanceId;
             try
             {
-                if (!Eclipse.Modding.ModRuntime.IsInitialized) return "mods:unloaded";
+                if (!Eclipse.Modding.ModRuntime.IsInitialized) return "mods:unloaded" + combat;
                 var mods = Eclipse.Modding.ModRuntime.Host.EnabledMods.Select(mod => mod.Id + "@" + mod.Version).OrderBy(id => id, StringComparer.Ordinal).ToArray();
                 // Loadouts travel as roster indices, so the roster must match too.
-                return (mods.Length == 0 ? "mods:none" : "mods:" + string.Join(",", mods)) + ";roster:" + VersusRoster.Fingerprint;
+                return (mods.Length == 0 ? "mods:none" : "mods:" + string.Join(",", mods)) + ";roster:" + VersusRoster.Fingerprint
+                    + combat;
             }
             catch (Exception exception)
             {
-                return "mods:error:" + exception.GetType().Name;
+                return "mods:error:" + exception.GetType().Name + combat;
             }
         }
 
@@ -782,6 +784,7 @@ namespace Eclipse.Multiplayer
             }
             bool advanced = false, waited = false;
             _runner.Resolve();
+            if (!VersusTickDriver.Owns(fight)) return;
             if (_runner.ShouldWait()) waited = true;
             else
             {
@@ -789,9 +792,10 @@ namespace Eclipse.Multiplayer
                 for (int i = 0; i < steps && _runner.Failure == null; i++)
                 {
                     SampleLocal(_runner.Tick);
-                    if (!_runner.Advance()) break;
-                    advanced = true;
+                    bool ran = _runner.Advance();
                     if (!VersusTickDriver.Owns(fight)) return;
+                    if (!ran) break;
+                    advanced = true;
                 }
             }
             if (_runner.Failure != null)
@@ -882,6 +886,11 @@ namespace Eclipse.Multiplayer
             RecordFinal(_timeline.FinalTicks);
             Eclipse.Multiplayer.Rollback.RollbackObjects.Clear();
             base.Stop();
+            // The room/result UI may retain this input source. Release the old fight
+            // and all ten full snapshots immediately, rather than at the next match.
+            if (_rollback != null) _rollback.TickSimulated = null;
+            _rollback = null;
+            _runner = null;
         }
 
         internal void SaveDiagnostic(string suffix) => Save(suffix);

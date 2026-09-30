@@ -318,6 +318,15 @@ It then applies fully for `hold` seconds and eases smoothly back to nothing
 over `duration` seconds. Each new matching hit or movement restarts it. Hold and duration are
 measured in real time, so they are not stretched by slow motion.
 
+A triggered screen grade responds to gameplay fights. Background title-screen
+sparring does not trigger screen grades, their sounds, slow motion, or audio
+muffle; menu music and UI sounds continue normally. After eight seconds without
+input on the Home screen, the menu fades away to showcase the CPU fight and
+native fight sounds fade in at the player's sound volume. Keyboard, mouse, or
+controller input restores the menu and silences those fight sounds; the waking
+input does not activate a menu choice. This does not enable mod screen-grade
+triggers, their sound effects, or combat callbacks in title-screen sparring.
+
 A triggered grade can also carry sound. `sound` plays once each time the
 trigger fires, at `sound_volume` times the player's sound volume (silent when
 sound is muted). Give it an array to pick one sound at random each time, and

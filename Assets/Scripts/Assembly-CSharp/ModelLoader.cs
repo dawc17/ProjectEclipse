@@ -338,7 +338,7 @@ public class ModelLoader
 	{
 		if (AHJOLBKABMC.GetNodeType() == ModelNode.NodeType.MacroNode)
 		{
-			DPMFEKBBPIL(AHJOLBKABMC.LMPPCKACMNB, node, true);
+			DPMFEKBBPIL(AHJOLBKABMC.NamedWeights, node, true);
 		}
 	}
 

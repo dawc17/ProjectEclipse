@@ -566,7 +566,7 @@ public class ModelObject
 		for (int i = 0; i < count; i++)
 		{
 			ModelMacroNode gDNAJOODAGP = CEHJGIHMKFF.IAMDHKKBBOE[i];
-			List<global::Pair<string, float>> lMPPCKACMNB = gDNAJOODAGP.LMPPCKACMNB;
+			List<global::Pair<string, float>> lMPPCKACMNB = gDNAJOODAGP.NamedWeights;
 			if (lMPPCKACMNB == null)
 			{
 				continue;
@@ -581,7 +581,7 @@ public class ModelObject
 				}
 				LLLOJBFMONN.Error("Nodes '{0}' for macronode '{1}' was not found", item.First, gDNAJOODAGP.GetName());
 			}
-			gDNAJOODAGP.LMPPCKACMNB = null;
+			gDNAJOODAGP.NamedWeights = null;
 		}
 	}
 

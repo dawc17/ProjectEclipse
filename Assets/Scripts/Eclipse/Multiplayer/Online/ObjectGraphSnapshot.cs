@@ -45,6 +45,13 @@ namespace Eclipse.Multiplayer.Online
         object ReadReference(object target, int offset);
     }
 
+    /// <summary>Optional reference reads from struct arrays without boxing each element.</summary>
+    public interface IRawArrayMemory
+    {
+        int StructFieldOffset(FieldInfo field);
+        void ReadArrayReferences(Array array, int stride, int[] offsets, List<object> into);
+    }
+
     /// <summary>Saves and restores one object in place, for types where reflection is too slow or incomplete.</summary>
     public abstract class SnapshotCodec
     {
@@ -65,6 +72,7 @@ namespace Eclipse.Multiplayer.Online
 
         public int FloatCount => _floatCount;
         public int IntCount => _intCount;
+        internal int ObjectCount => _objectCount;
 
         public void Clear() { _floatCount = _intCount = 0; ClearObjects(); Rewind(); }
         public void Rewind() { _floatRead = _intRead = _objectRead = 0; }
@@ -91,8 +99,26 @@ namespace Eclipse.Multiplayer.Online
         public int ReadInt() => _ints[_intRead++];
         public object ReadObject() => _objects[_objectRead++];
 
+        // Pose buffers dominate the tape. Reserve/check once per point instead of
+        // repeating three bounds/capacity/count updates for every coordinate.
+        public void Float3(float x, float y, float z)
+        {
+            int at = _floatCount;
+            if (at + 3 > _floats.Length) Array.Resize(ref _floats, Math.Max(at + 3, _floats.Length * 2));
+            _floats[at] = x; _floats[at + 1] = y; _floats[at + 2] = z;
+            _floatCount = at + 3;
+        }
+
+        public void ReadFloat3(out float x, out float y, out float z)
+        {
+            int at = _floatRead;
+            x = _floats[at]; y = _floats[at + 1]; z = _floats[at + 2];
+            _floatRead = at + 3;
+        }
+
         internal float FloatAt(int index) => _floats[index];
         internal int IntAt(int index) => _ints[index];
+        internal object ObjectAt(int index) => _objects[index];
 
         private void ClearObjects()
         {
@@ -110,12 +136,14 @@ namespace Eclipse.Multiplayer.Online
         internal List<object> Objects = new List<object>(4096);
         internal List<object> Saved = new List<object>(4096);
         // The previous capture, whose saved copies are refilled instead of reallocated
-        // when the graph visits the same object at the same position.
+        // when the graph visits the same object, even if traversal order changes.
         internal List<object> RecycledObjects = new List<object>(4096);
         internal List<object> RecycledSaved = new List<object>(4096);
         internal readonly List<FieldInfo> StaticFields = new List<FieldInfo>();
         internal readonly List<object> StaticValues = new List<object>();
         internal readonly SnapshotTape Tape = new SnapshotTape();
+        private Dictionary<object, int> _recycledIndex;
+        private bool _recycledIndexed;
 
         /// <summary>The tick this snapshot was taken before, or -1 when empty.</summary>
         public int Tick { get; internal set; } = -1;
@@ -131,6 +159,8 @@ namespace Eclipse.Multiplayer.Online
             StaticFields.Clear();
             StaticValues.Clear();
             Tape.Clear();
+            _recycledIndex?.Clear();
+            _recycledIndexed = false;
             Tick = -1;
         }
 
@@ -145,17 +175,31 @@ namespace Eclipse.Multiplayer.Online
             Tick = -1;
         }
 
-        /// <summary>The saved copy of <paramref name="target"/> from the previous capture, if it sat at this position.</summary>
+        /// <summary>The saved copy from the previous capture, even when graph growth moved the target.</summary>
         internal object Recycle(object target)
         {
             int index = Objects.Count;
-            return index < RecycledObjects.Count && ReferenceEquals(RecycledObjects[index], target) ? RecycledSaved[index] : null;
+            if (index < RecycledObjects.Count && ReferenceEquals(RecycledObjects[index], target)) return RecycledSaved[index];
+            if (RecycledObjects.Count == 0) return null;
+            // Keep the positional fast path for unchanged graphs. Build this lookup only
+            // when a changed reference or a growing collection shifts traversal order.
+            if (!_recycledIndexed)
+            {
+                if (_recycledIndex == null)
+                    _recycledIndex = new Dictionary<object, int>(RecycledObjects.Count, ObjectGraphSnapshotter.ReferenceComparer.Instance);
+                for (int i = 0; i < RecycledObjects.Count; i++)
+                    if (RecycledSaved[i] != null) _recycledIndex[RecycledObjects[i]] = i;
+                _recycledIndexed = true;
+            }
+            return _recycledIndex.TryGetValue(target, out index) ? RecycledSaved[index] : null;
         }
 
         internal void EndCapture()
         {
             RecycledObjects.Clear();
             RecycledSaved.Clear();
+            _recycledIndex?.Clear();
+            _recycledIndexed = false;
         }
     }
 
@@ -172,12 +216,16 @@ namespace Eclipse.Multiplayer.Online
         private sealed class TypeInfo
         {
             public Kind Kind;
+            public bool IsValueType;
             public FieldInfo[] Fields = Array.Empty<FieldInfo>();
             /// <summary>Fields that may hold references to walk (reference types, or structs holding them).</summary>
             public FieldInfo[] ReferenceFields = Array.Empty<FieldInfo>();
             public PropertyInfo[] Properties = Array.Empty<PropertyInfo>();
             public SnapshotCodec Codec;
             public TypeInfo Element;
+            public int ArrayStride;
+            public int[] ArrayReferenceOffsets;
+            public bool ArrayVerified;
             // Raw copy plan for Class types (IRawObjectMemory): value bytes, reference
             // slots, and the few fields (structs holding references) left to reflection.
             public bool Raw;
@@ -188,7 +236,7 @@ namespace Eclipse.Multiplayer.Online
             public int[] WalkOffsets;
         }
 
-        private sealed class ReferenceComparer : IEqualityComparer<object>
+        internal sealed class ReferenceComparer : IEqualityComparer<object>
         {
             public static readonly ReferenceComparer Instance = new ReferenceComparer();
             public new bool Equals(object a, object b) => ReferenceEquals(a, b);
@@ -202,8 +250,15 @@ namespace Eclipse.Multiplayer.Online
         private readonly Dictionary<Type, TypeInfo> _types = new Dictionary<Type, TypeInfo>();
         private readonly Dictionary<Type, bool> _structHasReferences = new Dictionary<Type, bool>();
         private readonly HashSet<object> _visited = new HashSet<object>(ReferenceComparer.Instance);
-        private readonly List<object> _pending = new List<object>(1024);
+        private readonly struct PendingObject
+        {
+            public readonly object Target;
+            public readonly TypeInfo Info;
+            public PendingObject(object target, TypeInfo info) { Target = target; Info = info; }
+        }
+        private readonly List<PendingObject> _pending = new List<PendingObject>(1024);
         private readonly List<object> _walk = new List<object>(64);
+        private readonly List<object> _referenceWalk = new List<object>(64);
         private Func<object, object> _clone;
         private readonly IRawObjectMemory _raw;
 
@@ -250,10 +305,9 @@ namespace Eclipse.Multiplayer.Online
             foreach (var root in roots) WalkValue(root);
             while (_pending.Count > 0)
             {
-                object target = _pending[_pending.Count - 1];
+                var pending = _pending[_pending.Count - 1];
                 _pending.RemoveAt(_pending.Count - 1);
-                if (!_visited.Add(target)) continue;
-                Save(into, target, Info(target.GetType()));
+                Save(into, pending.Target, pending.Info);
             }
             _visited.Clear();
             into.EndCapture();
@@ -328,6 +382,15 @@ namespace Eclipse.Multiplayer.Online
                 var info = Info(type);
                 switch (info.Kind)
                 {
+                    case Kind.Custom:
+                        // A codec may flatten several arrays onto the same tape. Their
+                        // individual capacities still matter even if the totals match.
+                        if (left is Array leftArray && right is Array rightArray && leftArray.Length != rightArray.Length)
+                        {
+                            report.Append(Describe(type)).Append(" length differs; ");
+                            found++;
+                        }
+                        break;
                     case Kind.Class:
                     case Kind.FieldCopy:
                         for (int f = 0; f < info.Fields.Length + info.Properties.Length && found < maxReports; f++)
@@ -379,6 +442,17 @@ namespace Eclipse.Multiplayer.Online
                     break;
                 }
             }
+            if (a.Tape.ObjectCount != b.Tape.ObjectCount) { report.Append("codec reference count differs; "); found++; }
+            else
+            {
+                for (int i = 0; i < a.Tape.ObjectCount && found < maxReports; i++)
+                {
+                    if (Same(a.Tape.ObjectAt(i), b.Tape.ObjectAt(i), indexA, indexB)) continue;
+                    report.Append("codec reference #").Append(i).Append(" differs; ");
+                    found++;
+                    break;
+                }
+            }
             return found == 0 ? null : report.ToString();
         }
 
@@ -416,10 +490,20 @@ namespace Eclipse.Multiplayer.Online
             return text.Length == 0 ? "nothing grew" : text.ToString();
         }
 
-        private static Dictionary<object, int> IndexOf(StateSnapshot snapshot)
+        private Dictionary<object, int> IndexOf(StateSnapshot snapshot)
         {
             var index = new Dictionary<object, int>(snapshot.Objects.Count, ReferenceComparer.Instance);
             for (int i = 0; i < snapshot.Objects.Count; i++) index[snapshot.Objects[i]] = i;
+            // Codecs save mutable objects without visiting them as graph nodes.
+            // Match those references by first occurrence, preserving aliases both
+            // within the tape and to ordinary graph nodes. Fresh equivalent vectors
+            // then compare equal, while null slots and changed sharing are detected.
+            for (int i = 0; i < snapshot.Tape.ObjectCount; i++)
+            {
+                object value = snapshot.Tape.ObjectAt(i);
+                if (value != null && !index.ContainsKey(value) && Info(value.GetType()).Kind != Kind.Opaque)
+                    index.Add(value, snapshot.Objects.Count + i);
+            }
             return index;
         }
 
@@ -463,13 +547,6 @@ namespace Eclipse.Multiplayer.Online
         }
 
         private static int FloatBits(float value) => BitConverter.ToInt32(BitConverter.GetBytes(value), 0);
-
-        private void Push(object value)
-        {
-            if (value == null) return;
-            if (Info(value.GetType()).Kind == Kind.Opaque) return;
-            _pending.Add(value);
-        }
 
         private void Save(StateSnapshot into, object target, TypeInfo info)
         {
@@ -517,7 +594,7 @@ namespace Eclipse.Multiplayer.Online
                     var array = CopyArray(into, (Array)target);
                     into.Objects.Add(target);
                     into.Saved.Add(array);
-                    for (int i = 0; i < array.Length; i++) WalkStruct(info.Element, array.GetValue(i));
+                    WalkStructArray(info, array);
                     break;
                 }
                 case Kind.Custom:
@@ -526,7 +603,7 @@ namespace Eclipse.Multiplayer.Online
                     info.Codec.Save(target, into.Tape);
                     _walk.Clear();
                     info.Codec.Walk(target, _walk);
-                    foreach (var child in _walk) Push(child);
+                    foreach (var child in _walk) WalkValue(child);
                     _walk.Clear();
                     break;
             }
@@ -588,16 +665,92 @@ namespace Eclipse.Multiplayer.Online
 
         private void WalkValue(object value)
         {
-            if (value == null) return;
-            var type = value.GetType();
-            if (type.IsValueType) WalkStruct(Info(type), value);
-            else Push(value);
+            // Rig topology shares the same nodes thousands of times. Deduplicate
+            // before metadata lookup or queuing; keep the resolved plan with each
+            // queued object. Type.IsValueType is especially costly under IL2CPP.
+            if (value == null || !_visited.Add(value)) return;
+            var info = Info(value.GetType());
+            if (info.IsValueType) WalkStruct(info, value);
+            else if (info.Kind != Kind.Opaque) _pending.Add(new PendingObject(value, info));
         }
 
         private void WalkStruct(TypeInfo info, object boxed)
         {
             if (boxed == null || info == null) return;
             foreach (var field in info.ReferenceFields) WalkValue(field.GetValue(boxed));
+        }
+
+        private void WalkStructArray(TypeInfo info, Array array)
+        {
+            if (info.ArrayStride > 0 && _raw is IRawArrayMemory rawArrays)
+            {
+                _walk.Clear();
+                try { rawArrays.ReadArrayReferences(array, info.ArrayStride, info.ArrayReferenceOffsets, _walk); }
+                catch (Exception error) when (!(error is OutOfMemoryException))
+                {
+                    info.ArrayStride = 0;
+                    _walk.Clear();
+                    RawFallbacks++;
+                    Warn?.Invoke("Array reference access unavailable for " + array.GetType() + ": " + error.Message);
+                    for (int i = 0; i < array.Length; i++) WalkStruct(info.Element, array.GetValue(i));
+                    return;
+                }
+                if (!info.ArrayVerified || VerifyEveryCopy)
+                {
+                    _referenceWalk.Clear();
+                    for (int i = 0; i < array.Length; i++) CollectStructReferences(info.Element, array.GetValue(i), _referenceWalk);
+                    bool same = _walk.Count == _referenceWalk.Count, any = false;
+                    for (int i = 0; same && i < _walk.Count; i++)
+                    {
+                        same = ReferenceEquals(_walk[i], _referenceWalk[i]);
+                        any |= _walk[i] != null;
+                    }
+                    if (!same)
+                    {
+                        info.ArrayStride = 0;
+                        RawFallbacks++;
+                        Warn?.Invoke("Array reference layout of " + array.GetType() + " disagreed with reflection; using reflection.");
+                        _walk.Clear();
+                        _walk.AddRange(_referenceWalk);
+                    }
+                    else if (any) info.ArrayVerified = true;
+                    _referenceWalk.Clear();
+                }
+                foreach (var child in _walk) WalkValue(child);
+                _walk.Clear();
+                return;
+            }
+            for (int i = 0; i < array.Length; i++) WalkStruct(info.Element, array.GetValue(i));
+        }
+
+        private void CollectStructReferences(TypeInfo info, object boxed, List<object> into)
+        {
+            foreach (var field in info.ReferenceFields)
+            {
+                object value = field.GetValue(boxed);
+                if (field.FieldType.IsValueType) CollectStructReferences(Info(field.FieldType), value, into);
+                else into.Add(value);
+            }
+        }
+
+        private bool PlanArrayReferences(TypeInfo info, int start, int stride, IRawArrayMemory raw, List<int> offsets)
+        {
+            foreach (var field in info.ReferenceFields)
+            {
+                int fieldOffset = raw.StructFieldOffset(field);
+                if (fieldOffset < 0) return false;
+                int at = start + fieldOffset;
+                if (field.FieldType.IsValueType)
+                {
+                    if (!PlanArrayReferences(Info(field.FieldType), at, stride, raw, offsets)) return false;
+                }
+                else
+                {
+                    if (at < 0 || at > stride - IntPtr.Size) return false;
+                    offsets.Add(at);
+                }
+            }
+            return true;
         }
 
         private static void CopyFields(TypeInfo info, object saved, object target, bool fromValues)
@@ -620,6 +773,7 @@ namespace Eclipse.Multiplayer.Online
             if (_types.TryGetValue(type, out var info)) return info;
             info = new TypeInfo();
             _types[type] = info;
+            info.IsValueType = type.IsValueType;
             if (type.IsPrimitive || type.IsEnum || type.IsPointer || type == typeof(string) || typeof(Delegate).IsAssignableFrom(type) ||
                 typeof(System.Threading.WaitHandle).IsAssignableFrom(type) || HasFinalizer(type) && !_policy.NeedsFieldCopy(type) ||
                 typeof(MemberInfo).IsAssignableFrom(type) || typeof(Type).IsAssignableFrom(type) || _policy.IsOpaque(type))
@@ -639,7 +793,20 @@ namespace Eclipse.Multiplayer.Online
                 var element = type.GetElementType();
                 if (type.GetArrayRank() != 1) { info.Kind = Kind.Opaque; return info; }
                 if (!element.IsValueType) info.Kind = Kind.ReferenceArray;
-                else if (StructHasReferences(element)) { info.Kind = Kind.StructArray; info.Element = Info(element); }
+                else if (StructHasReferences(element))
+                {
+                    info.Kind = Kind.StructArray; info.Element = Info(element);
+                    if (_raw is IRawArrayMemory rawArrays)
+                    {
+                        int stride = _raw.SizeOf(element);
+                        var offsets = new List<int>();
+                        if (stride > 0 && PlanArrayReferences(info.Element, 0, stride, rawArrays, offsets))
+                        {
+                            info.ArrayStride = stride;
+                            info.ArrayReferenceOffsets = offsets.ToArray();
+                        }
+                    }
+                }
                 else info.Kind = Kind.PrimitiveArray;
                 return info;
             }

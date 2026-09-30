@@ -400,9 +400,9 @@ namespace Eclipse.Rendering
 			{
 				foreach (var child in bound) names.Add(child?.First?.GetName());
 			}
-			else if (macro.LMPPCKACMNB != null)
+			else if (macro.NamedWeights != null)
 			{
-				foreach (var child in macro.LMPPCKACMNB) names.Add(child?.First);
+				foreach (var child in macro.NamedWeights) names.Add(child?.First);
 			}
 			if (names.Count == 0) return null;
 			string hand = null;

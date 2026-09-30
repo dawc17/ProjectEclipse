@@ -325,11 +325,12 @@ namespace Eclipse.Multiplayer
         public byte SampleWithTouch(bool enabled)
         {
             byte device = Sample(enabled);
-            if (!enabled) return device;
             var controller = Nekki.SF2.Core.Fights.Controller.GameController.get_Current();
-            byte touch = controller != null ? controller.VersusTouchInput : NetInput.Neutral;
+            byte touch = enabled && controller != null ? controller.VersusTouchInput : NetInput.Neutral;
             int direction = NetInput.Direction(touch) != 0 ? NetInput.Direction(touch) : NetInput.Direction(device);
-            return NetInput.WithDirection((byte)((device | touch) & ~NetInput.DirectionMask), direction);
+            byte input = NetInput.WithDirection((byte)((device | touch) & ~NetInput.DirectionMask), direction);
+            controller?.SetVersusInputVisual(input);
+            return input;
         }
 
         private void OnControl(int eventType, FightCID control) => _state = ApplyControl(_state, eventType, control);

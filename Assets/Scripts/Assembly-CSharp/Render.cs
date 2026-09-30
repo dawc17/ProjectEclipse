@@ -180,10 +180,22 @@ public class Render
 		{
 			float halfVisible = height * camera.aspect / scale * .5f;
 			float center = Mathf.Clamp(fightCenterX.Value, halfVisible, _location.JMLAKAKDBBL - halfVisible);
-			offset = (_location.JMLAKAKDBBL * .5f - center) * scale;
+			offset = _location.JMLAKAKDBBL * .5f - center;
 		}
-		_UnityObject.transform.position = new Vector3(camera.transform.position.x + offset, camera.transform.position.y, 100f + _location.layers.Count * 3f);
+		_UnityObject.transform.position = new Vector3(camera.transform.position.x, camera.transform.position.y, 100f + _location.layers.Count * 3f);
 		_UnityObject.transform.localScale = new Vector3(scale, -scale, 1f);
+		// As in the fight camera, pan the game layer with the fighters and let
+		// distant layers move by their authored factors. Moving the whole root
+		// exposes the edges of backgrounds that only cover the viewport.
+		bool behindGameLayer = true;
+		foreach (var layer in _location.layers)
+		{
+			if (layer == _location.gameLayer) behindGameLayer = false;
+			float factor = layer.Factor;
+			if (behindGameLayer) factor = Eclipse.Modding.ModVisuals.BackgroundLayerFactor(factor);
+			layer.SetPositionX(offset * factor);
+		}
+		SyncAdditionalDrawsLayerTransform();
 		EAJGDJLHJFD.gameObject.SetActive(false);
 		if (advanceAnimation) JACOKNMGNDF();
 	}

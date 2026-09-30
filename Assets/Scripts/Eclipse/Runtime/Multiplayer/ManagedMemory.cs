@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Reflection;
 using Unity.Collections.LowLevel.Unsafe;
 
@@ -121,5 +122,40 @@ namespace Eclipse.Multiplayer
 
         public static object ReadReference(object target, int offset) =>
             UnsafeUtility.As<IntPtr, object>(ref *(IntPtr*)(Address(target) + offset));
+
+        /// <summary>Struct offsets are relative to value data, without the class-header adjustment.</summary>
+        public static int StructFieldOffset(FieldInfo field)
+        {
+            if (!Available || field == null || field.IsStatic || !field.DeclaringType.IsValueType) return -1;
+            try { return UnsafeUtility.GetFieldOffset(field); }
+            catch (Exception) { return -1; }
+        }
+
+        /// <summary>
+        /// Dictionary entry arrays otherwise box every element just to find its
+        /// references. Read only the planned reference slots; Array.Copy still
+        /// captures/restores the actual array through the collector's barriers.
+        /// </summary>
+        public static void ReadArrayReferences(Array array, int stride, int[] offsets, List<object> into)
+        {
+            int count = checked(array.Length * offsets.Length);
+            if (count == 0) return;
+            if (into.Capacity < count) into.Capacity = count;
+            // Unity's pin API supports arrays containing managed references on both
+            // supported backends. Release it before leaving, including on failure.
+#pragma warning disable 618
+            byte* data = (byte*)UnsafeUtility.PinGCArrayAndGetDataAddress(array, out ulong handle);
+            try
+            {
+                for (int i = 0; i < array.Length; i++)
+                {
+                    byte* element = data + (long)i * stride;
+                    for (int r = 0; r < offsets.Length; r++)
+                        into.Add(UnsafeUtility.As<IntPtr, object>(ref *(IntPtr*)(element + offsets[r])));
+                }
+            }
+            finally { UnsafeUtility.ReleaseGCObject(handle); }
+#pragma warning restore 618
+        }
     }
 }

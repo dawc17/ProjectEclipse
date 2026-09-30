@@ -1,5 +1,6 @@
 using System;
 using System.Diagnostics;
+using System.Globalization;
 using System.IO;
 using System.Text;
 using Unity.Profiling;
@@ -46,6 +47,8 @@ namespace Eclipse.Diagnostics
 			public float FrameMs;
 			public float AiMs;
 			public float SimMs;
+			public float SnapshotMs;
+			public float RestoreMs;
 			public int SimTicks;
 			public float CpuMainMs;
 			public float RenderThreadMs;
@@ -72,6 +75,7 @@ namespace Eclipse.Diagnostics
 		// Accumulated by the fight hooks during the current frame.
 		private static long _aiTicks;
 		private static long _simTicks;
+		private static long _snapshotTicks, _restoreTicks;
 		private static int _simTickCount;
 		private static long _aiStart;
 		private static long _simStart;
@@ -94,6 +98,7 @@ namespace Eclipse.Diagnostics
 		private int _fightFrames;
 		private double _fightFrameMsTotal;
 		private double _fightAllocKbTotal;
+		private double _fightSnapshotMsTotal, _fightRestoreMsTotal;
 		private int _fightGcCount;
 		private float _sessionStart;
 		private float _sceneChangedAt;
@@ -106,6 +111,16 @@ namespace Eclipse.Diagnostics
 		private Texture2D _background;
 		private GUIStyle _textStyle;
 		private GUIStyle _smallStyle;
+
+		internal static void RecordRollbackSave(long ticks)
+		{
+			if (_collecting) _snapshotTicks += ticks;
+		}
+
+		internal static void RecordRollbackRestore(long ticks)
+		{
+			if (_collecting) _restoreTicks += ticks;
+		}
 
 		public static Mode CurrentMode
 		{
@@ -284,12 +299,14 @@ namespace Eclipse.Diagnostics
 			_aiTicks = 0;
 			_simTicks = 0;
 			_simTickCount = 0;
+			_snapshotTicks = _restoreTicks = 0;
 			_lastGcCount = GC.CollectionCount(0);
 			_gcStartCount = _lastGcCount;
 			Array.Clear(_fightHistogram, 0, _fightHistogram.Length);
 			_fightFrames = 0;
 			_fightFrameMsTotal = 0;
 			_fightAllocKbTotal = 0;
+			_fightSnapshotMsTotal = _fightRestoreMsTotal = 0;
 			_fightGcCount = 0;
 			_lastThreadAllocBytes = -1;
 			_sessionStart = Time.unscaledTime;
@@ -331,6 +348,8 @@ namespace Eclipse.Diagnostics
 				FrameMs = Time.unscaledDeltaTime * 1000f,
 				AiMs = (float)(_aiTicks * TicksToMs),
 				SimMs = (float)(_simTicks * TicksToMs),
+				SnapshotMs = (float)(_snapshotTicks * TicksToMs),
+				RestoreMs = (float)(_restoreTicks * TicksToMs),
 				SimTicks = _simTickCount,
 				CpuMainMs = cpuMain,
 				RenderThreadMs = renderThread,
@@ -341,6 +360,7 @@ namespace Eclipse.Diagnostics
 				InFight = Fight.GetCurrentFight() != null
 			};
 			_lastGcCount = gcCount;
+			_snapshotTicks = _restoreTicks = 0;
 			_aiTicks = 0;
 			_simTicks = 0;
 			_simTickCount = 0;
@@ -360,7 +380,10 @@ namespace Eclipse.Diagnostics
 
 		private void RecordSample(Sample sample, string scene)
 		{
-			float median = Percentile(0.5f, out int gameplayCount);
+			// Most frames cannot be spikes. Avoid sorting 300 samples every
+			// rendered frame just to reject them against the 20 ms minimum.
+			int gameplayCount = 0;
+			float median = sample.FrameMs >= SpikeMinimumMs ? Percentile(0.5f, out gameplayCount) : 0f;
 			_samples[_sampleIndex] = sample;
 			_sampleIndex = (_sampleIndex + 1) % SampleCount;
 			_sampleFilled = Mathf.Min(_sampleFilled + 1, SampleCount);
@@ -371,6 +394,8 @@ namespace Eclipse.Diagnostics
 				_fightHistogram[bucket]++;
 				_fightFrames++;
 				_fightFrameMsTotal += sample.FrameMs;
+				_fightSnapshotMsTotal += sample.SnapshotMs;
+				_fightRestoreMsTotal += sample.RestoreMs;
 				if (sample.AllocKb > 0f)
 				{
 					_fightAllocKbTotal += sample.AllocKb;
@@ -445,6 +470,10 @@ namespace Eclipse.Diagnostics
 			{
 				return "enemy AI";
 			}
+			if (s.SnapshotMs + s.RestoreMs >= s.FrameMs * 0.35f)
+			{
+				return "rollback snapshots / restores";
+			}
 			if (s.SimMs - s.AiMs >= s.FrameMs * 0.35f)
 			{
 				return "fight simulation";
@@ -506,9 +535,9 @@ namespace Eclipse.Diagnostics
 
 			StringBuilder text = new StringBuilder(768);
 			text.Append("FPS ").Append(Mathf.RoundToInt(1000f / Mathf.Max(average, 0.01f)))
-				.Append("   ").Append(average.ToString("0.00")).Append(" ms");
+				.Append("   ").Append(average.ToString("0.00", CultureInfo.InvariantCulture)).Append(" ms");
 			text.Append("\n1% low ").Append(Mathf.RoundToInt(1000f / Mathf.Max(onePercentLow, 0.01f)))
-				.Append(" FPS   worst ").Append(worst.ToString("0.0")).Append(" ms");
+				.Append(" FPS   worst ").Append(worst.ToString("0.0", CultureInfo.InvariantCulture)).Append(" ms");
 			if (!detailed)
 			{
 				return text.ToString();
@@ -516,33 +545,33 @@ namespace Eclipse.Diagnostics
 
 			if (timingCount > 0)
 			{
-				text.Append("\nCPU main ").Append((cpuTotal / timingCount).ToString("0.00"))
-					.Append("  render ").Append((renderTotal / timingCount).ToString("0.00"))
-					.Append("  GPU ").Append((gpuTotal / timingCount).ToString("0.00")).Append(" ms");
+				text.Append("\nCPU main ").Append((cpuTotal / timingCount).ToString("0.00", CultureInfo.InvariantCulture))
+					.Append("  render ").Append((renderTotal / timingCount).ToString("0.00", CultureInfo.InvariantCulture))
+					.Append("  GPU ").Append((gpuTotal / timingCount).ToString("0.00", CultureInfo.InvariantCulture)).Append(" ms");
 			}
 			else
 			{
 				text.Append("\nCPU/GPU split unavailable on this device");
 			}
-			text.Append("\nEnemy AI ").Append((aiTotal / count).ToString("0.00"))
-				.Append(" / max ").Append(aiWorst.ToString("0.00"))
-				.Append("   fight sim ").Append((simTotal / count).ToString("0.00"))
-				.Append(" / max ").Append(simWorst.ToString("0.00")).Append(" ms");
-			text.Append("\nSim ticks/frame ").Append((simTicks / (float)count).ToString("0.00"));
+			text.Append("\nEnemy AI ").Append((aiTotal / count).ToString("0.00", CultureInfo.InvariantCulture))
+				.Append(" / max ").Append(aiWorst.ToString("0.00", CultureInfo.InvariantCulture))
+				.Append("   fight sim ").Append((simTotal / count).ToString("0.00", CultureInfo.InvariantCulture))
+				.Append(" / max ").Append(simWorst.ToString("0.00", CultureInfo.InvariantCulture)).Append(" ms");
+			text.Append("\nSim ticks/frame ").Append((simTicks / (float)count).ToString("0.00", CultureInfo.InvariantCulture));
 			if (allocCount > 0)
 			{
 				float allocPerFrame = allocTotal / allocCount;
-				text.Append("   garbage ").Append(allocPerFrame.ToString("0.0")).Append(" KB/frame (")
-					.Append((allocPerFrame * 1000f / average / 1024f).ToString("0.0")).Append(" MB/s)");
+				text.Append("   garbage ").Append(allocPerFrame.ToString("0.0", CultureInfo.InvariantCulture)).Append(" KB/frame (")
+					.Append((allocPerFrame * 1000f / average / 1024f).ToString("0.0", CultureInfo.InvariantCulture)).Append(" MB/s)");
 			}
 			text.Append("\nGC ").Append(GC.CollectionCount(0) - _gcStartCount).Append(" collections   heap ")
-				.Append((Profiler.GetMonoUsedSizeLong() / 1048576f).ToString("0")).Append(" MB");
+				.Append((Profiler.GetMonoUsedSizeLong() / 1048576f).ToString("0", CultureInfo.InvariantCulture)).Append(" MB");
 			text.Append("\nSpikes ").Append(_gameplaySpikeTotal).Append(" (+")
 				.Append(_spikeTotal - _gameplaySpikeTotal).Append(" loading)");
 			Spike? last = LastGameplaySpike();
 			if (last.HasValue)
 			{
-				text.Append("   last ").Append(last.Value.Frame.FrameMs.ToString("0")).Append(" ms: ")
+				text.Append("   last ").Append(last.Value.Frame.FrameMs.ToString("0", CultureInfo.InvariantCulture)).Append(" ms: ")
 					.Append(SpikeCause(last.Value.Frame));
 			}
 			if (_fightFrames > 0)
@@ -588,17 +617,29 @@ namespace Eclipse.Diagnostics
 		private string BuildReport()
 		{
 			StringBuilder report = new StringBuilder(49152);
-			report.AppendLine("Eclipse performance report (format 2)");
+			report.AppendLine("Eclipse performance report (format 4)");
 			report.AppendLine("Created: " + DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
 			report.AppendLine("Game version: " + Application.version + "  Unity " + Application.unityVersion);
 			report.AppendLine("OS: " + SystemInfo.operatingSystem);
 			report.AppendLine("CPU: " + SystemInfo.processorType + " (" + SystemInfo.processorCount + " threads, " +
 				SystemInfo.processorFrequency + " MHz)");
 			report.AppendLine("RAM: " + SystemInfo.systemMemorySize + " MB");
+			report.AppendLine("Memory at report: Unity allocated " + MemoryMb(Profiler.GetTotalAllocatedMemoryLong()) +
+				" MB, reserved " + MemoryMb(Profiler.GetTotalReservedMemoryLong()) +
+				" MB; managed used " + MemoryMb(Profiler.GetMonoUsedSizeLong()) +
+				" MB, reserved " + MemoryMb(Profiler.GetMonoHeapSizeLong()) + " MB");
+			// Query the OS only when saving a report, never from the per-frame overlay.
+			try
+			{
+				using (var process = Process.GetCurrentProcess())
+					report.AppendLine("Process at report: working set " + MemoryMb(process.WorkingSet64) +
+						" MB, private committed " + MemoryMb(process.PrivateMemorySize64) + " MB");
+			}
+			catch (Exception) { report.AppendLine("Process memory counters unavailable on this runtime."); }
 			report.AppendLine("GPU: " + SystemInfo.graphicsDeviceName + " (" + SystemInfo.graphicsDeviceType + ", " +
 				SystemInfo.graphicsMemorySize + " MB, " + SystemInfo.graphicsDeviceVersion + ")");
 			report.AppendLine("Display: " + Screen.width + "x" + Screen.height + " " + Screen.fullScreenMode +
-				" @ " + Screen.currentResolution.refreshRateRatio.value.ToString("0.##") + " Hz");
+				" @ " + Screen.currentResolution.refreshRateRatio.value.ToString("0.##", CultureInfo.InvariantCulture) + " Hz");
 			report.AppendLine("Settings: vsync " + QualitySettings.vSyncCount + ", target FPS " + Application.targetFrameRate +
 				", frame limit " + SF2DisplayFrameRate.MaxFrameRate + ", interpolation " + SF2DisplayFrameRate.InterpolationEnabled +
 				", motion blur " + SF2DisplayFrameRate.MotionBlurEnabled + ", MSAA " + QualitySettings.antiAliasing +
@@ -606,7 +647,7 @@ namespace Eclipse.Diagnostics
 			report.AppendLine("Frame timing stats: " + (FrameTimingManager.IsFeatureEnabled() ? "on" : "off") +
 				"   GC counter: " + (_allocRecorder.Valid ? "profiler" : "thread allocations"));
 			report.AppendLine("Scene: " + SceneManager.GetActiveScene().name + (Fight.GetCurrentFight() != null ? " (in fight)" : string.Empty));
-			report.AppendLine("Session: " + (Time.unscaledTime - _sessionStart).ToString("0") + " s measured");
+			report.AppendLine("Session: " + (Time.unscaledTime - _sessionStart).ToString("0", CultureInfo.InvariantCulture) + " s measured");
 			report.AppendLine();
 			report.AppendLine("Current window (last " + SampleCount + " frames, loading excluded):");
 			report.AppendLine(BuildSummary(true));
@@ -616,9 +657,9 @@ namespace Eclipse.Diagnostics
 			{
 				report.AppendLine("All fights this session (" + _fightFrames + " frames, loading excluded):");
 				float fightAverage = (float)(_fightFrameMsTotal / _fightFrames);
-				report.AppendLine("  average " + fightAverage.ToString("0.00") + " ms (" + Mathf.RoundToInt(1000f / fightAverage) + " FPS)");
-				report.AppendLine("  median " + FightPercentile(0.5f).ToString("0.00") + " ms, 90% " + FightPercentile(0.9f).ToString("0.00") +
-					" ms, 99% " + FightPercentile(0.99f).ToString("0.00") + " ms, 99.9% " + FightPercentile(0.999f).ToString("0.00") + " ms");
+				report.AppendLine("  average " + fightAverage.ToString("0.00", CultureInfo.InvariantCulture) + " ms (" + Mathf.RoundToInt(1000f / fightAverage) + " FPS)");
+				report.AppendLine("  median " + FightPercentile(0.5f).ToString("0.00", CultureInfo.InvariantCulture) + " ms, 90% " + FightPercentile(0.9f).ToString("0.00", CultureInfo.InvariantCulture) +
+					" ms, 99% " + FightPercentile(0.99f).ToString("0.00", CultureInfo.InvariantCulture) + " ms, 99.9% " + FightPercentile(0.999f).ToString("0.00", CultureInfo.InvariantCulture) + " ms");
 				if (Application.targetFrameRate > 0)
 				{
 					float budget = 1000f / Application.targetFrameRate * 1.05f;
@@ -628,27 +669,29 @@ namespace Eclipse.Diagnostics
 						over += _fightHistogram[i];
 					}
 					report.AppendLine("  frames slower than the " + Application.targetFrameRate + " FPS cap: " +
-						(100f * over / _fightFrames).ToString("0.0") + "%");
+						(100f * over / _fightFrames).ToString("0.0", CultureInfo.InvariantCulture) + "%");
 				}
-				report.AppendLine("  garbage " + (_fightAllocKbTotal / _fightFrames).ToString("0.0") + " KB/frame, " +
+				report.AppendLine("  garbage " + (_fightAllocKbTotal / _fightFrames).ToString("0.0", CultureInfo.InvariantCulture) + " KB/frame, " +
 					_fightGcCount + " GC frames");
+				report.AppendLine("  rollback saves " + (_fightSnapshotMsTotal / _fightFrames).ToString("0.000", CultureInfo.InvariantCulture) +
+					" ms/frame, restores " + (_fightRestoreMsTotal / _fightFrames).ToString("0.000", CultureInfo.InvariantCulture) + " ms/frame (additional to fight sim)");
 				report.AppendLine();
 			}
 
 			int spikeCount = Mathf.Min(_spikeTotal, SpikeCapacity);
 			report.AppendLine("Frame spikes (latest " + spikeCount + " of " + _spikeTotal + ", " + _gameplaySpikeTotal + " outside loading):");
-			report.AppendLine("time_s,frame_ms,ai_ms,fight_sim_ms,cpu_main_ms,render_thread_ms,gpu_ms,alloc_kb,gc,loading,in_fight,scene,likely_cause");
+			report.AppendLine("time_s,frame_ms,ai_ms,fight_sim_ms,cpu_main_ms,render_thread_ms,gpu_ms,alloc_kb,gc,loading,in_fight,rollback_save_ms,rollback_restore_ms,scene,likely_cause");
 			for (int i = 0; i < spikeCount; i++)
 			{
 				Spike s = _spikes[(_spikeIndex - spikeCount + i + SpikeCapacity) % SpikeCapacity];
-				report.Append(s.Time.ToString("0.00")).Append(',');
+				report.Append(s.Time.ToString("0.00", CultureInfo.InvariantCulture)).Append(',');
 				AppendSample(report, s.Frame);
 				report.Append(',').Append(s.Scene).Append(',').AppendLine(SpikeCause(s.Frame));
 			}
 			report.AppendLine();
 
 			report.AppendLine("Last " + _sampleFilled + " frames (oldest first; CPU/GPU timings lag a few frames):");
-			report.AppendLine("frame_ms,ai_ms,fight_sim_ms,cpu_main_ms,render_thread_ms,gpu_ms,alloc_kb,gc,loading,in_fight,sim_ticks");
+			report.AppendLine("frame_ms,ai_ms,fight_sim_ms,cpu_main_ms,render_thread_ms,gpu_ms,alloc_kb,gc,loading,in_fight,rollback_save_ms,rollback_restore_ms,sim_ticks");
 			for (int i = 0; i < _sampleFilled; i++)
 			{
 				Sample s = _samples[(_sampleIndex - _sampleFilled + i + SampleCount) % SampleCount];
@@ -658,18 +701,22 @@ namespace Eclipse.Diagnostics
 			return report.ToString();
 		}
 
+		private static string MemoryMb(long bytes) => (bytes / 1048576.0).ToString("0.0", CultureInfo.InvariantCulture);
+
 		private static void AppendSample(StringBuilder report, Sample s)
 		{
-			report.Append(s.FrameMs.ToString("0.00")).Append(',')
-				.Append(s.AiMs.ToString("0.000")).Append(',')
-				.Append(s.SimMs.ToString("0.000")).Append(',')
-				.Append(s.CpuMainMs.ToString("0.00")).Append(',')
-				.Append(s.RenderThreadMs.ToString("0.00")).Append(',')
-				.Append(s.GpuMs.ToString("0.00")).Append(',')
-				.Append(s.AllocKb.ToString("0.0")).Append(',')
+			report.Append(s.FrameMs.ToString("0.00", CultureInfo.InvariantCulture)).Append(',')
+				.Append(s.AiMs.ToString("0.000", CultureInfo.InvariantCulture)).Append(',')
+				.Append(s.SimMs.ToString("0.000", CultureInfo.InvariantCulture)).Append(',')
+				.Append(s.CpuMainMs.ToString("0.00", CultureInfo.InvariantCulture)).Append(',')
+				.Append(s.RenderThreadMs.ToString("0.00", CultureInfo.InvariantCulture)).Append(',')
+				.Append(s.GpuMs.ToString("0.00", CultureInfo.InvariantCulture)).Append(',')
+				.Append(s.AllocKb.ToString("0.0", CultureInfo.InvariantCulture)).Append(',')
 				.Append(s.Gc ? 1 : 0).Append(',')
 				.Append(s.Loading ? 1 : 0).Append(',')
-				.Append(s.InFight ? 1 : 0);
+				.Append(s.InFight ? 1 : 0).Append(',')
+				.Append(s.SnapshotMs.ToString("0.000", CultureInfo.InvariantCulture)).Append(',')
+				.Append(s.RestoreMs.ToString("0.000", CultureInfo.InvariantCulture));
 		}
 
 		private void ShowStatus(string message)

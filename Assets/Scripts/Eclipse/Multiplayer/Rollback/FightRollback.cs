@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Reflection;
 using Eclipse.Multiplayer.Online;
 using Nekki.SF2.GUI.Fight;
@@ -88,9 +89,156 @@ namespace Eclipse.Multiplayer.Rollback
         public bool NeedsFieldCopy(Type type) => typeof(UnityEngine.Object).IsAssignableFrom(type);
 
         public SnapshotCodec CodecFor(Type type) =>
-            type == typeof(Vector3f) || type == typeof(Vector2f) ? Vectors : type == typeof(KeyFrames.Frame) ? Frames : null;
+            type == typeof(ModelNode) || type == typeof(ModelMacroNode) ? Nodes :
+            type == typeof(Vector3f) || type == typeof(Vector2f) ? Vectors :
+            type == typeof(Vector3f[]) ? VectorArrays : type == typeof(KeyFrames.Frame[]) ? Frames :
+            type == typeof(Pair<ModelNode, float>[]) ? NodeWeights : type == typeof(Triangle[]) ? Triangles : null;
 
-        private static readonly SnapshotCodec Frames = new KeyFrameCodec();
+        private static readonly SnapshotCodec Frames = new KeyFrameArrayCodec();
+        private static readonly SnapshotCodec VectorArrays = new VectorArrayCodec();
+        private static readonly SnapshotCodec NodeWeights = new NodeWeightArrayCodec();
+        private static readonly SnapshotCodec Triangles = new TriangleArrayCodec();
+        private static readonly SnapshotCodec Nodes = new ModelNodeCodec();
+
+        private sealed class ModelNodeCodec : SnapshotCodec
+        {
+            public override void Save(object target, SnapshotTape tape)
+            {
+                ((ModelNode)target).SaveRollbackNode(tape);
+                if (target is ModelMacroNode macro) macro.SaveRollbackMacro(tape);
+            }
+
+            public override void Load(object target, SnapshotTape tape)
+            {
+                ((ModelNode)target).LoadRollbackNode(tape);
+                if (target is ModelMacroNode macro) macro.LoadRollbackMacro(tape);
+            }
+
+            public override void Walk(object target, List<object> into)
+            {
+                ((ModelNode)target).WalkRollbackNode(into);
+                if (target is ModelMacroNode macro) macro.WalkRollbackMacro(into);
+            }
+        }
+
+        // These are mutable state, not opaque topology. Save every slot (including
+        // spare capacity), original object/array identity and all fields; walk the
+        // referenced nodes normally. A derived element also takes the generic path
+        // so a mod/reconstruction extension cannot lose its extra fields.
+        private sealed class NodeWeightArrayCodec : SnapshotCodec
+        {
+            public override void Save(object target, SnapshotTape tape)
+            {
+                foreach (var pair in (Pair<ModelNode, float>[])target)
+                {
+                    tape.Object(pair);
+                    if (pair == null) continue;
+                    tape.Object(pair.First);
+                    tape.Float(pair.Second);
+                }
+            }
+
+            public override void Load(object target, SnapshotTape tape)
+            {
+                var array = (Pair<ModelNode, float>[])target;
+                for (int i = 0; i < array.Length; i++)
+                {
+                    var pair = (Pair<ModelNode, float>)tape.ReadObject();
+                    array[i] = pair;
+                    if (pair == null) continue;
+                    pair.First = (ModelNode)tape.ReadObject();
+                    pair.Second = tape.ReadFloat();
+                }
+            }
+
+            public override void Walk(object target, List<object> into)
+            {
+                foreach (var pair in (Pair<ModelNode, float>[])target)
+                {
+                    if (pair == null) continue;
+                    into.Add(pair.First);
+                    if (pair.GetType() != typeof(Pair<ModelNode, float>)) into.Add(pair);
+                }
+            }
+        }
+
+        private sealed class TriangleArrayCodec : SnapshotCodec
+        {
+            public override void Save(object target, SnapshotTape tape)
+            {
+                foreach (var triangle in (Triangle[])target)
+                {
+                    tape.Object(triangle);
+                    if (triangle == null) continue;
+                    tape.Object(triangle.get_Name());
+                    var nodes = triangle.Nodes;
+                    tape.Object(nodes);
+                    if (nodes != null)
+                        for (int n = 0; n < nodes.Length; n++) tape.Object(nodes[n]);
+                }
+            }
+
+            public override void Load(object target, SnapshotTape tape)
+            {
+                var array = (Triangle[])target;
+                for (int i = 0; i < array.Length; i++)
+                {
+                    var triangle = (Triangle)tape.ReadObject();
+                    array[i] = triangle;
+                    if (triangle == null) continue;
+                    triangle.set_Name((string)tape.ReadObject());
+                    var nodes = (ModelNode[])tape.ReadObject();
+                    triangle.Nodes = nodes;
+                    if (nodes != null)
+                        for (int n = 0; n < nodes.Length; n++) nodes[n] = (ModelNode)tape.ReadObject();
+                }
+            }
+
+            public override void Walk(object target, List<object> into)
+            {
+                foreach (var triangle in (Triangle[])target)
+                {
+                    if (triangle == null) continue;
+                    if (triangle.Nodes != null) into.AddRange(triangle.Nodes);
+                    if (triangle.GetType() != typeof(Triangle)) into.Add(triangle);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Animation interpolation buffers contain thousands of points in vector lists.
+        /// Save their backing arrays in one pass instead of hashing and visiting every
+        /// point as a graph node. Lists themselves still retain their exact backing array,
+        /// count and version through the ordinary snapshot path. Save the full capacity:
+        /// unused slots can contain points reused by a later animation.
+        /// </summary>
+        private sealed class VectorArrayCodec : SnapshotCodec
+        {
+            public override void Save(object target, SnapshotTape tape)
+            {
+                var array = (Vector3f[])target;
+                for (int i = 0; i < array.Length; i++)
+                {
+                    var vector = array[i];
+                    tape.Object(vector);
+                    if (vector == null) continue;
+                    tape.Float3(vector.GetX(), vector.GetY(), vector.GetZ());
+                }
+            }
+
+            public override void Load(object target, SnapshotTape tape)
+            {
+                var array = (Vector3f[])target;
+                for (int i = 0; i < array.Length; i++)
+                {
+                    var vector = (Vector3f)tape.ReadObject();
+                    array[i] = vector;
+                    if (vector == null) continue;
+                    tape.ReadFloat3(out float x, out float y, out float z);
+                    vector.Set(x, y, z);
+                }
+            }
+        }
 
         public PropertyInfo[] ExtraProperties(Type type)
         {
@@ -106,51 +254,44 @@ namespace Eclipse.Multiplayer.Rollback
         }
 
         /// <summary>
-        /// A key-frame buffer frame: the pose of every node for one frame of the playing move.
-        /// A fighter's buffer keeps the frames of the longest move it has played, which is
-        /// most of the fight's saved objects, so each frame is saved whole instead of walking
-        /// every vector. Restores the same list, with the same vector objects at the same
-        /// positions, and their values, as the graph walk would.
+        /// Batch frame headers, then visit their lists normally. The vector-array
+        /// codec batches the points. Keeping the list's normal snapshot preserves its
+        /// backing array, unused capacity and version; assigning through its indexer
+        /// during restore used to change the version on every rollback.
         /// </summary>
-        private sealed class KeyFrameCodec : SnapshotCodec
+        private sealed class KeyFrameArrayCodec : SnapshotCodec
         {
             public override void Save(object target, SnapshotTape tape)
             {
-                var frame = (KeyFrames.Frame)target;
-                tape.Int(frame.Size);
-                var data = frame.Data;
-                tape.Object(data);
-                tape.Int(data != null ? data.Count : -1);
-                if (data == null) return;
-                for (int i = 0; i < data.Count; i++)
+                foreach (var frame in (KeyFrames.Frame[])target)
                 {
-                    var vector = data[i];
-                    tape.Object(vector);
-                    if (vector == null) continue;
-                    tape.Float(vector.GetX());
-                    tape.Float(vector.GetY());
-                    tape.Float(vector.GetZ());
+                    tape.Object(frame);
+                    if (frame == null) continue;
+                    tape.Int(frame.Size);
+                    tape.Object(frame.Data);
                 }
             }
 
             public override void Load(object target, SnapshotTape tape)
             {
-                var frame = (KeyFrames.Frame)target;
-                frame.Size = tape.ReadInt();
-                var data = (List<Vector3f>)tape.ReadObject();
-                frame.Data = data;
-                int count = tape.ReadInt();
-                if (data == null) return;
-                if (data.Count > count) data.RemoveRange(count, data.Count - count);
-                for (int i = 0; i < count; i++)
+                var array = (KeyFrames.Frame[])target;
+                for (int i = 0; i < array.Length; i++)
                 {
-                    var vector = (Vector3f)tape.ReadObject();
-                    if (i < data.Count) data[i] = vector;
-                    else data.Add(vector);
-                    if (vector == null) continue;
-                    vector.SetX(tape.ReadFloat());
-                    vector.SetY(tape.ReadFloat());
-                    vector.SetZ(tape.ReadFloat());
+                    var frame = (KeyFrames.Frame)tape.ReadObject();
+                    array[i] = frame;
+                    if (frame == null) continue;
+                    frame.Size = tape.ReadInt();
+                    frame.Data = (List<Vector3f>)tape.ReadObject();
+                }
+            }
+
+            public override void Walk(object target, List<object> into)
+            {
+                foreach (var frame in (KeyFrames.Frame[])target)
+                {
+                    if (frame == null) continue;
+                    into.Add(frame.Data);
+                    if (frame.GetType() != typeof(KeyFrames.Frame)) into.Add(frame);
                 }
             }
         }
@@ -227,14 +368,17 @@ namespace Eclipse.Multiplayer.Rollback
             _roots[0] = _roots[1] = null;
             _watch.Stop();
             LastSaveMs = _watch.Elapsed.TotalMilliseconds;
-            AverageSaveMs = Saves == 0 ? LastSaveMs : AverageSaveMs * 0.95 + LastSaveMs * 0.05;
+            Eclipse.Diagnostics.PerformanceOverlay.RecordRollbackSave(_watch.ElapsedTicks);
+            AverageSaveMs += (LastSaveMs - AverageSaveMs) / (Saves + 1);
             // The first save includes JIT and pool warm-up, so it does not count toward the peak.
             if (Saves > 0 && LastSaveMs > MaxSaveMs) MaxSaveMs = LastSaveMs;
             _latest = into;
             if (Saves++ == 0)
             {
                 _firstCensus = ObjectGraphSnapshotter.Census(into);
-                UnityEngine.Debug.Log("[Rollback] First snapshot: " + ObjectCount + " objects in " + LastSaveMs.ToString("0.00") + " ms.");
+                UnityEngine.Debug.Log("[Rollback] First snapshot: " + ObjectCount + " objects in " + LastSaveMs.ToString("0.00") +
+                    " ms. Largest groups: " + string.Join(", ", _firstCensus.OrderByDescending(entry => entry.Value).Take(8)
+                        .Select(entry => entry.Key.Name + " " + entry.Value)) + ".");
             }
         }
 
@@ -253,7 +397,8 @@ namespace Eclipse.Multiplayer.Rollback
             RollbackObjects.Restored(snapshot.Tick);
             _watch.Stop();
             LastLoadMs = _watch.Elapsed.TotalMilliseconds;
-            AverageLoadMs = Loads == 0 ? LastLoadMs : AverageLoadMs * 0.95 + LastLoadMs * 0.05;
+            Eclipse.Diagnostics.PerformanceOverlay.RecordRollbackRestore(_watch.ElapsedTicks);
+            AverageLoadMs += (LastLoadMs - AverageLoadMs) / (Loads + 1);
             Loads++;
         }
 
@@ -278,13 +423,16 @@ namespace Eclipse.Multiplayer.Rollback
             return new ObjectGraphSnapshotter(new FightSnapshotPolicy(), raw) { Warn = message => UnityEngine.Debug.LogWarning("[Rollback] " + message) };
         }
 
-        private sealed class ManagedMemoryAccess : IRawObjectMemory
+        private sealed class ManagedMemoryAccess : IRawObjectMemory, IRawArrayMemory
         {
             public int FieldOffset(FieldInfo field) => ManagedMemory.FieldOffset(field);
             public int SizeOf(Type valueType) => ManagedMemory.SizeOf(valueType);
             public void CopyBlocks(object from, object to, int[] offsets, int[] sizes) => ManagedMemory.CopyBlocks(from, to, offsets, sizes);
             public void CopyReferences(object from, object to, int[] offsets) => ManagedMemory.CopyReferences(from, to, offsets);
             public object ReadReference(object target, int offset) => ManagedMemory.ReadReference(target, offset);
+            public int StructFieldOffset(FieldInfo field) => ManagedMemory.StructFieldOffset(field);
+            public void ReadArrayReferences(Array array, int stride, int[] offsets, List<object> into) =>
+                ManagedMemory.ReadArrayReferences(array, stride, offsets, into);
         }
 
         /// <summary>Per-fight state kept in static fields that the tick changes.</summary>

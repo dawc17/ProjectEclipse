@@ -3198,7 +3198,9 @@ public class Model : global::EventDispatcher<object>
 		return GetDamageBlockCritical(OOGIBOBMGJA, aMBADLGCMJE.Attribute, aMBADLGCMJE.Base);
 	}
 
-	public float GetTotalDamage(IntervalAttack CHCGJBLDPML, bool OOCLHFGEPML, bool OOGIBOBMGJA, ModelEdge GCFJNDJBBOI)
+	public float GetTotalDamage(IntervalAttack CHCGJBLDPML,
+        bool blocked, // best guess for name
+        bool OOGIBOBMGJA, ModelEdge GCFJNDJBBOI)
 	{
 		Model fGCODGKLHED = EGGEACCDAEK();
 		if (fGCODGKLHED == null)
@@ -3214,19 +3216,19 @@ public class Model : global::EventDispatcher<object>
 		{
 			if (item.First == "RaidChargeDamage")
 			{
-				int OEMALIFPGPO = 0;
-				fGCODGKLHED.Parameters.IBLHIAHECLK.Get(item.First, ref OEMALIFPGPO);
-				return OEMALIFPGPO;
+				int raidChargeDamage = 0; // best guess for name
+				fGCODGKLHED.Parameters.IBLHIAHECLK.Get(item.First, ref raidChargeDamage);
+				return Eclipse.Multiplayer.LocalVersusMatch.ScaleStrikeDamage(Fight.GetCurrentFight(), raidChargeDamage, blocked);
 			}
 		}
-		string kLIIDDMHNOL = GetDefenseAttribute(CHCGJBLDPML, OOCLHFGEPML, GCFJNDJBBOI);
+		string kLIIDDMHNOL = GetDefenseAttribute(CHCGJBLDPML, blocked, GCFJNDJBBOI);
 		float num = GameUtils.MGPIOCMLCLF();
 		string kGBGENDIMBC = GameUtils.CJMOJMKCLMJ();
 		int OEMALIFPGPO2 = 0;
 		fGCODGKLHED.Parameters.IBLHIAHECLK.Get(kGBGENDIMBC, ref OEMALIFPGPO2);
 		OEMALIFPGPO2 = Mathf.Min(OEMALIFPGPO2, (int)GameUtils.PCDIBMDDAEF());
 		float num2 = Mathf.Pow(2f, num * (float)OEMALIFPGPO2);
-		float num3 = GetBlock(OOCLHFGEPML);
+		float num3 = GetBlock(blocked);
 		float num4 = fGCODGKLHED.GetCritical(OOGIBOBMGJA);
 		float num5 = 0f;
 		float num6 = GameUtils.GetAttributesHitMultiplier(fGCODGKLHED.EPCNJLEHJCB(), fGCODGKLHED.Parameters, Parameters, list, kLIIDDMHNOL);
@@ -3242,7 +3244,8 @@ public class Model : global::EventDispatcher<object>
 		{
 			Debug.LogError("Model::getTotalDamage - wtf so strong");
 		}
-		return a;
+		// Scale before ResolveStrikeDamage caps lethal hits to remaining health.
+		return Eclipse.Multiplayer.LocalVersusMatch.ScaleStrikeDamage(Fight.GetCurrentFight(), a, blocked);
 	}
 
 	public IntervalAnimation FDMAIINMCHH()
@@ -3481,7 +3484,6 @@ public class Model : global::EventDispatcher<object>
 
 	public void OPPIKLBKMPN(ActionSound IBODMPMJELJ)
 	{
-		if (Fight.GetCurrentFight()?.IsTitleSparring == true) return;
 		if (IBODMPMJELJ.SameGender(Parameters.OLPCELPEDKD))
 		{
 			Sound.IFKCCDAIADF(IBODMPMJELJ.get_Name(), IBODMPMJELJ.DBIOMDEIIKI(), IBODMPMJELJ.AFKMLMCCJLI());
@@ -3490,13 +3492,11 @@ public class Model : global::EventDispatcher<object>
 
 	public void OPPIKLBKMPN(ActionStopSound IBODMPMJELJ)
 	{
-		if (Fight.GetCurrentFight()?.IsTitleSparring == true) return;
 		Sound.StopSound(IBODMPMJELJ.get_Name());
 	}
 
 	public void OPPIKLBKMPN(ActionRandomSound IBODMPMJELJ)
 	{
-		if (Fight.GetCurrentFight()?.IsTitleSparring == true) return;
 		if (IBODMPMJELJ.SameGender(Parameters.OLPCELPEDKD))
 		{
 			Sound.IFKCCDAIADF(IBODMPMJELJ.get_Name());
@@ -3684,7 +3684,8 @@ public class Model : global::EventDispatcher<object>
 		if ((current == null || current.Name != _PairedGrabAnimation) && !_PairedGrabLeftLogged)
 		{
 			_PairedGrabLeftLogged = true;
-			Debug.LogWarning("[Throw] " + get_Name() + " '" + _PairedGrab.Name + "': enemy left paired animation '" +
+			if (!Eclipse.Multiplayer.VersusTickDriver.IsResimulating)
+				Debug.LogWarning("[Throw] " + get_Name() + " '" + _PairedGrab.Name + "': enemy left paired animation '" +
 				_PairedGrabAnimation + "' for '" + (current == null ? "<none>" : current.Name) + "' (physics=" +
 				victim._Physics.IsPhysics() + ") before the strike.");
 		}

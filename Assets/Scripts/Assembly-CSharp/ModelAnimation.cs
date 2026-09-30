@@ -1516,7 +1516,8 @@ public class ModelAnimation : global::EventDispatcher<object>
 		else
 		{
 			KFGEBGBEJBC = null;
-			LLLOJBFMONN.Write("_AnimationInfo.moveInside.align.pivotID == -1 " + BAOONIGFBMB.Name);
+			// A move with no alignment pivot is valid; do not log every playback,
+			// including rollback re-simulation, on the combat hot path.
 		}
 	}
 

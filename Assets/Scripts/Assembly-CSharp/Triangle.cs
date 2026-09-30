@@ -2,7 +2,11 @@ public class Triangle
 {
 	private string _name;
 
-	private ModelNode[] CFPIOKDFJCH = new ModelNode[3];
+	// best guess for name
+	private ModelNode[] _nodes = new ModelNode[3];
+
+	// Snapshot codecs preserve the array identity as well as its node references.
+	internal ModelNode[] Nodes { get => _nodes; set => _nodes = value; }
 
 	public ModelNode IFKIMCJKHPF
 	{
@@ -42,24 +46,24 @@ public class Triangle
 
 	public Triangle()
 	{
-		CFPIOKDFJCH[0] = new ModelNode("tmp");
-		CFPIOKDFJCH[1] = new ModelNode("tmp");
-		CFPIOKDFJCH[2] = new ModelNode("tmp");
+		_nodes[0] = new ModelNode("tmp");
+		_nodes[1] = new ModelNode("tmp");
+		_nodes[2] = new ModelNode("tmp");
 	}
 
 	public Triangle(ModelNode NOLAMPHAAII, ModelNode BIPPDOPJCOI, ModelNode LJOMMHPDFCI, string name)
 	{
-		CFPIOKDFJCH[0] = NOLAMPHAAII;
-		CFPIOKDFJCH[1] = BIPPDOPJCOI;
-		CFPIOKDFJCH[2] = LJOMMHPDFCI;
+		_nodes[0] = NOLAMPHAAII;
+		_nodes[1] = BIPPDOPJCOI;
+		_nodes[2] = LJOMMHPDFCI;
 		_name = name;
 	}
 
 	public Triangle(Triangle EDANJNHMLBC)
 	{
-		CFPIOKDFJCH[0] = EDANJNHMLBC.CFPIOKDFJCH[0];
-		CFPIOKDFJCH[1] = EDANJNHMLBC.CFPIOKDFJCH[1];
-		CFPIOKDFJCH[2] = EDANJNHMLBC.CFPIOKDFJCH[2];
+		_nodes[0] = EDANJNHMLBC._nodes[0];
+		_nodes[1] = EDANJNHMLBC._nodes[1];
+		_nodes[2] = EDANJNHMLBC._nodes[2];
 		_name = EDANJNHMLBC._name;
 	}
 
@@ -75,39 +79,39 @@ public class Triangle
 
 	public ModelNode LACAPAAKHGF()
 	{
-		return CFPIOKDFJCH[0];
+		return _nodes[0];
 	}
 
 	public void DGNONLPFKKL(ModelNode value)
 	{
-		CFPIOKDFJCH[0] = value;
+		_nodes[0] = value;
 	}
 
 	public ModelNode BGDMIKIODPC()
 	{
-		return CFPIOKDFJCH[1];
+		return _nodes[1];
 	}
 
 	public void FCMMFAEBDDL(ModelNode value)
 	{
-		CFPIOKDFJCH[1] = value;
+		_nodes[1] = value;
 	}
 
 	public ModelNode DBOJFAAGEKB()
 	{
-		return CFPIOKDFJCH[2];
+		return _nodes[2];
 	}
 
 	public void DADGEIJKBMM(ModelNode value)
 	{
-		CFPIOKDFJCH[2] = value;
+		_nodes[2] = value;
 	}
 
 	public void CopyFrom(Triangle CJAGCDNBEPA)
 	{
-		CFPIOKDFJCH[0].CopyFrom(CJAGCDNBEPA.LACAPAAKHGF());
-		CFPIOKDFJCH[1].CopyFrom(CJAGCDNBEPA.BGDMIKIODPC());
-		CFPIOKDFJCH[2].CopyFrom(CJAGCDNBEPA.DBOJFAAGEKB());
+		_nodes[0].CopyFrom(CJAGCDNBEPA.LACAPAAKHGF());
+		_nodes[1].CopyFrom(CJAGCDNBEPA.BGDMIKIODPC());
+		_nodes[2].CopyFrom(CJAGCDNBEPA.DBOJFAAGEKB());
 	}
 
 	public void GOKCABDNIKF()

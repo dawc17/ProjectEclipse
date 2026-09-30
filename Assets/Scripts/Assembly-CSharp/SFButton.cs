@@ -104,10 +104,25 @@ public class SFButton : Button, global::IEventDispatcher<object>
 		return NBKJBIIPPNB.RemoveEventListener(name, ODDEOFKLIAG);
 	}
 
+    private SelectionState _inputVisualState;
+    private bool _hasInputVisualState;
+
+    protected override void DoStateTransition(SelectionState state, bool instant)
+    {
+        base.DoStateTransition(state, instant);
+        _inputVisualState = state;
+        _hasInputVisualState = true;
+    }
+
     public void SetInputPressedVisual(bool pressed)
     {
-        DoStateTransition(!interactable ? SelectionState.Disabled :
-            pressed ? SelectionState.Pressed : SelectionState.Normal, true);
+        var state = !interactable ? SelectionState.Disabled :
+            pressed ? SelectionState.Pressed : SelectionState.Normal;
+        // Input is sampled on both rendering and simulation frames. Repeating a
+        // transition restarts UI tweens/animators even when the button is unchanged.
+        // Track pointer-driven transitions too, so releasing touch while a key is
+        // held still reapplies the keyboard's pressed visual.
+        if (!_hasInputVisualState || state != _inputVisualState) DoStateTransition(state, true);
     }
 
     public override void OnPointerDown(PointerEventData BHOLFGOGPCP)

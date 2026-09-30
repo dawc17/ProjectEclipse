@@ -133,7 +133,10 @@ namespace Eclipse.Rendering
 		{
 			// Already shown when the tick first ran; a rollback re-simulation stays quiet.
 			if (Eclipse.Multiplayer.VersusTickDriver.IsResimulating) return;
-			ModVisuals.NotifyHit(critical, blocked, ko);
+			// Title combat may draw local particles, but must not trigger global
+			// screen grades, slow motion, audio muffle or effect sounds.
+			if (Fight.GetCurrentFight()?.IsTitleSparring != true)
+				ModVisuals.NotifyHit(critical, blocked, ko);
 			if (attacker != null && attacker.NJDJHGDMCIJ() != null)
 				foreach (FighterParticles live in Live)
 					if (live != null && live._model == attacker) live._spent = true;
@@ -442,7 +445,8 @@ namespace Eclipse.Rendering
 
 		private void Fire(ModFxTrigger trigger, Vector3 point)
 		{
-			ModVisuals.NotifyMotion(trigger);
+			if (Fight.GetCurrentFight()?.IsTitleSparring != true)
+				ModVisuals.NotifyMotion(trigger);
 			foreach (Burst contact in _contacts)
 			{
 				if (contact.System == null || contact.Definition.Trigger != trigger) continue;

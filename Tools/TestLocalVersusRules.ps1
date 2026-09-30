@@ -7,9 +7,24 @@ $program = @'
 using System;
 using Eclipse.Multiplayer;
 
+// This fixture exercises settings validation and round resolution. The loadout
+// is a controlled value holder; catalog loading and equipment are Unity concerns.
+namespace Eclipse.Multiplayer
+{
+    public sealed class VersusLoadout
+    {
+        public string Weapon { get; }
+        public VersusLoadout(string weapon) { Weapon = weapon; }
+    }
+}
+
 static class Program
 {
     static int checks;
+
+    static LocalVersusSettings Settings(string left, string right, string arena, bool keyboard,
+        int wins = 2, int seconds = 99) => new LocalVersusSettings(
+            new VersusLoadout(left), new VersusLoadout(right), arena, keyboard, wins, seconds);
 
     static void Check(bool condition, string message)
     {
@@ -27,7 +42,7 @@ static class Program
 
     static void Main()
     {
-        var settings = new LocalVersusSettings("KATANA", "STAFF", "DOJO", true, 3, 120);
+        var settings = Settings("KATANA", "STAFF", "DOJO", true, 3, 120);
         Check(settings.PlayerOneWeapon == "KATANA" && settings.PlayerTwoWeapon == "STAFF" &&
               settings.Location == "DOJO" && settings.KeyboardPlayerOne &&
               settings.WinsRequired == 3 && settings.RoundTimeSeconds == 120,
@@ -39,17 +54,19 @@ static class Program
 
         foreach (string invalid in new[] { null, "", "   " })
         {
-            Throws<ArgumentException>(() => new LocalVersusSettings(invalid, "B", "ARENA", false), "Invalid P1 weapon accepted.");
-            Throws<ArgumentException>(() => new LocalVersusSettings("A", invalid, "ARENA", false), "Invalid P2 weapon accepted.");
-            Throws<ArgumentException>(() => new LocalVersusSettings("A", "B", invalid, false), "Invalid arena accepted.");
+            Throws<ArgumentException>(() => Settings(invalid, "B", "ARENA", false), "Invalid P1 weapon accepted.");
+            Throws<ArgumentException>(() => Settings("A", invalid, "ARENA", false), "Invalid P2 weapon accepted.");
+            Throws<ArgumentException>(() => Settings("A", "B", invalid, false), "Invalid arena accepted.");
         }
+        Throws<ArgumentException>(() => new LocalVersusSettings(null, settings.PlayerTwoLoadout, "ARENA", false), "Null P1 loadout accepted.");
+        Throws<ArgumentException>(() => new LocalVersusSettings(settings.PlayerOneLoadout, null, "ARENA", false), "Null P2 loadout accepted.");
 
         foreach (int wins in new[] { 0, -1, 6, int.MaxValue })
-            Throws<ArgumentOutOfRangeException>(() => new LocalVersusSettings("A", "B", "ARENA", false, wins, 99), "Invalid wins bound accepted: " + wins);
+            Throws<ArgumentOutOfRangeException>(() => Settings("A", "B", "ARENA", false, wins, 99), "Invalid wins bound accepted: " + wins);
         foreach (int seconds in new[] { 0, 29, 301, int.MaxValue })
-            Throws<ArgumentOutOfRangeException>(() => new LocalVersusSettings("A", "B", "ARENA", false, 2, seconds), "Invalid round time accepted: " + seconds);
-        Check(new LocalVersusSettings("A", "B", "ARENA", false, 1, 30).WinsRequired == 1, "Minimum bounds rejected.");
-        Check(new LocalVersusSettings("A", "B", "ARENA", false, 5, 300).RoundTimeSeconds == 300, "Maximum bounds rejected.");
+            Throws<ArgumentOutOfRangeException>(() => Settings("A", "B", "ARENA", false, 2, seconds), "Invalid round time accepted: " + seconds);
+        Check(Settings("A", "B", "ARENA", false, 1, 30).WinsRequired == 1, "Minimum bounds rejected.");
+        Check(Settings("A", "B", "ARENA", false, 5, 300).RoundTimeSeconds == 300, "Maximum bounds rejected.");
 
         Check(LocalVersusRoundRules.ResolveWinner(1f, .25f) == 0, "P1 win resolved incorrectly.");
         Check(LocalVersusRoundRules.ResolveWinner(.1f, .9f) == 1, "P2 win resolved incorrectly.");
@@ -64,7 +81,7 @@ static class Program
             Throws<ArgumentException>(() => LocalVersusRoundRules.ResolveWinner(.5f, invalid), "Invalid P2 health accepted.");
         }
 
-        Console.WriteLine("PASS: " + checks + " LocalVersusSettings/LocalVersusRoundRules production checks.");
+        Console.WriteLine("PASS: " + checks + " LocalVersusSettings/LocalVersusRoundRules production checks (controlled loadouts; no Unity playtest).");
     }
 }
 '@
