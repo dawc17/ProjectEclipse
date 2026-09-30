@@ -14,7 +14,7 @@ namespace Eclipse.Multiplayer
     /// </summary>
     public sealed class RoomSession : MonoBehaviour
     {
-        private const string ServerPreference = "Eclipse.Online.RoomServer";
+        public const string DefaultServer = "rooms.projecteclipse.fyi:7300";
         public const int AutoContinueSeconds = 20;
 
         public static RoomSession Current { get; private set; }
@@ -39,18 +39,15 @@ namespace Eclipse.Multiplayer
         /// <summary>Set when the room server went away during a fight that is still running.</summary>
         public string ServerLost { get; private set; }
 
-        public static string SavedServer { get => PlayerPrefs.GetString(ServerPreference, ""); set => PlayerPrefs.SetString(ServerPreference, value ?? ""); }
-
         public RoomState Room => Client?.Room;
         public bool IsHost => Room != null && Room.HostId == Client.ClientId;
         public uint ClientId => Client?.ClientId ?? 0;
 
         /// <summary>Connects (or reuses the connection) and then runs <paramref name="then"/>.</summary>
-        public static void Connect(string server, string playerName, Action then)
+        public static void Connect(string playerName, Action then)
         {
-            if (!NetplayPeer.TryParseAddress(server, RoomProtocol.DefaultPort, out var endPoint, out var error))
+            if (!NetplayPeer.TryParseAddress(DefaultServer, RoomProtocol.DefaultPort, out var endPoint, out var error))
                 throw new ArgumentException(error.Replace("host's", "room server's"));
-            SavedServer = server.Trim();
             string name = new NetIdentity("", "", playerName).PlayerName;
             OnlineVersusSession.SavedName = name;
             var session = Current;

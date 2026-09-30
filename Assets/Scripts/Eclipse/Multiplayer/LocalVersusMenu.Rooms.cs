@@ -5,10 +5,11 @@ using UnityEngine;
 
 namespace Eclipse.Multiplayer
 {
-    // Online rooms: server entry, room browser, room creation/settings, the room, and room fight results.
+    // Online rooms: room browser, room creation/settings, the room, and room fight results.
     public sealed partial class LocalVersusMenu
     {
-        private UnityEngine.UI.InputField serverField, codeField, passwordField, roomNameField;
+        // private UnityEngine.UI.InputField serverField;
+        private UnityEngine.UI.InputField codeField, passwordField, roomNameField;
         private RoomSettings draft = new RoomSettings();
         private bool editingRoom;
         private int builtMembers = -1;
@@ -23,7 +24,7 @@ namespace Eclipse.Multiplayer
             Rebuild("ONLINE", "Find a room, make one, or join a friend's code", body =>
             {
                 nameField = AddTextField(body, "YOUR NAME", OnlineVersusSession.SavedName, 24);
-                serverField = AddTextField(body, "ROOM SERVER", RoomSession.SavedServer, 80, "address:" + RoomProtocol.DefaultPort);
+                // serverField = AddTextField(body, "ROOM SERVER", RoomSession.DefaultServer, 80, "address:" + RoomProtocol.DefaultPort);
                 var rooms = AddRow(body);
                 AddButton(rooms, "BROWSE ROOMS", () => WithRooms(session => { session.Client.RefreshRooms(); ShowRoomBrowser(); }), 0);
                 AddButton(rooms, "CREATE ROOM", () => WithRooms(_ => ShowRoomCreate(false)), 0);
@@ -39,21 +40,17 @@ namespace Eclipse.Multiplayer
                 AddButton(other, "DIRECT CONNECT", ShowOnlineSetup, 0);
                 AddButton(other, "BACK", ShowModeSelect, 0);
             });
-            SetStatus(RoomSession.SavedServer.Length == 0
-                ? "Enter the room server address once; it is remembered. Players need the same game version and mods."
-                : "Fights connect peer-to-peer. No port forwarding needed.");
+            SetStatus("Fights connect peer-to-peer. No port forwarding needed.");
         }
 
-        /// <summary>Connects to the room server named on the home page, then runs <paramref name="then"/>.</summary>
+        /// <summary>Connects to the default room server, then runs <paramref name="then"/>.</summary>
         private void WithRooms(Action<RoomSession> then)
         {
-            string server = serverField != null ? serverField.text : RoomSession.SavedServer;
             string name = nameField != null ? nameField.text : OnlineVersusSession.SavedName;
-            if (string.IsNullOrWhiteSpace(server)) { SetStatus("Enter the room server's address first."); return; }
             try
             {
                 SetStatus("Connecting to the room server...");
-                RoomSession.Connect(server, name, () => { if (RoomSession.Current != null) then(RoomSession.Current); });
+                RoomSession.Connect(name, () => { if (RoomSession.Current != null) then(RoomSession.Current); });
             }
             catch (Exception exception) { Debug.LogWarning(exception.Message); SetStatus(exception.Message); }
         }

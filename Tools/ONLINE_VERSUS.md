@@ -201,8 +201,9 @@ everything plays normally, so the final hit is heard once.
 
 ## Rooms (no port forwarding)
 
-The room server is `Server/EclipseRooms/`; see its README for deployment. Players
-enter its address once in Online, then browse, create, or join rooms by code.
+The room server is `Server/EclipseRooms/`; see its README for deployment. Online
+always connects to `rooms.projecteclipse.fyi:7300`, ignoring previously saved
+custom addresses. Players browse, create, or join rooms by code.
 
 - **Rooms.** Up to 8 members. The host sets name, password, size, first-to,
   arena (or random), and winner-stays vs. rotation. Members pick a weapon and join

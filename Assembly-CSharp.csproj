@@ -63,6 +63,7 @@
     <Compile Include="Assets/Scripts/Assembly-CSharp/PerkActionDisableInterval.cs" />
     <Compile Include="Assets/Scripts/Assembly-CSharp/Nekki/SF2/GUI/Fight/PlayerLifeBar.cs" />
     <Compile Include="Assets/Scripts/Assembly-CSharp/InternetController.cs" />
+    <Compile Include="Assets/Scripts/Eclipse/Multiplayer/LocalVersusMenu.Rooms.cs" />
     <Compile Include="Assets/Scripts/Assembly-CSharp/SoundController.cs" />
     <Compile Include="Assets/Scripts/Assembly-CSharp/ItemSetItem.cs" />
     <Compile Include="Assets/Scripts/Eclipse/Modding/CoreAssetProvider.cs" />
@@ -175,8 +176,8 @@
     <Compile Include="Assets/Scripts/Assembly-CSharp/Nekki/SF2/GUI/Dialogs/SettingsDialog.cs" />
     <Compile Include="Assets/Scripts/Assembly-CSharp/JsonUtils.cs" />
     <Compile Include="Assets/Scripts/Assembly-CSharp/AiData.cs" />
-    <Compile Include="Assets/Scripts/Eclipse/Content/LocalAnimationPreview.cs" />
     <Compile Include="Assets/Scripts/Eclipse/Multiplayer/Online/NetInput.cs" />
+    <Compile Include="Assets/Scripts/Eclipse/Content/LocalAnimationPreview.cs" />
     <Compile Include="Assets/Scripts/Assembly-CSharp/KeyData.cs" />
     <Compile Include="Assets/Scripts/Assembly-CSharp/Nekki/SF2/GUI/ModuleHolder.cs" />
     <Compile Include="Assets/Scripts/Assembly-CSharp/Nekki/SF2/GUI/Common/ModelDebugUI.cs" />
@@ -193,6 +194,7 @@
     <Compile Include="Assets/Scripts/Assembly-CSharp/ConditionCompare.cs" />
     <Compile Include="Assets/Scripts/Assembly-CSharp/PerkActionSetTactics.cs" />
     <Compile Include="Assets/Scripts/Assembly-CSharp/AspectDoublingRange.cs" />
+    <Compile Include="Assets/Scripts/Eclipse/Multiplayer/VersusUiKit.cs" />
     <Compile Include="Assets/Scripts/Assembly-CSharp/Compressor.cs" />
     <Compile Include="Assets/Scripts/Assembly-CSharp/QuestActionsSequence.cs" />
     <Compile Include="Assets/Scripts/Assembly-CSharp/MovesParser.cs" />
@@ -214,6 +216,7 @@
     <Compile Include="Assets/Scripts/Assembly-CSharp/EndRoundType.cs" />
     <Compile Include="Assets/Scripts/Assembly-CSharp/UserPerks.cs" />
     <Compile Include="Assets/Scripts/Assembly-CSharp/QuestActionEclipseModeReplayTutorial.cs" />
+    <Compile Include="Assets/Scripts/Eclipse/Multiplayer/Online/Rooms/RoomProtocol.cs" />
     <Compile Include="Assets/Scripts/Assembly-CSharp/QuestActionSetLowGraphics.cs" />
     <Compile Include="Assets/Scripts/Assembly-CSharp/RandomRule.cs" />
     <Compile Include="Assets/Scripts/Assembly-CSharp/ModelShiftTable.cs" />
@@ -245,14 +248,17 @@
     <Compile Include="Assets/Scripts/Assembly-CSharp/Zone.cs" />
     <Compile Include="Assets/Scripts/Eclipse/UI/ComponentUtility.cs" />
     <Compile Include="Assets/Scripts/Assembly-CSharp/ItemSet.cs" />
+    <Compile Include="Assets/Scripts/Eclipse/Multiplayer/VersusStagePicker.cs" />
     <Compile Include="Assets/Scripts/Assembly-CSharp/IntervalAnimation.cs" />
     <Compile Include="Assets/Scripts/Assembly-CSharp/Nekki/SF2/Core/Scripts/Primitive/Sprite.cs" />
     <Compile Include="Assets/Scripts/Assembly-CSharp/Module.cs" />
     <Compile Include="Assets/Scripts/Assembly-CSharp/ChangingSprite.cs" />
     <Compile Include="Assets/Scripts/Assembly-CSharp/FightIDS.cs" />
+    <Compile Include="Assets/Scripts/Eclipse/Multiplayer/VersusBackdrop.cs" />
     <Compile Include="Assets/Scripts/Assembly-CSharp/JBKAOMLJCEL.cs" />
     <Compile Include="Assets/Scripts/Assembly-CSharp/RandomAquiredItemRule.cs" />
     <Compile Include="Assets/Scripts/Assembly-CSharp/QuestActionEclipseModeTutorial.cs" />
+    <Compile Include="Assets/Scripts/Eclipse/Multiplayer/Online/NetTransport.cs" />
     <Compile Include="Assets/Scripts/Assembly-CSharp/Nekki/SF2/GUI/Menu/MainMenu.cs" />
     <Compile Include="Assets/Scripts/Assembly-CSharp/FightResult.cs" />
     <Compile Include="Assets/Scripts/Assembly-CSharp/AttributesRule.cs" />
@@ -293,6 +299,7 @@
     <Compile Include="Assets/Scripts/Assembly-CSharp/IntervalAttack.cs" />
     <Compile Include="Assets/Scripts/Assembly-CSharp/QuestActionMapFocus.cs" />
     <Compile Include="Assets/Scripts/Assembly-CSharp/RosterQuest.cs" />
+    <Compile Include="Assets/Scripts/Eclipse/Multiplayer/LocalVersusMenu.Training.cs" />
     <Compile Include="Assets/Scripts/Assembly-CSharp/ComboCounter.cs" />
     <Compile Include="Assets/Scripts/Assembly-CSharp/QuestActionDialog.cs" />
     <Compile Include="Assets/Scripts/Assembly-CSharp/AnimationListRule.cs" />
@@ -339,6 +346,7 @@
     <Compile Include="Assets/Scripts/Assembly-CSharp/StoryDialogInfo.cs" />
     <Compile Include="Assets/Scripts/Assembly-CSharp/ConditionCounter.cs" />
     <Compile Include="Assets/Scripts/Eclipse/Modding/MoonSharpScriptRuntimeRuleGroups.cs" />
+    <Compile Include="Assets/Scripts/Eclipse/Multiplayer/VersusLoadouts.cs" />
     <Compile Include="Assets/Scripts/Assembly-CSharp/PlayerType.cs" />
     <Compile Include="Assets/Scripts/Assembly-CSharp/ActionRandomSound.cs" />
     <Compile Include="Assets/Scripts/Assembly-CSharp/QuestActionShowRaidFightTutorial.cs" />
@@ -356,6 +364,7 @@
     <Compile Include="Assets/Scripts/Assembly-CSharp/PerkEventModExpires.cs" />
     <Compile Include="Assets/Scripts/Eclipse/UI/EclipseUiAudio.cs" />
     <Compile Include="Assets/Scripts/Assembly-CSharp/QuestActionFight.cs" />
+    <Compile Include="Assets/Scripts/Eclipse/Multiplayer/Online/Rooms/RoomClient.cs" />
     <Compile Include="Assets/Scripts/Assembly-CSharp/BundleManager.cs" />
     <Compile Include="Assets/Scripts/Assembly-CSharp/RangeExtension.cs" />
     <Compile Include="Assets/Scripts/Assembly-CSharp/UIExtensions.cs" />
@@ -365,6 +374,7 @@
     <Compile Include="Assets/Scripts/Assembly-CSharp/Fight.cs" />
     <Compile Include="Assets/Scripts/Assembly-CSharp/GameOverTypes.cs" />
     <Compile Include="Assets/Scripts/Assembly-CSharp/Nekki/SF2/GUI/ResolutionButton.cs" />
+    <Compile Include="Assets/Scripts/Eclipse/Multiplayer/Online/LoadoutCode.cs" />
     <Compile Include="Assets/Scripts/Assembly-CSharp/ConsoleDatabase.cs" />
     <Compile Include="Assets/Scripts/Eclipse/UI/PerformanceOverlay.cs" />
     <Compile Include="Assets/Scripts/Assembly-CSharp/UIFigures/UISkewRect.cs" />
@@ -406,6 +416,7 @@
     <Compile Include="Assets/Scripts/Assembly-CSharp/OCELJLPIHMD.cs" />
     <Compile Include="Assets/Scripts/Assembly-CSharp/DeflatedString.cs" />
     <Compile Include="Assets/Scripts/Assembly-CSharp/MapButtonController.cs" />
+    <Compile Include="Assets/Scripts/Eclipse/Multiplayer/Rollback/RollbackSelfTest.cs" />
     <Compile Include="Assets/Scripts/Assembly-CSharp/FigureTopology.cs" />
     <Compile Include="Assets/Scripts/Eclipse/Multiplayer/LocalVersusMatch.cs" />
     <Compile Include="Assets/Scripts/Assembly-CSharp/RosterBattle.cs" />
@@ -418,6 +429,7 @@
     <Compile Include="Assets/Scripts/Eclipse/Modding/ModSceneEntry.cs" />
     <Compile Include="Assets/Scripts/Assembly-CSharp/BattleAscension.cs" />
     <Compile Include="Assets/Scripts/Assembly-CSharp/SFToggle.cs" />
+    <Compile Include="Assets/Scripts/Eclipse/Multiplayer/VersusReplayPlayer.cs" />
     <Compile Include="Assets/Scripts/Assembly-CSharp/PerkConditionCurrentAnimation.cs" />
     <Compile Include="Assets/Scripts/Assembly-CSharp/StoryDialogContent.cs" />
     <Compile Include="Assets/Scripts/Assembly-CSharp/UserDataValidator.cs" />
@@ -474,6 +486,7 @@
     <Compile Include="Assets/Scripts/Eclipse/Rendering/Interpolation/VectorSegmentInterpolation.cs" />
     <Compile Include="Assets/Scripts/Assembly-CSharp/OutdateLevels.cs" />
     <Compile Include="Assets/Scripts/Assembly-CSharp/Nekki/SF2/GUI/DebugUI.cs" />
+    <Compile Include="Assets/Scripts/Eclipse/Multiplayer/LocalVersusMenu.Replays.cs" />
     <Compile Include="Assets/Scripts/Assembly-CSharp/QuestActionClearStack.cs" />
     <Compile Include="Assets/Scripts/Assembly-CSharp/Nekki/SF2/GUI/Common/FPSMeter.cs" />
     <Compile Include="Assets/Scripts/Assembly-CSharp/QuestActionToggleItems.cs" />
@@ -500,6 +513,7 @@
     <Compile Include="Assets/Scripts/Assembly-CSharp/AspectConstants.cs" />
     <Compile Include="Assets/Scripts/Assembly-CSharp/CharProgLevel.cs" />
     <Compile Include="Assets/Scripts/Assembly-CSharp/NoHealthBarRule.cs" />
+    <Compile Include="Assets/Scripts/Eclipse/Multiplayer/ArenaThumbnails.cs" />
     <Compile Include="Assets/Scripts/Assembly-CSharp/Nekki/SF2/GUI/Menu/MenuEnergyPanel.cs" />
     <Compile Include="Assets/Scripts/Assembly-CSharp/RosterPerkInfo.cs" />
     <Compile Include="Assets/Scripts/Assembly-CSharp/Nekki/SF2/GUI/Shop/PropertiesPerksPanel.cs" />
@@ -534,6 +548,7 @@
     <Compile Include="Assets/Scripts/Assembly-CSharp/RewardCurrency.cs" />
     <Compile Include="Assets/Scripts/Assembly-CSharp/QuestActionHideMapButton.cs" />
     <Compile Include="Assets/Scripts/Assembly-CSharp/Nekki/SF2/GUI/SFScrollRect.cs" />
+    <Compile Include="Assets/Scripts/Eclipse/Multiplayer/LocalVersusMenu.Screens.cs" />
     <Compile Include="Assets/Scripts/Eclipse/Content/NativeSpriteAtlas.cs" />
     <Compile Include="Assets/Scripts/Assembly-CSharp/UIFigures/UIFigure.cs" />
     <Compile Include="Assets/Scripts/Assembly-CSharp/QuestActionEclipseMode.cs" />
@@ -565,7 +580,9 @@
     <Compile Include="Assets/Scripts/Eclipse/UI/ProceduralVsStripe.cs" />
     <Compile Include="Assets/Scripts/Assembly-CSharp/QuestActionMenuBtnFlashing.cs" />
     <Compile Include="Assets/Scripts/Assembly-CSharp/QuestActionUpgrades.cs" />
+    <Compile Include="Assets/Scripts/Eclipse/Multiplayer/Online/InputTimeline.cs" />
     <Compile Include="Assets/Scripts/Assembly-CSharp/QuestActionShop.cs" />
+    <Compile Include="Assets/Scripts/Eclipse/Multiplayer/Online/RollbackRunner.cs" />
     <Compile Include="Assets/Scripts/Eclipse/UI/DesktopScrollbars.cs" />
     <Compile Include="Assets/Scripts/Eclipse/Multiplayer/OnlineVersusSession.cs" />
     <Compile Include="Assets/Scripts/Assembly-CSharp/AssemblyController.cs" />
@@ -626,6 +643,7 @@
     <Compile Include="Assets/Scripts/Assembly-CSharp/NetworkController.cs" />
     <Compile Include="Assets/Scripts/Assembly-CSharp/CopyItemInfo.cs" />
     <Compile Include="Assets/Scripts/Assembly-CSharp/PerkActionSetVariable.cs" />
+    <Compile Include="Assets/Scripts/Eclipse/Multiplayer/VersusRoster.cs" />
     <Compile Include="Assets/Scripts/Assembly-CSharp/QuestActionStoryTutorialShowBlock.cs" />
     <Compile Include="Assets/Scripts/Assembly-CSharp/CritialDefault.cs" />
     <Compile Include="Assets/Scripts/Assembly-CSharp/ConditionDirection.cs" />
@@ -633,8 +651,8 @@
     <Compile Include="Assets/Scripts/Assembly-CSharp/FightGUI.cs" />
     <Compile Include="Assets/Scripts/Assembly-CSharp/QuestActionShowVideo.cs" />
     <Compile Include="Assets/Scripts/Assembly-CSharp/RewardLottery.cs" />
-    <Compile Include="Assets/Scripts/Eclipse/UI/TitleRibbon.cs" />
     <Compile Include="Assets/Scripts/Assembly-CSharp/Nekki/SF2/Core/Fights/Controller/GameController.cs" />
+    <Compile Include="Assets/Scripts/Eclipse/UI/TitleRibbon.cs" />
     <Compile Include="Assets/Scripts/Assembly-CSharp/StyleLevels.cs" />
     <Compile Include="Assets/Scripts/Assembly-CSharp/NewsButtonMaker.cs" />
     <Compile Include="Assets/Scripts/Assembly-CSharp/PreInitializationModule.cs" />
@@ -720,6 +738,7 @@
     <Compile Include="Assets/Scripts/Assembly-CSharp/QuestActionStoryTutorialDoubleSweep.cs" />
     <Compile Include="Assets/Scripts/Assembly-CSharp/ConditionsParser.cs" />
     <Compile Include="Assets/Scripts/Assembly-CSharp/QuestActionShowRaidToggleBtn.cs" />
+    <Compile Include="Assets/Scripts/Eclipse/Multiplayer/Online/ObjectGraphSnapshot.cs" />
     <Compile Include="Assets/Scripts/Assembly-CSharp/QuestActionAct.cs" />
     <Compile Include="Assets/Scripts/Assembly-CSharp/Nekki/SF2/GUI/Map/ZoneScrollItem.cs" />
     <Compile Include="Assets/Scripts/Assembly-CSharp/DelayedStrike.cs" />
@@ -760,6 +779,7 @@
     <Compile Include="Assets/Scripts/Assembly-CSharp/Rewardable.cs" />
     <Compile Include="Assets/Scripts/Eclipse/UI/Modding/ModUiView.cs" />
     <Compile Include="Assets/Scripts/Assembly-CSharp/MapGUI.cs" />
+    <Compile Include="Assets/Scripts/Eclipse/Multiplayer/Rollback/RollbackObjects.cs" />
     <Compile Include="Assets/Scripts/Assembly-CSharp/Triangle.cs" />
     <Compile Include="Assets/Scripts/Assembly-CSharp/ProfileGUI.cs" />
     <Compile Include="Assets/Scripts/Assembly-CSharp/PerkConditionPain.cs" />
@@ -805,12 +825,6 @@
     <Compile Include="Assets/Scripts/Assembly-CSharp/UIFigures/UIFrameRectBorder.cs" />
     <Compile Include="Assets/Scripts/Eclipse/UI/BattleInfoText.cs" />
     <Compile Include="Assets/Scripts/Assembly-CSharp/WinStyleRule.cs" />
-    <Compile Include="Assets/Scripts/Eclipse/Multiplayer/Online/InputTimeline.cs" />
-    <Compile Include="Assets/Scripts/Eclipse/Multiplayer/Online/ObjectGraphSnapshot.cs" />
-    <Compile Include="Assets/Scripts/Eclipse/Multiplayer/Online/RollbackRunner.cs" />
-    <Compile Include="Assets/Scripts/Eclipse/Multiplayer/Rollback/FightRollback.cs" />
-    <Compile Include="Assets/Scripts/Eclipse/Multiplayer/Rollback/RollbackObjects.cs" />
-    <Compile Include="Assets/Scripts/Eclipse/Multiplayer/Rollback/RollbackSelfTest.cs" />
     <Compile Include="Assets/Scripts/Assembly-CSharp/PerkConditionStyle.cs" />
     <Compile Include="Assets/Scripts/Assembly-CSharp/Nekki/SF2/GUI/Shop/PropertiesPanelContent.cs" />
     <Compile Include="Assets/Scripts/Assembly-CSharp/StatisticsEvent.cs" />
@@ -864,6 +878,7 @@
     <Compile Include="Assets/Scripts/Assembly-CSharp/ActionStopFollowEffect.cs" />
     <Compile Include="Assets/Scripts/Assembly-CSharp/-PrivateImplementationDetails--f198b91c-f2c5-4211-a0cf-3cd1cbc59e09-/ArrayCopy128.cs" />
     <Compile Include="Assets/Scripts/Assembly-CSharp/QuestActionToggleGroup.cs" />
+    <Compile Include="Assets/Scripts/Eclipse/Multiplayer/VersusTraining.cs" />
     <Compile Include="Assets/Scripts/Eclipse/Modding/ModLotteryPrizeCodec.cs" />
     <Compile Include="Assets/Scripts/Assembly-CSharp/Nekki/SF2/GUI/Map/BattlePrizeElement.cs" />
     <Compile Include="Assets/Scripts/Assembly-CSharp/ConditionOfCompletionBattle.cs" />
@@ -883,16 +898,18 @@
     <Compile Include="Assets/Scripts/Eclipse/UI/ModDojoButtons.cs" />
     <Compile Include="Assets/Scripts/Assembly-CSharp/Nekki/SF2/GUI/Map/MapButtonsPanel.cs" />
     <Compile Include="Assets/Scripts/Assembly-CSharp/Nekki/SF2/GUI/Shop/ButtonPanel.cs" />
+    <Compile Include="Assets/Scripts/Eclipse/Multiplayer/LocalVersusMenu.Lobby.cs" />
     <Compile Include="Assets/Scripts/Eclipse/Modding/MoonSharpScriptRuntime.cs" />
-    <Compile Include="Assets/Scripts/Assembly-CSharp/Nekki/SF2/GUI/Menu/MenuScroll.cs" />
     <Compile Include="Assets/Scripts/Eclipse/Underworld/Diagnostics/UnderworldRaidDiagnostics.cs" />
     <Compile Include="Assets/Scripts/Assembly-CSharp/TutorialToggle.cs" />
     <Compile Include="Assets/Scripts/Assembly-CSharp/ConditionAnimation.cs" />
+    <Compile Include="Assets/Scripts/Assembly-CSharp/Nekki/SF2/GUI/Menu/MenuScroll.cs" />
     <Compile Include="Assets/Scripts/Assembly-CSharp/ConditionSubType.cs" />
     <Compile Include="Assets/Scripts/Assembly-CSharp/PerkHistory.cs" />
     <Compile Include="Assets/Scripts/Assembly-CSharp/QuestActionGiveFreeRecipe.cs" />
     <Compile Include="Assets/Scripts/Assembly-CSharp/QuestActionStoryTutorialClickFight.cs" />
     <Compile Include="Assets/Scripts/Eclipse/UI/PaperPanel.cs" />
+    <Compile Include="Assets/Scripts/Eclipse/Multiplayer/RoomSession.cs" />
     <Compile Include="Assets/Scripts/Assembly-CSharp/Nekki/SF2/GUI/Shop/ParametersPanelContent.cs" />
     <Compile Include="Assets/Scripts/Eclipse/Modding/ModAssetLoader.cs" />
     <Compile Include="Assets/Scripts/Assembly-CSharp/ResistanceStruct.cs" />
@@ -921,6 +938,7 @@
     <Compile Include="Assets/Scripts/Eclipse/Underworld/Content/UnderworldStageCompatibility.cs" />
     <Compile Include="Assets/Scripts/Assembly-CSharp/PerkConditionMagicCharge.cs" />
     <Compile Include="Assets/Scripts/Assembly-CSharp/PerkTree.cs" />
+    <Compile Include="Assets/Scripts/Eclipse/Multiplayer/LocalVersusMenu.Armory.cs" />
     <Compile Include="Assets/Scripts/Assembly-CSharp/Nekki/SF2/GUI/Dojo/DojoScreen.cs" />
     <Compile Include="Assets/Scripts/Assembly-CSharp/Nekki/SF2/GUI/SFMonoBehaviour.cs" />
     <Compile Include="Assets/Scripts/Assembly-CSharp/Nekki/SF2/GUI/Scenes/GameLoaderScene.cs" />
@@ -954,6 +972,7 @@
     <Compile Include="Assets/Scripts/Eclipse/UI/ProfileBottomBarLayout.cs" />
     <Compile Include="Assets/Scripts/Eclipse/Content/MoveCompatibility.cs" />
     <Compile Include="Assets/Scripts/Assembly-CSharp/UIFigures/UICircleBorder.cs" />
+    <Compile Include="Assets/Scripts/Eclipse/Multiplayer/VersusFighterPreview.cs" />
     <Compile Include="Assets/Scripts/Assembly-CSharp/AttributesAlign.cs" />
     <Compile Include="Assets/Scripts/Assembly-CSharp/NGOFBFGBICM.cs" />
     <Compile Include="Assets/Scripts/Assembly-CSharp/Render.cs" />
@@ -971,6 +990,7 @@
     <Compile Include="Assets/Scripts/Eclipse/Rendering/Interpolation/FightTransformInterpolation.cs" />
     <Compile Include="Assets/Scripts/Eclipse/Modding/LegacyContentAdapter.cs" />
     <Compile Include="Assets/Scripts/Assembly-CSharp/ModInvisibility.cs" />
+    <Compile Include="Assets/Scripts/Eclipse/Multiplayer/Rollback/FightRollback.cs" />
     <Compile Include="Assets/Scripts/Assembly-CSharp/Packs.cs" />
     <Compile Include="Assets/Scripts/Eclipse/Multiplayer/Online/NetplayPeer.cs" />
     <Compile Include="Assets/Scripts/Assembly-CSharp/Nekki/SF2/Core/Fights/Renders/Model/MeshRender.cs" />
