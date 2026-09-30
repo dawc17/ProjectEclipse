@@ -17,15 +17,25 @@ namespace Eclipse.Modding
             string[] files = Directory.GetFiles(root, "*.xml", SearchOption.AllDirectories);
             Array.Sort(files, StringComparer.Ordinal);
             var pending = new Dictionary<DefinitionId, string>();
+            // Streams each file (every gameplay XML file is read, most without quests) instead
+            // of building its whole document: quests are elements at /Quests/Quest, /Root/Quest
+            // or /Root/Quests/Quest, taken in document order. A malformed file still fails.
+            var path = new List<string>();
             foreach (string file in files)
             {
-                var document = new XmlDocument { XmlResolver = null };
-                using (var reader = XmlReader.Create(file, new XmlReaderSettings { DtdProcessing = DtdProcessing.Prohibit, XmlResolver = null }))
-                    document.Load(reader);
                 string source = file.Substring(root.Length + 1).Replace('\\', '/');
-                foreach (XmlElement quest in document.SelectNodes("/Quests/Quest | /Root/Quest | /Root/Quests/Quest"))
+                path.Clear();
+                using (var reader = XmlReader.Create(file, new XmlReaderSettings { DtdProcessing = DtdProcessing.Prohibit, XmlResolver = null }))
+                while (reader.Read())
                 {
-                    string name = quest.GetAttribute("Name");
+                    if (reader.NodeType == XmlNodeType.EndElement) { path.RemoveAt(path.Count - 1); continue; }
+                    if (reader.NodeType != XmlNodeType.Element) continue;
+                    bool empty = reader.IsEmptyElement;
+                    path.Add(reader.NamespaceURI.Length == 0 ? reader.LocalName : string.Empty);
+                    bool quest = IsQuestPath(path);
+                    string name = quest ? reader.GetAttribute("Name") ?? string.Empty : null;
+                    if (empty) path.RemoveAt(path.Count - 1);
+                    if (!quest) continue;
                     if (string.IsNullOrWhiteSpace(name) || name.Contains("#") || source.Contains("#"))
                         throw new ModContentException("Invalid core quest identity in '" + source + "'.");
                     DefinitionId id = DefinitionId.Parse("core:quests/" + source + "/" + name);
@@ -37,6 +47,13 @@ namespace Eclipse.Modding
             }
             foreach (var entry in pending) catalog.AddCoreQuestSource(entry.Key, entry.Value);
             return pending.Count;
+        }
+
+        private static bool IsQuestPath(List<string> path)
+        {
+            if (path[path.Count - 1] != "Quest") return false;
+            if (path.Count == 2) return path[0] == "Quests" || path[0] == "Root";
+            return path.Count == 3 && path[0] == "Root" && path[1] == "Quests";
         }
         public static DefinitionId WeaponId(string legacyName)
         {

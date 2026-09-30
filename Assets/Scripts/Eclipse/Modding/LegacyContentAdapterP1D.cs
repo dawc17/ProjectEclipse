@@ -21,10 +21,14 @@ namespace Eclipse.Modding
             if (_p1dApplied) throw new InvalidOperationException("P1D content is already applied.");
             try
             {
+                ModRuntime.LoadTimings.Group("P1D");
                 ApplyLocaleMetadata();
+                ModRuntime.LoadTimings.Mark("locales");
                 ApplyLocations();
+                ModRuntime.LoadTimings.Mark("locations");
                 ApplyMoves();
                 ApplyTactics();
+                ModRuntime.LoadTimings.Mark("tactics");
                 _p1dApplied = true;
             }
             catch
@@ -175,8 +179,10 @@ namespace Eclipse.Modding
                 expectedFiles.Add(definition.ReplacementTarget, definition.ExpectedNativeFile);
                 replacementMoves.AppendChild(BuildMoveNode(replacementDocument, "Move", definition, definition.Animation));
             }
+            ModRuntime.LoadTimings.Mark("move replacement nodes");
             if (expectedFiles.Count != 0)
                 _moveReplacementLifetime = AnimationData.ReplaceExternalMoves(replacementDocument, expectedFiles);
+            ModRuntime.LoadTimings.Mark("move replacements");
             _moveCombatPatchLifetime = MoveCombatPatchRuntime.Apply(AnimationData.Animations,_content.MoveCombatPatches,
                 condition =>
                 {
@@ -185,10 +191,13 @@ namespace Eclipse.Modding
                     parsed?.Parse(node);
                     return parsed;
                 }, AnimationData.RebuildCapabilityTables);
+            ModRuntime.LoadTimings.Mark("move combat patches");
             _p1dMovePerkLockRollback = ExternalCombatContentRuntime.ApplyMovePerkLocks(_content.MovePerkLockRemovals);
             _moveItemLockRollback = ExternalCombatContentRuntime.ApplyItemLockExtensions(AnimationData.Animations,_content.MoveItemLockExtensions);
+            ModRuntime.LoadTimings.Mark("move locks");
             if (_content.MoveTemplates.Count != 0 || _content.Moves.Count > expectedFiles.Count || _content.MoveTriggers.Count != 0)
                 ExternalCombatContentRuntime.ApplyMoves(BuildMovesDocument());
+            ModRuntime.LoadTimings.Mark("mod moves");
         }
 
         private XmlDocument BuildMovesDocument()

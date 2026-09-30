@@ -676,21 +676,13 @@ namespace Eclipse.Modding
         internal static MovePerkLockRollback ApplyMovePerkLocks(IReadOnlyList<MovePerkLockRemoval> removals)
         {
             if (removals == null || removals.Count == 0) return null;
-            XmlDocument source = XmlUtils.OpenXMLDocument(SF2Paths.MCFPDHOLNGB() + "/moves.xml", string.Empty);
-            XmlNode sourceMoves = source?["Movesxml"]?["Moves"];
-            if (sourceMoves == null) throw new InvalidOperationException("Recovered animations/moves.xml is unavailable.");
+            var wanted = new HashSet<string>(StringComparer.Ordinal);
+            foreach (MovePerkLockRemoval removal in removals) wanted.Add(removal.MoveName);
+            Dictionary<string, XmlNode> sourceByName = ReadRecoveredMoves(wanted);
 
             var liveByName = new Dictionary<string, InfoAnimation>(StringComparer.Ordinal);
             foreach (InfoAnimation move in AnimationData.Animations)
                 if (move != null && !string.IsNullOrEmpty(move.Name)) liveByName[move.Name] = move;
-
-            var sourceByName = new Dictionary<string, XmlNode>(StringComparer.Ordinal);
-            foreach (XmlNode move in sourceMoves.ChildNodes)
-            {
-                if (move.NodeType != XmlNodeType.Element || move.Name != "Move") continue;
-                string name = move.Attributes?["Name"]?.Value;
-                if (!string.IsNullOrEmpty(name)) sourceByName[name] = move;
-            }
 
             var removalsByMove = new Dictionary<InfoAnimation, HashSet<int>>();
             var rollback = new MovePerkLockRollback();
@@ -744,6 +736,54 @@ namespace Eclipse.Modding
                 for (int i = 0; i < snapshot.Locks.Length; i++) if (!indices.Contains(i)) liveLocks.Add(snapshot.Locks[i]);
             }
             return rollback;
+        }
+
+        // The recovered /Movesxml/Moves/Move elements named in `wanted`, as XmlUtils.OpenXMLDocument
+        // would read them (a later duplicate replaces an earlier one). Streams the file and
+        // builds only those moves: the whole document is megabytes, a removal needs a few.
+        private static Dictionary<string, XmlNode> ReadRecoveredMoves(HashSet<string> wanted)
+        {
+            string path = SF2Paths.MCFPDHOLNGB() + "/moves.xml";
+            string text = path.StartsWith(SF2Paths.FFKEDOBDLOL) ? ResourceManager.KIHHJGJKMIC(path) : ResourceManager.GetText(path);
+            var result = new Dictionary<string, XmlNode>(StringComparer.Ordinal);
+            bool found = false;
+            if (!string.IsNullOrEmpty(text))
+            {
+                // IgnoreWhitespace matches a loaded XmlDocument, which drops insignificant whitespace.
+                var settings = new XmlReaderSettings { IgnoreComments = true, IgnoreWhitespace = true, DtdProcessing = DtdProcessing.Ignore, XmlResolver = null };
+                var document = new XmlDocument();
+                using (var reader = XmlReader.Create(new System.IO.StringReader(text), settings))
+                {
+                    int depth = -1;
+                    bool inRoot = false, inMoves = false;
+                    reader.MoveToContent();
+                    while (!reader.EOF)
+                    {
+                        if (reader.NodeType == XmlNodeType.Element)
+                        {
+                            depth = reader.Depth;
+                            if (depth == 0) inRoot = reader.Name == "Movesxml";
+                            else if (depth == 1 && inRoot) { inMoves = reader.Name == "Moves"; found |= inMoves; }
+                            else if (depth == 2 && inMoves && reader.Name == "Move")
+                            {
+                                string name = reader.GetAttribute("Name");
+                                if (!string.IsNullOrEmpty(name) && wanted.Contains(name))
+                                {
+                                    result[name] = document.ReadNode(reader); // leaves the reader after the move
+                                    continue;
+                                }
+                                reader.Skip();
+                                continue;
+                            }
+                        }
+                        else if (reader.NodeType == XmlNodeType.EndElement && reader.Depth == 1)
+                            inMoves = false;
+                        reader.Read();
+                    }
+                }
+            }
+            if (!found) throw new InvalidOperationException("Recovered animations/moves.xml is unavailable.");
+            return result;
         }
 
         internal static void RemoveMovePerkLocks(MovePerkLockRollback rollback)
