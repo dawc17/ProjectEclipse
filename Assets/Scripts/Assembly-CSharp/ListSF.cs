@@ -324,22 +324,46 @@ public class ListSF
 		QuestsManager.Reset();
 	}
 
+	// Eclipse: when set, receives each load step's name and duration (the title's preview
+	// load reports where its time goes).
+	internal static System.Action<string, long> StepTimer;
+
+	private static void TimeStep(string name, System.Action step)
+	{
+		if (StepTimer == null) { step(); return; }
+		var watch = System.Diagnostics.Stopwatch.StartNew();
+		step();
+		StepTimer(name, watch.ElapsedMilliseconds);
+	}
+
+	// Eclipse: the part of IIKDNMBIHCM the title's sparring fighters need (base-game items and
+	// a profile), without mod content, warriors, zones, quests or the roster timer. The
+	// title discards it (GameLoaderScene.DiscardTitlePreview) before the real load.
+	internal void LoadTitlePreview()
+	{
+		TimeStep("battle types", EAFEBFMIDLF);
+		TimeStep("conditions", () => GameUtils.OJNHPHEPFLI.AEPHNNABOEK());
+		TimeStep("items", NMMBHENGDJO);
+		TimeStep("profile", PBNNPBEDOOJ);
+		TimeStep("item denominations", () => ItemInfo.DenominateItems());
+	}
+
 	public void IIKDNMBIHCM()
 	{
-		EAFEBFMIDLF();
-		GameUtils.OJNHPHEPFLI.AEPHNNABOEK();
-		NMMBHENGDJO();
-		Eclipse.Modding.ModRuntime.StartGameContent();
-		PBNNPBEDOOJ();
-		ItemInfo.DenominateItems();
-		OFIPOGGCKIN();
-		KIEEPEOPJGB();
-		Eclipse.Modding.ModRuntime.ApplyStageContent();
+		TimeStep("battle types", EAFEBFMIDLF);
+		TimeStep("conditions", () => GameUtils.OJNHPHEPFLI.AEPHNNABOEK());
+		TimeStep("items", NMMBHENGDJO);
+		TimeStep("mod content", () => Eclipse.Modding.ModRuntime.StartGameContent());
+		TimeStep("profile", PBNNPBEDOOJ);
+		TimeStep("item denominations", () => ItemInfo.DenominateItems());
+		TimeStep("warriors", OFIPOGGCKIN);
+		TimeStep("zones", KIEEPEOPJGB);
+		TimeStep("mod stages", () => Eclipse.Modding.ModRuntime.ApplyStageContent());
 		JGFGMICMBKL = true;
-		PDCHBPKOBFI(string.Empty);
-		Eclipse.Modding.ModRuntime.ApplyQuestContent();
-		LDADJAGGGPA();
-		PacksController.ELEBLBJKDBI().GDNFPIBDDBO();
+		TimeStep("quests", () => PDCHBPKOBFI(string.Empty));
+		TimeStep("mod quests", () => Eclipse.Modding.ModRuntime.ApplyQuestContent());
+		TimeStep("periodic battles", LDADJAGGGPA);
+		TimeStep("packs", () => PacksController.ELEBLBJKDBI().GDNFPIBDDBO());
 		IEGJHNHFJFA = null;
 		GlobalTimer.get_Instance().addEventListener(0, ILFBDHDMHPD);
 	}

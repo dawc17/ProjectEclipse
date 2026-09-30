@@ -298,7 +298,6 @@ namespace Eclipse.UI
             if (leafLayer == null)
             {
                 LayoutViewport();
-                LayoutPanorama(Vector2.zero);
                 leafLayer = Rect(page, "Seasonal particles", 0, 0, 1280, 720);
                 ScatterParticles(leafLayer);
             }

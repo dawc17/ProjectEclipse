@@ -12,11 +12,11 @@ namespace Eclipse.UI
     // with device-aware hints.
     public sealed partial class TitleScreen
     {
-        // The autumn gate and the spring village are authored framings; the rest are real fight
-        // locations drawn by the game's own location renderer (see StageView), floors included.
+        // Every scene is a real fight location drawn by the game's own location renderer (see
+        // StageView), floors included, with two sparring fighters standing in it. The authored
+        // autumn gate remains only as the fallback (and for the in-game options overlay).
         private enum SceneId
         {
-            Autumn, Spring,
             BambooGrove, Sakura, NightBridge, Fuji, Waterfall,
             SnowyPeak, FloodedVillage, LanternsOnWater, Moon, Heaven,
         }
@@ -45,43 +45,19 @@ namespace Eclipse.UI
         };
 
         // Title music per scene (Resources paths). The ambience is an Eclipse-owned track;
-        // Fuji is the game's own fight18_fuji, for the spring village and the Fuji stage.
-        private static string SceneMusic => scene == SceneId.Spring || scene == SceneId.Fuji
+        // Fuji is the game's own fight18_fuji, for the Fuji stage.
+        private static string SceneMusic => scene == SceneId.Fuji && !gateShown
             ? "gamedata/music/fight18_fuji" : "EclipseTitle/the_ambience";
-
-        // A packaged seasonal dojo panorama. Rects are in sprite pixels, top-left origin.
-        private sealed class Panorama
-        {
-            public string Address;
-            public Rect Art;          // the painted area inside the sprite
-            public float FocusX;      // horizontal centre to keep in view
-            public float Ground;      // floor line, where leaves settle
-            public Vector2? Sun;      // sky position for the eclipse, when the scene has sky
-            public float SunRadius;
-        }
-
-        private static readonly Dictionary<SceneId, Panorama> Panoramas = new Dictionary<SceneId, Panorama>
-        {
-            // Lunar New Year village at night, lanterns lit; the eclipse rises over the peaks.
-            { SceneId.Spring, new Panorama { Address = "Textures/Locations/dojo_cny25/StaticImage/BG",
-                Art = new Rect(0, 0, 1960, 653), FocusX = 918, Ground = 552, Sun = new Vector2(1290, 96), SunRadius = 30 } },
-        };
 
         private const string ScenePreference = "Eclipse.TitleSceneIndex";
         private static SceneId scene;
         private static bool sceneChosen;
+        // True while the autumn gate stands in for a stage that could not be drawn.
+        private static bool gateShown;
 
-        // Opaque seasonal accents keep secondary copy distinct from the main
-        // paper-colored labels: amber leaves at the gate, pink petals at night.
-        private static Color SceneryAccent
-        {
-            get
-            {
-                Stage stage;
-                if (Stages.TryGetValue(scene, out stage)) return stage.Accent;
-                return scene == SceneId.Spring ? new Color32(255, 196, 214, 255) : new Color32(250, 171, 62, 255);
-            }
-        }
+        // Opaque per-scene accents keep secondary copy distinct from the main
+        // paper-colored labels; amber leaves at the fallback gate.
+        private static Color SceneryAccent => gateShown ? new Color32(250, 171, 62, 255) : Stages[scene].Accent;
 
         private sealed class Layer { public RectTransform Rect; public Vector2 Home; public float Depth; public bool Live; }
         private readonly List<Layer> layers = new List<Layer>();
@@ -91,8 +67,6 @@ namespace Eclipse.UI
         private RectTransform sceneryHost, scenery;
         private Image sceneVeil;
         private Coroutine sceneChange;
-        private RawImage panoramaImage;
-        private Sprite panoramaSprite;
         private Vector2 parallax, parallaxVelocity;
         private float groundY = 662f;
         private float viewLeft, viewWidth = 1280f;
@@ -230,7 +204,6 @@ namespace Eclipse.UI
         {
             ChooseScene();
             layers.Clear();
-            panoramaImage = null;
             stageImage = null;
             skyLeft = skyRight = null;
             sunRoot = null; moonDisc = null; sunGlow = corona = null; totality = null;
@@ -239,14 +212,12 @@ namespace Eclipse.UI
             scenery.anchoredPosition = new Vector2(640, -360);
             if (sceneOpened <= 0f) sceneOpened = Time.unscaledTime;
             // The in-game options overlay stays light: no live location over a running fight.
-            bool stage = Stages.ContainsKey(scene) && !optionsOnly && TryDrawStage();
-            if (!stage) ReleaseStage();
-            bool panorama = !stage && Panoramas.ContainsKey(scene) && TryDrawPanorama();
-            if (!stage && !panorama) DrawAutumnGate();
-            if (stage) DrawSparringFighters();
+            bool stage = !optionsOnly && TryDrawStage();
+            gateShown = !stage;
+            if (!stage) { ReleaseStage(); DrawAutumnGate(); }
+            else DrawSparringFighters();
+            // At the gate the sun hides behind the roof and trees; the world dims over it all.
             if (totality != null) totality.transform.SetAsLastSibling();
-            // On a panorama the sun sits over the painted sky; at the gate it hides behind the roof and trees.
-            if (panorama && sunRoot != null) sunRoot.SetAsLastSibling();
         }
 
         // Draws the scene's fight location through the game's own renderer (layers, floor
@@ -262,7 +233,6 @@ namespace Eclipse.UI
             if (stageView == null)
             {
                 Debug.LogWarning("[Title] Could not draw stage " + info.Location + "; showing the autumn gate.");
-                scene = SceneId.Autumn;
                 return false;
             }
             stageImage = Rect(scenery, "Stage", 0, 0, 1280, 720).gameObject.AddComponent<RawImage>();
@@ -445,30 +415,12 @@ namespace Eclipse.UI
             }
         }
 
-        private bool TryDrawPanorama()
-        {
-            var info = Panoramas[scene];
-            if (panoramaSprite == null) panoramaSprite = Eclipse.Content.PackagedArtCatalog.Load<Sprite>(info.Address);
-            if (panoramaSprite == null)
-            {
-                Debug.LogWarning("[Title] Missing seasonal scene " + info.Address + "; showing the autumn gate.");
-                scene = SceneId.Autumn;
-                return false;
-            }
-            panoramaImage = Rect(scenery, "Panorama", 0, 0, 1280, 720).gameObject.AddComponent<RawImage>();
-            panoramaImage.texture = panoramaSprite.texture;
-            panoramaImage.raycastTarget = false;
-            if (info.Sun.HasValue) DrawSun(info.SunRadius);
-            LayoutPanorama(Vector2.zero); // sets groundY for the fighters
-            return true;
-        }
-
         // Two live fighters in randomized loadouts, standing in the stage itself either side of
         // the menu and facing each other: drawn by the stage camera at fight scale, on the
         // floor and among the location's layers as in a fight (StageView.ShowFighters).
         // Re-rolled on every scene change; page changes keep them (the stage persists).
         // Where they stand, as a fraction of the visible viewport's width.
-        private const float SparringStand = .16f;
+        private const float SparringStand = .24f;
 
         private void DrawSparringFighters()
         {
@@ -494,9 +446,9 @@ namespace Eclipse.UI
         }
 
         // The game loader reads items, animations and models only after the title closes.
-        // For the sparring fighters, the title runs the data-parsing part of that boot early
-        // (with the enabled mods, so Apply & Restart re-runs it with a new selection) against
-        // an empty sandbox user directory, then throws it all away before the real boot.
+        // For the sparring fighters, the title runs the part of that boot they need early
+        // (base-game content only, no mods) against a sandbox user directory, then throws it
+        // all away before the real boot.
         // It never touches a real save: CampaignSaveSession.PreviewDirectory redirects every
         // user-data path, and the save-version step (AttachFileModule) is left out.
         private static class TitleGameData
@@ -511,29 +463,57 @@ namespace Eclipse.UI
                 try
                 {
                     Active = true;
-                    var modules = new LoadingModule[]
-                    {
-                        new PreInitializationModule(), new AntichitingModule(), new InitializationModule(), new ParseModule(),
-                    };
+                    var timings = new System.Text.StringBuilder();
+                    Action<string, long> record = (name, ms) => timings.Append("\n  ").Append(name).Append(": ").Append(ms).Append(" ms");
+                    var modules = new LoadingModule[] { new PreInitializationModule(), new AntichitingModule(), new InitializationModule() };
                     foreach (var module in modules)
                     {
                         // SF2Paths is set up by PreInitializationModule (once per process).
                         if (module is AntichitingModule) CreateSandbox();
-                        if (module is ParseModule) SeedSandboxProfile();
+                        var moduleWatch = System.Diagnostics.Stopwatch.StartNew();
                         module.Start();
                         for (int step = 0; !module.GCHANFIHDGH(); step++)
                         {
                             if (step > 16) throw new InvalidOperationException(module.GetType().Name + " did not finish.");
                             module.JLPMOKPFECK();
                         }
+                        record(module.GetType().Name, moduleWatch.ElapsedMilliseconds);
                     }
-                    Debug.Log("[Title] Game data preview loaded in " + watch.ElapsedMilliseconds + " ms.");
+                    SeedSandboxProfile();
+                    // ParseModule's steps, in its order, each timed (ListSF reports its own).
+                    ListSF.StepTimer = (name, ms) => record("  ListSF " + name, ms);
+                    try { Parse(record); }
+                    finally { ListSF.StepTimer = null; }
+                    Debug.Log("[Title] Game data preview loaded in " + watch.ElapsedMilliseconds + " ms:" + timings);
                 }
                 catch (Exception error)
                 {
                     Debug.LogWarning("[Title] Game data preview unavailable; no sparring fighters. " + error);
                     Discard();
                 }
+            }
+
+            // ParseModule.JLPMOKPFECK, step by step, minus what fighters never use: mod content
+            // (most of the full load's time), warriors, zones, quests and the mod locale. So the
+            // title's fighters wear base-game equipment only.
+            private static void Parse(Action<string, long> record)
+            {
+                Action<string, Action> step = (name, action) =>
+                {
+                    var timer = System.Diagnostics.Stopwatch.StartNew();
+                    action();
+                    record(name, timer.ElapsedMilliseconds);
+                };
+                step("variables", GameUtils.InitVariables);
+                step("settings", GameSettings.OCIPKAONMOP);
+                step("animations", GameLoader.BJLLJHDFMOO);
+                step("AI", GameLoader.POLKDKOOACO);
+                step("ListSF", () => ListSF.GetInstance().LoadTitlePreview());
+                step("perk tree", () => PerkTree.GBPBIPFIOJH().LJHPGKAOIAE());
+                step("settings finish", GameSettings.LNNLDPLDABI);
+                step("sound", GameLoader.SetSound);
+                step("localization", LocalizationManager.Init);
+                step("finish", GameUtils.OEKOKKCILAG);
             }
 
             // The game reads user data from disk only under its data root (XmlUtils.OpenXMLDocument
@@ -581,73 +561,24 @@ namespace Eclipse.UI
             TitleGameData.Discard();
         }
 
-        // Autumn leaves at the gate, cherry petals over the spring village, and whatever
-        // suits each stage (none where nothing would drift, such as the moon).
+        // Whatever suits each stage (none where nothing would drift, such as the moon), and
+        // autumn leaves at the fallback gate.
         private void ScatterParticles(RectTransform parent)
         {
-            Stage stage;
-            if (Stages.TryGetValue(scene, out stage))
+            if (gateShown)
             {
-                if (stage.Particles.HasValue)
-                    TitleLeaf.Scatter(parent, stage.Particles == TitleLeaf.Kind.Petal ? 26 : 20, stage.Particles.Value,
-                        viewLeft - 300f, viewLeft + viewWidth + 100f, -40f, 700f, groundY);
-            }
-            else if (scene == SceneId.Spring)
-                TitleLeaf.Scatter(parent, 30, TitleLeaf.Kind.Petal, viewLeft - 300f, viewLeft + viewWidth + 100f, -40f, 700f, groundY);
-            else
                 TitleLeaf.Scatter(parent, 24, TitleLeaf.Kind.Leaf, -400f, 1600f, -40f, 700f, groundY);
+                return;
+            }
+            var stage = Stages[scene];
+            if (stage.Particles.HasValue)
+                TitleLeaf.Scatter(parent, stage.Particles == TitleLeaf.Kind.Petal ? 26 : 20, stage.Particles.Value,
+                    viewLeft - 300f, viewLeft + viewWidth + 100f, -40f, 700f, groundY);
         }
 
         private void AddLayer(RectTransform rect, float depth, bool live = false)
         {
             if (rect != null) layers.Add(new Layer { Rect = rect, Home = rect.anchoredPosition, Depth = depth, Live = live });
-        }
-
-        // Where the floor should land on screen: above the footer, below the menu.
-        private const float GroundTarget = 648f;
-
-        // The visible part of the panorama: fills the viewport (with 4% overscan for the
-        // parallax), keeps FocusX centred and puts the floor near GroundTarget when it can.
-        private void Crop(Vector2 offset, out float cover, out float cropX, out float cropY, out float cropW, out float cropH)
-        {
-            var info = Panoramas[scene];
-            cover = Mathf.Max(viewWidth / info.Art.width, 720f / info.Art.height) * 1.04f;
-            cropW = viewWidth / cover;
-            cropH = 720f / cover;
-            float slackX = info.Art.width - cropW, slackY = info.Art.height - cropH;
-            cropX = Mathf.Clamp(info.FocusX - info.Art.x - cropW * .5f - offset.x / cover, 0f, slackX);
-            cropY = Mathf.Clamp(info.Ground - info.Art.y - GroundTarget / cover - offset.y / cover, 0f, slackY);
-        }
-
-        // Maps a point in the panorama's sprite pixels to page coordinates for the current crop.
-        private Vector2 PanoramaToPage(Vector2 sprite, out float scale)
-        {
-            var info = Panoramas[scene];
-            float cropX, cropY, cropW, cropH;
-            Crop(Vector2.zero, out scale, out cropX, out cropY, out cropW, out cropH);
-            return new Vector2(viewLeft + (sprite.x - info.Art.x - cropX) * scale, (sprite.y - info.Art.y - cropY) * scale);
-        }
-
-        private void LayoutPanorama(Vector2 offset)
-        {
-            if (panoramaImage == null || panoramaSprite == null) return;
-            var info = Panoramas[scene];
-            float cover, cropX, cropY, cropW, cropH;
-            Crop(offset, out cover, out cropX, out cropY, out cropW, out cropH);
-            var texture = panoramaSprite.texture;
-            var sprite = panoramaSprite.textureRect;
-            // Sprite rect is bottom-left in texture pixels; Art is top-left inside the sprite.
-            float u = (sprite.x + info.Art.x + cropX) / texture.width;
-            float vTop = sprite.y + sprite.height - (info.Art.y + cropY);
-            float v = (vTop - cropH) / texture.height;
-            panoramaImage.uvRect = new Rect(u, v, cropW / texture.width, cropH / texture.height);
-            var rect = panoramaImage.rectTransform;
-            rect.anchoredPosition = new Vector2(viewLeft, 0);
-            rect.sizeDelta = new Vector2(viewWidth, 720);
-            float unused;
-            groundY = Mathf.Min(PanoramaToPage(new Vector2(0, info.Ground), out unused).y, 700f);
-            if (sunRoot != null && info.Sun.HasValue)
-                sunRoot.anchoredPosition = PanoramaToPage(info.Sun.Value, out unused) + new Vector2(offset.x * .3f, -offset.y * .3f);
         }
 
         // --- The eclipse -------------------------------------------------------------------
@@ -792,7 +723,6 @@ namespace Eclipse.UI
                 var home = layer.Live ? layer.Rect.anchoredPosition : layer.Home;
                 layer.Rect.anchoredPosition = home + offset * layer.Depth;
             }
-            LayoutPanorama(offset * .35f);
             // The whole stage moves with its floor, so with the fighters standing on it.
             LayoutStage(offset * GroundPlaneDepth);
             // Slow breathing zoom of the whole scene.
