@@ -3,7 +3,7 @@
 ## Project overview
 
 This repository is Eclipse, an open-source Shadow Fight 2 reconstruction/base
-project built from an AssetRipper export. It targets **Unity 2022.3.62f3**.
+project built from an AssetRipper export. It targets **Unity 6.6**.
 Treat recovered game code and assets as archival data: make narrow,
 evidence-based changes and preserve serialized Unity identity.
 
