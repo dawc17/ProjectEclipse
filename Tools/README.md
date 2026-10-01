@@ -17,7 +17,7 @@ fixtures normally go under ignored `Temp/`; each tool documents its own inputs.
 | [ModZipInstallerTests](ModZipInstallerTests/) | Standalone mod ZIP installer tests |
 | [NetplayTests](NetplayTests/) | Standalone online-versus core and room-server tests |
 | [Fixtures](Fixtures/) | Shared content fixtures |
-| [SpriteRepairProject](SpriteRepairProject/) | Isolated native sprite repair and rendering fixtures |
+| [SpriteRepairProject](SpriteRepairProject/README.md) | Isolated native sprite repair and rendering fixtures |
 | [LegacyServices](LegacyServices/README.md) | Archived service source, metadata and reviewed removal manifest |
 | [SwitchPvpRecovery](SwitchPvpRecovery/README.md) | Switch PvP reverse-engineering workflow |
 | [DiscordResearch](DiscordResearch/README.md) | Discord export research utility |

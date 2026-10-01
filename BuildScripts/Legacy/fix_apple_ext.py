@@ -22,7 +22,7 @@ rw('Assets/Plugins/Assembly-CSharp-firstpass/LFFGCBPOGPJ.cs', '''public class LF
 print('LFFGCBPOGPJ recreated')
 
 # stop excluding it from compilation
-p = 'BuildScripts/gen_rsp.py'
+p = 'BuildScripts/Legacy/gen_rsp.py'
 s = rd(p)
 s = s.replace("', 'LFFGCBPOGPJ.cs", "'", 1)
 s = s.replace("'LFFGCBPOGPJ.cs', ", '', 1)

@@ -27,7 +27,7 @@ Artifacts:
 - [Complete delta ledger](DE_XML_DELTA_LEDGER.json.gz): compressed UTF-8 JSON with before/after attributes, text, order and complete added/removed subtrees. Compression avoids committing a very large expanded text dump.
 - [Named feature index](DE_XML_FEATURE_INDEX.json): every added/changed/removed item, set, perk, move, move template, main-file quest and achievement counter name, plus event/action/condition vocabulary used by changed or added records. Quest extensions remain individually covered by the complete ledger.
 - [File-by-file coverage assessment](DE_XML_FILE_COVERAGE.md): every path linked to the findings below. A domain-level partial assessment does not certify each child record as supported.
-- [Audit generator](../Tools/Audits/AuditDEXmlApi.py): `python Tools/Audits/AuditDEXmlApi.py --write` regenerates evidence; run without `--write` to detect XML source drift.
+- [Audit generator](../../../Tools/Audits/AuditDEXmlApi.py): `python Tools/Audits/AuditDEXmlApi.py --write` regenerates evidence; run without `--write` to detect XML source drift.
 
 The reference is the archived DE tree, **not the creator's forthcoming release**. Canonical vanilla already contains the owner's requested economy edits. Archive differences are evidence of required expressiveness, not proof that every difference was intentional DE design; source-version drift and compatibility repairs remain possible. Non-XML JSON, APK code and binary art/animations are outside this inventory. Their absence/semantics can still block a feature. Existing [P3 configuration audit](PHASE3_CONFIGURATION_AUDIT.json) separately covers selected JSON/configuration differences.
 
@@ -70,7 +70,7 @@ See [the cumulative pre-DE work log](PRE_DE_WORK_LOG.md) for changes and evidenc
 
 DE changes 706 `RoundTime` attributes (covered in principle), but also 693 `Power` and 109 `Music` attributes in `stages.xml`, removes/replaces quests, changes original perk triggers, and changes existing item enchantment templates. Adding a namespaced duplicate does not replace references to the original. Required follow-up: typed non-economic patches, explicit suppression/removal and conflict/restore behavior. Keep global economy fields excluded.
 
-Evidence: [Lua binding](../Assets/Scripts/Eclipse/Modding/MoonSharpScriptRuntime.cs), `PatchFight`, `RegisterFight`, `RegisterQuest`; [DE stages](../Assets/DExml/stages.xml), [DE quests](../Assets/DExml/quests.xml), complete ledger.
+Evidence: [Lua binding](../../../Assets/Scripts/Eclipse/Modding/MoonSharpScriptRuntime.cs), `PatchFight`, `RegisterFight`, `RegisterQuest`; [DE stages](../../../Assets/DExml/stages.xml), [DE quests](../../../Assets/DExml/quests.xml), complete ledger.
 
 ### G02 â€” Programmable story events, queries and operations
 
@@ -80,7 +80,7 @@ Examples in changed/new main-file quests include `ChangeTab`, `ShopButtonPress`,
 
 Do **not** solve `If`, `Foreach`, arithmetic and dynamic strings by extending a generic Lua operation DSL. Expose lifecycle/event callbacks, safe queries and typed domain operations, then write the control flow in Lua. Keep legacy adapters supported. Economy actions such as `GiveCurrency`/`TakeCurrency` are not automatically candidates for exposure.
 
-Evidence: [ModQuest enums](../Assets/Scripts/Eclipse/Runtime/Modding/ModContentP1B.cs), `ReadQuestEvents`, `ReadQuestOperand`, `ReadQuestActions` in the Lua binding; [QuestAction factory](../Assets/Scripts/Assembly-CSharp/QuestAction.cs), [compatibility adapter](../Assets/Scripts/Eclipse/Content/QuestCompatibility.cs). Core action existence does not mean Lua access exists. `BeforeQueue`, `CheckUserUpdate`, `ReplayButtonPress` and several compatibility actions remain deferred; determine relevance through actual DE flows rather than assuming all are required.
+Evidence: [ModQuest enums](../../../Assets/Scripts/Eclipse/Runtime/Modding/ModContentP1B.cs), `ReadQuestEvents`, `ReadQuestOperand`, `ReadQuestActions` in the Lua binding; [QuestAction factory](../../../Assets/Scripts/Assembly-CSharp/QuestAction.cs), [compatibility adapter](../../../Assets/Scripts/Eclipse/Content/QuestCompatibility.cs). Core action existence does not mean Lua access exists. `BeforeQueue`, `CheckUserUpdate`, `ReplayButtonPress` and several compatibility actions remain deferred; determine relevance through actual DE flows rather than assuming all are required.
 
 ### G03 â€” Dojo selection and custom menu/dialogue flows
 
@@ -88,7 +88,7 @@ Evidence: [ModQuest enums](../Assets/Scripts/Eclipse/Runtime/Modding/ModContentP
 
 QuestActionChangeDojoLocation sets the native selection, and Location.ResolveEntryLocation honors it at entry. Fresh TestDojoLocationRouting checks pass for 29 cases; selection services are controlled, without rendering or persistence proof. Rich tutorial presentation and the complete archived menu flow remain distinct from the supported selection API.
 
-Evidence: [main DE quests](../Assets/DExml/quests.xml), `DojoChanger_LoadSelectedDojo`; [QuestAction.cs](../Assets/Scripts/Assembly-CSharp/QuestAction.cs), `QuestActionChangeDojoLocation`; `ReadQuestActions`.
+Evidence: [main DE quests](../../../Assets/DExml/quests.xml), `DojoChanger_LoadSelectedDojo`; [QuestAction.cs](../../../Assets/Scripts/Assembly-CSharp/QuestAction.cs), `QuestActionChangeDojoLocation`; `ReadQuestActions`.
 
 ### G04 â€” Cosmetic lotteries and purchased set chests
 
@@ -96,7 +96,7 @@ Evidence: [main DE quests](../Assets/DExml/quests.xml), `DojoChanger_LoadSelecte
 
 `MonkSetChest_Give` grants level-dependent equipped items and attaches multiple specified perks/aspects to them. Public reward entries contain only item + fixed upgrade (and weight for choices); the public quest surface has no equivalent contextual grant-and-enchant operation. A weighted fight reward can cover some loot selection, but not the purchase flow, lottery presentation or exact chest loadouts.
 
-Evidence: [lottery action](../Assets/Scripts/Assembly-CSharp/QuestActionDialogLottery.cs), [DE list](../Assets/DExml/list.xml), [DE quests](../Assets/DExml/quests.xml); `ReadRewardItems`, `ReadRewardChoices`, `ReadQuestActions`. Recover the intended lottery semantics before implementing them. Borrow base-owned economic policy for prices/costs.
+Evidence: [lottery action](../../../Assets/Scripts/Assembly-CSharp/QuestActionDialogLottery.cs), [DE list](../../../Assets/DExml/list.xml), [DE quests](../../../Assets/DExml/quests.xml); `ReadRewardItems`, `ReadRewardChoices`, `ReadQuestActions`. Recover the intended lottery semantics before implementing them. Borrow base-owned economic policy for prices/costs.
 
 ### G05 â€” Set-to-ability binding and activated abilities
 
@@ -104,7 +104,7 @@ Evidence: [lottery action](../Assets/Scripts/Assembly-CSharp/QuestActionDialogLo
 
 `ItemSetDefinition` provides title/text/brief/members only. Recovered `ItemSet` also does **not read `DefaultComboPerk`**. A behavior with `kind="combo"` is not proof of the archive's set binding, activation button, cooldown, icon and animation contract. Existing native template-backed set perks may work for shipped mechanics; that does not solve arbitrary DE set/ability definitions.
 
-Evidence: [DE item sets](../Assets/DExml/list.xml), `SHADOW_CLOAK`, `WALL_JUMP`; [ItemSet](../Assets/Scripts/Assembly-CSharp/ItemSet.cs), [public set model](../Assets/Scripts/Eclipse/Runtime/Modding/ModContentP1C.cs); `PERK_SHADOW_CLOAK` in [DE perks](../Assets/DExml/perks.xml). Recover authoritative activation semantics before adding a nominal field.
+Evidence: [DE item sets](../../../Assets/DExml/list.xml), `SHADOW_CLOAK`, `WALL_JUMP`; [ItemSet](../../../Assets/Scripts/Assembly-CSharp/ItemSet.cs), [public set model](../../../Assets/Scripts/Eclipse/Runtime/Modding/ModContentP1C.cs); `PERK_SHADOW_CLOAK` in [DE perks](../../../Assets/DExml/perks.xml). Recover authoritative activation semantics before adding a nominal field.
 
 ### G06 â€” Combat events, hit modification and effects
 
@@ -114,7 +114,7 @@ The accepted API supplies fight/round lifecycle, damage resolution/observations,
 
 `scale_incoming_damage` is bounded to 0..1: it cannot stand in for added offensive damage. Health changes cannot revive a dead fighter. A template-backed perk only inherits an existing native trigger graph; parameters cannot create missing triggers. Match each required mechanic to a precisely timed hook and typed effect, not just similarly named events. Do not promise every generic event in the archive needs a public callback; native template reuse may cover unchanged behavior after verification.
 
-Evidence: [DE perks](../Assets/DExml/perks.xml), [P2 public contract](P2_API.md), [Lua combat implementation](../Assets/Scripts/Eclipse/Modding/MoonSharpScriptRuntimeP2.cs). Gameplay fixtures required for each converted mechanic.
+Evidence: [DE perks](../../../Assets/DExml/perks.xml), [P2 public contract](P2_API.md), [Lua combat implementation](../../../Assets/Scripts/Eclipse/Modding/MoonSharpScriptRuntimeP2.cs). Gameplay fixtures required for each converted mechanic.
 
 ### G07 â€” Perk upgrade parameter tables
 
@@ -122,7 +122,7 @@ Evidence: [DE perks](../Assets/DExml/perks.xml), [P2 public contract](P2_API.md)
 
 Branch placement and upgrade payloads are separate supported operations. Fresh checks on 2026-09-12 passed 39 Lua/saved-parameter cases and 49 native-source cases. Full-game level-up UI, save and effect acceptance is still required; the branch showcase alone does not prove it. Shared XP/currency/global progression formulas remain separate.
 
-Evidence: [DE CharacterProgress](../Assets/DExml/CharacterProgress.xml); `RegisterPerk`, `ReplaceProgressionBranch` in [Lua binding](../Assets/Scripts/Eclipse/Modding/MoonSharpScriptRuntime.cs), [P1C contract](P1C_API.md).
+Evidence: [DE CharacterProgress](../../../Assets/DExml/CharacterProgress.xml); `RegisterPerk`, `ReplaceProgressionBranch` in [Lua binding](../../../Assets/Scripts/Eclipse/Modding/MoonSharpScriptRuntime.cs), [P1C contract](P1C_API.md).
 
 ### G08 â€” Moves, projectiles, shop demonstrations and input
 
@@ -130,7 +130,7 @@ Evidence: [DE CharacterProgress](../Assets/DExml/CharacterProgress.xml); `Regist
 
 The public move action vocabulary is **Sound and HitEffect**; conditions are CurrentAnimation/CurrentInterval/Item/Perk/All/Any. DE moves use input (`KeyPressed`, `Keys`), screen locks, distances, bullets, round stages, spawn/delete players/projectiles, effects, alignment, velocity, rotations, transitions, profiles and more. Templates can inherit compatible existing behavior, but cannot faithfully add or change arbitrary missing children. P3 asset replacement explicitly excludes opaque animation replacement. Providing `.bytes` assets does not fill the definition/runtime capability gap.
 
-Evidence: [DE moves](../Assets/DExml/animations/moves.xml); [public move model](../Assets/Scripts/Eclipse/Runtime/Modding/ModContentP1D.cs), `ReadMoveActions`, `ReadMoveCondition`, `ValidateMoveNodeFields` in [Lua binding](../Assets/Scripts/Eclipse/Modding/MoonSharpScriptRuntimeP1D.cs). Preserve declarative animation data while using safe runtime operations for custom procedures.
+Evidence: [DE moves](../../../Assets/DExml/animations/moves.xml); [public move model](../../../Assets/Scripts/Eclipse/Runtime/Modding/ModContentP1D.cs), `ReadMoveActions`, `ReadMoveCondition`, `ValidateMoveNodeFields` in [Lua binding](../../../Assets/Scripts/Eclipse/Modding/MoonSharpScriptRuntimeP1D.cs). Preserve declarative animation data while using safe runtime operations for custom procedures.
 
 ### G09 â€” Conditional AI reactions
 
@@ -138,7 +138,7 @@ Evidence: [DE moves](../Assets/DExml/animations/moves.xml); [public move model](
 
 `ComputerSettings.xml` is equal to the base: no new global computer-settings API is justified by this archive. Add evidence-backed reaction/decision hooks or typed compatibility support only for the required semantics.
 
-Evidence: [DE tacticSettings](../Assets/DExml/tacticSettings.xml), `RegisterTactic` / `ReadTactic...` in [Lua binding](../Assets/Scripts/Eclipse/Modding/MoonSharpScriptRuntimeP1D.cs), `Tools/Tests/TestModAi.ps1`, `Mods/example.programmable-ai`. Native conditional-tree import and programmable equivalent behavior are distinct contracts. Live scenario coverage remains open.
+Evidence: [DE tacticSettings](../../../Assets/DExml/tacticSettings.xml), `RegisterTactic` / `ReadTactic...` in [Lua binding](../../../Assets/Scripts/Eclipse/Modding/MoonSharpScriptRuntimeP1D.cs), `Tools/Tests/TestModAi.ps1`, `Mods/example.programmable-ai`. Native conditional-tree import and programmable equivalent behavior are distinct contracts. Live scenario coverage remains open.
 
 ### G10 â€” Animated location layers and music selection
 
@@ -146,7 +146,7 @@ Evidence: [DE tacticSettings](../Assets/DExml/tacticSettings.xml), `RegisterTact
 
 Location `music_choices` and native list selection are implemented alongside single-track music. Fresh checks on 2026-09-12 passed six native selection cases and 36 Lua motion/music/projection/fingerprint cases; these do not prove audio playback. Targeted location edits, broader effects and in-game acceptance remain separate. Supplying missing music files remains an asset task, not automatically an API gap.
 
-Evidence: [arena_new](../Assets/DExml/locations/arena_new/arena_new_params.xml), [Location parser](../Assets/Scripts/Assembly-CSharp/Location.cs), `ReadLocationLayers` / `ReadLocationImages` in the Lua binding. Full 108-path location comparison is in the file inventory.
+Evidence: [arena_new](../../../Assets/DExml/locations/arena_new/arena_new_params.xml), [Location parser](../../../Assets/Scripts/Assembly-CSharp/Location.cs), `ReadLocationLayers` / `ReadLocationImages` in the Lua binding. Full 108-path location comparison is in the file inventory.
 
 ### G11 â€” Equipment metadata and default enchantment loadouts
 
@@ -160,7 +160,7 @@ The API adds `items.set_innate_perks` for the separate permanent equipment-perk 
 
 Important boundary: prices, bonus prices, upgrade/stat scaling and level changes must first be checked against the canonical economy policy. This audit does **not** request arbitrary core stat/economy overrides. Non-economic subtype, identity, availability, display and supported enchantment loadout changes are the separate legitimate API work.
 
-Evidence: [DE list](../Assets/DExml/list.xml); `RegisterWeapon`, `RegisterArmor`, `RegisterNonEquipmentItem`, `SetItemAvailability` in [Lua binding](../Assets/Scripts/Eclipse/Modding/MoonSharpScriptRuntime.cs); [LegacyContentAdapter](../Assets/Scripts/Eclipse/Modding/LegacyContentAdapter.cs).
+Evidence: [DE list](../../../Assets/DExml/list.xml); `RegisterWeapon`, `RegisterArmor`, `RegisterNonEquipmentItem`, `SetItemAvailability` in [Lua binding](../../../Assets/Scripts/Eclipse/Modding/MoonSharpScriptRuntime.cs); [LegacyContentAdapter](../../../Assets/Scripts/Eclipse/Modding/LegacyContentAdapter.cs).
 
 ### G12 â€” Forge family editing and candidate structure
 
@@ -168,7 +168,7 @@ Evidence: [DE list](../Assets/DExml/list.xml); `RegisterWeapon`, `RegisterArmor`
 
 Exact prices/costs must remain base-owned. Check deviations/quality scaling against that boundary before deciding they should be configurable. New family registration is not evidence that the entire original forge is converted.
 
-Evidence: [DE forge](../Assets/DExml/forge.xml), `RegisterForgeRecipeFamily`, `ReadForgeRecipeItems` in the Lua binding; [P1C](P1C_API.md). Forge timing policy itself is already supported.
+Evidence: [DE forge](../../../Assets/DExml/forge.xml), `RegisterForgeRecipeFamily`, `ReadForgeRecipeItems` in the Lua binding; [P1C](P1C_API.md). Forge timing policy itself is already supported.
 
 ### G13 â€” Achievement predicates and core localization
 
@@ -176,7 +176,7 @@ Evidence: [DE forge](../Assets/DExml/forge.xml), `RegisterForgeRecipeFamily`, `R
 
 DE adds Croatian/Hindi/Hungarian/Romanian/Swedish translation files, changes shared strings, and omits three Asian translation files. New locales and owned strings are supported; do not assume every core Word is projected into the patchable catalog. Core string replacement must be verified for every intended key, including description-format placeholders. Fonts/glyphs and loader assets need validation; file absence alone does not justify removing a supported language.
 
-Evidence: [DE achievements](../Assets/DExml/Achievements.xml), [DE localization metadata](../Assets/DExml/localization.xml), [P3 bindings](../Assets/Scripts/Eclipse/Modding/MoonSharpScriptRuntimeP3.cs), [CoreContentImporter](../Assets/Scripts/Eclipse/Runtime/Modding/CoreContentImporter.cs), current localization patch limitations in README.
+Evidence: [DE achievements](../../../Assets/DExml/Achievements.xml), [DE localization metadata](../../../Assets/DExml/localization.xml), [P3 bindings](../../../Assets/Scripts/Eclipse/Modding/MoonSharpScriptRuntimeP3.cs), [CoreContentImporter](../../../Assets/Scripts/Eclipse/Runtime/Modding/CoreContentImporter.cs), current localization patch limitations in README.
 
 ### G14 â€” Core service suppression, boot/default profile and presentation
 
@@ -186,7 +186,7 @@ Only forge is an exposed timer target; shop delivery is already instant in this 
 
 Internal hit-pause/slow-motion/camera/resistance differences, device heuristics, logger configuration, credits translations and absent CDN/packs files are not proof of intentional mod policy. The P3 configuration ledger classifies these domains; recheck intent with the creator where behavior matters. Boot-time credits/branding are not covered by gameplay asset redirects. SDK removal is build work. Compatibility overlays are recorded separately and must not be mistaken for canonical desired DE content.
 
-Evidence: [default profile](../Assets/DExml/usersDefault.xml), [internal settings](../Assets/DExml/internalSettings.xml), [P2 gates](P2_API.md), [P3 configuration ledger](PHASE3_CONFIGURATION_AUDIT.json).
+Evidence: [default profile](../../../Assets/DExml/usersDefault.xml), [internal settings](../../../Assets/DExml/internalSettings.xml), [P2 gates](P2_API.md), [P3 configuration ledger](PHASE3_CONFIGURATION_AUDIT.json).
 
 ## What remains supported
 

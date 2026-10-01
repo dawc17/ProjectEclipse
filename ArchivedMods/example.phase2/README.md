@@ -22,7 +22,7 @@ Many external-service surfaces were already absent in the reconstruction, so the
 
 ## API design
 
-See [the Phase 2 contract](../P2_API.md) for supported hooks, state lifetimes,
+See [the Phase 2 contract](../../Docs/Engineering/Modding/P2_API.md) for supported hooks, state lifetimes,
 migrations, temporary shields, timers, feature gates, schedules, and mode progress.
 Stateful callbacks use `self.params` and `self.state` with automatic typed persistence.
 Reusable Lua functions/modules provide composition; procedural behavior stays in Lua.

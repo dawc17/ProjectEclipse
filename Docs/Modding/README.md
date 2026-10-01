@@ -38,7 +38,7 @@ path against the GitHub Pages base. Output is in `Docs/Modding/dist/`.
 | GitHub repository and Pages URL | `site.config.mjs` |
 
 Public pages are authored for mod creators, independently of engineering notes
-in `Mods/`. Verify function names, fields, types, defaults, capabilities, return
+in `Docs/Engineering/Modding/`. Verify function names, fields, types, defaults, capabilities, return
 values, and callback timing against the actual Lua bindings and runtime. Do not
 copy internal milestone or sweep labels into titles, prose, or code examples.
 Keep source links descriptive even when repository paths retain historical names.

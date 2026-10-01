@@ -37,4 +37,4 @@ the Profile list for completion. The sword marker reuses Phase 1's existing PNG;
 it is intentionally a conspicuous replacement test, not finished achievement art.
 
 Counters and unlocks use native profile persistence; custom win filtering is a Lua
-handler. See [P3_API.md](../P3_API.md) for capabilities, bounds and replacement rules.
+handler. See [P3_API.md](../../Docs/Engineering/Modding/P3_API.md) for capabilities, bounds and replacement rules.

@@ -54,11 +54,11 @@ def write_rsp(path, out_dll, compiles, refs, extra_refs=()):
 
 
 c1, r1 = csproj_items('Assembly-CSharp-firstpass.csproj')
-write_rsp('BuildScripts/roslyn_fp.rsp', 'BuildScripts/out/Assembly-CSharp-firstpass.dll', c1, r1,
+write_rsp('BuildScripts/Legacy/roslyn_fp.rsp', 'BuildScripts/out/Assembly-CSharp-firstpass.dll', c1, r1,
            extra_refs=['Assets/Plugins/UnityEngine.Purchasing.dll'])
 
 c2, r2 = csproj_items('Assembly-CSharp.csproj')
-write_rsp('BuildScripts/roslyn_main.rsp', 'BuildScripts/out/Assembly-CSharp.dll', c2, r2,
+write_rsp('BuildScripts/Legacy/roslyn_main.rsp', 'BuildScripts/out/Assembly-CSharp.dll', c2, r2,
           extra_refs=['BuildScripts/out/Assembly-CSharp-firstpass.dll',
                       'Assets/Plugins/UnityEngine.Purchasing.dll'])
 print('rsp written')

@@ -6,7 +6,7 @@ from pathlib import Path
 import xml.etree.ElementTree as ET
 
 ROOT = Path(__file__).resolve().parents[2]
-LEDGER = ROOT / "Mods/PHASE3_CONFIGURATION_AUDIT.json"
+LEDGER = ROOT / "Docs/Engineering/Modding/PHASE3_CONFIGURATION_AUDIT.json"
 
 
 def canonical(node):

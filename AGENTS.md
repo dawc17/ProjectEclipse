@@ -36,6 +36,7 @@ wait for or belong behind the modding/content API. See `Docs/DE_SCOPE_AUDIT.md`.
   save utilities in `Tools/Saves/`, and historical upgrade tools in `Tools/UnityUpgrade/`.
 - `BuildScripts/` - project-specific build and reference maintenance scripts.
 - `Docs/Engineering/` - reconstruction notes, recovery procedures and verification history.
+- `Docs/Engineering/Modding/` - mod API engineering plans, acceptance records and archived DE audit evidence.
 - `Docs/Modding/` - Git-tracked Astro Starlight modding API wiki and GitHub
   Pages build configuration. Keep website tooling outside Unity's `Assets/`.
 - `Tools/ModdingEditor/` - VS Code/LuaLS modding extension, generated API contracts,
@@ -50,7 +51,7 @@ wait for or belong behind the modding/content API. See `Docs/DE_SCOPE_AUDIT.md`.
   in the same change. Do not leave documentation updates as follow-up work.
 - Read `Docs/Modding/README.md` before editing the wiki. Author public guides
   and reference pages in `Docs/Modding/src/content/docs/`. Engineering notes in
-  `Mods/` are supporting evidence, not text to copy into the public wiki.
+  `Docs/Engineering/Modding/` are supporting evidence, not text to copy into the public wiki.
 - Keep the wiki thorough and approachable for first-time modders. Explain terms,
   mark required fields/defaults/limits, and include practical Lua examples. Do
   not expose internal sweep or milestone labels in titles, prose, or code samples.
@@ -87,7 +88,7 @@ wait for or belong behind the modding/content API. See `Docs/DE_SCOPE_AUDIT.md`.
   a generic operation DSL inside Lua for arithmetic, branching, or variable
   manipulation. Preserve shipped recovered-content compatibility adapters;
   extend programmable behavior through evidence-backed runtime hooks. See
-  [the API design rule](Mods/DE_API_IMPLEMENTATION_PLAN.md#37-static-definitions-and-programmable-behavior).
+  [the API design rule](Docs/Engineering/Modding/DE_API_IMPLEMENTATION_PLAN.md#37-static-definitions-and-programmable-behavior).
 - Preserve every Unity `.meta` file and its GUID. When moving or renaming an
   asset or script, move its `.meta` file with it; never regenerate GUIDs unless
   the task explicitly requires a new asset.

@@ -4,7 +4,7 @@ Date: 2026-08-29
 
 Updated direction, 2026-09-08: the modding API's acceptance target is to support
 every DE XML change and the complete DE feature list through a downstream mod.
-See [DE parity target](Mods/DE_PARITY_TARGET.md) for coverage and verification
+See [DE parity target](Engineering/Modding/DE_PARITY_TARGET.md) for coverage and verification
 requirements. The historical implementation-status notes below are not a current
 API capability audit.
 

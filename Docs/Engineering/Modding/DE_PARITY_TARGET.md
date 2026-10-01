@@ -92,7 +92,7 @@ are explicitly requested changes. Preserve them as the canonical Eclipse economy
 They are the DE balancing, and will be the only real part of it made global.
 Mods must not be able to override or replace this economy.
 
-Current examples and API documentation live in [README.md](README.md). The
+Current examples and API documentation live in [README.md](../../../Mods/README.md). The
 existing equipment, behavior, and save support is a foundation, not proof of
 complete DE coverage. This document does not request an immediate wholesale
 implementation or a rollback of working changes.

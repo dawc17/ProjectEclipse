@@ -17,7 +17,8 @@ Eclipse currently targets Unity 6.6.
 
 See [runtime content](../CONTENT.md), [base/DE scope](../DE_SCOPE_AUDIT.md) and
 [local multiplayer](../LOCAL_MULTIPLAYER.md) for the broader project guides.
-Existing mod API engineering ledgers remain under [Mods](../../Mods/README.md).
+Mod API engineering plans, acceptance records and DE audit ledgers live in
+[Modding](Modding/README.md). Installable mod content remains under [Mods](../../Mods/README.md).
 Public guides and supported API contracts belong in the
 [modding wiki](../Modding/README.md), independently of these historical notes.
 

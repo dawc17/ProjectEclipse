@@ -1,7 +1,7 @@
 # Phase 2
 
 User runtime-tested and accepted, including the corrected replayable Volcano raid. The integrated external
-sample is [example.phase2](example.phase2/README.md). Phase 1 remains accepted.
+sample is [example.phase2](../../../ArchivedMods/example.phase2/README.md). Phase 1 remains accepted.
 This document lists the supported contract, rather than promising every possible
 recovered combat event or arbitrary engine access.
 

@@ -1,7 +1,7 @@
 # Definitive Edition parity: Mod API implementation plan
 
 Recorded 2026-09-08 from the DE parity audit. This is the canonical engineering
-roadmap for making `Mods/DE_PARITY_TARGET.md` achievable through the public Mod
+roadmap for making `Docs/Engineering/Modding/DE_PARITY_TARGET.md` achievable through the public Mod
 API.
 
 **Any agent working on DE parity, Mod API expansion, quests, stages, raids,
@@ -46,7 +46,7 @@ no downstream DE port or missing asset reconstruction is part of this slice.
 When requirements appear to conflict, use this order:
 
 1. The project owner's latest explicit instructions.
-2. `Mods/DE_PARITY_TARGET.md` for parity requirements and acceptance criteria.
+2. `Docs/Engineering/Modding/DE_PARITY_TARGET.md` for parity requirements and acceptance criteria.
 3. This implementation plan for sequencing and engineering constraints.
 4. `Mods/README.md` for the currently shipped public API.
 5. Recovered/runtime source and canonical `Assets/vanillaXml` for actual engine
@@ -1023,7 +1023,7 @@ resolved damage, block, critical and incoming-damage hooks; player and opponent
 contexts; scoped target capabilities; temporary damage shields; and typed
 round/fight/saved behavior state with migrations. Composition uses Lua functions
 and modules. See [the supported contract](P2_API.md) and
-[integrated sample](example.phase2/README.md). Gameplay acceptance was confirmed by the project owner;
+[integrated sample](../../../ArchivedMods/example.phase2/README.md). Gameplay acceptance was confirmed by the project owner;
 the candidate event families below are not a claim that every hook is exposed.
 
 The reusable behavior + typed instance parameter architecture is proven. Do
@@ -1259,7 +1259,7 @@ definition metadata before declaring third-party raid support.
 integrate with the native profile/save model and advance from Lua callbacks.
 The remaining configuration differences are classified in a reproducible ledger;
 no arbitrary settings passthrough was added. See [P3_API.md](P3_API.md) and the
-[showcase playtest record](example.phase3/README.md#recorded-user-playtest).
+[showcase playtest record](../../../ArchivedMods/example.phase3/README.md#recorded-user-playtest).
 The user confirmed the achievement flow, restart persistence and no progress on
 loss/surrender. Removal/reinstallation remains automated-test coverage.
 
@@ -1562,8 +1562,8 @@ This section is mandatory for coordinated work.
 
 The task context must tell the agent to read:
 
-1. `Mods/DE_PARITY_TARGET.md`;
-2. `Mods/DE_API_IMPLEMENTATION_PLAN.md`;
+1. `Docs/Engineering/Modding/DE_PARITY_TARGET.md`;
+2. `Docs/Engineering/Modding/DE_API_IMPLEMENTATION_PLAN.md`;
 3. the relevant current API/runtime files for its assigned phase.
 
 The agent must state which plan task IDs it is addressing, for example
@@ -1755,6 +1755,6 @@ comments it out and implements Master of Style and Relentless directly from
 archived perk, progression and move XML. Precise hit phases, timed status icons,
 initial learned ranks and targeted move-lock removals support that content.
 The configured Desolator reward and earlier foundations remain.
-See [its production record](de128/PRODUCTION.md) for intent, tests, reward timing
+See [its production record](../../../Mods/de128/PRODUCTION.md) for intent, tests, reward timing
 limits and the remaining pending-order/service-surface gaps. Full content
 conversion and parity acceptance remain open.

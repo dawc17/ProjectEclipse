@@ -13,7 +13,7 @@ from pathlib import Path
 import xml.etree.ElementTree as ET
 
 ROOT = Path(__file__).resolve().parents[2]
-OUTPUT = ROOT / "Mods/DE_XML_DELTA_LEDGER.json.gz"
+OUTPUT = ROOT / "Docs/Engineering/Modding/DE_XML_DELTA_LEDGER.json.gz"
 KEYS = ("Name", "name", "ID", "Id", "id", "IDS", "Key", "key", "Code", "code", "Title", "Level", "File", "Type")
 
 
@@ -136,7 +136,7 @@ def coverage(result):
         assessment = "No semantic file delta; no DE addition inferred." if e["status"] == "equal" else assessments[e["domain"]]
         if e["domain"] == "quests" and e["de_nodes"] == 1:
             assessment = "Empty DE root: no authored quests here. G01/G14 for removed/suppressed base flow; verify includes."
-        lines.append(f"| [{e['file']}](../Assets/{tree}/{e['file']}) | {e['status']} | {len(e['changes'])} | {assessment} |")
+        lines.append(f"| [{e['file']}](../../../Assets/{tree}/{e['file']}) | {e['status']} | {len(e['changes'])} | {assessment} |")
     return "\n".join(lines) + "\n"
 
 

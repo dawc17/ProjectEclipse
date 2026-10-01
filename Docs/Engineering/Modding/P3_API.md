@@ -2,7 +2,7 @@
 
 API **0.7.0**. The core showcase has now been user runtime-tested: achievement
 flow, restart persistence, loss/surrender filtering and the replacement icon.
-See the [recorded playtest](example.phase3/README.md#recorded-user-playtest) for scope.
+See the [recorded playtest](../../../ArchivedMods/example.phase3/README.md#recorded-user-playtest) for scope.
 The preceding Phase 2 showcase was user-tested,
 including repeatable Volcano, its shield bars and reward presentation.
 
@@ -113,7 +113,7 @@ upstream drift. The ledger classifies ownership; it does not silently apply DE v
 
 ## Verification and playtest
 
-See [example.phase3/README.md](example.phase3/README.md) for the numbered user test.
+See [example.phase3/README.md](../../../ArchivedMods/example.phase3/README.md) for the numbered user test.
 `TestPhase3Runtime.ps1` executes the public Lua sample and registry/redirect contracts.
 `TestPhase3Progression.ps1` compiles the production native parser/save classes and P3
 adapter with host-boundary stubs. `ValidatePhase3Assets` runs native sprite loading

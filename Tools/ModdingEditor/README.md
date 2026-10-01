@@ -289,7 +289,7 @@ The `music` field accepts an `AudioHandle` from `sf2.assets.audio` or a native
 track name. The `core-fight` template demonstrates editing an existing
 encounter; copy it manually as described for the battle-rules template.
 
-Adds perk `upgrades` completion with level, description and parameter fields. Runtime/native upgrade acceptance is tracked in `Mods/PRE_DE_WORK_LOG.md`.
+Adds perk `upgrades` completion with level, description and parameter fields. Runtime/native upgrade acceptance is tracked in `Docs/Engineering/Modding/PRE_DE_WORK_LOG.md`.
 
 The manual `perk-upgrades` template demonstrates a learned guard with three upgrades; its matching mod and automated checks are under `Mods/example.perk-upgrades` and `Tools/Tests/TestPerkUpgrades.ps1`.
 

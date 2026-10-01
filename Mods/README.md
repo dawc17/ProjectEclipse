@@ -2,12 +2,13 @@
 
 The browsable modding wiki is maintained in [Docs/Modding](../Docs/Modding/README.md).
 Its public reference is maintained against the Lua bindings; this document and
-the linked API notes provide engineering detail.
+the linked API notes provide engineering detail. Plans, audit ledgers and
+verification records live in [the modding engineering index](../Docs/Engineering/Modding/README.md).
 
-The long-term acceptance target is [complete DE parity through the modding API](DE_PARITY_TARGET.md).
+The long-term acceptance target is [complete DE parity through the modding API](../Docs/Engineering/Modding/DE_PARITY_TARGET.md).
 That target describes required coverage; the documentation below describes current support.
 The dependency-ordered engineering roadmap is
-[DE_API_IMPLEMENTATION_PLAN.md](DE_API_IMPLEMENTATION_PLAN.md). Agents working on
+[DE_API_IMPLEMENTATION_PLAN.md](../Docs/Engineering/Modding/DE_API_IMPLEMENTATION_PLAN.md). Agents working on
 DE parity or Mod API expansion must read both parity documents before editing.
 
 ## Recent additions
@@ -21,11 +22,11 @@ and the configured Desolator reward are retained.
 [Production notes](de128/PRODUCTION.md) track source evidence, API gaps and the
 next approval boundary.
 
-Adds result-driven mode branching through `on_result`, preserving native settlement. See [Branching Trial](example.branching-trial/README.md).
+Adds result-driven mode branching through `on_result`, preserving native settlement. See [Branching Trial](../ArchivedMods/example.branching-trial/README.md).
 
 Adds bounded UI `on_close` notification after input/renderer teardown. Charged Strike now cancels its armed bonus when its HUD closes.
 
-Adds saved random streams through `sf2.random.integer` and `sf2.random.number`. See [Seeded Trial](example.seeded-trial/README.md); draws use owned integer state fields and require both state capabilities.
+Adds saved random streams through `sf2.random.integer` and `sf2.random.number`. See [Seeded Trial](../ArchivedMods/example.seeded-trial/README.md); draws use owned integer state fields and require both state capabilities.
 
 Adds bounded widget styles and native game skin defaults for custom UI.
 
@@ -40,16 +41,16 @@ mount/input behavior, lifecycle and verification limits.
 
 Adds `sf2.rules.behavior`: directly attach reusable Lua combat behavior
 to a fight, with isolated rule/fighter state and target/mode/round filtering.
-See [Third Strike Trial](example.battle-rules/README.md), the
+See [Third Strike Trial](../ArchivedMods/example.battle-rules/README.md), the
 [rule reference](../Docs/Modding/src/content/docs/api/rules.md), and the
-[engine extensibility review](MOD_ENGINE_EXTENSIBILITY.md).
+[engine extensibility review](../Docs/Engineering/Modding/MOD_ENGINE_EXTENSIBILITY.md).
 
-The [archived DE XML coverage audit](DE_XML_API_GAP_AUDIT.md) records the remaining
+The [archived DE XML coverage audit](../Docs/Engineering/Modding/DE_XML_API_GAP_AUDIT.md) records the remaining
 gaps. Accepted phase showcases do not imply complete DE parity or support for
 every field/event in the recovered XML.
 
-See [Phase 3 API](P3_API.md) and its [numbered playtest guide](example.phase3/README.md).
-The [Phase 2 API](P2_API.md) and [showcase](example.phase2/README.md) remain supported.
+See [Phase 3 API](../Docs/Engineering/Modding/P3_API.md) and its [numbered playtest guide](../ArchivedMods/example.phase3/README.md).
+The [Phase 2 API](../Docs/Engineering/Modding/P2_API.md) and [showcase](../ArchivedMods/example.phase2/README.md) remain supported.
 
 Place each mod in `Mods/<folder>/` with a `mod.toml` manifest. See `example.weapon`
 for the minimal weapon slice, `example.loadout` for armor, helm, ranged, and magic,
@@ -93,7 +94,7 @@ typed instance parameters, `on_fight_begin`, the documented health/magic-charge
 capabilities, and mod-owned state. Phase 2 adds combat lifecycle/damage callbacks; Phase 3 adds saved achievement
 counters and explicit asset replacement. General quest callbacks and programmable
 AI remain roadmap work. The
-[design rule and acceptance criteria](DE_API_IMPLEMENTATION_PLAN.md#37-static-definitions-and-programmable-behavior)
+[design rule and acceptance criteria](../Docs/Engineering/Modding/DE_API_IMPLEMENTATION_PLAN.md#37-static-definitions-and-programmable-behavior)
 guide that work; the API sections below describe what is available today.
 
 ## Sprites and textures
@@ -503,7 +504,7 @@ branch replacements rather than arbitrary global progression mutation. Forge rec
 families are structural only: mods reference immutable host economic profiles and
 cannot publish forge costs, skip costs, shared currency values, or shared formulas.
 
-See `Mods/P1C_API.md` for the complete P1C authoring contract.
+See `Docs/Engineering/Modding/P1C_API.md` for the complete P1C authoring contract.
 
 ### Locales, audio, locations, moves, triggers, tactics
 
@@ -606,7 +607,7 @@ This is the executable side of the API: definitions bind typed parameters to
 reusable Lua code, and that code calls supported runtime capabilities. The current
 event surface includes fight/round lifecycle, resolved damage, block, critical,
 and incoming-damage hooks. Typed instance state and scoped target/effect
-capabilities are also supported; see [the current contract](P2_API.md).
+capabilities are also supported; see [the current contract](../Docs/Engineering/Modding/P2_API.md).
 
 The API separates three concepts that the recovered engine historically represented with
 the same `PerkInfoItem` machinery:
@@ -805,9 +806,9 @@ also does not use the normal `NextRound` lifecycle and has no `on_fight_begin` p
 These hooks also cover player equipment and registered opponent perks,
 with round/fight/saved instance state, bounded migrations, damage shields and
 incoming-hit scaling. Capability tables expire after each invocation. The
-[integrated Phase 2 sample](example.phase2/README.md) also exercises timer policy,
+[integrated Phase 2 sample](../ArchivedMods/example.phase2/README.md) also exercises timer policy,
 feature gates, repeatable events, Ascension progression and offline raids.
-See [P2_API.md](P2_API.md) for the exact supported surface and verification limits.
+See [P2_API.md](../Docs/Engineering/Modding/P2_API.md) for the exact supported surface and verification limits.
 
 ### Renaming and retiring item IDs
 
@@ -887,7 +888,7 @@ addresses. Those members are valid first-class core sprite IDs when the exact at
 named member both exist, for example
 `core:ui/items/armor12.img_armor_mantle_of_night`. A nonexistent member does not resolve.
 
-The API also supports [explicit typed asset replacement](P3_API.md#asset-replacement).
+The API also supports [explicit typed asset replacement](../Docs/Engineering/Modding/P3_API.md#asset-replacement).
 External mods still cannot claim the reserved `core` namespace. Replacement requires
 `assets.replace`, a declared dependency, matching types and a unique target claim;
 conflicts fail rather than using filesystem or last-mod-wins ordering.
@@ -968,7 +969,7 @@ complete purchase/upgrade/equip/fight/removal/reinstall playtest for every categ
 
 Adds `fighter:snapshot()` for fresh, detached health, position, and fight-clock observations. See the fighter reference and the updated Third Strike Trial.
 
-Fight patches also support location/music and rule replacement or append. [Campaign Guard Rule](example.core-fight/README.md) changes an existing encounter without duplicating it.
+Fight patches also support location/music and rule replacement or append. [Campaign Guard Rule](../ArchivedMods/example.core-fight/README.md) changes an existing encounter without duplicating it.
 
 Adds `on_damage_dealing` and capability-gated `fighter:scale_outgoing_damage`, before defensive modifiers. See `example.outgoing-rule`.
 
@@ -1015,7 +1016,7 @@ returns current presence, ownership, count, equipped flag and upgrade index.
 Obtain item handles during loading; query after profile loading. Snapshots are
 copies and do not mutate inventory. See the public Player profile queries page.
 
-The runnable reward example [Eclipse Item Reward](example.eclipse-reward/README.md)
+The runnable reward example [Eclipse Item Reward](../ArchivedMods/example.eclipse-reward/README.md)
 patches the first Lynx Eclipse replay's one-win item scope using core equipment.
 Use an unowned-item test profile; the normal battle is a separate definition.
 

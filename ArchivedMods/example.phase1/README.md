@@ -18,7 +18,7 @@ Custom procedures should use Lua handlers and safe typed capabilities rather tha
 generic action/condition instruction tables. Existing quest and tactic adapters
 remain supported compatibility paths.
 
-See [the API design rule](../DE_API_IMPLEMENTATION_PLAN.md#37-static-definitions-and-programmable-behavior)
+See [the API design rule](../../Docs/Engineering/Modding/DE_API_IMPLEMENTATION_PLAN.md#37-static-definitions-and-programmable-behavior)
 and `example.enchantment` for the current reusable behavior foundation. P2A must
 add a runnable example with meaningful runtime decisions, state, and gameplay
 effects. Expanded combat hooks, quest callbacks, and programmable AI are not

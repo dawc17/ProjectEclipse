@@ -19,12 +19,7 @@ outputs use ignored `BuildScripts/out/`.
 
 ## Historical reconstruction scripts
 
-`decompress_lzma_assets.py`, `fix_apple_ext.py`, `fix_selectanim.py`,
-`gut_purchaser.py`, `hook_devxml.py`, `offline_patch.py` and `remove_security.py`
-are retained asset/source repair scripts. They are not steps in the current
-player build workflow; review their original assumptions before running them.
-
-`gen_rsp.py`, `roslyn_fp.rsp` and `roslyn_main.rsp` retain an older manual compiler
-workflow with Unity 5.6 defines and machine-specific paths. Normal managed
-verification uses the root `.csproj` files, as described in
-[AGENTS.md](../AGENTS.md#build-and-verification).
+Older asset/source patch scripts and manual compiler response files are retained
+under [Legacy](Legacy/README.md). They are not steps in the current player build
+workflow. Normal managed verification uses the root `.csproj` files, as described
+in [AGENTS.md](../AGENTS.md#build-and-verification).

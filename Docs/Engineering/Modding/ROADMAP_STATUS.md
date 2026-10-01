@@ -45,7 +45,7 @@ dialog rendering, encounter assembly, missing guard templates, complete story
 acceptance and deferred corpus reconciliation remain open.
 On 2026-09-18 the owner separately authorized incremental DE128 production, one
 approved step at a time. Its policies, Desolator reward, XML-evidenced combat perks and gaps
-are tracked in [the DE128 production record](de128/PRODUCTION.md). This does not
+are tracked in [the DE128 production record](../../../Mods/de128/PRODUCTION.md). This does not
 close the engine roadmap or reduce either source roadmap's requirements.
 
 2026-09-19 continuation: DE128 0.6.0 also opts saved pending forge orders into
