@@ -14,6 +14,7 @@ namespace Eclipse.Multiplayer
         public static bool HasResult { get; private set; }
         public static bool IsOnline => Settings != null && Settings.Mode == VersusMode.Online;
         public static bool IsReplay => Settings != null && Settings.Mode == VersusMode.Replay;
+        public static bool IsSpectating => Settings != null && Settings.Mode == VersusMode.Spectator;
         /// <summary>A match is set up and its fight scene has not finished loading.</summary>
         public static bool IsStarting => _starting;
         /// <summary>The replay being watched, kept for "watch again".</summary>

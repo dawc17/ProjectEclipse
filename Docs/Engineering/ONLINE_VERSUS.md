@@ -205,11 +205,27 @@ The room server is `Server/EclipseRooms/`; see its README for deployment. Online
 always connects to `rooms.projecteclipse.fyi:7300`, ignoring previously saved
 custom addresses. Players browse, create, or join rooms by code.
 
-- **Rooms.** Up to 8 members. The host sets name, password, size, first-to,
-  arena (or random), and winner-stays vs. rotation. Members pick a weapon and join
-  the queue. The server pairs the first two in the queue; in winner-stays the
+- **Rooms.** Up to 8 members, including spectators. The host sets name, password,
+  size, first-to, arena (or random), and match mode. New rooms default to
+  simultaneous fights: the server pairs every two queued members, up to four
+  independent fights. Winner-stays and rotation retain their single-fight queues.
+  Each pairing snapshots the room settings, so changes apply to new fights only.
+  Members pick a loadout and join the queue. In winner-stays the
   champion goes back to the front and the room waits up to 30 s for them to
   continue.
+- **Spectators.** Each active fight has a Spectate button. Only members of the
+  same room who are not fighting may watch; watching removes them from the queue.
+  The left/host client publishes the agreed `MatchStart` and batches its existing
+  replay's confirmed inputs and state checkpoints through the room connection.
+  The server holds at most 30 minutes of input history per active fight, and sends
+  it to each viewer in ordered chunks with backpressure. Viewers catch up from
+  tick zero using `SpectatorInputSource`, then follow live inputs with a three-tick
+  buffer. Playback checks the published hashes and reports divergence. It does
+  not publish fighter input, save a replay, report results, or enter rollback.
+  Ending or switching viewing unsubscribes; final history is released once the
+  fight ends and all viewers have received it or left. Joining late may require
+  substantial catch-up on slow devices. Portable fight snapshots are not used.
+  Room protocol 4 requires the updated server and clients to be deployed together.
 - **Connecting a pair.** `RoomClient` uses one UDP socket for the server,
   hole-punch probes and the fight, so the opponent punches into the NAT mapping
   the server observed.
@@ -231,7 +247,26 @@ custom addresses. Players browse, create, or join rooms by code.
 - **Tests.** `Tools/NetplayTests` runs a real server with four clients: listing,
   mod-mismatch refusal, code joins, winner stays, the champion wait, a
   hole-punched fight, a forced-relay fight, disputed results, leaving mid-fight,
-  host migration and cleanup.
+  host migration and cleanup. It also covers four simultaneous pairings, isolated
+  completion/rematches, multiple and late spectators, live input/checkpoint
+  delivery, switching/unsubscribing, spectator result rejection, room membership
+  restrictions, bounded room-state encoding, and malformed stream chunks.
+
+Native spectator validation on 2026-10-01 passed nine checks in Unity 6.6:
+catch-up and live playback matched the original native fight's hashes, the final
+buffer drained before completion, and the room rendered four usable spectate
+buttons beside eight members. This used scripted input and a local UI fixture;
+it does not verify internet latency or desktop/mobile spectator cross-play.
+To repeat with a connected editor from the repository root:
+
+```sh
+unity command eval 'return ValidateLocalVersusNative.Prepare();' --caller plugin --skill unity-cli
+unity command editor_play --caller plugin --skill unity-cli
+unity command run_script --file Tools/NetplayTests/ValidateRoomSpectatingNative.cs --entry ValidateRoomSpectatingNative.Run --caller plugin --skill unity-cli
+# Wait for Temp/RoomSpectatingNative/result.txt; room.png captures the layout.
+unity command editor_stop --caller plugin --skill unity-cli
+unity command eval 'return ValidateLocalVersusNative.Restore();' --caller plugin --skill unity-cli
+```
 
 ## Testing
 

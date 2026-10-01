@@ -117,7 +117,7 @@ namespace Eclipse.Multiplayer
             name.horizontalOverflow = HorizontalWrapMode.Wrap; name.resizeTextForBestFit = true; name.resizeTextMinSize = 15; name.resizeTextMaxSize = 24;
             var host = Label(card, "Hosted by " + listing.HostName + "   ·   " + VersusRoster.ArenaName(listing.Arena), 15, new Color(Ink.r, Ink.g, Ink.b, .7f), TextAnchor.MiddleLeft);
             Anchor(host.rectTransform, new Vector2(0, 1), new Vector2(204, -48), new Vector2(340, 22), new Vector2(0, 1));
-            string rules = "FIRST TO " + listing.WinsRequired + (listing.Rotation == RoomRotation.Rotate ? "   ·   ROTATE" : "   ·   WINNER STAYS");
+            string rules = "FIRST TO " + listing.WinsRequired + "   ·   " + RotationLabel(listing.Rotation).ToUpperInvariant();
             var rulesLabel = Label(card, rules, 15, Red, TextAnchor.MiddleLeft);
             Anchor(rulesLabel.rectTransform, new Vector2(0, 0), new Vector2(204, 18), new Vector2(260, 22), new Vector2(0, 0));
             var count = Label(card, listing.Players + " / " + listing.MaxPlayers + (listing.Locked ? "   LOCKED" : ""), 22, listing.Players >= listing.MaxPlayers ? Red : Ink, TextAnchor.MiddleRight);
@@ -135,7 +135,7 @@ namespace Eclipse.Multiplayer
             editingRoom = editing && session.Room != null;
             page = Page.RoomCreate;
             draft = editingRoom ? session.Room.Settings.Copy() : new RoomSettings { Name = session.LocalName + "'s room" };
-            Rebuild(editingRoom ? "ROOM SETTINGS" : "CREATE ROOM", editingRoom ? "Changes apply to the next fight" : "Up to 8 players take turns", body =>
+            Rebuild(editingRoom ? "ROOM SETTINGS" : "CREATE ROOM", editingRoom ? "Changes apply to new fights" : "Up to 8 players, up to 4 simultaneous fights", body =>
             {
                 roomNameField = AddTextField(body, "ROOM NAME", draft.Name, 32);
                 if (!editingRoom) passwordField = AddTextField(body, "PASSWORD", "", 24, "optional");
@@ -143,8 +143,8 @@ namespace Eclipse.Multiplayer
                 AddChoice(body, "FIRST TO", () => WinsLabel(draft.WinsRequired), () => draft.WinsRequired = draft.WinsRequired % 5 + 1);
                 AddChoice(body, "ARENA", () => VersusRoster.ArenaName(draft.Arena),
                     () => VersusStagePicker.Open(draft.Arena, true, picked => { draft.Arena = picked; SetBackdropArena(picked); }));
-                AddChoice(body, "ROTATION", () => draft.Rotation == RoomRotation.WinnerStays ? "WINNER STAYS" : "EVERYONE ROTATES",
-                    () => draft.Rotation = draft.Rotation == RoomRotation.WinnerStays ? RoomRotation.Rotate : RoomRotation.WinnerStays);
+                AddChoice(body, "MATCH MODE", () => RotationLabel(draft.Rotation).ToUpperInvariant(),
+                    () => draft.Rotation = (RoomRotation)(((int)draft.Rotation + 1) % 3));
                 var row = AddRow(body);
                 AddButton(row, editingRoom ? "SAVE" : "CREATE", () =>
                 {
@@ -158,7 +158,11 @@ namespace Eclipse.Multiplayer
             });
         }
 
-        private uint builtMatchId = uint.MaxValue;
+        private string builtFights;
+        private RoomRotation builtRotation;
+
+        private static string RotationLabel(RoomRotation rotation) => rotation == RoomRotation.Simultaneous ? "Simultaneous" :
+            rotation == RoomRotation.WinnerStays ? "Winner stays" : "Everyone rotates";
         private RectTransform roomRoster, roomStage;
         private UnityEngine.UI.Text roomChatLog;
         private UnityEngine.UI.InputField roomChatInput;
@@ -172,8 +176,9 @@ namespace Eclipse.Multiplayer
             var room = session.Room;
             builtMembers = room.Members.Count;
             builtAsHost = session.IsHost;
-            builtMatchId = uint.MaxValue;
-            string rotation = room.Settings.Rotation == RoomRotation.WinnerStays ? "Winner stays" : "Everyone rotates";
+            builtFights = null;
+            builtRotation = room.Settings.Rotation;
+            string rotation = RotationLabel(room.Settings.Rotation);
             if (room.Settings.Arena != VersusRoster.RandomArena) SetBackdropArena(room.Settings.Arena);
             RebuildScreen(room.Settings.Name.ToUpperInvariant(), "Room code " + room.Code + "   ·   first to " + room.Settings.WinsRequired + "   ·   " + rotation +
                 "   ·   " + VersusRoster.ArenaName(room.Settings.Arena), Hints("L", "Loadout", "Q", "Queue", "T", "Chat", "Esc", "Leave"),
@@ -299,7 +304,7 @@ namespace Eclipse.Multiplayer
             foreach (var member in room.Members)
             {
                 var row = Rect(roomRoster, member.Name);
-                row.gameObject.AddComponent<UnityEngine.UI.LayoutElement>().preferredHeight = 58;
+                row.gameObject.AddComponent<UnityEngine.UI.LayoutElement>().preferredHeight = 48;
                 bool self = member.Id == session.ClientId;
                 if (self)
                 {
@@ -332,36 +337,48 @@ namespace Eclipse.Multiplayer
             RefreshRoomStage();
         }
 
-        /// <summary>The fight in progress: both fighters' previews and names, or what the room is waiting for.</summary>
+        /// <summary>Every active fight, with a separate spectate action.</summary>
         private void RefreshRoomStage()
         {
             var session = RoomSession.Current;
             if (roomStage == null || session?.Room == null) return;
             var room = session.Room;
-            uint matchId = room.MatchId;
-            if (matchId == builtMatchId) return;
-            builtMatchId = matchId;
+            string fights = string.Join(",", room.Fights.Select(fight => fight.MatchId + ":" + fight.CanSpectate));
+            if (fights == builtFights) return;
+            builtFights = fights;
             for (int i = roomStage.childCount - 1; i >= 0; i--) Destroy(roomStage.GetChild(i).gameObject);
-            var left = room.Find(room.LeftId);
-            var right = room.Find(room.RightId);
-            if (matchId == 0 || left == null || right == null)
+            if (room.Fights.Count == 0)
             {
                 var waiting = Label(roomStage, "", 24, Ink, TextAnchor.MiddleCenter);
                 liveLabels.Add((waiting, () => (RoomSession.Current?.NowPlaying() ?? "").ToUpperInvariant()));
                 return;
             }
-            foreach (var (member, side) in new[] { (left, 0), (right, 1) })
+            for (int i = 0; i < room.Fights.Count; i++)
             {
-                var box = Place(roomStage, member.Name, new Vector2(side == 0 ? 0 : 1, .5f), Vector2.zero, new Vector2(230, 190));
-                var stage = Place(box, "Stage", new Vector2(.5f, 1), Vector2.zero, new Vector2(230, 150));
-                VersusFighterPreview.Create(stage, side == 1).Show(RoomSession.LoadoutOf(member) ?? VersusLoadout.Default, true);
-                var label = Label(box, Plain(member.Name), 18, side == 0 ? Red : Ink, TextAnchor.MiddleCenter);
-                Anchor(label.rectTransform, new Vector2(.5f, 0), new Vector2(0, 4), new Vector2(230, 26));
+                var fight = room.Fights[i];
+                var row = Place(roomStage, "Fight " + fight.MatchId, new Vector2(.5f, 1), new Vector2(0, -i * 48), new Vector2(540, 44));
+                row.pivot = new Vector2(.5f, 1);
+                var layout = row.gameObject.AddComponent<UnityEngine.UI.HorizontalLayoutGroup>();
+                layout.spacing = 8; layout.childControlWidth = layout.childControlHeight = true; layout.childForceExpandWidth = false;
+                var label = Label(row, Plain(room.Find(fight.LeftId)?.Name ?? "?") + "  vs  " + Plain(room.Find(fight.RightId)?.Name ?? "?"), 18, Ink, TextAnchor.MiddleLeft);
+                label.gameObject.AddComponent<UnityEngine.UI.LayoutElement>().flexibleWidth = 1;
+                var watch = AddButton(row, fight.CanSpectate ? "SPECTATE" : "STARTING", () => RoomSession.Current?.Spectate(fight.MatchId), 150);
+                watch.interactable = fight.CanSpectate && !session.InFight && session.PendingPairing == null;
             }
-            var vs = Label(roomStage, "VS", 46, Red, TextAnchor.MiddleCenter);
-            Anchor(vs.rectTransform, new Vector2(.5f, .5f), new Vector2(0, 10), new Vector2(90, 60));
-            var fighting = Label(roomStage, "NOW FIGHTING", 14, new Color(Ink.r, Ink.g, Ink.b, .6f), TextAnchor.MiddleCenter);
-            Anchor(fighting.rectTransform, new Vector2(.5f, .5f), new Vector2(0, -34), new Vector2(160, 20));
+        }
+
+        private void ShowSpectatorMenu(string message)
+        {
+            Rebuild("SPECTATING", message, body =>
+            {
+                if (!LocalVersusSession.HasResult) AddButton(body, "RESUME", LocalVersusSession.Resume);
+                AddButton(body, "BACK TO ROOM", () =>
+                {
+                    if (RoomSession.Current != null) RoomSession.Current.StopSpectating();
+                    else LocalVersusSession.ShowMultiplayerHome();
+                });
+                AddButton(body, "RETURN TO TITLE", LocalVersusSession.ReturnToTitle);
+            });
         }
 
         private void ShowRoomResult(string title, int playerOneWins, int playerTwoWins, string message)
@@ -406,7 +423,7 @@ namespace Eclipse.Multiplayer
                 return;
             }
             if (page != Page.Room || session.Room == null) return;
-            if (session.Room.Members.Count != builtMembers || session.IsHost != builtAsHost) { ShowRoom(); return; }
+            if (session.Room.Members.Count != builtMembers || session.IsHost != builtAsHost || session.Room.Settings.Rotation != builtRotation) { ShowRoom(); return; }
             // Loadouts, pings, records and the fight in progress change without anyone joining.
             RefreshRoomRoster();
         }

@@ -65,6 +65,8 @@ namespace Eclipse.RoomServer
             public float PingMs = -1;
             public float ChatTokens = ChatBurst;
             public long ChatRefilledMs;
+            public Match Watching;
+            public int WatchTick;
         }
 
         private sealed class Room
@@ -77,7 +79,7 @@ namespace Eclipse.RoomServer
             public readonly List<uint> Queue = new List<uint>();
             public uint HostId, ChampionId;
             public int Streak;
-            public Match Current;
+            public readonly List<Match> Matches = new List<Match>();
             public long ChampionAwaySinceMs = -1;
             public long LastBroadcastMs;
         }
@@ -93,6 +95,10 @@ namespace Eclipse.RoomServer
             public long FirstReportMs = -1;
             /// <summary>Some of this fight's packets went through the relay.</summary>
             public bool Relayed;
+            public int Seed;
+            public RoomSettings Settings;
+            public LoadoutCode LeftLoadout, RightLoadout;
+            public SpectatorStream Stream;
         }
 
         private readonly UdpTransport _socket;
@@ -133,6 +139,7 @@ namespace Eclipse.RoomServer
             foreach (var client in _scratchClients)
             {
                 if (nowMs - client.LastReceiveMs > ClientTimeoutMs) { Drop(client, "timed out"); continue; }
+                PumpSpectator(client);
                 if (client.LastSendMs == long.MinValue || nowMs - client.LastSendMs >= KeepAliveMs ||
                     client.Reliable.PendingCount > 0 && nowMs - client.LastSendMs >= ReliableChannel.ResendMs)
                     Flush(client);
@@ -144,9 +151,10 @@ namespace Eclipse.RoomServer
             foreach (var room in _scratchRooms)
             {
                 if (!_rooms.ContainsKey(room.Id)) continue;
-                if (room.Current != null && (nowMs - room.Current.StartedMs > MatchTimeoutMs ||
-                    room.Current.FirstReportMs >= 0 && nowMs - room.Current.FirstReportMs > SecondReportWaitMs))
-                    Resolve(room.Current, force: true);
+                foreach (var match in room.Matches.ToArray())
+                    if (nowMs - match.StartedMs > MatchTimeoutMs ||
+                        match.FirstReportMs >= 0 && nowMs - match.FirstReportMs > SecondReportWaitMs)
+                        Resolve(match, force: true);
                 // Pings and stale flags change often; members hear about it only when it matters.
                 if (nowMs - room.LastBroadcastMs >= PingBroadcastMs && LinkChanged(room)) Broadcast(room);
                 if (room.ChampionAwaySinceMs >= 0 && nowMs - room.ChampionAwaySinceMs > ChampionWaitMs)
@@ -380,6 +388,9 @@ namespace Eclipse.RoomServer
                     case RoomMessage.Kick: Kick(client, reader.U32()); break;
                     case RoomMessage.MatchReport: Report(client, reader.U32(), (MatchOutcome)reader.U8(), reader.Str()); break;
                     case RoomMessage.Rematch: Rematch(client, reader.U32(), reader.Bool()); break;
+                    case RoomMessage.Spectate: Spectate(client, reader.U32()); break;
+                    case RoomMessage.PublishStart: PublishStart(client, reader.U32(), MatchStart.Decode(reader)); break;
+                    case RoomMessage.SpectatorFrames: PublishFrames(client, reader.U32(), reader); break;
                 }
             }
             catch (NetFormatException)
@@ -476,6 +487,7 @@ namespace Eclipse.RoomServer
         {
             var room = client.Room;
             if (room == null) return;
+            StopWatching(client, "You left the room.");
             var match = client.Match;
             if (match != null)
             {
@@ -515,6 +527,7 @@ namespace Eclipse.RoomServer
         {
             var room = client.Room;
             if (room == null || client.Member == null) return;
+            if (client.Member.Status == MemberStatus.Spectating) StopWatching(client, "Stopped spectating.");
             // The server cannot read a loadout (only the game knows its roster); it stores and relays it.
             client.Member.Loadout = loadout;
             // Continuing to the room (queued or not) ends any rematch request.
@@ -598,9 +611,93 @@ namespace Eclipse.RoomServer
 
         // ---- Matches ----
 
+        private void PublishStart(Client client, uint matchId, MatchStart start)
+        {
+            var match = client.Match;
+            if (match == null || match.Id != matchId || match.Left != client || match.Stream != null) return;
+            if (start.Seed != match.Seed || start.HostLoadout != match.LeftLoadout || start.GuestLoadout != match.RightLoadout ||
+                string.IsNullOrWhiteSpace(start.Arena) || start.Arena.Length > 32 ||
+                (match.Settings.Arena != RoomSettings.RandomArena && start.Arena != match.Settings.Arena) ||
+                start.WinsRequired != match.Settings.WinsRequired ||
+                start.RoundTimeSeconds != match.Settings.RoundTimeSeconds) return;
+            match.Stream = new SpectatorStream { MatchId = matchId, Start = start };
+            match.Stream.Replay.LeftName = match.Left.Identity.PlayerName;
+            match.Stream.Replay.RightName = match.Right.Identity.PlayerName;
+            Broadcast(match.Room);
+        }
+
+        private void PublishFrames(Client client, uint matchId, NetReader reader)
+        {
+            var match = client.Match;
+            if (match == null || match.Id != matchId || match.Left != client || match.Stream == null) return;
+            // Bound upload speed as well as total memory; a fighter cannot fill a half-hour buffer instantly.
+            int available = (int)Math.Min(SpectatorStream.MaxTicks, (_nowMs - match.StartedMs) * 60 / 1000 + 600);
+            if (match.Stream.Replay.TickCount > available) return;
+            match.Stream.ReadFrames(reader);
+        }
+
+        private void Spectate(Client client, uint matchId)
+        {
+            var room = client.Room;
+            if (room == null || client.Member == null) return;
+            if (client.Match != null) { Send(client, RoomMessages.Error("Finish your own fight before spectating.")); return; }
+            if (matchId == 0)
+            {
+                StopWatching(client, "Stopped spectating.");
+                Broadcast(room);
+                return;
+            }
+            var match = room.Matches.Find(fight => fight.Id == matchId);
+            if (match?.Stream == null) { Send(client, RoomMessages.Error("That fight is still starting or has already ended.")); return; }
+            StopWatching(client, "Switched fights.");
+            room.Queue.Remove(client.Id);
+            client.Member.Status = MemberStatus.Spectating;
+            client.Member.WantsRematch = false;
+            client.QueueAfterMatch = false;
+            if (room.ChampionId == client.Id) { room.ChampionId = 0; room.Streak = 0; room.ChampionAwaySinceMs = -1; }
+            client.Watching = match;
+            client.WatchTick = 0;
+            Send(client, match.Stream.EncodeStart());
+            TryPair(room);
+            Broadcast(room);
+        }
+
+        private void StopWatching(Client client, string reason)
+        {
+            var match = client.Watching;
+            client.Watching = null;
+            if (match?.Stream != null) Send(client, match.Stream.EncodeEnd(reason));
+            if (client.Member?.Status == MemberStatus.Spectating) client.Member.Status = MemberStatus.Idle;
+            ReleaseSpectatorHistory(match);
+        }
+
+        private void PumpSpectator(Client client)
+        {
+            var match = client.Watching;
+            var stream = match?.Stream;
+            if (stream == null) return;
+            // Keep headroom for room control messages; slow viewers never stall the fighters.
+            for (int i = 0; i < 4 && client.Reliable.PendingCount < 16 && client.WatchTick < stream.Replay.TickCount; i++)
+            {
+                Send(client, stream.EncodeFrames(client.WatchTick, out int count));
+                client.WatchTick += count;
+            }
+            if (stream.Ended && client.WatchTick == stream.Replay.TickCount && client.Reliable.PendingCount < 16)
+            {
+                Send(client, stream.EncodeEnd());
+                client.Watching = null;
+                ReleaseSpectatorHistory(match);
+            }
+        }
+
+        private void ReleaseSpectatorHistory(Match match)
+        {
+            if (match?.Stream?.Ended == true && !_byEndPoint.Values.Any(client => client.Watching == match)) match.Stream = null;
+        }
+
         private void TryPair(Room room)
         {
-            if (room.Current != null) return;
+            if (room.Matches.Count > 0 && room.Settings.Rotation != RoomRotation.Simultaneous) return;
             room.Queue.RemoveAll(id => room.Members.All(member => member.Id != id || member.Member.Status != MemberStatus.Queued));
             if (room.Settings.Rotation == RoomRotation.WinnerStays && room.ChampionId != 0)
             {
@@ -608,11 +705,14 @@ namespace Eclipse.RoomServer
                 if (champion == null) { room.ChampionId = 0; room.Streak = 0; }
                 else if (champion.Member.Status == MemberStatus.Away) return; // The winner stays: wait for them to continue.
             }
-            if (room.Queue.Count < 2) return;
-            var left = room.Members.Find(member => member.Id == room.Queue[0]);
-            var right = room.Members.Find(member => member.Id == room.Queue[1]);
-            room.Queue.RemoveRange(0, 2);
-            StartMatch(room, left, right);
+            while (room.Queue.Count >= 2)
+            {
+                var left = room.Members.Find(member => member.Id == room.Queue[0]);
+                var right = room.Members.Find(member => member.Id == room.Queue[1]);
+                room.Queue.RemoveRange(0, 2);
+                StartMatch(room, left, right);
+                if (room.Settings.Rotation != RoomRotation.Simultaneous) break;
+            }
         }
 
         /// <summary>Pairs two members: each gets the other's address and a shared seed (which also picks a random arena).</summary>
@@ -626,15 +726,18 @@ namespace Eclipse.RoomServer
                 Left = left,
                 Right = right,
                 StartedMs = _nowMs,
+                Seed = _random.Next(),
+                Settings = room.Settings.Copy(),
+                LeftLoadout = left.Member.Loadout,
+                RightLoadout = right.Member.Loadout,
             };
-            room.Current = match;
+            room.Matches.Add(match);
             left.Match = right.Match = match;
             left.Member.Status = right.Member.Status = MemberStatus.InMatch;
             left.Member.WantsRematch = right.Member.WantsRematch = false;
             left.QueueAfterMatch = right.QueueAfterMatch = false;
-            int seed = _random.Next();
-            Send(left, PairingFor(match, left, right, 0, seed).Encode());
-            Send(right, PairingFor(match, right, left, 1, seed).Encode());
+            Send(left, PairingFor(match, left, right, 0, match.Seed).Encode());
+            Send(right, PairingFor(match, right, left, 1, match.Seed).Encode());
             Log("match " + match.Id + " in room " + room.Id + ": " + left.Identity.PlayerName + " vs " + right.Identity.PlayerName);
         }
 
@@ -671,7 +774,7 @@ namespace Eclipse.RoomServer
             if (opponent.Room != room || opponent.Member == null) { Send(client, RoomMessages.Error("Your opponent left the room.")); return; }
             bool opponentStill = opponent.Match == match || opponent.Match == null && opponent.LastMatch == match && opponent.Member.Status == MemberStatus.Away;
             if (!opponentStill) { Send(client, RoomMessages.Error(opponent.Identity.PlayerName + " has already moved on.")); return; }
-            if (room.Queue.Count > 0) { Send(client, RoomMessages.Error("Others are waiting to fight, so no rematch this time.")); return; }
+            if (room.Queue.Count > 0 && room.Settings.Rotation != RoomRotation.Simultaneous) { Send(client, RoomMessages.Error("Others are waiting to fight, so no rematch this time.")); return; }
             client.Member.WantsRematch = true;
             TryRematch(match);
             Broadcast(room);
@@ -683,11 +786,12 @@ namespace Eclipse.RoomServer
             var room = match.Room;
             var left = match.Left;
             var right = match.Right;
-            bool bothBack = room.Current == null && left.Room == room && right.Room == room && left.Member != null && right.Member != null &&
+            bool bothBack = (room.Matches.Count == 0 || room.Settings.Rotation == RoomRotation.Simultaneous) && left.Room == room && right.Room == room && left.Member != null && right.Member != null &&
+                left.Match == null && right.Match == null &&
                 left.LastMatch == match && right.LastMatch == match &&
                 left.Member.Status == MemberStatus.Away && right.Member.Status == MemberStatus.Away;
             if (!bothBack || !left.Member.WantsRematch || !right.Member.WantsRematch) return false;
-            if (room.Queue.Count > 0)
+            if (room.Queue.Count > 0 && room.Settings.Rotation != RoomRotation.Simultaneous)
             {
                 // Someone joined the line while the fight was resolving; they go first.
                 left.Member.WantsRematch = right.Member.WantsRematch = false;
@@ -711,6 +815,7 @@ namespace Eclipse.RoomServer
                 PeerName = peer.Identity.PlayerName,
                 PeerLoadout = peer.Member.Loadout,
                 Seed = seed,
+                Settings = match.Settings,
             };
             pairing.Candidates.Add(peer.EndPoint);
             foreach (var lan in peer.Lan)
@@ -731,7 +836,7 @@ namespace Eclipse.RoomServer
         private void Resolve(Match match, bool force)
         {
             var room = match.Room;
-            if (room.Current != match) return;
+            if (!room.Matches.Contains(match)) return;
             bool leftDone = match.LeftReport.HasValue || match.LeftGone;
             bool rightDone = match.RightReport.HasValue || match.RightGone;
             if (!force && !(leftDone && rightDone)) return;
@@ -744,7 +849,9 @@ namespace Eclipse.RoomServer
                 outcome = match.RightReport == MatchOutcome.RightWon ? MatchOutcome.RightWon : MatchOutcome.Aborted;
             else outcome = MatchOutcome.Aborted;
 
-            room.Current = null;
+            room.Matches.Remove(match);
+            if (match.Stream != null) match.Stream.Ended = true;
+            ReleaseSpectatorHistory(match);
             foreach (var player in new[] { match.Left, match.Right })
             {
                 if (player.Match == match) player.Match = null;
@@ -816,10 +923,11 @@ namespace Eclipse.RoomServer
                 HostId = room.HostId,
                 ChampionId = room.ChampionId,
                 Streak = room.Streak,
-                MatchId = room.Current?.Id ?? 0,
-                LeftId = room.Current?.Left.Id ?? 0,
-                RightId = room.Current?.Right.Id ?? 0,
             };
+            foreach (var match in room.Matches) state.Fights.Add(new RoomFight
+            {
+                MatchId = match.Id, LeftId = match.Left.Id, RightId = match.Right.Id, CanSpectate = match.Stream != null,
+            });
             foreach (var member in room.Members)
             {
                 MeasureLink(member, out member.Member.PingMs, out member.Member.Link);

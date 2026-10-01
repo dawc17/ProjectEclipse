@@ -187,6 +187,61 @@ namespace Eclipse.Multiplayer
         }
     }
 
+    /// <summary>Read-only room viewing, using the same deterministic simulation as a replay.</summary>
+    public sealed class SpectatorInputSource : IVersusInputSource, IVersusStepRunner
+    {
+        private readonly Online.Rooms.SpectatorStream _stream;
+        private int _frame = -1;
+        public SpectatorInputSource(Online.Rooms.SpectatorStream stream) { _stream = stream; }
+        public void Pump() { }
+        public int StepsWanted => 1;
+        public bool TryGetTick(int tick, out byte left, out byte right)
+        {
+            left = right = 0;
+            if (tick >= _stream.Replay.TickCount) return false;
+            left = _stream.Replay.Left[tick]; right = _stream.Replay.Right[tick];
+            return true;
+        }
+
+        public void RunStep(Fight fight)
+        {
+            int backlog = _stream.Replay.TickCount - VersusTickDriver.Tick;
+            bool catchingUp = backlog > 60;
+            // ponytail: replay from tick zero; portable snapshots if late-join catch-up becomes too slow.
+            int steps = catchingUp ? 32 : backlog > 6 ? 2 : 1;
+            if (catchingUp && _frame == Time.frameCount) return;
+            _frame = Time.frameCount;
+            float volume = AudioListener.volume;
+            var clock = System.Diagnostics.Stopwatch.StartNew();
+            if (catchingUp) AudioListener.volume = 0f;
+            try
+            {
+                for (int i = 0; i < steps && !LocalVersusSession.HasResult && VersusTickDriver.Owns(fight); i++)
+                {
+                    int tick = VersusTickDriver.Tick;
+                    if ((!_stream.Ended && _stream.Replay.TickCount - tick <= 3) || !TryGetTick(tick, out var left, out var right))
+                    {
+                        VersusTickDriver.MarkStalled(true);
+                        if (_stream.Ended) LocalVersusSession.CompleteOnline(fight, -1, _stream.EndReason);
+                        break;
+                    }
+                    if (!VersusTickDriver.SimulateTick(fight, tick, left, right, TickFlags.None, out uint hash)) break;
+                    if (_stream.Replay.Hashes.TryGetValue(tick, out uint expected) && expected != hash)
+                    {
+                        LocalVersusSession.CompleteOnline(fight, -1, "Spectator playback fell out of sync. Return to the room and try again.");
+                        break;
+                    }
+                    if (clock.ElapsedMilliseconds >= 8) break;
+                }
+            }
+            finally { if (catchingUp) AudioListener.volume = volume; }
+        }
+
+        public void OnTickSimulated(int tick, byte left, byte right, uint? hash) { }
+        public void OnMatchEnded(int finalTick, int winner, int leftRounds, int rightRounds) { }
+        public void Stop() { }
+    }
+
     public static class VersusReplays
     {
         public static string Directory => Path.Combine(Application.persistentDataPath, "Replays");

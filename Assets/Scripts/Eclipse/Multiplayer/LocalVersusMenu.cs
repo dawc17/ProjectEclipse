@@ -144,6 +144,7 @@ namespace Eclipse.Multiplayer
         {
             EnsureEventSystem();
             page = Page.Result;
+            if (LocalVersusSession.IsSpectating) { ShowSpectatorMenu(message ?? "The fight ended."); return; }
             if (LocalVersusSession.Settings != null && LocalVersusSession.Settings.Mode == VersusMode.Training) { ShowTrainingMenu("Round over"); return; }
             if (LocalVersusSession.IsOnline) { ShowOnlineResult(winner, playerOneWins, playerTwoWins, message); return; }
             if (LocalVersusSession.IsReplay) { ShowReplayResult(winner, playerOneWins, playerTwoWins); return; }
@@ -161,6 +162,7 @@ namespace Eclipse.Multiplayer
         {
             EnsureEventSystem();
             page = Page.Pause;
+            if (LocalVersusSession.IsSpectating) { ShowSpectatorMenu("You are spectating this fight."); return; }
             if (LocalVersusSession.Settings != null && LocalVersusSession.Settings.Mode == VersusMode.Training) { ShowTrainingMenu(reason); return; }
             if (LocalVersusSession.IsOnline)
             {

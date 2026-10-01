@@ -1,8 +1,8 @@
 # Eclipse room server
 
 A small program that makes online versus plug-and-play. Players browse, create and
-join rooms of up to 8. The server pairs players from the room's queue (winner stays,
-or everyone rotates). Each pair then connects **peer-to-peer**:
+join rooms of up to 8. The server pairs players from the room's queue (simultaneous,
+winner stays, or everyone rotates). Each pair then connects **peer-to-peer**:
 
 1. The server gives each player the other's address, as the server sees it, plus
    their LAN addresses.
@@ -11,9 +11,41 @@ or everyone rotates). Each pair then connects **peer-to-peer**:
 3. If punching fails within 2.5 s (strict NAT, most mobile networks), the fight's
    packets are relayed through this server instead. That's about 3 KB/s per player.
 
-The server never runs or inspects a fight. It only forwards the ~40-byte input
-packets for relayed pairs. It keeps win/loss records per room while the room exists;
-nothing is saved to disk.
+The server never simulates a fight. It forwards fight packets for relayed pairs
+and buffers the host's confirmed inputs for spectators. It keeps win/loss records
+per room while the room exists; nothing is saved to disk.
+
+## Simultaneous fights and spectators
+
+New rooms default to **Simultaneous**: every two queued players are paired, so an
+eight-player room can run four fights at once. Each fight has its own connection,
+settings snapshot, results, and rematches. The room host can still choose
+**Winner stays** or **Everyone rotates**, which run one queued fight at a time.
+Changing the mode or rules affects new fights; active fights keep their settings.
+Switching to a single-fight mode waits for existing simultaneous fights to finish.
+
+Room members can click **Spectate** beside any ongoing fight once its host has
+published the setup. Watching removes the member from the queue. Viewers receive
+confirmed inputs and state checkpoints through the room server, independently of
+the fighters' direct/relay connection. Late viewers replay from the beginning at
+high speed with catch-up audio muted, then follow the live stream with a small
+buffer. Catch-up can take time on slow machines or late in a long match.
+
+Spectators send no fighter input or results. They can open the menu with Escape
+and use **Back to room** to stop watching, then queue or select another fight.
+The stream ends after the final buffered inputs when the server resolves the
+fight. If playback diverges or the room connection fails, the viewer sees a
+message and can return to the room. A viewer's pause, slow connection, or departure
+does not pause the fighters.
+
+Input history is limited to the existing 30-minute match timeout. It is released
+after the fight ends and its viewers have received the final data or left.
+Spectator sending leaves reliable-channel capacity for room control messages.
+This remains a friendly-room design: the server validates membership and the
+publishing host, but cannot prove that uploaded inputs represent an honest fight.
+
+These features use **room protocol 4**. Deploy the updated server and distribute
+matching clients together; protocol 3 clients are refused with an update message.
 
 ## Run it
 
@@ -46,7 +78,7 @@ for example `10.171.108.41:7300`. Allow UDP 7300 through your firewall
 
 ## Limits
 
-- 8 players per room, 1000 rooms, 4000 connected players.
+- 8 members per room (including spectators), 1000 rooms, 4000 connected players.
 - Relay is capped at 48 KB/s per player. A fight needs about 3 KB/s.
 - Only players with the same game build (version and IL2CPP/Mono) and the same
   enabled mods see and join each other's rooms.

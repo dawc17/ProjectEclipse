@@ -12,6 +12,8 @@ namespace Eclipse.Multiplayer
         Replay,
         /// <summary>Player one against a training dummy (scripted, recorded or the game AI).</summary>
         Training,
+        /// <summary>A room fight watched through confirmed inputs; no local fighter controls.</summary>
+        Spectator,
     }
 
     /// <summary>Immutable configuration for one versus match and its rematches.</summary>

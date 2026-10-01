@@ -130,8 +130,25 @@ namespace Eclipse.Multiplayer
             Client.SetMember(LocalLoadout.ToCode(), WantsQueue);
         }
 
+        public void Spectate(uint matchId)
+        {
+            if (Room == null || InFight || PendingPairing != null || LocalVersusSession.IsStarting) return;
+            WantsQueue = false;
+            Notice = "Connecting to the spectator stream...";
+            Client.Spectate(matchId);
+        }
+
+        public void StopSpectating()
+        {
+            if (LocalVersusSession.IsStarting) return;
+            Client?.Spectate(0);
+            Notice = string.Empty;
+            LocalVersusSession.ShowMultiplayerHome();
+        }
+
         public void Leave()
         {
+            if (LocalVersusSession.IsSpectating) StopSpectating();
             if (InFight) OnlineVersusSession.Shutdown("Left the room.");
             InFight = false;
             PendingPairing = null;
@@ -280,6 +297,27 @@ namespace Eclipse.Multiplayer
                         (roomEvent.Pairing.Side == 0 ? "left (host)" : "right (guest)") + "; candidates " + string.Join(", ", roomEvent.Pairing.Candidates));
                     menu.OnRoomChanged();
                     break;
+                case RoomEventType.Spectating:
+                    var stream = Client.Spectating;
+                    if (stream == null) break;
+                    try
+                    {
+                        OnlineVersusSession.Shutdown("Started spectating.");
+                        var start = stream.Start;
+                        if (!VersusLoadouts.TryFromCode(start.HostLoadout, out var left) || !VersusLoadouts.TryFromCode(start.GuestLoadout, out var right))
+                            throw new InvalidOperationException("The fighter loadouts are not recognised.");
+                        var settings = new LocalVersusSettings(left, right,
+                            VersusRoster.ResolveArena(start.Arena, start.Seed), true, start.WinsRequired, start.RoundTimeSeconds,
+                            VersusMode.Spectator, stream.Replay.LeftName, stream.Replay.RightName, start.Seed);
+                        LocalVersusSession.StartMatch(settings, () => new SpectatorInputSource(stream));
+                    }
+                    catch (Exception exception)
+                    {
+                        Client.Spectate(0);
+                        Notice = "Could not spectate: " + exception.Message;
+                        menu.ShowRoom();
+                    }
+                    break;
             }
         }
 
@@ -297,7 +335,7 @@ namespace Eclipse.Multiplayer
                 : NetplayPeer.Join(link, MatchLink.PeerEndPoint, identity, OnlineVersusSession.NowMs);
             InFight = true;
             AutoContinueAtMs = -1;
-            OnlineVersusSession.StartRoomFight(peer, pairing, Room?.Settings ?? new RoomSettings(), LocalName, LocalLoadout);
+            OnlineVersusSession.StartRoomFight(peer, pairing, pairing.Settings, LocalName, LocalLoadout);
             Notice = "Fighting " + pairing.PeerName + (link.Path == LinkPath.Relay ? " (relayed)." : ".");
             LocalVersusMenu.Ensure().OnRoomChanged();
         }
@@ -354,6 +392,7 @@ namespace Eclipse.Multiplayer
             {
                 case MemberStatus.InMatch: return "Fighting";
                 case MemberStatus.Away: return "Back soon";
+                case MemberStatus.Spectating: return "Spectating";
             }
             if (room != null && room.ChampionId == member.Id)
                 return room.Streak > 1 ? "Champion x" + room.Streak : "Champion";
@@ -369,6 +408,7 @@ namespace Eclipse.Multiplayer
         {
             var room = Room;
             if (room == null) return "";
+            if (room.Fights.Count > 1) return room.Fights.Count + " fights in progress";
             if (room.MatchId != 0)
             {
                 string left = room.Find(room.LeftId)?.Name ?? "?", right = room.Find(room.RightId)?.Name ?? "?";

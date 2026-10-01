@@ -6,7 +6,7 @@ namespace Eclipse.Multiplayer.Online.Rooms
 {
     public enum RoomClientState { Connecting, Connected, Closed }
 
-    public enum RoomEventType { Error, RoomListUpdated, RoomChanged, LeftRoom, Paired, Chat }
+    public enum RoomEventType { Error, RoomListUpdated, RoomChanged, LeftRoom, Paired, Chat, Spectating }
 
     public struct RoomEvent
     {
@@ -54,6 +54,8 @@ namespace Eclipse.Multiplayer.Online.Rooms
         /// <summary>This room's chat, oldest first; cleared on leaving the room.</summary>
         public readonly List<ChatLine> Chat = new List<ChatLine>();
         public MatchLink Link { get; private set; }
+        public SpectatorStream Spectating { get; private set; }
+        private uint _wantedSpectate;
         /// <summary>Test aid: skip hole punching and always relay through the server.</summary>
         public bool ForceRelay { get; set; }
 
@@ -98,6 +100,26 @@ namespace Eclipse.Multiplayer.Online.Rooms
         }
         public void UpdateSettings(RoomSettings settings) => Send(RoomMessages.UpdateSettings(settings));
         public void Kick(uint memberId) => Send(RoomMessages.Kick(memberId));
+
+        public void Spectate(uint matchId)
+        {
+            _wantedSpectate = matchId;
+            if (Spectating != null) Spectating.Ended = true;
+            Spectating = null;
+            Send(RoomMessages.Spectate(matchId));
+        }
+
+        public void PublishStart(uint matchId, MatchStart start) => Send(RoomMessages.PublishStart(matchId, start));
+
+        public bool PublishFrames(uint matchId, VersusReplay replay, ref int sent)
+        {
+            if (State != RoomClientState.Connected || _reliable.PendingCount >= 32 || sent >= replay.TickCount) return false;
+            // Share the existing recording without keeping a second copy of fighter inputs.
+            byte[] data = SpectatorStream.EncodeFrames(matchId, replay, sent, out int count);
+            _reliable.Send(data);
+            sent += count;
+            return true;
+        }
 
         /// <summary>Reports the fight's outcome from this side. The link stays up for the result screen.</summary>
         /// <summary>Asks to fight the opponent of <paramref name="matchId"/> again, or withdraws that.</summary>
@@ -170,6 +192,7 @@ namespace Eclipse.Multiplayer.Online.Rooms
                 for (int i = 0; i < 2; i++) _socket.Send(Server, _writer.Buffer, _writer.Length);
             }
             CloseReason = reason ?? string.Empty;
+            if (Spectating != null) { Spectating.Ended = true; Spectating.EndReason = CloseReason; }
             State = RoomClientState.Closed;
         }
 
@@ -269,6 +292,8 @@ namespace Eclipse.Multiplayer.Online.Rooms
                         _events.Enqueue(new RoomEvent { Type = RoomEventType.RoomChanged });
                         break;
                     case RoomMessage.LeftRoom:
+                        if (Spectating != null) { Spectating.Ended = true; Spectating.EndReason = "Left the room."; }
+                        _wantedSpectate = 0;
                         Room = null;
                         Link = null;
                         Chat.Clear();
@@ -282,9 +307,27 @@ namespace Eclipse.Multiplayer.Online.Rooms
                         _events.Enqueue(new RoomEvent { Type = RoomEventType.Chat, Chat = line });
                         break;
                     case RoomMessage.Pairing:
+                        _wantedSpectate = 0;
+                        if (Spectating != null) Spectating.Ended = true;
+                        Spectating = null;
                         var pairing = RoomPairing.Decode(reader);
                         Link = new MatchLink(this, pairing, ForceRelay, _nowMs);
                         _events.Enqueue(new RoomEvent { Type = RoomEventType.Paired, Pairing = pairing });
+                        break;
+                    case RoomMessage.SpectatorStart:
+                        var stream = SpectatorStream.DecodeStart(reader);
+                        if (stream.MatchId != _wantedSpectate || Room == null) break;
+                        Spectating = stream;
+                        _events.Enqueue(new RoomEvent { Type = RoomEventType.Spectating });
+                        break;
+                    case RoomMessage.SpectatorFrames:
+                        uint watched = reader.U32();
+                        if (Spectating?.MatchId == watched) Spectating.ReadFrames(reader);
+                        break;
+                    case RoomMessage.SpectatorEnd:
+                        uint ended = reader.U32();
+                        string reason = reader.Str();
+                        if (Spectating?.MatchId == ended) { Spectating.Ended = true; Spectating.EndReason = reason; }
                         break;
                 }
             }

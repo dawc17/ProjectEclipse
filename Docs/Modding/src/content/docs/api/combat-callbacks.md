@@ -50,13 +50,16 @@ multiplayer version keeps its match lifecycle isolated from campaign/mod combat
 events. This is a documented implementation boundary, not a claim that all mods
 are disabled during Local Versus.
 
-The same boundary applies to online versus and to versus replays, which run on
+The same boundary applies to online versus, live room spectating, and versus replays, which run on
 the Local Versus match. Both players' games simulate the whole fight from the
 same inputs, so mod content must match exactly: when you connect, the game
 compares the game version, the kind of build (IL2CPP builds and the Mono-based
 Unity editor cannot play together), and the list of enabled mods with their
 versions, and refuses the match if they differ. A saved replay only plays back
 with the game version, build kind and enabled mods it was recorded with.
+Live spectators also simulate the fight from confirmed inputs and do not dispatch
+campaign combat callbacks or write campaign progress. Simultaneous room fights
+do not change this isolation or grant mods matchmaking or spectator controls.
 
 Online versus uses rollback netcode by default. When the opponent's input
 arrives late, the game runs ahead on a guess, then restores the fight state and

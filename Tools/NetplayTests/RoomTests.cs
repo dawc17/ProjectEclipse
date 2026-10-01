@@ -30,7 +30,7 @@ internal static class RoomTests
             var modded = Connect(server, new NetIdentity("1.0/IL2CPP", "mods:x@1", "Dee"));
 
             // Create, list and join.
-            ann.CreateRoom(new RoomSettings { Name = "Dojo night", WinsRequired = 1, Arena = "dojo" }, "");
+            ann.CreateRoom(new RoomSettings { Name = "Dojo night", WinsRequired = 1, Arena = "dojo", Rotation = RoomRotation.WinnerStays }, "");
             Pump(() => ann.Room != null);
             Check(ann.Room != null && ann.Room.HostId == ann.ClientId && ann.Room.Code.Length == 6, "room created with a code");
             bo.JoinByCode(ann.Room.Code.ToLowerInvariant(), "");
@@ -116,6 +116,7 @@ internal static class RoomTests
             Hardening(server, identity);
             ChatAndPing(server, identity);
             RoomStateFitsFullLoadouts();
+            SimultaneousAndSpectating(server, identity);
 
             foreach (var client in _clients) client.Dispose();
             Pump(() => _server.ClientCount == 0, 2000);
@@ -185,6 +186,106 @@ internal static class RoomTests
         wide.LeaveRoom();
         mate.LeaveRoom();
         Pump(() => wide.Room == null && mate.Room == null);
+    }
+
+    private static void SimultaneousAndSpectating(IPEndPoint server, Func<string, NetIdentity> identity)
+    {
+        foreach (var old in _clients.ToArray()) old.Dispose();
+        _clients.Clear();
+        Pump(() => _server.ClientCount == 0);
+        var players = Enumerable.Range(0, 8).Select(i => Connect(server, identity("Player " + i))).ToArray();
+        players[0].CreateRoom(new RoomSettings { Name = "Parallel" }, "");
+        Pump(() => players[0].Room != null);
+        for (int i = 1; i < players.Length; i++) players[i].JoinByCode(players[0].Room.Code, "");
+        Pump(() => players[0].Room.Members.Count == 8);
+        for (int i = 0; i < players.Length; i++) players[i].SetMember(Loadout(i), true);
+        Pump(() => players.All(player => player.Link != null) && players[0].Room.Fights.Count == 4);
+        Check(players[0].Room.Fights.Count == 4 && players.Select(player => player.Link.MatchId).Distinct().Count() == 4,
+            "eight queued players get four independent simultaneous fights");
+        Check(players[0].Room.Queue.Count == 0 && players[0].Room.Members.All(member => member.Status == MemberStatus.InMatch), "nobody waits while a pair is free");
+        players[0].UpdateSettings(new RoomSettings { Name = "Parallel", Arena = "sakura", WinsRequired = 3 });
+        Pump(() => players[0].Room.Settings.WinsRequired == 3);
+        Check(players[0].Link.Pairing.Settings.Arena == RoomSettings.RandomArena && players[0].Link.Pairing.Settings.WinsRequired == 2,
+            "room changes do not alter an existing pairing's settings snapshot");
+        for (int i = 0; i < 8; i += 2)
+        {
+            var pair = players[i].Link.Pairing;
+            players[i].PublishStart(pair.MatchId, new MatchStart
+            {
+                MatchIndex = 1, Seed = pair.Seed, Arena = "dojo", WinsRequired = pair.Settings.WinsRequired,
+                RoundTimeSeconds = pair.Settings.RoundTimeSeconds, HostLoadout = Loadout(i), GuestLoadout = Loadout(i + 1), InputDelay = 2,
+            });
+        }
+        Pump(() => players[0].Room.Fights.All(fight => fight.CanSpectate));
+        Check(players[0].Room.Fights.All(fight => fight.CanSpectate), "every host publishes its own spectator setup");
+        uint first = players[0].Link.MatchId, second = players[2].Link.MatchId, last = players[6].Link.MatchId;
+        players[0].Spectate(second);
+        string fightingRefusal = null;
+        Pump(() => (fightingRefusal = Drain(players[0]).FirstOrDefault(e => e.Type == RoomEventType.Error).Text) != null);
+        Check(fightingRefusal != null && players[0].Spectating == null && players[0].Link.MatchId == first,
+            "a fighter cannot spectate or interfere with another fight");
+        players[6].ReportMatch(last, MatchOutcome.Draw, ""); players[7].ReportMatch(last, MatchOutcome.Draw, "");
+        Pump(() => players[0].Room.Fights.Count == 3);
+        Check(players[0].Room.Fights.Count == 3 && players[0].Room.Fights.Any(fight => fight.MatchId == first), "finishing one fight leaves the others running");
+
+        var recording = new VersusReplay();
+        for (int i = 0; i < 150; i++) { recording.Record((byte)(i % 9), (byte)((i + 1) % 9)); if (i % 30 == 0) recording.Hashes[i] = (uint)i + 17; }
+        int sent = 0;
+        while (players[0].PublishFrames(first, recording, ref sent)) { }
+        // A guest cannot overwrite the host's stream.
+        int forged = 0; players[1].PublishFrames(first, recording, ref forged);
+        players[6].Spectate(first);
+        Pump(() => players[6].Spectating?.Replay.TickCount == 150);
+        var feed = players[6].Spectating;
+        Check(feed != null && feed.Replay.TickCount == 150 && feed.Replay.Left.SequenceEqual(recording.Left) && feed.Replay.Hashes[120] == 137,
+            "a late viewer receives complete confirmed history and checkpoints, without duplicate guest uploads");
+        Pump(() => players[0].Room.Find(players[6].ClientId).Status == MemberStatus.Spectating);
+        Check(players[0].Room.Find(players[6].ClientId).Status == MemberStatus.Spectating, "the room marks the viewer as spectating");
+        players[7].Spectate(first);
+        Pump(() => players[7].Spectating?.Replay.TickCount == 150);
+        Check(players[7].Spectating?.Replay.TickCount == 150, "multiple viewers can watch the same fight");
+        for (int i = 150; i < 180; i++) recording.Record(3, 4);
+        while (players[0].PublishFrames(first, recording, ref sent)) { }
+        Pump(() => feed.Replay.TickCount == 180 && players[7].Spectating.Replay.TickCount == 180);
+        Check(feed.Replay.TickCount == 180 && players[7].Spectating.Replay.TickCount == 180, "both viewers receive live inputs");
+        players[6].ReportMatch(first, MatchOutcome.LeftWon, "forged spectator result");
+        Pump(() => false, 100);
+        Check(players[0].Room.Fights.Count == 3 && players[0].Room.Find(players[0].ClientId).Wins == 0, "spectators cannot report a fighter's result");
+        players[6].Spectate(second);
+        Pump(() => players[6].Spectating?.MatchId == second);
+        Check(players[6].Spectating?.MatchId == second && players[6].Spectating.Replay.TickCount == 0, "switching fights starts a separate stream");
+        players[6].Spectate(0);
+        Pump(() => players[0].Room.Find(players[6].ClientId).Status == MemberStatus.Idle);
+        Check(players[0].Room.Find(players[6].ClientId).Status == MemberStatus.Idle, "stopping spectating restores idle status");
+        players[6].LeaveRoom();
+        Pump(() => players[6].Room == null);
+        players[6].CreateRoom(new RoomSettings { Name = "Outside" }, "");
+        Pump(() => players[6].Room != null);
+        players[6].Spectate(first);
+        string refused = null;
+        Pump(() => (refused = Drain(players[6]).FirstOrDefault(e => e.Type == RoomEventType.Error).Text) != null);
+        Check(refused != null && players[6].Spectating == null, "a member of another room cannot spectate a private fight");
+
+        players[0].ReportMatch(first, MatchOutcome.LeftWon, ""); players[1].ReportMatch(first, MatchOutcome.LeftWon, "");
+        Pump(() => players[7].Spectating.Ended && players[0].Room.Fights.Count == 2);
+        Check(players[7].Spectating.Ended && players[7].Spectating.Replay.TickCount == 180, "viewers receive the final inputs before the end notice");
+        players[0].Rematch(first, true); players[1].Rematch(first, true);
+        Pump(() => players[0].Link.MatchId != first && players[0].Room.Fights.Count == 3);
+        Check(players[0].Link.MatchId != first && players[0].Room.Fights.Any(fight => fight.MatchId == second), "a rematch can run alongside other simultaneous fights");
+        players[7].Spectate(second);
+        Pump(() => players[7].Spectating?.MatchId == second);
+        players[7].SetMember(Loadout(7), true);
+        Pump(() => players[0].Room.Find(players[7].ClientId).Status == MemberStatus.Queued);
+        Check(players[7].Spectating.Ended && players[0].Room.Queue.Contains(players[7].ClientId), "joining the queue unsubscribes a spectator");
+        var truncated = new SpectatorStream();
+        byte[] chunk = SpectatorStream.EncodeFrames(1, recording, 0, out _);
+        bool rejected = false;
+        try { truncated.ReadFrames(new NetReader(chunk, 5, chunk.Length - 6)); } catch (NetFormatException) { rejected = true; }
+        Check(rejected && truncated.Replay.TickCount == 0, "truncated spectator chunks are rejected without partial history");
+        foreach (var player in players) player.Dispose();
+        _clients.Clear();
+        Pump(() => _server.ClientCount == 0 && _server.RoomCount == 0);
+        Check(_server.RoomCount == 0, "parallel rooms and viewers clean up on disconnect");
     }
 
     private static LoadoutCode Loadout(int weapon) =>
@@ -261,8 +362,9 @@ internal static class RoomTests
         {
             RoomId = uint.MaxValue, Code = "ABCDEF",
             Settings = new RoomSettings { Name = new string('\u6f22', 32), Arena = new string('a', 32) },
-            HostId = 1, ChampionId = 2, Streak = 9, MatchId = 3, LeftId = 1, RightId = 2,
+            HostId = 1, ChampionId = 2, Streak = 9,
         };
+        for (uint i = 0; i < 4; i++) state.Fights.Add(new RoomFight { MatchId = i + 1, LeftId = i * 2 + 1, RightId = i * 2 + 2, CanSpectate = true });
         for (int i = 0; i < RoomProtocol.MaxMembers; i++)
         {
             state.Members.Add(new RoomMember
@@ -289,7 +391,7 @@ internal static class RoomTests
     {
         var eve = Connect(server, identity("Eve"));
         var fay = Connect(server, identity("Fay"));
-        eve.CreateRoom(new RoomSettings { Name = "Rematch", WinsRequired = 1 }, "");
+        eve.CreateRoom(new RoomSettings { Name = "Rematch", WinsRequired = 1, Rotation = RoomRotation.WinnerStays }, "");
         Pump(() => eve.Room != null);
         fay.JoinByCode(eve.Room.Code, "");
         Pump(() => fay.Room != null && eve.Room.Members.Count == 2);

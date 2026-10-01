@@ -36,9 +36,11 @@ changes and mod-state migrations made during Local Versus are discarded instead
 of being saved back to the campaign profile. The save guard also covers delayed
 authentication/save callbacks after returning to the title screen.
 
-Online multiplayer is not implemented yet. The first loadouts contain melee weapons
-and the default appearance, with no ranged weapon, magic, or enchantments. Character and
-equipment selection can be expanded after this initial local mode.
+Online versus is implemented with room discovery, direct connections, and relay
+fallback. New rooms allow simultaneous fights, and members can spectate ongoing
+matches. See [Online Versus](Engineering/ONLINE_VERSUS.md) for the current network,
+loadout, replay, and verification details; the local-mode description above records
+the initial recovery implementation.
 
 ## Verification
 

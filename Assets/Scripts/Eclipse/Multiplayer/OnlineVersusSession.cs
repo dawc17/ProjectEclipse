@@ -462,6 +462,7 @@ namespace Eclipse.Multiplayer
                 return;
             }
             CurrentMatch = start;
+            if (IsHost && RoomMatch != null) RoomSession.Current?.Client.PublishStart(RoomMatch.MatchId, start);
             _source = null;
             _nextMatchIndex = start.MatchIndex + 1;
             LocalWantsRematch = RemoteWantsRematch = false;
@@ -721,6 +722,7 @@ namespace Eclipse.Multiplayer
         private Eclipse.Multiplayer.Rollback.FightRollback _rollback;
         private RollbackRunner _runner;
         private int _recorded;
+        private int _published;
         private bool _started;
         /// <summary>
         /// Fixed steps allowed to simulate per rendered frame. After a slow frame Unity runs
@@ -845,6 +847,14 @@ namespace Eclipse.Multiplayer
                 uint? hash = _timeline.TryGetLocalHash(_recorded, out var value) ? value : (uint?)null;
                 base.OnTickSimulated(_recorded, _localSide == 0 ? local : remote, _localSide == 0 ? remote : local, hash);
             }
+            PublishConfirmed(false);
+        }
+
+        private void PublishConfirmed(bool flush)
+        {
+            if (!_session.IsHost || _session.RoomMatch == null || RoomSession.Current == null) return;
+            if (!flush && Replay.TickCount - _published < 20) return;
+            while (RoomSession.Current.Client.PublishFrames(_session.RoomMatch.MatchId, Replay, ref _published)) { }
         }
 
         public override void OnTickSimulated(int tick, byte left, byte right, uint? hash) { }
@@ -871,6 +881,7 @@ namespace Eclipse.Multiplayer
                 _recorded++;
             }
             base.OnMatchEnded(finalTick, winner, leftRounds, rightRounds);
+            PublishConfirmed(true);
             _session.OnLocalResult(winner, leftRounds, rightRounds, finalTick);
         }
 
@@ -884,6 +895,7 @@ namespace Eclipse.Multiplayer
                     _runner.Waits + " waits, " + _runner.Barriers + " barriers, " + _skippedSteps + " fixed steps skipped after slow frames. " +
                     "Grew since the first snapshot: " + _rollback.GrowthSinceFirstSave() + ".");
             RecordFinal(_timeline.FinalTicks);
+            PublishConfirmed(true);
             Eclipse.Multiplayer.Rollback.RollbackObjects.Clear();
             base.Stop();
             // The room/result UI may retain this input source. Release the old fight

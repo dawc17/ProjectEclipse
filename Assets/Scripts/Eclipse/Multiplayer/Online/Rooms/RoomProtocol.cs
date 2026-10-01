@@ -12,7 +12,7 @@ namespace Eclipse.Multiplayer.Online.Rooms
     /// </summary>
     public static class RoomProtocol
     {
-        public const byte Version = 3;
+        public const byte Version = 4;
         public const int DefaultPort = 7300;
         public const int MaxMembers = 8;
         public const int MaxCandidates = 6;
@@ -96,6 +96,8 @@ namespace Eclipse.Multiplayer.Online.Rooms
         Chat = 9,
         /// <summary>After a fight: fight the same opponent again (or withdraw the request).</summary>
         Rematch = 10,
+        Spectate = 11,
+        PublishStart = 12,
         // Server to client.
         Error = 20,
         RoomList = 21,
@@ -103,6 +105,9 @@ namespace Eclipse.Multiplayer.Online.Rooms
         Pairing = 23,
         LeftRoom = 24,
         ChatLine = 25,
+        SpectatorStart = 26,
+        SpectatorFrames = 27,
+        SpectatorEnd = 28,
     }
 
     public enum RoomRotation : byte
@@ -111,6 +116,8 @@ namespace Eclipse.Multiplayer.Online.Rooms
         WinnerStays = 0,
         /// <summary>Both players go to the back of the queue after every match.</summary>
         Rotate = 1,
+        /// <summary>Pair every two queued players, allowing up to four fights at once.</summary>
+        Simultaneous = 2,
     }
 
     public enum MemberStatus : byte
@@ -121,6 +128,7 @@ namespace Eclipse.Multiplayer.Online.Rooms
         InMatch = 2,
         /// <summary>Just finished a match and has not continued yet.</summary>
         Away = 3,
+        Spectating = 4,
     }
 
     public enum MatchOutcome : byte
@@ -141,7 +149,7 @@ namespace Eclipse.Multiplayer.Online.Rooms
         public string Arena = RandomArena;
         public int WinsRequired = 2;
         public int RoundTimeSeconds = 99;
-        public RoomRotation Rotation = RoomRotation.WinnerStays;
+        public RoomRotation Rotation = RoomRotation.Simultaneous;
 
         public void Write(NetWriter writer)
         {
@@ -175,7 +183,7 @@ namespace Eclipse.Multiplayer.Online.Rooms
             if (string.IsNullOrWhiteSpace(Arena) || Arena.Length > 32) return "Choose an arena.";
             if (WinsRequired < 1 || WinsRequired > 5) return "First to 1 to 5 wins.";
             if (RoundTimeSeconds < 30 || RoundTimeSeconds > 300) return "Rounds last 30 to 300 seconds.";
-            if (Rotation != RoomRotation.WinnerStays && Rotation != RoomRotation.Rotate) return "Unknown rotation.";
+            if (Rotation != RoomRotation.WinnerStays && Rotation != RoomRotation.Rotate && Rotation != RoomRotation.Simultaneous) return "Unknown rotation.";
             return null;
         }
 
@@ -219,6 +227,12 @@ namespace Eclipse.Multiplayer.Online.Rooms
         public string Arena = RoomSettings.RandomArena;
     }
 
+    public sealed class RoomFight
+    {
+        public uint MatchId, LeftId, RightId;
+        public bool CanSpectate;
+    }
+
     /// <summary>Everything a member sees about their room.</summary>
     public sealed class RoomState
     {
@@ -229,7 +243,10 @@ namespace Eclipse.Multiplayer.Online.Rooms
         public uint HostId;
         public uint ChampionId;
         public int Streak;
-        public uint MatchId, LeftId, RightId;
+        public readonly List<RoomFight> Fights = new List<RoomFight>();
+        public uint MatchId => Fights.Count == 0 ? 0 : Fights[0].MatchId;
+        public uint LeftId => Fights.Count == 0 ? 0 : Fights[0].LeftId;
+        public uint RightId => Fights.Count == 0 ? 0 : Fights[0].RightId;
         public readonly List<RoomMember> Members = new List<RoomMember>();
         public readonly List<uint> Queue = new List<uint>();
 
@@ -246,9 +263,14 @@ namespace Eclipse.Multiplayer.Online.Rooms
             writer.U32(HostId);
             writer.U32(ChampionId);
             writer.U16((ushort)Math.Min(Streak, ushort.MaxValue));
-            writer.U32(MatchId);
-            writer.U32(LeftId);
-            writer.U32(RightId);
+            writer.U8((byte)Fights.Count);
+            foreach (var fight in Fights)
+            {
+                writer.U32(fight.MatchId);
+                writer.U32(fight.LeftId);
+                writer.U32(fight.RightId);
+                writer.Bool(fight.CanSpectate);
+            }
             writer.U8((byte)Members.Count);
             foreach (var member in Members)
             {
@@ -278,10 +300,13 @@ namespace Eclipse.Multiplayer.Online.Rooms
                 HostId = reader.U32(),
                 ChampionId = reader.U32(),
                 Streak = reader.U16(),
-                MatchId = reader.U32(),
-                LeftId = reader.U32(),
-                RightId = reader.U32(),
             };
+            int fights = reader.U8();
+            if (fights > RoomProtocol.MaxMembers / 2) throw new NetFormatException("Too many fights.");
+            for (int i = 0; i < fights; i++) state.Fights.Add(new RoomFight
+            {
+                MatchId = reader.U32(), LeftId = reader.U32(), RightId = reader.U32(), CanSpectate = reader.Bool(),
+            });
             int members = reader.U8();
             if (members > RoomProtocol.MaxMembers) throw new NetFormatException("Too many members.");
             for (int i = 0; i < members; i++)
@@ -320,6 +345,7 @@ namespace Eclipse.Multiplayer.Online.Rooms
         public string PeerName = string.Empty;
         public LoadoutCode PeerLoadout = LoadoutCode.None;
         public int Seed;
+        public RoomSettings Settings = new RoomSettings();
         public readonly List<IPEndPoint> Candidates = new List<IPEndPoint>();
 
         public byte[] Encode()
@@ -333,6 +359,7 @@ namespace Eclipse.Multiplayer.Online.Rooms
             writer.StrClamped(PeerName, 48);
             PeerLoadout.Write(writer);
             writer.I32(Seed);
+            Settings.Write(writer);
             int count = Math.Min(Candidates.Count, RoomProtocol.MaxCandidates);
             writer.U8((byte)count);
             for (int i = 0; i < count; i++) RoomProtocol.WriteEndPoint(writer, Candidates[i]);
@@ -350,6 +377,7 @@ namespace Eclipse.Multiplayer.Online.Rooms
                 PeerName = reader.Str(),
                 PeerLoadout = LoadoutCode.Read(reader),
                 Seed = reader.I32(),
+                Settings = RoomSettings.Read(reader),
             };
             int count = reader.U8();
             if (count > RoomProtocol.MaxCandidates) throw new NetFormatException("Too many candidates.");
@@ -358,9 +386,110 @@ namespace Eclipse.Multiplayer.Online.Rooms
         }
     }
 
+    /// <summary>Confirmed inputs only. Late viewers replay from tick zero, then catch up.</summary>
+    public sealed class SpectatorStream
+    {
+        // ponytail: bounded input history for 30-minute matches; snapshots if longer matches are needed.
+        public const int MaxTicks = 30 * 60 * 60;
+        public const int ChunkTicks = 120;
+        public uint MatchId;
+        public MatchStart Start;
+        public readonly VersusReplay Replay = new VersusReplay();
+        public bool Ended;
+        public string EndReason = "The fight ended.";
+
+        public byte[] EncodeStart()
+        {
+            var writer = new NetWriter(384);
+            writer.U8((byte)RoomMessage.SpectatorStart);
+            writer.U32(MatchId);
+            writer.StrClamped(Replay.LeftName, 48);
+            writer.StrClamped(Replay.RightName, 48);
+            byte[] data = Start.Encode();
+            writer.Bytes(data, 1, data.Length - 1);
+            return writer.ToArray();
+        }
+
+        public static SpectatorStream DecodeStart(NetReader reader)
+        {
+            var stream = new SpectatorStream { MatchId = reader.U32() };
+            stream.Replay.LeftName = reader.Str();
+            stream.Replay.RightName = reader.Str();
+            stream.Start = MatchStart.Decode(reader);
+            return stream;
+        }
+
+        public byte[] EncodeFrames(int from, out int count)
+            => EncodeFrames(MatchId, Replay, from, out count);
+
+        public static byte[] EncodeFrames(uint matchId, VersusReplay replay, int from, out int count)
+        {
+            count = Math.Min(ChunkTicks, replay.TickCount - from);
+            if (from < 0 || count <= 0) throw new ArgumentOutOfRangeException(nameof(from));
+            var writer = new NetWriter(ReliableChannel.MaxMessageSize);
+            writer.U8((byte)RoomMessage.SpectatorFrames);
+            writer.U32(matchId);
+            writer.I32(from);
+            writer.U8((byte)count);
+            for (int tick = from; tick < from + count; tick++)
+            {
+                writer.U8(replay.Left[tick]); writer.U8(replay.Right[tick]);
+                bool hasHash = replay.Hashes.TryGetValue(tick, out uint hash);
+                writer.Bool(hasHash);
+                if (hasHash) writer.U32(hash);
+            }
+            return writer.ToArray();
+        }
+
+        /// <summary>Reads a whole chunk before appending, so malformed chunks cannot partially mutate the stream.</summary>
+        public void ReadFrames(NetReader reader)
+        {
+            int from = reader.I32(), count = reader.U8();
+            if (Ended || from != Replay.TickCount || count == 0 || count > ChunkTicks || from > MaxTicks - count)
+                throw new NetFormatException("Invalid spectator input range.");
+            var left = new byte[count]; var right = new byte[count];
+            var hashes = new Dictionary<int, uint>();
+            for (int i = 0; i < count; i++)
+            {
+                left[i] = reader.U8(); right[i] = reader.U8();
+                if (reader.Bool()) hashes.Add(from + i, reader.U32());
+            }
+            if (reader.Remaining != 0) throw new NetFormatException("Trailing spectator data.");
+            for (int i = 0; i < count; i++) Replay.Record(left[i], right[i]);
+            foreach (var hash in hashes) Replay.Hashes.Add(hash.Key, hash.Value);
+        }
+
+        public byte[] EncodeEnd(string reason = null)
+        {
+            var writer = new NetWriter(192);
+            writer.U8((byte)RoomMessage.SpectatorEnd);
+            writer.U32(MatchId);
+            writer.StrClamped(reason ?? EndReason, 160);
+            return writer.ToArray();
+        }
+    }
+
     public static class RoomMessages
     {
         public static byte[] Simple(RoomMessage type) => new[] { (byte)type };
+
+        public static byte[] Spectate(uint matchId)
+        {
+            var writer = new NetWriter(5);
+            writer.U8((byte)RoomMessage.Spectate);
+            writer.U32(matchId);
+            return writer.ToArray();
+        }
+
+        public static byte[] PublishStart(uint matchId, MatchStart start)
+        {
+            var writer = new NetWriter(256);
+            writer.U8((byte)RoomMessage.PublishStart);
+            writer.U32(matchId);
+            byte[] data = start.Encode();
+            writer.Bytes(data, 1, data.Length - 1);
+            return writer.ToArray();
+        }
 
         public static byte[] CreateRoom(RoomSettings settings, string password)
         {
