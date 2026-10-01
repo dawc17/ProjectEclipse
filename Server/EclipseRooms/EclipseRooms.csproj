@@ -19,6 +19,7 @@
     <Compile Include="../../Assets/Scripts/Eclipse/Multiplayer/Online/NetProtocol.cs" />
     <Compile Include="../../Assets/Scripts/Eclipse/Multiplayer/Online/NetTransport.cs" />
     <Compile Include="../../Assets/Scripts/Eclipse/Multiplayer/Online/ReliableChannel.cs" />
+    <Compile Include="../../Assets/Scripts/Eclipse/Multiplayer/Online/VersusReplay.cs" />
     <Compile Include="../../Assets/Scripts/Eclipse/Multiplayer/Online/Rooms/RoomProtocol.cs" />
     <Compile Include="RoomServer.cs" />
     <Compile Include="Program.cs" />
