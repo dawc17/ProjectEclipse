@@ -6,6 +6,12 @@ Reviewed 2026-09-10. Plan tasks: **P4.2 intentional-delta inventory and P5.1/P5.
 
 ## Scope and reproducible evidence
 
+The counts and domain assessments below describe the **September 10 review**.
+The linked generated files now reflect the current checkout. See the
+[October 1 refresh record](XML_AUDIT_REFRESH.md) for source drift, portable source
+hashes, current counts and the original ledger's Git revision. Use the public
+wiki for current API support.
+
 Compared every XML file beneath `Assets/DExml` and `Assets/vanillaXml`, including animations, locations, translations, quest extensions and compatibility overlays:
 
 | Inventory | Count |
@@ -138,7 +144,7 @@ Evidence: [DE moves](../../../Assets/DExml/animations/moves.xml); [public move m
 
 `ComputerSettings.xml` is equal to the base: no new global computer-settings API is justified by this archive. Add evidence-backed reaction/decision hooks or typed compatibility support only for the required semantics.
 
-Evidence: [DE tacticSettings](../../../Assets/DExml/tacticSettings.xml), `RegisterTactic` / `ReadTactic...` in [Lua binding](../../../Assets/Scripts/Eclipse/Modding/MoonSharpScriptRuntimeP1D.cs), `Tools/Tests/TestModAi.ps1`, `Mods/example.programmable-ai`. Native conditional-tree import and programmable equivalent behavior are distinct contracts. Live scenario coverage remains open.
+Evidence: [DE tacticSettings](../../../Assets/DExml/tacticSettings.xml), `RegisterTactic` / `ReadTactic...` in [Lua binding](../../../Assets/Scripts/Eclipse/Modding/MoonSharpScriptRuntimeP1D.cs), `Tools/Tests/Modding/TestModAi.ps1`, `Mods/example.programmable-ai`. Native conditional-tree import and programmable equivalent behavior are distinct contracts. Live scenario coverage remains open.
 
 ### G10 â€” Animated location layers and music selection
 

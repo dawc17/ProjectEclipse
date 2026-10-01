@@ -11,7 +11,7 @@ keys are released after selection. It does not choose the resulting move by name
 Run from the repository root with the matching editor:
 
 ```powershell
-python Tools/Tests/TestDE128CombatNative.py --unity-editor F:/UnityInstalls/6000.6.0f1/Editor/Unity.exe
+python Tools/Tests/DE128/TestDE128CombatNative.py --unity-editor F:/UnityInstalls/6000.6.0f1/Editor/Unity.exe
 ```
 
 The launcher copies project inputs independently using the existing form-fixture
@@ -22,7 +22,7 @@ change saves in the working editor. Fresh Unity imports can take several minutes
 After a run has ended, retain the cache and refresh specific changed sources:
 
 ```powershell
-python Tools/Tests/TestDE128CombatNative.py --unity-editor F:/UnityInstalls/6000.6.0f1/Editor/Unity.exe --reuse-native Temp/FormNative-EXISTING --sync-native-source Assets/Scripts/Assembly-CSharp/Model.cs
+python Tools/Tests/DE128/TestDE128CombatNative.py --unity-editor F:/UnityInstalls/6000.6.0f1/Editor/Unity.exe --reuse-native Temp/FormNative-EXISTING --sync-native-source Assets/Scripts/Assembly-CSharp/Model.cs
 ```
 
 Reuse verifies the marked clone and rejects an active editor lock. It always
@@ -100,7 +100,7 @@ in Lua and does not load archived XML at runtime.
 ## Choosing the spell lifecycle
 
 Pass `--spell Sphere1` (default) or `--spell Sphere2` to
-`Tools/Tests/TestDE128CombatNative.py`. Each has an independent fixture battle/mode so
+`Tools/Tests/DE128/TestDE128CombatNative.py`. Each has an independent fixture battle/mode so
 it can enter without completing another encounter. Both first verify Jian input
 and then cast the selected equipped spell through native Magic input. The runner
 records the spell choice in `spell.json`; production package definitions are used.

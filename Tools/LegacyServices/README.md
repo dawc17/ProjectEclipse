@@ -19,8 +19,8 @@ manifest; older local-only SDK archives remain ignored.
 `NetworkController` retains local session/reward/quest completion. `ServerProvider`
 retains its configuration-facing API, local clock and unavailable-service
 callbacks, without receipt/device payload construction or cloud upload code.
-`Tools/Tests/TestAssemblyCleanup.ps1` checks complete retained source against minimal
-managed fakes; `Tools/Tests/TestOfflineRuntime.ps1` also checks the compiled assembly.
+`Tools/Tests/Runtime/TestAssemblyCleanup.ps1` checks complete retained source against minimal
+managed fakes; `Tools/Tests/Runtime/TestOfflineRuntime.ps1` also checks the compiled assembly.
 
 Gameplay statistics, local resource loading, XML-selected quest adapters, and UI
 components remain even when they have few direct C# references. Shared serializers,

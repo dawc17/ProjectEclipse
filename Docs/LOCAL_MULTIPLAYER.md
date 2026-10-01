@@ -42,7 +42,7 @@ equipment selection can be expanded after this initial local mode.
 
 ## Verification
 
-`Tools/Tests/TestLocalVersusRules.ps1` and `Tools/Tests/TestLocalVersusInput.ps1` compile the
+`Tools/Tests/Combat/TestLocalVersusRules.ps1` and `Tools/Tests/Combat/TestLocalVersusInput.ps1` compile the
 production configuration/scoring and input classes in isolated harnesses. They
 cover 38 configuration/scoring checks and 14 device-routing/state checks.
 

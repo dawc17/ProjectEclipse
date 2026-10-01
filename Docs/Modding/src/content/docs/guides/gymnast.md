@@ -108,7 +108,7 @@ Edit `scripts/character.lua` to add the [typed attack intervals](../../api/moves
 
 `Tools/Animation/TestGymnastPipeline.ps1 -Blender <executable> -Suite <checkout>` exercises the supplied IK/body scene, an authored hand motion, upstream model and animation exports, source-pose comparison, packaging, real Lua map/mode/AI bindings, and the unchanged Unity animation reader. It writes an inspection render and test artifacts under `Temp`.
 
-`Tools/Tests/TestModAiEligibility.ps1` executes the recovered AI shortlist and priority
+`Tools/Tests/Modding/TestModAiEligibility.ps1` executes the recovered AI shortlist and priority
 methods with controlled model/animation services. It checks that character
 restrictions, uninterruptible state and higher-priority input moves filter the
 candidate list; event-only animations are excluded. Generated package tests also

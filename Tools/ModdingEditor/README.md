@@ -291,7 +291,7 @@ encounter; copy it manually as described for the battle-rules template.
 
 Adds perk `upgrades` completion with level, description and parameter fields. Runtime/native upgrade acceptance is tracked in `Docs/Engineering/Modding/PRE_DE_WORK_LOG.md`.
 
-The manual `perk-upgrades` template demonstrates a learned guard with three upgrades; its matching mod and automated checks are under `Mods/example.perk-upgrades` and `Tools/Tests/TestPerkUpgrades.ps1`.
+The manual `perk-upgrades` template demonstrates a learned guard with three upgrades; its matching mod and automated checks are under `Mods/example.perk-upgrades` and `Tools/Tests/Combat/TestPerkUpgrades.ps1`.
 
 Infers `OutgoingFighter` in `on_damage_dealing`, with `scale_outgoing_damage` requiring `combat.modify_outgoing_hit`. The manual `outgoing-rule` template demonstrates a per-round third-hit modifier.
 
@@ -461,7 +461,7 @@ The complete Shifting Guardian starter is in `templates/shifting-guardian/`; cop
 
 Form handover preserves perk cooldown flags and numeric/text variables, including
 their current values and remaining modifier timers. The request signature and
-result fields are unchanged. `python3 Tools/Tests/TestCharacterForms.py` runs the
+result fields are unchanged. `python3 Tools/Tests/CharacterForms/TestCharacterForms.py` runs the
 existing production-method form fixtures on Linux using the installed Unity
 compiler and .NET 10 runtime; it does not require PowerShell or start the game.
 

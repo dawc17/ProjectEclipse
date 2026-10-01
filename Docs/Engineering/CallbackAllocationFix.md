@@ -13,10 +13,10 @@ The C# runtime now keeps private callback workers suspended between successful c
 - Managed Assembly-CSharp build: passed, zero errors.
 - Unity editor compilation: passed.
 - Native Unity invocation of the production runner: correct results across successive calls, one idle worker retained.
-- `pwsh -NoProfile -File Tools/Tests/TestCallbackWorker.ps1`: 15 checks passed. Covers reuse, nested calls, multiple/nil returns, rejection of unexpected yields, error recovery, infinite-loop budget enforcement, and allocation regression. This harness extracts the worker and execution methods directly from production source and runs them against the project's MoonSharp assembly on .NET 10.
+- `pwsh -NoProfile -File Tools/Tests/Runtime/TestCallbackWorker.ps1`: 15 checks passed. Covers reuse, nested calls, multiple/nil returns, rejection of unexpected yields, error recovery, infinite-loop budget enforcement, and allocation regression. This harness extracts the worker and execution methods directly from production source and runs them against the project's MoonSharp assembly on .NET 10.
 - Warm callback benchmark: fresh coroutine **2,097,893 bytes/call**, reused worker **968 bytes/call**, **99.95% lower allocation**. This measures callback machinery, not entire fights or editor frame rate.
-- `Tools/Tests/TestP2ACombatRuntime.ps1`: passed, including public Lua execution, settlement/state/migration, capability lifetimes, and rollback. Its shared source list was repaired to include the existing trial-rule and move-perk-lock sources.
-- `Tools/Tests/TestModUiLua.ps1`: blocked at a fixture asset classification mismatch (`example.charge-ui:sprites/ui-test` is classified as Texture, expected Sprite). This is not a passing UI-suite result.
+- `Tools/Tests/Combat/TestP2ACombatRuntime.ps1`: passed, including public Lua execution, settlement/state/migration, capability lifetimes, and rollback. Its shared source list was repaired to include the existing trial-rule and move-perk-lock sources.
+- `Tools/Tests/Modding/TestModUiLua.ps1`: blocked at a fixture asset classification mismatch (`example.charge-ui:sprites/ui-test` is classified as Texture, expected Sprite). This is not a passing UI-suite result.
 - Scoped `git diff --check`: passed.
 
 A new full-round profiler capture has not yet been measured. The observed per-callback allocation cause is fixed and regression-tested; a gameplay capture is still needed to quantify the resulting frame-time improvement and any remaining hotspots. Original capture files were preserved. Analysis scratch files are under ignored `Logs/`, and generated regression builds are under ignored `Temp/`.

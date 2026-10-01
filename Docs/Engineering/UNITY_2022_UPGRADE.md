@@ -90,12 +90,12 @@ disk for protection against drive failure. Save archives are private.
 | --- | --- |
 | Assembly-CSharp managed build | PASS |
 | Assembly-CSharp-Editor managed build | PASS |
-| Tools/Tests/TestEclipseRuntime.ps1 | PASS: 805 assertions, 21 replay segments |
-| Tools/Tests/TestProjectileRuntime.ps1 | PASS: 204 assertions, 129 projectile/magic intervals |
-| Tools/Tests/TestTutorialRuntime.ps1 | PASS: 28 assertions |
-| Tools/Tests/TestUnderworldRuntime.ps1 | PASS: 1282 assertions |
+| Tools/Tests/Runtime/TestEclipseRuntime.ps1 | PASS: 805 assertions, 21 replay segments |
+| Tools/Tests/Combat/TestProjectileRuntime.ps1 | PASS: 204 assertions, 129 projectile/magic intervals |
+| Tools/Tests/Progression/TestTutorialRuntime.ps1 | PASS: 28 assertions |
+| Tools/Tests/Progression/TestUnderworldRuntime.ps1 | PASS: 1282 assertions |
 | Tools/Audits/AuditUnderworld.py | PASS: 76 battles, 39 locations, no issues |
-| Tools/Tests/TestOfflineRuntime.ps1 | **KNOWN FAIL before migration:** `Unity resource differs: stages.xml` |
+| Tools/Tests/Runtime/TestOfflineRuntime.ps1 | **KNOWN FAIL before migration:** `Unity resource differs: stages.xml` |
 | Checkpoint tool fixture | PASS: original preservation, metadata, private save archive, isolated identity, hash verification, overwrite/traversal refusal |
 | Unity 2022 compile / native import / player tests | NOT RUN |
 

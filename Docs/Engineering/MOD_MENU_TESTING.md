@@ -27,9 +27,9 @@ below the currency header.
 Run from the repository root:
 
 ```powershell
-.\Tools\Tests\TestModSelection.ps1
-.\Tools\Tests\TestGameSessionRestart.ps1
-.\Tools\Tests\TestModMenuUI.ps1
+.\Tools\Tests\Modding\TestModSelection.ps1
+.\Tools\Tests\Runtime\TestGameSessionRestart.ps1
+.\Tools\Tests\Modding\TestModMenuUI.ps1
 ```
 
 Selection tests cover persistence, transitive dependency changes, missing mods,

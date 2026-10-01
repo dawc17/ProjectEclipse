@@ -70,8 +70,13 @@ project's existing signing settings; configure a release keystore separately
 before distributing a production release.
 
 See `AGENTS.md` for project conventions and validation guidance.
+Open verification and follow-up work is tracked in [the backlog](todo.md).
+For IDE work, use `ProjectEclipse.sln` or `ProjectEclipse.slnx`; both include the
+four managed projects. Installed Unity IDE integrations generate the solution
+name from this project's directory. Build scripts continue to use `.csproj` files.
 See [runtime content](Docs/CONTENT.md) for the content layout and validation. Use **SF2 > Content Browser** to search assets across the project from one window.
-See [Mods/README.md](Mods/README.md) for loose mod assets, sprite descriptors, and the Lua API.
+See [Mods](Mods/README.md) for mod installation and selection, and the
+[modding wiki](Docs/Modding/README.md) for asset formats and the Lua API.
 See [Local Multiplayer](Docs/LOCAL_MULTIPLAYER.md) for the current two-player Local Versus controls and limitations.
 See [the scope audit](Docs/DE_SCOPE_AUDIT.md) for the current separation between reusable Eclipse work
 and behavior that overlaps with the Definitive Edition feature set.

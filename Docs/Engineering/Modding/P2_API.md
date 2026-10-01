@@ -214,7 +214,7 @@ respectively. The indication adapter does not reproduce the legacy mobile arrow.
 
 ## Verification
 
-`Tools/Tests/TestP2ACombatRuntime.ps1` now executes the full public Phase 2 sample plus
+`Tools/Tests/Combat/TestP2ACombatRuntime.ps1` now executes the full public Phase 2 sample plus
 the production mode host with isolated engine/UI dependencies. It covers typed
 state/migration, round reset, hit reduction, shield expiry, policy conflicts,
 schedules, progression, key accounting/refund, result deduplication and orphan
@@ -223,7 +223,7 @@ dispatcher and source ordering. Underworld runtime checks cover the retained
 health-pool and damage machinery. Managed builds and the isolated Unity art/mod
 compatibility validator supplement these checks; none constitutes a full playtest.
 
-`Tools/Tests/TestRaidContentBridge.ps1` checks the production XML adapters, native gem
+`Tools/Tests/Progression/TestRaidContentBridge.ps1` checks the production XML adapters, native gem
 reward parser, and multi-bar damage/death. `TestModStartupRuntime.ps1` also checks
 the production raid winner decision at timeout and boss death. HUD appearance
 and the complete revised raid remain subject to manual playtesting.

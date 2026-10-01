@@ -18,5 +18,5 @@ id = "spotlight", radius = 0.2, shape = 1 }` to `scripts/main.lua` and include
 the returned handle in the fight's `rules` array. The circle follows the player;
 it changes visibility only and needs `content.register`.
 
-Automated verification: `Tools/Tests/TestBattleRules.ps1`. A full in-game playtest is
+Automated verification: `Tools/Tests/Combat/TestBattleRules.ps1`. A full in-game playtest is
 still required to validate presentation and the complete encounter flow.

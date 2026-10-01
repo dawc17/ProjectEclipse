@@ -53,7 +53,7 @@ and the reference DE APK/export. It does not download anything or touch saves.
 
 - `msbuild Assembly-CSharp.csproj /nologo /v:quiet /clp:ErrorsOnly`: passed.
 - `msbuild Assembly-CSharp-Editor.csproj /nologo /v:quiet /clp:ErrorsOnly`: passed.
-- `Tools/Tests/TestUnderworldRuntime.ps1`: 269 assertions against the compiled runtime
+- `Tools/Tests/Progression/TestUnderworldRuntime.ps1`: 269 assertions against the compiled runtime
   passed. These exercise real ModelParameters and Cocos frame-parser methods.
 - `Tools/Audits/AuditUnderworld.py`: 76 battle definitions / 39 distinct locations,
   zero missing image, mask, scenery-sequence or particle-prefab references;

@@ -106,12 +106,12 @@ bounded Lua runner and carry a UI handle/widget ID, never a fighter capability.
 
 ## Verification
 
-`Tools/Tests/TestModUiRuntime.ps1` executes production ownership/state code in an
+`Tools/Tests/Modding/TestModUiRuntime.ps1` executes production ownership/state code in an
 isolated .NET fixture. It covers isolation, invalid/oversized trees and updates,
 duplicate/reopened IDs, input suppression/reentrancy, callback/render failures,
 scope disposal, stale handles and teardown failures.
 
-`Tools/Tests/TestModUiUnity.ps1` creates a separate temporary Unity 2022.3.62f3 project
+`Tools/Tests/Modding/TestModUiUnity.ps1` creates a separate temporary Unity 2022.3.62f3 project
 and enters play mode. It checks production native hierarchy/layout components,
 font fallback, targeted updates, guarded activation/focus and cleanup. It uses
 the installed Unity UI package. It also copies the original

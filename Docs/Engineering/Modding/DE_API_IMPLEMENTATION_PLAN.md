@@ -48,7 +48,7 @@ When requirements appear to conflict, use this order:
 1. The project owner's latest explicit instructions.
 2. `Docs/Engineering/Modding/DE_PARITY_TARGET.md` for parity requirements and acceptance criteria.
 3. This implementation plan for sequencing and engineering constraints.
-4. `Mods/README.md` for the currently shipped public API.
+4. `Docs/Modding/src/content/docs/` for the currently shipped public API.
 5. Recovered/runtime source and canonical `Assets/vanillaXml` for actual engine
    semantics.
 6. `Assets/DExml` as the archived DE reference used to identify downstream needs.
@@ -291,14 +291,14 @@ Authoritative implementation evidence for this slice:
 - `Assets/Scripts/Assembly-CSharp/LocalizationManager.cs` applies external
   strings as an overlay so removing a core localization patch reveals the base
   value instead of deleting it;
-- `Tools/Tests/TestModdingContracts.ps1` covers dependency rejection, wrong-category
+- `Tools/Tests/Modding/TestModdingContracts.ps1` covers dependency rejection, wrong-category
   rejection, same-field conflict, non-overlap composition, atomic rollback,
   capability gating, fingerprint changes, base restoration, and the economy
   firewall;
-- `Tools/Tests/TestModStateRuntime.ps1` executes the exact P0.5 remove/save/reinstall/
+- `Tools/Tests/Modding/TestModStateRuntime.ps1` executes the exact P0.5 remove/save/reinstall/
   migrate/fail sequence, including transactional writes and future-schema
   preservation;
-- `Tools/Tests/TestPackagedArt.ps1` / `ValidatePackagedArt.cs` exercise the public Lua
+- `Tools/Tests/Presentation/TestPackagedArt.ps1` / `ValidatePackagedArt.cs` exercise the public Lua
   patch path, a real two-mod overlap, state-backed behavior, successful Lua
   migration, and failed-migration rollback in isolated Unity. The editor fixture
   passes 160 checks;
@@ -473,14 +473,14 @@ manipulate fights/battles.
 September 9 gameplay retests, including the final token reward panel.
 P2A is now in progress.** The integrated acceptance fixture is `Mods/example.phase1`, which is
 discovered and executed through the real public MoonSharp path by
-`Tools/Tests/TestPhase1ShowcaseRuntime.ps1` on an unchanged base content catalog.
+`Tools/Tests/Modding/TestPhase1ShowcaseRuntime.ps1` on an unchanged base content catalog.
 
 The September 9 playtest exposed a locale-code collision (`en`), repeated core
 parsing/duplicated zones, an unavailable showcase map, missing arena fighter
 layer/spawns, and an unbound custom move. Fixes use early locale validation and
 guarded late binding, the unique code `en-x-phase1`, recovered map art, typed
 fighter positions, and a perk-scoped round-start move event. The locale parser
-regression is covered by `Tools/Tests/TestModLocaleRuntime.ps1`. The subsequent user
+regression is covered by `Tools/Tests/Modding/TestModLocaleRuntime.ps1`. The subsequent user
 playtests closed the reported showcase blockers. See the sample README for the
 accepted scope and limitations; this does not certify every API combination or
 complete DE parity.
@@ -531,10 +531,10 @@ Authoritative limitations remain recorded rather than guessed:
 - move registration is additive only because no authoritative reversible
   replace/remove runtime seam has been proven.
 
-Focused gates are `Tools/Tests/TestP1ABContracts.ps1`, `Tools/Tests/TestP1CContracts.ps1`,
-`Tools/Tests/TestPhase1Showcase.ps1`, `Tools/Tests/TestPhase1ShowcaseRuntime.ps1`, the existing
+Focused gates are `Tools/Tests/Modding/TestP1ABContracts.ps1`, `Tools/Tests/Modding/TestP1CContracts.ps1`,
+`Tools/Tests/Modding/TestPhase1Showcase.ps1`, `Tools/Tests/Modding/TestPhase1ShowcaseRuntime.ps1`, the existing
 state/save/enchantment/fight-begin/RewardChoice suites, and
-`Tools/Tests/TestPackagedArt.ps1`. The packaged-art editor fixture covers 160 checks with
+`Tools/Tests/Presentation/TestPackagedArt.ps1`. The packaged-art editor fixture covers 160 checks with
 95 groups, 94 TAR/LZ4 archives, and 10 loose fonts.
 
 ## P1A.1 ZoneDefinition

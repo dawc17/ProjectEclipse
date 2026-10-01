@@ -30,6 +30,6 @@ procedural ordering and saved encounter plans.
 
 The three candidates are a small authored pool, not generated meshes or animations.
 
-Automated checks: `Tools/Tests/TestVisualExamples.ps1` runs these exact Lua scripts.
-`Tools/Tests/TestModUiUnity.ps1` also mounts their UI in an isolated Unity fixture.
+Automated checks: `Tools/Tests/Modding/TestVisualExamples.ps1` runs these exact Lua scripts.
+`Tools/Tests/Modding/TestModUiUnity.ps1` also mounts their UI in an isolated Unity fixture.
 Those checks do not replace the full-game tests above.

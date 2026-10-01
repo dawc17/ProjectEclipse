@@ -166,7 +166,7 @@ native fight test in an isolated Unity 6000.6.0f1 project: staff to steel batons
 frame 180, retained health/variables/control role, Applied Lua HUD state and 120
 later animated combat frames with no timer reset or captured combat exception.
 Evidence and the production regressions are in `CHARACTER_FORM_RUNTIME_AUDIT.md`
-and `PRE_DE_WORK_LOG.md`; the repeatable launcher is `Tools/Tests/TestCharacterForms.py`.
+and `PRE_DE_WORK_LOG.md`; the repeatable launcher is `Tools/Tests/CharacterForms/TestCharacterForms.py`.
 This is one verified E5 case. Active stolen magic, current-side restriction and
 rule-perk inheritance, player forms and broader rig/effect acceptance remain open.
 

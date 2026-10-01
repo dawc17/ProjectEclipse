@@ -157,7 +157,7 @@ For move-authoring acceptance, use the `choose_quick_kick` callback from
 - Editing a candidate's nested timing/control fields must not alter native
   playback or subsequent snapshots. The original candidate identity is selected.
 
-The automated `Tools/Tests/TestModAi.ps1` checks the native adapter and Lua snapshot
+The automated `Tools/Tests/Modding/TestModAi.ps1` checks the native adapter and Lua snapshot
 isolation; these full-game observations remain a separate acceptance step.
 
 For programmable AI, use `evade_active_attack` from the same guide in a test tactic:
@@ -573,7 +573,7 @@ Lottery artwork: check the saved slot or first-item icon preserves aspect ratio,
 - [ ] Disable the mod and Apply & Restart: the weapon candidate returns when its usual native eligibility conditions are met.
 - [ ] Two enabled mods excluding that same target must report a conflict. A different equipment category may coexist.
 
-Automated command: ./Tools/Tests/TestModForgeExclusions.ps1 (Lua registration, native filtering and compiled adapter lifecycle). These checks do not replace the game checks above.
+Automated command: ./Tools/Tests/Modding/TestModForgeExclusions.ps1 (Lua registration, native filtering and compiled adapter lifecycle). These checks do not replace the game checks above.
 
 ## Forge deviation overrides
 
@@ -584,7 +584,7 @@ Automated command: ./Tools/Tests/TestModForgeExclusions.ps1 (Lua registration, n
 - [ ] A second mod overriding Simple/weapon conflicts. Overrides for different categories and candidate exclusions coexist.
 - [ ] Targeting Complex/weapon must fail application and restore all earlier forge overlays from that failed application.
 
-Automated verification: ./Tools/Tests/TestModForgeExclusions.ps1 and ./Tools/Tests/TestModForgeDeviation.ps1. Native fixtures verify projection and lifecycle, not the random draw, rendered recipe UI or full-game unload.
+Automated verification: ./Tools/Tests/Modding/TestModForgeExclusions.ps1 and ./Tools/Tests/Modding/TestModForgeDeviation.ps1. Native fixtures verify projection and lifecycle, not the random draw, rendered recipe UI or full-game unload.
 
 ## Default equipment enchantments
 
@@ -594,7 +594,7 @@ Automated verification: ./Tools/Tests/TestModForgeExclusions.ps1 and ./Tools/Tes
 - [ ] Disable and Apply & Restart: original acquisition defaults return, while the already saved enchantment remains.
 - [ ] Empty entries remove acquisition defaults; omitted aspect uses the perk default. Different items coexist; two mods targeting the same item conflict.
 
-Automated checks: ./Tools/Tests/TestModDefaultEnchantments.ps1 and ./Tools/Tests/TestModForgeExclusions.ps1 (the latter also runs actual Lua loadout cases). Neither is a full-game acquisition/save/render test.
+Automated checks: ./Tools/Tests/Modding/TestModDefaultEnchantments.ps1 and ./Tools/Tests/Modding/TestModForgeExclusions.ps1 (the latter also runs actual Lua loadout cases). Neither is a full-game acquisition/save/render test.
 
 ## Innate equipment perks
 
@@ -604,23 +604,23 @@ Automated checks: ./Tools/Tests/TestModDefaultEnchantments.ps1 and ./Tools/Tests
 - [ ] Attach a registered Lua-backed perk with no loadout parameters and verify its callback in a new fight. Configure its initial values during perk registration; nonempty loadout parameters must be rejected.
 - [ ] Default enchantments and innate perks can target the same item; two innate loadouts on that item conflict. Empty entries remove innate effects.
 
-Automated commands: ./Tools/Tests/TestModInnatePerks.ps1 and ./Tools/Tests/TestModForgeExclusions.ps1. Native model collection is tested; real fight effect activation remains an acceptance check.
+Automated commands: ./Tools/Tests/Modding/TestModInnatePerks.ps1 and ./Tools/Tests/Modding/TestModForgeExclusions.ps1. Native model collection is tested; real fight effect activation remains an acceptance check.
 
-Automated innate execution check: run `pwsh -NoProfile -File Tools/Tests/TestModInnateLua.ps1` after the managed build. It uses the compiled game ModRuntime and real MoonSharp session to check initial parameters, state across rounds, isolated instances and missing definitions. Physical fighter operations are controlled; run TestModFightBeginRuntime separately for source selection. This does not replace a game playtest.
+Automated innate execution check: run `pwsh -NoProfile -File Tools/Tests/Modding/TestModInnateLua.ps1` after the managed build. It uses the compiled game ModRuntime and real MoonSharp session to check initial parameters, state across rounds, isolated instances and missing definitions. Physical fighter operations are controlled; run TestModFightBeginRuntime separately for source selection. This does not replace a game playtest.
 
-- [ ] Use a native TwoHandedBlunt weapon with TacticSubtype=TwoHanded in an AI fight, then disarm the fighter: verify weapon and barehand movement/attacks remain valid. Check the other fighter's weapon behavior stays independent. Automated prerequisite: `pwsh -NoProfile -File Tools/Tests/TestItemTacticSubtype.ps1` (native classification helper, clone/merge, canonical metadata and own/enemy updates; no physical combat).
+- [ ] Use a native TwoHandedBlunt weapon with TacticSubtype=TwoHanded in an AI fight, then disarm the fighter: verify weapon and barehand movement/attacks remain valid. Check the other fighter's weapon behavior stays independent. Automated prerequisite: `pwsh -NoProfile -File Tools/Tests/Progression/TestItemTacticSubtype.ps1` (native classification helper, clone/merge, canonical metadata and own/enemy updates; no physical combat).
 
 - [ ] Register a custom mace with subtype=TwoHandedBlunt and tactic_subtype=TwoHanded, provide matching assets/moves and a shop listing, then equip it on an AI fighter. Verify the mace animation family is retained and AI uses the intended table group, including after disarm. Removing tactic_subtype falls back to subtype. Changing it should trigger the normal content compatibility handling.
 
 - [ ] Use items.set_tactic_subtype on a core weapon; start a new fight and verify AI grouping independently of animation subtype. Try group empty to select subtype fallback. Disable and Apply & Restart to restore the original group. Two mods targeting the same weapon should report a conflict. Existing fight copies are not refreshed.
 
-- [ ] Buy multiple units through a supported consumable/shop quantity flow: granted quantity must match the selected quantity and charge. Default single-unit purchases should behave as before. Automated dispatcher check: `pwsh -NoProfile -File Tools/Tests/TestPurchaseQuantity.ps1`; real inventory/save behavior still needs a playtest.
+- [ ] Buy multiple units through a supported consumable/shop quantity flow: granted quantity must match the selected quantity and charge. Default single-unit purchases should behave as before. Automated dispatcher check: `pwsh -NoProfile -File Tools/Tests/Progression/TestPurchaseQuantity.ps1`; real inventory/save behavior still needs a playtest.
 
 - [ ] On a disposable test profile, attempt a multi-unit purchase near the Int32 inventory limit: an exact fit succeeds; an overflow attempt must leave balance and inventory unchanged. Upgrade/delivery operations must not be blocked merely because base-item count is at capacity. Automated preflight/dispatch checks run through TestPurchaseQuantity; full persistence remains a manual check.
 
 - [ ] With an active mod runtime, purchase a catalog-recognized item through the standard shop, save/reload and verify balance/count remain correct; a later purchase must retain earlier receipt totals. Upgrade/delivery should not add purchase receipts. Use a disposable profile for interruption testing. Alternate immediate helpers are not covered yet.
 
-Immediate purchase acceptance: exercise alternate coin, gem and consumable purchases with a recognized catalog item; verify one grant and one transaction/unit receipt, remaining funds, perk-reset/currency effects, then save/reload. Insufficient funds and full inventory must change neither balance nor history. Tools/Tests/TestImmediatePurchases.ps1 passes 32 controlled-service checks; live acceptance remains pending.
+Immediate purchase acceptance: exercise alternate coin, gem and consumable purchases with a recognized catalog item; verify one grant and one transaction/unit receipt, remaining funds, perk-reset/currency effects, then save/reload. Insufficient funds and full inventory must change neither balance nor history. Tools/Tests/Progression/TestImmediatePurchases.ps1 passes 32 controlled-service checks; live acceptance remains pending.
 
 Retarget creator acceptance: run Tools/Animation/TestRetargetPipeline.ps1 for the canonical export/package/native-reader integration. Then use an actual animated donor with explicit bindings and a calibrated reference pose; inspect facing, both mirrored sides, joint separation, root travel, equipment attachment, contact timing and interruption in game. Automated synthetic-donor integration passes; actual donor/game acceptance remains pending.
 
@@ -643,13 +643,13 @@ fight. Disable auto-opening UI examples if they obscure the map.
   physical controller. Text must fit and original-style assets must load.
 
 Detailed steps are in each example's README. Automated commands:
-Tools/Tests/TestVisualExamples.ps1 and Tools/Tests/TestModUiUnity.ps1 (-WithPreview renders
+Tools/Tests/Modding/TestVisualExamples.ps1 and Tools/Tests/Modding/TestModUiUnity.ps1 (-WithPreview renders
 standalone menu/HUD screenshots in the fixture directory). Controlled combat and
 isolated UI checks do not replace the full-game acceptance above.
 
 ## Shifting Guardian (baseline native acceptance passed; broader cases pending)
 
-On 2026-09-16, `python3 Tools/Tests/TestCharacterForms.py --native` ran the real game
+On 2026-09-16, `python3 Tools/Tests/CharacterForms/TestCharacterForms.py --native` ran the real game
 in an independent Unity 6000.6.0f1 fixture. The registered Lua encounter changed
 `WEAPON_STAFF` to `WEAPON_STEEL_BATONS` at frame 180, retained 75% health and
 numeric/text variables, kept participant input/AI flags, reported Applied in the
@@ -669,7 +669,7 @@ The remaining checklist covers additional user interaction and effect combinatio
   expiry on the active fighter. Check that retired-body cleanup does not erase variables.
 - Repeat with active modifiers; stolen magic/unresolved effects remain known unsupported cases.
 
-Automated form checks: `python3 Tools/Tests/TestCharacterForms.py` reuses the PowerShell
+Automated form checks: `python3 Tools/Tests/CharacterForms/TestCharacterForms.py` reuses the PowerShell
 fixtures' production method extractions and C# assertions with the installed Unity
 compiler and .NET 10 runtime. Evidence is retained under a unique `Temp/CharacterForms-*`
 directory. These controlled services are separate from the native run above.

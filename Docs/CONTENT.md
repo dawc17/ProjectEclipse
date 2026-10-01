@@ -119,7 +119,7 @@ python Tools/Audits/AuditNativeContent.py --refresh --deep
   runs this automatically.
 - `python Tools/Audits/AuditNativeContent.py` performs the same repository-level integrity checks without
   Unity. Add `--deep` to validate every TAR descriptor and payload reference.
-- `Tools/Tests/TestPackagedArt.ps1` creates an isolated Unity project containing only the v3 catalog,
+- `Tools/Tests/Presentation/TestPackagedArt.ps1` creates an isolated Unity project containing only the v3 catalog,
   TAR runtime, archives, and loose fonts. It exercises representative sprite, texture, audio, font,
   model, location-art and atlas-data lookups. The editor pass checks the complete location address
   inventory and parses all 281 location atlas records. `-BuildPlayer` additionally builds and runs a

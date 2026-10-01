@@ -32,7 +32,7 @@ wait for or belong behind the modding/content API. See `Docs/DE_SCOPE_AUDIT.md`.
 - `Deobfuscation/` - audited, repeatable identifier-recovery workflow. Read
   `Deobfuscation/README.md` before changing mappings or running its scripts.
 - `Tools/` - [tool index](Tools/README.md); regression runners and fixtures in
-  `Tools/Tests/`, audits in `Tools/Audits/`, repair/extraction in `Tools/Recovery/`,
+  `Tools/Tests/` grouped by subsystem (see its [index](Tools/Tests/README.md)), audits in `Tools/Audits/`, repair/extraction in `Tools/Recovery/`,
   save utilities in `Tools/Saves/`, and historical upgrade tools in `Tools/UnityUpgrade/`.
 - `BuildScripts/` - project-specific build and reference maintenance scripts.
 - `Docs/Engineering/` - reconstruction notes, recovery procedures and verification history.
@@ -128,7 +128,7 @@ msbuild Assembly-CSharp-Editor.csproj /nologo /v:quiet /clp:ErrorsOnly
 For Underworld, raid, health-bar, or Cocos frame-parser changes, also run:
 
 ```powershell
-.\Tools\Tests\TestUnderworldRuntime.ps1
+.\Tools\Tests\Progression\TestUnderworldRuntime.ps1
 python .\Tools\Audits\AuditUnderworld.py
 ```
 

@@ -7,8 +7,8 @@ fixtures normally go under ignored `Temp/`; each tool documents its own inputs.
 | Directory | Purpose |
 | --- | --- |
 | [Tests](Tests/README.md) | Managed regression runners, C# fixtures and Unity validators |
-| [Audits](Audits/) | Read-only content, archive and reference audits; some write reports |
-| [Recovery](Recovery/) | Extraction, import, repair, content generation and migration scripts |
+| [Audits](Audits/README.md) | Content, archive and reference audits; report/refresh modes are documented |
+| [Recovery](Recovery/README.md) | Extraction, import, repair, content generation and historical migrations |
 | [Saves](Saves/) | Windows save-profile preparation, backups and switching |
 | [UnityUpgrade](UnityUpgrade/) | Historical editor-upgrade preparation and finalization |
 | [Animation](Animation/README.md) | Character authoring, animation conversion and its focused tests |
@@ -25,8 +25,8 @@ fixtures normally go under ignored `Temp/`; each tool documents its own inputs.
 ## Common checks
 
 ```sh
-python Tools/Tests/TestAuditDECorpus.py
-python Tools/Tests/TestCharacterForms.py
+python Tools/Tests/Runtime/TestAuditDECorpus.py
+python Tools/Tests/CharacterForms/TestCharacterForms.py
 python Tools/Audits/AuditAssemblyCleanup.py
 ```
 

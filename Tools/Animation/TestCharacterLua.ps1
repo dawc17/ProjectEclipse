@@ -1,7 +1,7 @@
 param([Parameter(Mandatory=$true)][string]$Package, [switch]$Packaged)
 $ErrorActionPreference='Stop'
 $root=Split-Path -Parent (Split-Path -Parent $PSScriptRoot)
-& (Join-Path $root 'Tools/Tests/TestPhase1ShowcaseRuntime.ps1')
+& (Join-Path $root 'Tools/Tests/Modding/TestPhase1ShowcaseRuntime.ps1')
 $fixture=Join-Path $root ('Temp/CharacterLua-'+[Guid]::NewGuid().ToString('N'))
 $mod=Join-Path $fixture 'Mods/example.authored'
 New-Item -ItemType Directory -Path (Join-Path $mod 'scripts') -Force | Out-Null

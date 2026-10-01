@@ -23,7 +23,7 @@ it, selecting the default of one. It now forwards the quantity. Null items and
 nonpositive quantities are rejected before balance changes. The separate recipe
 delivery path is unchanged.
 
-`Tools/Tests/TestPurchaseQuantity.ps1` executes the production dispatcher with controlled
+`Tools/Tests/Progression/TestPurchaseQuantity.ps1` executes the production dispatcher with controlled
 balance/grant/UI services: three purchase currencies/categories preserve quantity,
 invalid quantities and null items cause no mutation, and the default remains one.
 This does not prove native inventory persistence, arithmetic overflow handling,

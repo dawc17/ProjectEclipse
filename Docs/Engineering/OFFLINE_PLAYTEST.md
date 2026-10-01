@@ -60,9 +60,9 @@ Run from the project root, after packaging the resource in Unity:
 ```powershell
 msbuild Assembly-CSharp.csproj /nologo /v:quiet /clp:ErrorsOnly
 msbuild Assembly-CSharp-Editor.csproj /nologo /v:quiet /clp:ErrorsOnly
-.\Tools\Tests\TestOfflineRuntime.ps1
-.\Tools\Tests\TestTutorialRuntime.ps1
-.\Tools\Tests\TestUnderworldRuntime.ps1
+.\Tools\Tests\Runtime\TestOfflineRuntime.ps1
+.\Tools\Tests\Progression\TestTutorialRuntime.ps1
+.\Tools\Tests\Progression\TestUnderworldRuntime.ps1
 python .\Tools\Audits\AuditUnderworld.py
 ```
 

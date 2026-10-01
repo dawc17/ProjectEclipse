@@ -11,5 +11,5 @@ inventory or shared economy. Rule counters are transient, separate for every
 rule and fighter, and are discarded for the next fight. Disabling the mod leaves
 its owned progression inert under the existing missing-mod save contract.
 
-Automated verification: `Tools/Tests/TestBattleRules.ps1`. A full in-game playtest is
+Automated verification: `Tools/Tests/Combat/TestBattleRules.ps1`. A full in-game playtest is
 still required to validate presentation and the complete encounter flow.

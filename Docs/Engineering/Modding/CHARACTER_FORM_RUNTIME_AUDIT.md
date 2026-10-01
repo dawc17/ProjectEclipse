@@ -5,6 +5,21 @@ public request now passes the baseline Shifting Guardian native fight test.
 The sections below retain the integration history and its evidence; this does not
 close the broader E5 requirements. DE content conversion remains excluded.
 
+## Fixture maintenance: October 1, 2026
+
+The extracted-C# form suite's four stale fixtures were updated for production
+dependencies added since their original verification: the versus tick barrier,
+fight/camera interpolation hooks, rollback body hiding, `DistancePoint.Object`,
+and AI own-animation observation. Production gameplay code was unchanged.
+Assertions now also cover speculative-versus deferral and confirmed apply,
+interpolation call order, speculative hide versus confirmed destruction, and
+own-animation seeding in versus/title scenes while preserving campaign behavior.
+Tick, interpolation, rollback and AI fitness services are controlled fixture
+dependencies; these checks do not establish native rendering or rollback correctness.
+The full Python adapter passed 15/15 extracted production fixtures with the
+installed Unity-bundled compiler and .NET 10 runtime. PowerShell execution and
+Unity gameplay were not run during this maintenance check.
+
 ## Verified native boundaries
 
 - `Model.Init` calls `FCPIDGIFNKE`, which calls `Clear` before loading the model
@@ -74,7 +89,7 @@ for a later simulation step. Unload closes the queue and cancels outstanding wor
 Completion receives an application exception or cancellation rather than treating
 queue acceptance as successful replacement.
 
-`Tools/Tests/TestModelTransitionBoundary.ps1` exercises the actual queue and Render
+`Tools/Tests/CharacterForms/TestModelTransitionBoundary.ps1` exercises the actual queue and Render
 method with controlled model/simulation/camera services. It covers ordering, pause,
 duplicate requests, stale rounds/models, death, reentrancy, application/completion
 errors and unload during draining. This does not test actual native replacement.
@@ -95,7 +110,7 @@ catalog item definitions remain shared according to the existing parameter copy
 constructor; this is not a deep clone of the content catalog.
 
 `Model.IMFOFFFLGOM` and `Clear` now tolerate absent model, condition and event
-objects after partial initialization. `Tools/Tests/TestPreparedFormModel.ps1` exercises
+objects after partial initialization. `Tools/Tests/CharacterForms/TestPreparedFormModel.ps1` exercises
 the production preparation/cleanup methods with controlled loading and Unity
 services, covering hidden preparation, parameter isolation, transfer-once,
 disposal and failed loading. Managed compilation passes. Actual native resource
@@ -112,13 +127,13 @@ retained delayed events targeting the removed model. Removal now detaches the
 eight subscriptions added by AddModel, purges both event directions, removes
 birth/created-model/trigger references and keeps cached condition indices aligned.
 Unrelated listeners and queued events are preserved. The production-method fixture
-`Tools/Tests/TestAnimationModelRemoval.ps1` verifies this with controlled dispatcher/model
+`Tools/Tests/CharacterForms/TestAnimationModelRemoval.ps1` verifies this with controlled dispatcher/model
 services; managed compilation passes. Replacement must still run outside selector
 iteration, using the established frame boundary.
 
 ## Camera/viewer replacement implemented
 
-`Tools/Tests/TestAnimationNodeRebind.ps1` now exercises the actual DistancePoint cache
+`Tools/Tests/CharacterForms/TestAnimationNodeRebind.ps1` now exercises the actual DistancePoint cache
 fields, update and lookup methods with controlled node lookup. It confirms main
 player/opponent rebinding, reverse restoration including pivots, and independent
 child identities. Native missing-node lookup writes null silently. The former
@@ -148,7 +163,7 @@ nodes, transfers render-event subscriptions, retains the old index and updates
 focus references for player replacements. It does not enable the hidden model
 or dispose the old model; the eventual coordinator owns those decisions.
 
-`Tools/Tests/TestCameraModelReplacement.ps1` extracts both production methods. Controlled
+`Tools/Tests/CharacterForms/TestCameraModelReplacement.ps1` extracts both production methods. Controlled
 Unity/renderer checks cover stable slots, primary references, focus, subscriptions,
 stale/duplicate identities, missing focus nodes, slot mismatch and parenting
 failure. Managed compilation passes. This does not prove rendered visual continuity
@@ -189,7 +204,7 @@ reapplied to the existing fighter.
 animation-selector replacement. Dispose reverses these registrations unless Commit
 was called, and attempts remaining restoration steps if one fails. Constructor
 failure reports both application and rollback exceptions when necessary.
-`Tools/Tests/TestFormRenderBindings.ps1` verifies this production orchestration with
+`Tools/Tests/CharacterForms/TestFormRenderBindings.ps1` verifies this production orchestration with
 controlled camera/selector/rule services; the boundary regression and managed
 compile pass. The stage captures both pending animation event queues and the
 birth, created-model and trigger lists before exchange. After successfully reversing
@@ -216,7 +231,7 @@ unarmed form clears the previous category. The returned rollback restores the ex
 original list (including order and duplicates), target references and category;
 application exceptions restore that snapshot before propagating.
 
-`Tools/Tests/TestEnemyFormReplacement.ps1` extracts this production method and the AI
+`Tools/Tests/CharacterForms/TestEnemyFormReplacement.ps1` extracts this production method and the AI
 snapshot method. Checks cover weapon children, direct references, unrelated targets,
 unarmed replacement, stale identity and failure after category mutation. Managed
 compilation passes. Animation services and AI category resolution are controlled;
@@ -488,14 +503,14 @@ claim those steps run through `TryQueueCharacterForm`.
 
 ## Baseline native form acceptance (2026-09-16)
 
-The isolated Unity 6000.6.0f1 game now passes `Tools/Tests/ValidateFormNative.cs`:
+The isolated Unity 6000.6.0f1 game now passes `Tools/Tests/CharacterForms/ValidateFormNative.cs`:
 registered Lua content starts the encounter, changes the enemy from staff to steel
 batons at frame 180, retains health ratio 0.75 and numeric/text perk variables,
 preserves participant control/AI eligibility, reports Applied in the Lua HUD state,
 and remains active with a selected animation for 120 later combat frames. The
 timer does not reset. The validator records any combat exception after initial
 body readiness and fails from its next update, so an advancing clock cannot hide
-aborted simulation. Run with `python3 Tools/Tests/TestCharacterForms.py --native`.
+aborted simulation. Run with `python3 Tools/Tests/CharacterForms/TestCharacterForms.py --native`.
 
 This required three repairs demonstrated by failed native runs: normal fighter
 initialization for health/moves/default body; nullable rebinding of candidate move
