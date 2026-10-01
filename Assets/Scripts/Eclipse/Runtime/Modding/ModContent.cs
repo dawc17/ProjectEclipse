@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
 
 namespace Eclipse.Modding
 {
@@ -2363,12 +2364,8 @@ namespace Eclipse.Modding
             _helms.ValidateCanAdd(helms);
             _ranged.ValidateCanAdd(ranged);
             _magic.ValidateCanAdd(magic);
-            foreach (WeaponDefinition weapon in weapons)
-                if (!weapon.IsCore || !HasCoreLocalization(localizations, weapon.DisplayName))
-                    throw new ModContentException("Invalid core weapon import: " + weapon.Id);
-            foreach (ArmorDefinition armor in armors)
-                if (!armor.IsCore || !HasCoreLocalization(localizations, armor.DisplayName))
-                    throw new ModContentException("Invalid core armor import: " + armor.Id);
+            ValidateCoreItems(localizations, weapons, "weapon");
+            ValidateCoreItems(localizations, armors, "armor");
             ValidateCoreItems(localizations, helms, "helm");
             ValidateCoreItems(localizations, ranged, "ranged");
             ValidateCoreItems(localizations, magic, "magic");
@@ -2432,13 +2429,6 @@ namespace Eclipse.Modding
         }
 
         private static bool ContainsLocalization(LocalizationDefinition[] values, DefinitionId id)
-        {
-            for (int i = 0; i < values.Length; i++)
-                if (values[i].Id == id) return true;
-            return false;
-        }
-
-        private static bool ContainsWeapon(WeaponDefinition[] values, DefinitionId id)
         {
             for (int i = 0; i < values.Length; i++)
                 if (values[i].Id == id) return true;
@@ -3396,28 +3386,17 @@ namespace Eclipse.Modding
                 localizations[localizationIndex++] = new LocalizationDefinition(pair.Key, pair.Value);
             }
 
-            var weapons = new WeaponDefinition[_weapons.Count];
-            _weapons.Values.CopyTo(weapons, 0);
-            var armors = new ArmorDefinition[_armors.Count];
-            _armors.Values.CopyTo(armors, 0);
-            var helms = new HelmDefinition[_helms.Count];
-            _helms.Values.CopyTo(helms, 0);
-            var ranged = new RangedDefinition[_ranged.Count];
-            _ranged.Values.CopyTo(ranged, 0);
-            var magic = new MagicDefinition[_magic.Count];
-            _magic.Values.CopyTo(magic, 0);
-            var nonEquipmentItems = new NonEquipmentItemDefinition[_p1cItems.Count];
-            _p1cItems.Values.CopyTo(nonEquipmentItems, 0);
-            var itemRedirects = new ItemRedirectDefinition[_itemRedirects.Count];
-            _itemRedirects.Values.CopyTo(itemRedirects, 0);
-            var listings = new ShopListingDefinition[_shopListings.Count];
-            _shopListings.Values.CopyTo(listings, 0);
-            var perks = new PerkDefinition[_perks.Count];
-            _perks.Values.CopyTo(perks, 0);
-            var enchantments = new EnchantmentDefinition[_enchantments.Count];
-            _enchantments.Values.CopyTo(enchantments, 0);
-            var behaviors = new ModBehaviorDefinition[_behaviors.Count];
-            _behaviors.Values.CopyTo(behaviors, 0);
+            var weapons = _weapons.Values.ToArray();
+            var armors = _armors.Values.ToArray();
+            var helms = _helms.Values.ToArray();
+            var ranged = _ranged.Values.ToArray();
+            var magic = _magic.Values.ToArray();
+            var nonEquipmentItems = _p1cItems.Values.ToArray();
+            var itemRedirects = _itemRedirects.Values.ToArray();
+            var listings = _shopListings.Values.ToArray();
+            var perks = _perks.Values.ToArray();
+            var enchantments = _enchantments.Values.ToArray();
+            var behaviors = _behaviors.Values.ToArray();
             ZoneDefinition[] zones = BuildCommittedZones();
             BattleDefinition[] battles = BuildCommittedBattles();
             FightDefinition[] fights = SortedValues(_fights);

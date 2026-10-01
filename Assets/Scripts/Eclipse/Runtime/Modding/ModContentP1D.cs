@@ -1346,16 +1346,16 @@ namespace Eclipse.Modding
 
         private void ValidateP1DCommit()
         {
-            LocaleMetadataDefinition[] locales = Values(_p1dLocales);
-            LocationDefinition[] locations = Values(_p1dLocations);
+            LocaleMetadataDefinition[] locales = SortedValues(_p1dLocales);
+            LocationDefinition[] locations = SortedValues(_p1dLocations);
             int dojoCount = 0;
             foreach (var location in _catalog.Locations) if (location.IsDojo) dojoCount++;
             foreach (var location in locations) if (location.IsDojo) dojoCount++;
             if (dojoCount > 256) throw new ModContentException("At most 256 dojo choices may be active.");
-            MoveTemplateDefinition[] templates = Values(_p1dMoveTemplates);
-            MoveDefinition[] moves = Values(_p1dMoves);
-            MoveTriggerDefinition[] triggers = Values(_p1dMoveTriggers);
-            TacticDefinition[] tactics = Values(_p1dTactics);
+            MoveTemplateDefinition[] templates = SortedValues(_p1dMoveTemplates);
+            MoveDefinition[] moves = SortedValues(_p1dMoves);
+            MoveTriggerDefinition[] triggers = SortedValues(_p1dMoveTriggers);
+            TacticDefinition[] tactics = SortedValues(_p1dTactics);
             _catalog.ValidateP1DCanAdd(locales, locations, templates, moves, triggers, tactics);
             ValidateMovePerkLockCommit();
             _catalog.ValidateItemLockExtensions(_moveItemLockExtensions);
@@ -1375,8 +1375,8 @@ namespace Eclipse.Modding
 
         private void ApplyP1DCommit()
         {
-            _catalog.AddP1D(Values(_p1dLocales), Values(_p1dLocations), Values(_p1dMoveTemplates),
-                Values(_p1dMoves), Values(_p1dMoveTriggers), Values(_p1dTactics));
+            _catalog.AddP1D(SortedValues(_p1dLocales), SortedValues(_p1dLocations), SortedValues(_p1dMoveTemplates),
+                SortedValues(_p1dMoves), SortedValues(_p1dMoveTriggers), SortedValues(_p1dTactics));
             ApplyMovePerkLockCommit();
             _catalog.AddItemLockExtensions(_moveItemLockExtensions);
             _catalog.AddCombatPatches(_moveCombatPatches);
@@ -1471,23 +1471,5 @@ namespace Eclipse.Modding
             target.Add(id, value);
         }
 
-        private static T[] Values<T>(Dictionary<DefinitionId, T> values)
-        {
-            var result = new T[values.Count];
-            values.Values.CopyTo(result, 0);
-            Array.Sort(result, (a, b) => string.CompareOrdinal(IdOf(a).ToString(), IdOf(b).ToString()));
-            return result;
-        }
-
-        private static DefinitionId IdOf<T>(T value)
-        {
-            if (value is LocaleMetadataDefinition locale) return locale.Id;
-            if (value is LocationDefinition location) return location.Id;
-            if (value is MoveTemplateDefinition template) return template.Id;
-            if (value is MoveDefinition move) return move.Id;
-            if (value is MoveTriggerDefinition trigger) return trigger.Id;
-            if (value is TacticDefinition tactic) return tactic.Id;
-            throw new InvalidOperationException("Unknown P1D definition type.");
-        }
     }
 }

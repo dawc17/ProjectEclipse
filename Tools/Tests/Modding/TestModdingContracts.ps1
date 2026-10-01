@@ -915,7 +915,6 @@ internal static class Program
         string fingerprintBeforeRollback = ModSaveData.ComputeContentSetFingerprint(new[] { mod }, catalog);
         using (ModRegistrationTransaction rollback = catalog.BeginRegistration(rollbackMod))
         {
-            rollback.RegisterBehavior("rollback", behaviorSchema);
             ModBehaviorDefinition behavior = rollback.RegisterBehavior("rollback", behaviorSchema);
             DefinitionId title = rollback.AddLocalization("perk.rollback", "eng", "Rollback Perk");
             DefinitionId description = rollback.AddLocalization("perk.rollback.description", "eng", "Must not commit.");
