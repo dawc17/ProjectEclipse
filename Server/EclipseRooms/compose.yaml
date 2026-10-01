@@ -1,0 +1,11 @@
+services:
+  playtest-rooms:
+    build:
+      context: ../..
+      dockerfile: Server/EclipseRooms/Dockerfile
+    image: eclipse-playtest-rooms
+    restart: unless-stopped
+    ports:
+      - "7301:7301/udp"
+    env_file:
+      - playtest.env

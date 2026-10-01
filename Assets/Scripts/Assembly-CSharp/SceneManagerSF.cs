@@ -73,12 +73,14 @@ public static class SceneManagerSF
 		Load(ScreenType.ModulePreloader);
 	}
 
-	public static void Load(ScreenType MHOCFOODLLL)
+	// best guess for name
+	public static void Load(ScreenType screenType)
 	{
-		if (MHOCFOODLLL != ScreenType.Loader)
+		Eclipse.Multiplayer.RoomSession.RequireScene(screenType);
+		if (screenType != ScreenType.Loader)
 		{
 			LoaderScene.set_PrevScene(EKFBDMBCDMB());
-			LoaderScene.set_NextScene(MHOCFOODLLL);
+			LoaderScene.set_NextScene(screenType);
 		}
 		SceneManager.LoadSceneAsync(1);
 	}

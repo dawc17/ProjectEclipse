@@ -37,15 +37,15 @@ namespace Eclipse.Multiplayer
                     WithRooms(session => session.Client.JoinByCode(code, ""));
                 }, 156);
                 var other = AddRow(body);
-                AddButton(other, "DIRECT CONNECT", ShowOnlineSetup, 0);
-                AddButton(other, "BACK", ShowModeSelect, 0);
+                AddButton(other, "RETURN TO TITLE", LocalVersusSession.ReturnToTitle, 0);
             });
-            SetStatus("Fights connect peer-to-peer. No port forwarding needed.");
+            SetStatus(RoomSession.PlaytestMessage);
         }
 
         /// <summary>Connects to the default room server, then runs <paramref name="then"/>.</summary>
         private void WithRooms(Action<RoomSession> then)
         {
+            if (!RoomSession.CanPlay) { SetStatus(RoomSession.PlaytestMessage); return; }
             string name = nameField != null ? nameField.text : OnlineVersusSession.SavedName;
             try
             {

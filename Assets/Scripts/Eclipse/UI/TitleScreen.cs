@@ -478,10 +478,7 @@ namespace Eclipse.UI
 
         private void Home()
         {
-            // An outdated release build never reaches the menu; see ReleaseCheck.
-            var release = ReleaseCheck.Current;
-            if (release == ReleaseCheck.Result.Pending) { DrawReleaseCheck(); return; }
-            if (release == ReleaseCheck.Result.Outdated) { DrawOutdated(); return; }
+            Eclipse.Multiplayer.RoomSession.ConnectPlaytest();
             Clear("Home");
             Box(page, "Sign frame", 483, 62, 314, 148, new Color32(164, 120, 66, 255));
             Box(page, "Sign border", 489, 68, 302, 136, Ink);
@@ -504,15 +501,16 @@ namespace Eclipse.UI
             homeStroke.color = new Color(Red.r, Red.g, Red.b, .92f);
             homeStroke.raycastTarget = false;
             homeStroke.Fill = 0f;
-            // Campaign leads; Quit closes the list (and stays on Esc and the footer).
-            HomeButton("CAMPAIGN", 272, 74, OpenCampaignSaves, UiSound.Open, 34);
-            versusRow = HomeButton("MULTIPLAYER", 360, 56, () =>
+            versusRow = HomeButton("JOIN PLAYTEST", 272, 74, () =>
             {
+                if (!Eclipse.Multiplayer.RoomSession.CanPlay) return;
                 Eclipse.Multiplayer.LocalVersusSession.RequestEntry();
                 BeginCampaign();
-            }, UiSound.Begin, 27);
-            versusCaption = Label(page, "LOCAL AND ONLINE VERSUS", 405, 407, 470, 22, 15, SceneryAccent, TextAnchor.MiddleCenter);
-            HomeButton("MODS", 440, 52, OpenMods, UiSound.Open, 25);
+            }, UiSound.Begin, 34);
+            versusRow.GetComponent<UnityEngine.UI.Button>().interactable = Eclipse.Multiplayer.RoomSession.CanPlay;
+            versusCaption = Label(page, Eclipse.Multiplayer.RoomSession.PlaytestMessage, 290, 365, 700, 60, 19, SceneryAccent, TextAnchor.MiddleCenter);
+            versusCaption.supportRichText = false;
+            HomeButton("RECONNECT", 440, 52, () => { Eclipse.Multiplayer.RoomSession.Shutdown(); Home(); }, UiSound.Open, 25);
             HomeButton("OPTIONS", 496, 52, () => Settings("Display"), UiSound.Open, 25);
             HomeButton("QUIT", 548, 48, QuitPrompt, UiSound.Open, 23);
             FocusFirst();
@@ -961,6 +959,7 @@ namespace Eclipse.UI
 
         private void BeginCampaign()
         {
+            if (!Eclipse.Multiplayer.LocalVersusSession.IsActive || !Eclipse.Multiplayer.RoomSession.CanPlay) return;
             if (leaving) return;
             leaving = true;
             PrepareGameDataForEntry();
@@ -974,6 +973,11 @@ namespace Eclipse.UI
 
         private void Update()
         {
+            if (currentPage == "Home" && versusRow != null)
+            {
+                versusRow.GetComponent<UnityEngine.UI.Button>().interactable = Eclipse.Multiplayer.RoomSession.CanPlay;
+                if (versusCaption != null) versusCaption.text = Eclipse.Multiplayer.RoomSession.PlaytestMessage;
+            }
             bool showcasing = AdvanceShowcase(Time.unscaledTime, Time.unscaledDeltaTime, TitleActivity(), Application.isFocused);
             UpdateHomeStroke();
             UpdateParallax();

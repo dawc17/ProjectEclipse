@@ -1,4 +1,4 @@
-# Eclipse room server
+# Eclipse playtest room server
 
 A small program that makes online versus plug-and-play. Players browse, create and
 join rooms of up to 8. The server pairs players from the room's queue (simultaneous,
@@ -48,37 +48,75 @@ Spectator sending leaves reliable-channel capacity for room control messages.
 This remains a friendly-room design: the server validates membership and the
 publishing host, but cannot prove that uploaded inputs represent an honest fight.
 
-These features use **room protocol 4**. Deploy the updated server and distribute
-matching clients together; protocol 3 clients are refused with an update message.
+These features use **room protocol 5**. Deploy the updated server and distribute
+matching clients together; protocol 4 and older clients are refused with an update message.
 
-## Run it
+## Choose or change the schedule
 
-It needs a machine with a public IP (any small VPS) with **UDP port 7300** open.
-This is the only port involved; players forward nothing.
+This branch is `playtest/multiplayer-beta`. It serves the restricted build on
+`rooms.projecteclipse.fyi:7301`, separately from normal main's UDP 7300 service.
+The server uses its own UTC clock. Clients do not use the device's date/time.
+Both schedule values empty means **closed until scheduled**. One missing value,
+a missing timezone, or an end at/before the start prevents server startup.
 
-Docker, from the repository root:
-
-```sh
-docker build -f Server/EclipseRooms/Dockerfile -t eclipse-rooms .
-docker run -d --name eclipse-rooms --restart unless-stopped -p 7300:7300/udp eclipse-rooms
-docker logs -f eclipse-rooms
-```
-
-Without Docker, using any .NET 8 SDK (Unity's bundled one works too):
+From the repository root:
 
 ```sh
-dotnet run --project Server/EclipseRooms -c Release -- --port 7300
+cp Server/EclipseRooms/playtest.env.example Server/EclipseRooms/playtest.env
 ```
 
-`ECLIPSE_ROOMS_PORT` overrides the port. The log prints one line per connection,
-room, match and result, plus a status line every minute.
+Edit `playtest.env` with your chosen dates. These are examples, not a preset:
 
-## Testing on your own machine
+```dotenv
+ECLIPSE_PLAYTEST_START=2026-10-01T18:00:00+02:00
+ECLIPSE_PLAYTEST_END=2026-10-01T20:00:00+02:00
+```
 
-Run the server on your PC, then in the game enter `127.0.0.1:7300` as the room
-server. Another device on the same Wi-Fi or hotspot uses your PC's LAN address,
-for example `10.171.108.41:7300`. Allow UDP 7300 through your firewall
-(`sudo ufw allow 7300/udp`).
+Use `Z` for UTC or an explicit offset such as `+02:00`. Players can launch early
+and wait on the title screen; **Join playtest** unlocks at the start. Access ends
+at the end timestamp, including ongoing fights and spectator playback, with
+**Playtest is over.** A lost server heartbeat revokes access within three seconds,
+even for directly connected fighters. Reconnect after restoring the service.
+
+## Deploy
+
+Allow **UDP 7301** through the VPS firewall, then use Docker Compose v2:
+
+```sh
+sudo ufw allow 7301/udp
+sudo docker compose -f Server/EclipseRooms/compose.yaml up -d --build
+sudo docker compose -f Server/EclipseRooms/compose.yaml logs -f
+```
+
+After editing the dates, recreate the service so Docker reloads the environment:
+
+```sh
+sudo docker compose -f Server/EclipseRooms/compose.yaml up -d --force-recreate
+```
+
+A plain `docker restart` does not reload the env file. Recreating the server
+clears its rooms and makes active players reconnect; make schedule changes before
+players join when possible. Updating dates needs no new game build.
+
+Without Compose:
+
+```sh
+sudo docker build -f Server/EclipseRooms/Dockerfile -t eclipse-playtest-rooms .
+sudo docker run -d --name eclipse-playtest-rooms --restart unless-stopped \
+  --env-file Server/EclipseRooms/playtest.env -p 7301:7301/udp eclipse-playtest-rooms
+```
+
+Without Docker, export the two schedule variables in the shell before running:
+
+```sh
+dotnet run --project Server/EclipseRooms -c Release -- --port 7301
+```
+
+`ECLIPSE_ROOMS_PORT` overrides the server port; distributing clients for a different
+endpoint also requires changing `RoomSession.DefaultServer`. Local testing uses a
+local endpoint in that constant (loopback for the same PC, its LAN IP for phones).
+The regression runner uses an isolated loopback server without changing it.
+The log prints connections, rooms, matches, results and a status every minute.
 
 ## Limits
 

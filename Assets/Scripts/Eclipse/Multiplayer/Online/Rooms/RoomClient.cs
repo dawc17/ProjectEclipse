@@ -41,6 +41,18 @@ namespace Eclipse.Multiplayer.Online.Rooms
         private readonly uint _token;
         private long _startedMs, _lastHelloMs = long.MinValue, _lastSendMs = long.MinValue, _nowMs;
         private uint _cookie;
+        private long _windowReceivedMs, _serverUnixMs;
+        public PlaytestWindow Window { get; private set; }
+        private long ServerUnixMs => ServerUnixMsAt(_nowMs);
+        private long ServerUnixMsAt(long nowMs) => _serverUnixMs + Math.Max(0, nowMs - _windowReceivedMs);
+        public bool CanPlay => CanPlayAt(_nowMs);
+        public bool CanPlayAt(long nowMs) => State == RoomClientState.Connected && Window != null &&
+            nowMs - _windowReceivedMs < PlaytestWindow.LeaseMs &&
+            Window.BlockReason(ServerUnixMsAt(nowMs)) == null;
+        public string PlaytestMessage => PlaytestMessageAt(_nowMs);
+        public string PlaytestMessageAt(long nowMs) => State == RoomClientState.Closed ? CloseReason :
+            Window == null ? "Connecting to the playtest server..." : Window.BlockReason(ServerUnixMsAt(nowMs)) ??
+            (nowMs - _windowReceivedMs >= PlaytestWindow.LeaseMs ? "Lost connection to the playtest server. Reconnect to continue." : Window.Message(ServerUnixMsAt(nowMs)));
 
         public IPEndPoint Server { get; }
         public RoomClientState State { get; private set; } = RoomClientState.Connecting;
@@ -168,6 +180,8 @@ namespace Eclipse.Multiplayer.Online.Rooms
                 return;
             }
             if (nowMs - LastReceiveMs > TimeoutMs) { Close("Lost connection to the room server.", false); return; }
+            if (nowMs - _windowReceivedMs >= PlaytestWindow.LeaseMs) { Close("Lost connection to the playtest server. Reconnect to continue.", false); return; }
+            if (Window.Scheduled && ServerUnixMs >= Window.EndsUnixMs) { Close("Playtest is over."); return; }
             if (_lastSendMs == long.MinValue || nowMs - _lastSendMs >= KeepAliveMs ||
                 _reliable.PendingCount > 0 && nowMs - _lastSendMs >= ReliableChannel.ResendMs)
                 Flush(nowMs);
@@ -240,6 +254,7 @@ namespace Eclipse.Multiplayer.Online.Rooms
                     if (State != RoomClientState.Connecting) return;
                     ClientId = reader.U32();
                     PublicEndPoint = RoomProtocol.ReadEndPoint(reader);
+                    if (!ReadWindow(reader)) return;
                     State = RoomClientState.Connected;
                     LastReceiveMs = _nowMs;
                     Flush(_nowMs);
@@ -248,7 +263,7 @@ namespace Eclipse.Multiplayer.Online.Rooms
                     Close(reader.Str(), false);
                     break;
                 case RoomProtocol.KindBye:
-                    Close("The room server closed the connection: " + reader.Str(), false);
+                    Close(reader.Str(), false);
                     break;
                 case RoomProtocol.KindData:
                     if (State != RoomClientState.Connected) return;
@@ -260,6 +275,7 @@ namespace Eclipse.Multiplayer.Online.Rooms
                     if (State != RoomClientState.Connected) return;
                     LastReceiveMs = _nowMs;
                     uint stamp = reader.U32();
+                    if (!ReadWindow(reader)) return;
                     RoomProtocol.WriteHeader(_writer, RoomProtocol.KindPong, _token);
                     _writer.U32(stamp);
                     _socket.Send(Server, _writer.Buffer, _writer.Length);
@@ -271,6 +287,20 @@ namespace Eclipse.Multiplayer.Online.Rooms
                     if (Link != null && Link.MatchId == matchId) Link.DeliverRelayed(buffer, reader.Position, reader.Remaining);
                     break;
             }
+        }
+
+        private bool ReadWindow(NetReader reader)
+        {
+            try
+            {
+                long previousUnixMs = Window == null ? 0 : ServerUnixMs;
+                Window = PlaytestWindow.Read(reader, out long serverUnixMs);
+                // Delayed or reordered heartbeats must not rewind the known expiry clock.
+                _serverUnixMs = Math.Max(previousUnixMs, serverUnixMs);
+                _windowReceivedMs = _nowMs;
+                return true;
+            }
+            catch (NetFormatException) { Close("The playtest server sent an invalid schedule.", false); return false; }
         }
 
         private void HandleMessage(byte[] message)

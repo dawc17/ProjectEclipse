@@ -144,6 +144,7 @@ namespace Eclipse.Multiplayer
         internal static int StepsFor(Fight fight)
         {
             if (!Owns(fight)) return 1;
+            if (!RoomSession.CanPlay) { IsStalled = true; return 0; }
             // A local pause drops presses; held controls are re-delivered on resume.
             if (fight.IsPaused()) _state.Resync = true;
             _source.Pump();

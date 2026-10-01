@@ -16,46 +16,7 @@ namespace Eclipse.Multiplayer
         private DummyControl trainingBuiltControl;
 
         public void ShowTraining()
-        {
-            EnsureEventSystem();
-            page = Page.Training;
-            if (trainingPlayer == null) trainingPlayer = VersusLoadouts.Load(VersusLoadouts.PlayerOne);
-            if (trainingDummy == null) trainingDummy = VersusLoadouts.Load(VersusLoadouts.Dummy);
-            if (!VersusRoster.IsArena(trainingArena)) trainingArena = VersusRoster.IsArena("dojo") ? "dojo" : VersusRoster.Arenas.Count > 0 ? VersusRoster.Arenas[0].Id : "dojo";
-            SetBackdropArena(trainingArena);
-            RebuildScreen("TRAINING", "Practise against a dummy", Hints("1 2", "Loadouts", "A", "Arena", "Esc", "Back"), ShowModeSelect, content =>
-            {
-                FighterCard(content, "YOU", trainingPlayer, false, EditTrainingPlayer, () => "KEYBOARD OR GAMEPAD 1");
-                FighterCard(content, "DUMMY", trainingDummy, true, EditTrainingDummy, () => DummySummary());
-
-                var arenaCard = Place(content, "Arena", new Vector2(.5f, 1), new Vector2(0, 0), new Vector2(420, 170));
-                var paper = arenaCard.gameObject.AddComponent<PaperPanel>(); paper.color = Paper; paper.raycastTarget = true;
-                var thumbRect = Place(arenaCard, "Thumb", new Vector2(.5f, 1), new Vector2(0, -12), new Vector2(390, 104));
-                trainingArenaThumb = thumbRect.gameObject.AddComponent<RawImage>(); trainingArenaThumb.raycastTarget = false;
-                trainingArenaName = Label(arenaCard, "", 22, Ink, TextAnchor.MiddleCenter);
-                Anchor(trainingArenaName.rectTransform, new Vector2(.5f, 0), new Vector2(0, 12), new Vector2(390, 34));
-                var pick = arenaCard.gameObject.AddComponent<Button>(); pick.targetGraphic = paper;
-                EclipseUiButton.Attach(pick, paper, trainingArenaName, Paper, PaperWarm, Ink, Red, 0f, .03f, .03f);
-                pick.onClick.AddListener(OpenTrainingArenaPicker);
-                RefreshTrainingArena();
-
-                var rules = Place(content, "Dummy", new Vector2(.5f, 1), new Vector2(0, -184), new Vector2(420, 250));
-                var rulesPaper = rules.gameObject.AddComponent<PaperPanel>(); rulesPaper.color = Paper; rulesPaper.raycastTarget = true;
-                var list = Place(rules, "List", new Vector2(.5f, .5f), Vector2.zero, new Vector2(390, 226));
-                var layout = list.gameObject.AddComponent<VerticalLayoutGroup>(); layout.spacing = 8; layout.childControlHeight = layout.childControlWidth = true; layout.childForceExpandHeight = false;
-                AddTrainingChoices(list, 200);
-
-                var start = Place(content, "Start", new Vector2(.5f, 0), new Vector2(0, 16), new Vector2(420, 60));
-                var startButton = AddButton(start, "START TRAINING", StartTraining, -1, UiSound.Begin);
-                StretchChild(start);
-                startButton.GetComponent<EclipseUiButton>()?.SetColors(Red, RedBright, Paper, Paper);
-                shortcuts.Add((KeyCode.Alpha1, EditTrainingPlayer));
-                shortcuts.Add((KeyCode.Alpha2, EditTrainingDummy));
-                shortcuts.Add((KeyCode.A, OpenTrainingArenaPicker));
-                if (EventSystemAvailable) UnityEngine.EventSystems.EventSystem.current.SetSelectedGameObject(startButton.gameObject);
-            });
-            SetStatus("Rounds never end with infinite health. The clock is stopped.");
-        }
+        { ShowOnlineHome(); }
 
         private void EditTrainingPlayer() => ShowArmory("You", trainingPlayer, loadout => { trainingPlayer = loadout; VersusLoadouts.Save(VersusLoadouts.PlayerOne, loadout); ShowTraining(); });
         private void EditTrainingDummy() => ShowArmory("The dummy", trainingDummy, loadout => { trainingDummy = loadout; VersusLoadouts.Save(VersusLoadouts.Dummy, loadout); ShowTraining(); });

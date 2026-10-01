@@ -87,7 +87,7 @@ namespace Nekki.SF2.GUI
 				SceneManagerSF.DJKMOGJMHLO(get_SceneId());
 				GIHJGHJJJGK();
 				base.Awake();
-				Init(Module.GetInstance().DMCJGOMOJEF.Data);
+				Init(Module.GetInstance().CurrentScreen.Data);
 				if (get_SceneId() != ScreenType.Loader)
 				{
 					Module.GetInstance().NFEBHLDPHHI(this);

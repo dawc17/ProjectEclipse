@@ -57,7 +57,7 @@ namespace Eclipse.Multiplayer
         /// match. CPU and OS may differ: IL2CPP x64 and ARM64 stayed in sync in testing.
         /// The per-tick state hash still catches anything else that changes the simulation.
         /// </summary>
-        public static string BuildId => Application.version + "/" + Runtime;
+        public static string BuildId => Application.version + "/" + Runtime + "/playtest";
 
         public const string Runtime =
 #if ENABLE_IL2CPP
@@ -99,39 +99,10 @@ namespace Eclipse.Multiplayer
         }
 
         public static void Host(string playerName, int port)
-        {
-            var session = Create(playerName);
-            try { session.Peer = NetplayPeer.Host(port, session.Identity(), NowMs); }
-            catch (Exception exception)
-            {
-                Destroy(session.gameObject);
-                throw new InvalidOperationException("Could not open port " + port + ": " + exception.Message, exception);
-            }
-            session.Phase = OnlinePhase.Hosting;
-            var netcode = SavedNetcode;
-            session.Lobby = new LobbyState
-            {
-                HostLoadout = session.LocalLoadout.ToCode(),
-                Arena = SavedArena,
-                Netcode = netcode,
-                InputDelay = netcode == NetcodeMode.Rollback ? NetProtocol.DefaultRollbackDelay : SavedDelay,
-            };
-            Debug.Log("[Online] Hosting on UDP port " + session.Peer.LocalPort + " (" + BuildId + ", " + ContentFingerprint() + ").");
-        }
+        { throw new InvalidOperationException("This playtest build requires the room server."); }
 
         public static void Join(string playerName, string address)
-        {
-            if (!NetplayPeer.TryParseAddress(address, out var endPoint, out var error)) throw new ArgumentException(error);
-            var session = Create(playerName);
-            try { session.Peer = NetplayPeer.Join(endPoint, session.Identity(), NowMs); }
-            catch (Exception exception)
-            {
-                Destroy(session.gameObject);
-                throw new InvalidOperationException("Could not open a network socket: " + exception.Message, exception);
-            }
-            session.Phase = OnlinePhase.Connecting;
-            Debug.Log("[Online] Joining " + endPoint + ".");
-        }
+        { throw new InvalidOperationException("This playtest build requires the room server."); }
 
         /// <summary>
         /// One fight arranged by a room: the peer is already routed (punched or relayed),
@@ -140,6 +111,7 @@ namespace Eclipse.Multiplayer
         /// </summary>
         public static void StartRoomFight(NetplayPeer peer, RoomPairing pairing, RoomSettings settings, string playerName, VersusLoadout localLoadout)
         {
+            RoomSession.RequireAccess();
             var session = Create(playerName);
             session.Peer = peer;
             session.RoomMatch = pairing;

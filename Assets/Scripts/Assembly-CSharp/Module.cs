@@ -17,7 +17,8 @@ public class Module : global::EventDispatcher<object>
 
 	private static Module instance;
 
-	public ScreenInfo DMCJGOMOJEF = new ScreenInfo();
+	// best guess for name
+	public ScreenInfo CurrentScreen = new ScreenInfo();
 
 	private ModuleHolder FFICJOEBPAK;
 
@@ -122,16 +123,16 @@ public class Module : global::EventDispatcher<object>
 			MenuController.BGFJOFOLGDH(false);
 		}
 		MenuController.BEMOBLOBCHN();
-		jLINNJGCFOG.DMCJGOMOJEF.HKJFKDEEIDJ = jLINNJGCFOG.DMCJGOMOJEF.ScreenType;
-		jLINNJGCFOG.DMCJGOMOJEF.ScreenType = HBGBPDEGKFE;
-		jLINNJGCFOG.DMCJGOMOJEF.Data = data;
-		jLINNJGCFOG.DMCJGOMOJEF.Dlg = ODDEOFKLIAG;
+		jLINNJGCFOG.CurrentScreen.HKJFKDEEIDJ = jLINNJGCFOG.CurrentScreen.ScreenType;
+		jLINNJGCFOG.CurrentScreen.ScreenType = HBGBPDEGKFE;
+		jLINNJGCFOG.CurrentScreen.Data = data;
+		jLINNJGCFOG.CurrentScreen.Dlg = ODDEOFKLIAG;
 		Action load = () =>
 		{
 			jLINNJGCFOG.OAAFAINKKMI();
-			jLINNJGCFOG.CallEvent(0, jLINNJGCFOG.DMCJGOMOJEF);
+			jLINNJGCFOG.CallEvent(0, jLINNJGCFOG.CurrentScreen);
 		};
-		if (!Eclipse.UI.MenuSceneFade.Begin(jLINNJGCFOG.DMCJGOMOJEF.HKJFKDEEIDJ, HBGBPDEGKFE, load)) load();
+		if (!Eclipse.UI.MenuSceneFade.Begin(jLINNJGCFOG.CurrentScreen.HKJFKDEEIDJ, HBGBPDEGKFE, load)) load();
 		return true;
 	}
 
@@ -139,25 +140,25 @@ public class Module : global::EventDispatcher<object>
     {
         if (match == null || !Eclipse.Multiplayer.LocalVersusSession.IsActive)
             throw new InvalidOperationException("Local versus must own the scene transition.");
-        DMCJGOMOJEF.HKJFKDEEIDJ = DMCJGOMOJEF.ScreenType;
-        DMCJGOMOJEF.ScreenType = ScreenType.ModuleFight;
-        DMCJGOMOJEF.Data = match;
-        DMCJGOMOJEF.Dlg = null;
-        CallEvent(3, DMCJGOMOJEF.HKJFKDEEIDJ);
+        CurrentScreen.HKJFKDEEIDJ = CurrentScreen.ScreenType;
+        CurrentScreen.ScreenType = ScreenType.ModuleFight;
+        CurrentScreen.Data = match;
+        CurrentScreen.Dlg = null;
+        CallEvent(3, CurrentScreen.HKJFKDEEIDJ);
         DialogsManager.HNEGECPBALO();
         SceneManagerSF.Load(ScreenType.ModuleFight);
         CallEvent(4, ScreenType.ModuleFight);
-        CallEvent(0, DMCJGOMOJEF);
+        CallEvent(0, CurrentScreen);
     }
 
 	public void OAAFAINKKMI()
 	{
-		CallEvent(3, DMCJGOMOJEF.HKJFKDEEIDJ);
+		CallEvent(3, CurrentScreen.HKJFKDEEIDJ);
 		DialogsManager.HNEGECPBALO();
-		SceneManagerSF.Load(DMCJGOMOJEF.ScreenType);
-		CallEvent(4, DMCJGOMOJEF.ScreenType);
+		SceneManagerSF.Load(CurrentScreen.ScreenType);
+		CallEvent(4, CurrentScreen.ScreenType);
 		QuestParameters hHKLFIIBIFF = ListSF.GetInstance().BNMLDPNCMLB();
-		hHKLFIIBIFF.BPPAPLLPBIJ = INIOOEKJIDI(DMCJGOMOJEF.ScreenType);
+		hHKLFIIBIFF.BPPAPLLPBIJ = INIOOEKJIDI(CurrentScreen.ScreenType);
 		if (ListSF.GetInstance().FFBAJNGHGGD(QuestEvent.PMDPDMFLCIJ.QUEST_EVENT_SCENE_LOADED))
 		{
 			ListSF.GetInstance().MHHNIPBJNAD();
@@ -167,7 +168,7 @@ public class Module : global::EventDispatcher<object>
 	// best guess for name
 	public ScreenType GetCurrentScreenType()
 	{
-		return DMCJGOMOJEF.ScreenType;
+		return CurrentScreen.ScreenType;
 	}
 
 	public Scene HMGDPCPPEFC()
@@ -255,23 +256,23 @@ public class Module : global::EventDispatcher<object>
 	{
 		if (Eclipse.Multiplayer.LocalVersusSession.IsActive)
 		{
-			CallEvent(1, DMCJGOMOJEF.ScreenType);
+			CallEvent(1, CurrentScreen.ScreenType);
 			CallEvent(2, 0);
 			return;
 		}
-		if (DMCJGOMOJEF.ScreenType != ScreenType.ModulePreloader)
+		if (CurrentScreen.ScreenType != ScreenType.ModulePreloader)
 		{
-			if (DMCJGOMOJEF.Dlg != null)
+			if (CurrentScreen.Dlg != null)
 			{
-				DMCJGOMOJEF.Dlg(null);
-				DMCJGOMOJEF.Dlg = null;
+				CurrentScreen.Dlg(null);
+				CurrentScreen.Dlg = null;
 			}
 			else
 			{
 				ListSF.GetInstance().MHHNIPBJNAD();
 			}
 		}
-		CallEvent(1, DMCJGOMOJEF.ScreenType);
+		CallEvent(1, CurrentScreen.ScreenType);
 		Eclipse.Modding.ModRuntime.ShowPendingBattleLottery();
 		CallEvent(2, 0);
 	}

@@ -17,29 +17,7 @@ namespace Eclipse.UI
         private Action campaignNameSubmit;
 
         private void OpenCampaignSaves()
-        {
-            try
-            {
-                SF2Paths.Init();
-                var store = new CampaignSaveStore(SF2Paths.GetLegacyUserDataDirectory());
-                store.Initialize();
-                campaignStore = store;
-                campaignMessage = null;
-                DrawCampaignSaves();
-            }
-            catch (Exception error)
-            {
-                Debug.LogException(error);
-                campaignStore = null;
-                Clear("Saves");
-                Label(page, "Saves", 76, 96, 1000, 64, 42, Ink);
-                var message = Label(page, "Could not open your saves.\n" + error.Message, 76, 220, 1120, 180, 23, Ink);
-                message.supportRichText = false;
-                Button(page, "Back", 76, 604, 320, 48, Home, UiSound.Back);
-                Button(page, "Try again", 742, 604, 450, 48, OpenCampaignSaves);
-                FocusFirst();
-            }
-        }
+        { Home(); }
 
         private void DrawCampaignSaves(string focusId = null)
         {

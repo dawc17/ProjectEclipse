@@ -81,3 +81,4 @@ unity-agent-plugin/
 
 # DE128 lives in its own repo (DefinitiveEdition128); Mods/de128 is a local link to it.
 /Mods/de128
+/Server/EclipseRooms/playtest.env

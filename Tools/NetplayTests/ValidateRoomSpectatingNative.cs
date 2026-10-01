@@ -18,6 +18,7 @@ public static class ValidateRoomSpectatingNative
     private static readonly BindingFlags Hidden = BindingFlags.Instance | BindingFlags.NonPublic;
     private static int phase, checks, captureFrame;
     private static double deadline;
+    private static double lastReport;
     private static float previousScale;
     private static float liveStartedAt;
     private static int liveStartedTick;
@@ -31,7 +32,8 @@ public static class ValidateRoomSpectatingNative
         Directory.CreateDirectory(Path.GetDirectoryName(Report));
         File.WriteAllText(Report, "RUNNING\n");
         phase = checks = 0;
-        deadline = EditorApplication.timeSinceStartup + 180;
+        lastReport = EditorApplication.timeSinceStartup;
+        deadline = EditorApplication.timeSinceStartup + 300;
         previousScale = Time.timeScale;
         EditorApplication.update += Tick;
         EditorWindow.GetWindow(typeof(Editor).Assembly.GetType("UnityEditor.GameView")).Focus();
@@ -49,20 +51,58 @@ public static class ValidateRoomSpectatingNative
     {
         try
         {
+            if (client != null)
+            {
+                // Native gameplay fixture; the real lease/expiry protocol is checked over UDP in RoomTests.
+                // Keep the fixture grant across slow synchronous native asset loads.
+                typeof(RoomClient).GetField("_windowReceivedMs", Hidden).SetValue(client, OnlineVersusSession.NowMs + 180000);
+                typeof(RoomClient).GetField("_nowMs", Hidden).SetValue(client, OnlineVersusSession.NowMs);
+            }
             if (!EditorApplication.isPlaying) throw new Exception("Play Mode ended during validation.");
             if (EditorApplication.timeSinceStartup > deadline) throw new TimeoutException("Timed out at phase " + phase);
+            if (EditorApplication.timeSinceStartup - lastReport > 10)
+            {
+                lastReport = EditorApplication.timeSinceStartup;
+                File.AppendAllText(Report, "Waiting phase " + phase + ": tick=" + VersusTickDriver.Tick + ", recorded=" + (inputs?.Replay.TickCount ?? 0) + ", starting=" + LocalVersusSession.IsStarting + ", access=" + RoomSession.CanPlay + "\n");
+            }
             switch (phase)
             {
                 case 0:
                     if (!Eclipse.UI.TitleScreen.IsOpen) return;
                     var title = UnityEngine.Object.FindAnyObjectByType<Eclipse.UI.TitleScreen>();
-                    var multiplayer = title.GetComponentsInChildren<UnityEngine.UI.Button>().FirstOrDefault(button => button.GetComponentInChildren<UnityEngine.UI.Text>()?.text == "MULTIPLAYER");
+                    if ((bool)typeof(Eclipse.UI.TitleScreen).GetField("splashing", Hidden).GetValue(title))
+                    {
+                        // The unchanged launch movie is outside these menu/fight checks.
+                        title.StopAllCoroutines();
+                        var splash = title.transform.Find("Splash");
+                        if (splash != null) UnityEngine.Object.Destroy(splash.gameObject);
+                        typeof(Eclipse.UI.TitleScreen).GetField("splashing", Hidden).SetValue(title, false);
+                        typeof(Eclipse.UI.TitleScreen).GetMethod("Home", Hidden).Invoke(title, null);
+                    }
+                    var multiplayer = title.GetComponentsInChildren<UnityEngine.UI.Button>().FirstOrDefault(button => button.GetComponentInChildren<UnityEngine.UI.Text>()?.text == "JOIN PLAYTEST");
                     if (multiplayer == null) return;
+                    Check(!multiplayer.interactable && !RoomSession.CanPlay, "unscheduled title disables playtest entry");
+                    Check(!title.GetComponentsInChildren<UnityEngine.UI.Text>().Any(text => text.text == "CAMPAIGN" || text.text == "MODS"), "restricted title offers no campaign or mod entry");
+                    RoomSession.Shutdown();
+                    BuildAccessFixture();
+                    bool refused = false;
+                    try { RoomSession.RequireScene(ScreenType.ModuleMap); }
+                    catch (InvalidOperationException) { refused = true; }
+                    Check(refused, "shared scene loader refuses campaign navigation");
                     multiplayer.onClick.Invoke();
                     phase++;
                     break;
                 case 1:
                     if (!LocalVersusSession.IsReady) return;
+                    typeof(RoomClient).GetProperty("State").SetValue(client, RoomClientState.Connecting);
+                    typeof(LocalVersusSession).GetMethod("Update", Hidden).Invoke(UnityEngine.Object.FindAnyObjectByType<LocalVersusSession>(), null);
+                    Check(LocalVersusSession.IsActive && !RoomSession.CanPlay, "lobby can reconnect a renamed player while gameplay stays locked");
+                    typeof(RoomClient).GetProperty("State").SetValue(client, RoomClientState.Connected);
+                    bool localRefused = false;
+                    try { LocalVersusSession.StartMatch(new LocalVersusSettings(VersusLoadout.Default, VersusLoadout.Default, "dojo", true)); }
+                    catch (InvalidOperationException) { localRefused = true; }
+                    Check(localRefused, "local matches are refused even with playtest access");
+                    Check(!LocalVersusMenu.Ensure().GetComponentsInChildren<UnityEngine.UI.Text>().Any(text => text.text == "DIRECT CONNECT" || text.text == "TRAINING" || text.text == "REPLAYS"), "multiplayer home exposes rooms only");
                     var settings = new LocalVersusSettings(VersusLoadout.Default, VersusLoadout.Default, "dojo", true,
                         mode: VersusMode.Online, playerOneName: "Left", playerTwoName: "Right", seed: 123456);
                     inputs = new Inputs();
@@ -101,6 +141,12 @@ public static class ValidateRoomSpectatingNative
                     if (stream.Replay.TickCount < 660 || VersusTickDriver.Tick < 600) return;
                     Check(true, "native live batches play continuously at normal speed");
                     CheckHash();
+                    typeof(RoomClient).GetProperty("Window").SetValue(client, new PlaytestWindow(0, 1));
+                    typeof(RoomClient).GetField("_serverUnixMs", Hidden).SetValue(client, 2L);
+                    int blockedSteps = (int)typeof(VersusTickDriver).GetMethod("StepsFor", BindingFlags.Static | BindingFlags.NonPublic).Invoke(null, new object[] { Fight.GetCurrentFight() });
+                    Check(blockedSteps == 0 && !RoomSession.CanPlay, "expired access blocks native spectator fight ticks before the frame pump");
+                    typeof(RoomClient).GetProperty("Window").SetValue(client, new PlaytestWindow(0, PlaytestWindow.MaxUnixMs));
+                    typeof(RoomClient).GetField("_serverUnixMs", Hidden).SetValue(client, 0L);
                     stream.Ended = true;
                     phase++;
                     break;
@@ -122,7 +168,17 @@ public static class ValidateRoomSpectatingNative
                     Check(buttons.All(button => ((RectTransform)button.transform).rect.width > 0 && ((RectTransform)button.transform).rect.height > 0), "spectate controls have visible bounds");
                     buttons[1].onClick.Invoke();
                     Check((uint)typeof(RoomClient).GetField("_wantedSpectate", Hidden).GetValue(client) == 2, "spectate button selects its own fight");
-                    ScreenCapture.CaptureScreenshot(Path.Combine("Temp", "RoomSpectatingNative", "room.png"));
+                    RoomSession.EndPlaytest("Playtest is over.");
+                    client = null;
+                    phase++;
+                    break;
+                case 7:
+                    if (!Eclipse.UI.TitleScreen.IsOpen || LocalVersusSession.IsActive) return;
+                    var expiredTitle = UnityEngine.Object.FindAnyObjectByType<Eclipse.UI.TitleScreen>();
+                    var join = expiredTitle.GetComponentsInChildren<UnityEngine.UI.Button>().FirstOrDefault(button => button.GetComponentInChildren<UnityEngine.UI.Text>()?.text == "JOIN PLAYTEST");
+                    if (join == null) return;
+                    Check(!join.interactable && expiredTitle.GetComponentsInChildren<UnityEngine.UI.Text>().Any(text => text.text == "Playtest is over."), "expiry returns to the locked title with playtest-over message");
+                    ScreenCapture.CaptureScreenshot(Path.Combine("Temp", "RoomSpectatingNative", "expired.png"));
                     Finish(null);
                     break;
             }
@@ -147,16 +203,27 @@ public static class ValidateRoomSpectatingNative
 
     private static void BuildRoom()
     {
-        var session = new GameObject("Native room UI validation").AddComponent<RoomSession>();
-        client = new RoomClient(new IPEndPoint(IPAddress.Loopback, 1), new NetIdentity("native", "none", "Viewer"), Array.Empty<IPAddress>(), OnlineVersusSession.NowMs);
+        RoomSession.Shutdown();
+        var session = BuildAccessFixture();
         var room = new RoomState { RoomId = 1, HostId = 99, Code = "ABCDEF" };
         for (uint id = 1; id <= 8; id++) room.Members.Add(new RoomMember { Id = id, Name = "Player " + id, Status = MemberStatus.InMatch });
         for (uint id = 1; id <= 4; id++) room.Fights.Add(new RoomFight { MatchId = id, LeftId = id * 2 - 1, RightId = id * 2, CanSpectate = true });
         typeof(RoomClient).GetProperty("Room").SetValue(client, room);
+        LocalVersusMenu.Ensure().ShowRoom();
+    }
+
+    private static RoomSession BuildAccessFixture()
+    {
+        var session = new GameObject("Native room UI validation").AddComponent<RoomSession>();
+        UnityEngine.Object.DontDestroyOnLoad(session.gameObject);
+        client = new RoomClient(new IPEndPoint(IPAddress.Loopback, 1), new NetIdentity("native", "none", "Viewer"), Array.Empty<IPAddress>(), OnlineVersusSession.NowMs);
+        typeof(RoomClient).GetProperty("State").SetValue(client, RoomClientState.Connected);
+        typeof(RoomClient).GetProperty("Window").SetValue(client, new PlaytestWindow(0, PlaytestWindow.MaxUnixMs));
+        typeof(RoomClient).GetField("_windowReceivedMs", Hidden).SetValue(client, OnlineVersusSession.NowMs + 180000);
         typeof(RoomSession).GetProperty("Client").SetValue(session, client);
         typeof(RoomSession).GetProperty("Current").SetValue(null, session);
         session.enabled = false;
-        LocalVersusMenu.Ensure().ShowRoom();
+        return session;
     }
 
     private static void Finish(string error)

@@ -180,30 +180,7 @@ namespace Eclipse.Multiplayer
 
         /// <summary>The multiplayer entry: local versus, online, training, and replays.</summary>
         public void ShowModeSelect()
-        {
-            EnsureEventSystem();
-            page = Page.ModeSelect;
-            RebuildScreen("MULTIPLAYER", "Choose how to fight", Hints("1 2 3", "Choose", "R", "Replays", "Esc", "Title"), LocalVersusSession.ReturnToTitle, content =>
-            {
-                var cards = Place(content, "Modes", new Vector2(.5f, .5f), new Vector2(0, 40), new Vector2(1140, 430));
-                ModeCard(cards, 0, "LOCAL VERSUS", "Two players, one screen.\nKeyboard and gamepads.", ModeArt.Local, ShowLobby);
-                ModeCard(cards, 1, "ONLINE", "Rooms, friends' codes and\ndirect connections.", ModeArt.Online, ShowOnlineHome);
-                ModeCard(cards, 2, "TRAINING", "Practise against a dummy.\nReadouts, hitboxes, replays.", ModeArt.Training, ShowTraining);
-                shortcuts.Add((KeyCode.Alpha1, ShowLobby));
-                shortcuts.Add((KeyCode.Alpha2, ShowOnlineHome));
-                shortcuts.Add((KeyCode.Alpha3, ShowTraining));
-                shortcuts.Add((KeyCode.R, ShowReplays));
-
-                var links = Place(content, "Links", new Vector2(.5f, 0), new Vector2(0, 0), new Vector2(Debug.isDebugBuild ? 900 : 620, 46));
-                var row = links.gameObject.AddComponent<HorizontalLayoutGroup>();
-                row.spacing = 16; row.childControlWidth = row.childControlHeight = true; row.childForceExpandWidth = true;
-                AddButton(links, "REPLAYS", ShowReplays, 0);
-                // A netcode self-test for development; players have no use for it.
-                if (Debug.isDebugBuild) AddButton(links, "ROLLBACK TEST", TestRollbackOnLastReplay, 0);
-                AddButton(links, "RETURN TO TITLE", LocalVersusSession.ReturnToTitle, 0);
-                UiReveal.Play(links, .3f, .3f, new Vector2(0, -14));
-            });
-        }
+        { ShowOnlineHome(); }
 
         private enum ModeArt { Local, Online, Training }
 

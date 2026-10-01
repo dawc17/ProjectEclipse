@@ -34,6 +34,7 @@ namespace Eclipse.Multiplayer.Online
         }
 
         public void I32(int value) => U32(unchecked((uint)value));
+        public void I64(long value) { U32(unchecked((uint)value)); U32(unchecked((uint)(value >> 32))); }
 
         public void Bytes(byte[] source, int offset, int count)
         {
@@ -124,6 +125,7 @@ namespace Eclipse.Multiplayer.Online
         }
 
         public int I32() => unchecked((int)U32());
+        public long I64() { uint low = U32(); return unchecked((long)((ulong)U32() << 32 | low)); }
 
         public byte[] Bytes(int count)
         {

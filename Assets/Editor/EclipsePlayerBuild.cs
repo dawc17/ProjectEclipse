@@ -20,9 +20,10 @@ public static class EclipsePlayerBuild
     [MenuItem("SF2/Build/Windows x86_64")]
     public static void BuildWindows()
     {
+        PlayerSettings.SetScriptingBackend(BuildTargetGroup.Standalone, ScriptingImplementation.IL2CPP);
         BuildPlayer(
             BuildTarget.StandaloneWindows64,
-            ResolveOutputPath(WindowsOutputVariable, "Builds/Windows/Eclipse.exe"));
+            ResolveOutputPath(WindowsOutputVariable, "Builds/Playtest/Windows/Eclipse.exe"));
     }
 
     // Tester build: gameplay XML is also written loose beside the executable and
@@ -30,9 +31,7 @@ public static class EclipsePlayerBuild
     [MenuItem("SF2/Build/Windows x86_64 (Editable XML)")]
     public static void BuildWindowsEditableXml()
     {
-        string outputPath = ResolveOutputPath(EditableXmlOutputVariable, "Builds/WindowsEditableXml/Eclipse.exe");
-        BuildPlayer(BuildTarget.StandaloneWindows64, outputPath);
-        WriteEditableXml(Path.GetDirectoryName(outputPath));
+        throw new BuildFailedException("Editable XML builds are disabled on the playtest branch.");
     }
 
     private static void WriteEditableXml(string gameDirectory)
@@ -71,7 +70,7 @@ public static class EclipsePlayerBuild
 
         BuildPlayer(
             BuildTarget.Android,
-            ResolveOutputPath(AndroidOutputVariable, "Builds/Android/Eclipse.apk"));
+            ResolveOutputPath(AndroidOutputVariable, "Builds/Playtest/Android/Eclipse.apk"));
     }
 
     private static void BuildPlayer(BuildTarget target, string outputPath)

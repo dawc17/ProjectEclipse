@@ -25,7 +25,7 @@ if (Test-Path -LiteralPath $lockPath) {
     }
 }
 if ([string]::IsNullOrWhiteSpace($OutputDirectory)) {
-    $OutputDirectory = Join-Path $ProjectPath 'Builds'
+    $OutputDirectory = Join-Path $ProjectPath 'Builds/Playtest'
 }
 $OutputDirectory = [IO.Path]::GetFullPath($OutputDirectory)
 New-Item -ItemType Directory -Path $OutputDirectory -Force | Out-Null

@@ -7,6 +7,11 @@ Declare `presentation.navigate`. This API uses the
 same native transition as the game's menu, including its quest and tab checks.
 It does not expose Unity scene objects, raw scene indexes or arbitrary scene loading.
 
+The special `playtest/multiplayer-beta` branch disables campaign navigation and
+only allows online versus during the server's scheduled test window. Its common
+scene loader refuses campaign scenes even when called through native code. The
+regular Eclipse build continues to support the navigation contract below.
+
 ## sf2.scenes.open
 
 **Signature:** `sf2.scenes.open(destination)`

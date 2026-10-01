@@ -21,53 +21,7 @@ namespace Eclipse.Multiplayer
         private Text replayDetail;
 
         public void ShowReplays()
-        {
-            EnsureEventSystem();
-            page = Page.Replays;
-            replayEntries = VersusReplays.List();
-            replayDeleteArmed = null;
-            if (replaySelected != null && !replayEntries.Exists(entry => entry.Path == replaySelected.Path)) replaySelected = null;
-            int count = replayEntries.Count;
-            RebuildScreen("REPLAYS", count == 0 ? "No replays yet" : count == 1 ? "1 saved match" : count + " saved matches",
-                Hints("Enter", "Watch", "K", "Keep", "Del", "Delete", "Tab", "Filter", "Esc", "Back"), ShowModeSelect, content =>
-            {
-                var tabs = Place(content, "Filters", new Vector2(0, 1), new Vector2(0, 0), new Vector2(560, 42));
-                tabs.pivot = new Vector2(0, 1);
-                var row = tabs.gameObject.AddComponent<HorizontalLayoutGroup>(); row.spacing = 8; row.childControlWidth = row.childControlHeight = true; row.childForceExpandWidth = true;
-                for (int i = 0; i < ReplayFilterNames.Length; i++)
-                {
-                    var filter = (ReplayFilter)i;
-                    var tab = AddButton(tabs, ReplayFilterNames[i], () => { replayFilter = filter; ShowReplays(); }, 0, UiSound.Tab);
-                    if (filter == replayFilter) tab.GetComponent<EclipseUiButton>()?.SetColors(Red, RedBright, Paper, Paper);
-                }
-                var scroll = Place(content, "List", new Vector2(.5f, 1), new Vector2(0, -52), new Vector2(1180, 340));
-                replayGrid = BuildScrollGrid(scroll, new Vector2(572, 150), 2);
-                replayGrid.GetComponent<GridLayoutGroup>().spacing = new Vector2(16, 12);
-                Button first = null;
-                foreach (var entry in replayEntries)
-                {
-                    if (!Matches(entry)) continue;
-                    var button = ReplayCard(replayGrid, entry);
-                    if (first == null) first = button;
-                }
-                if (first == null)
-                {
-                    var empty = Label(content, count == 0 ? "Finish a local or online match and it is saved here." : "No replays match this filter.", 22, Paper, TextAnchor.MiddleCenter);
-                    Anchor(empty.rectTransform, new Vector2(.5f, .5f), new Vector2(0, 20), new Vector2(900, 60));
-                    Shade(empty);
-                }
-                replayDetail = Label(content, "", 17, Paper, TextAnchor.MiddleLeft);
-                Anchor(replayDetail.rectTransform, new Vector2(0, 0), new Vector2(0, 60), new Vector2(1180, 26), new Vector2(0, 0));
-                replayDetail.supportRichText = true;
-                Shade(replayDetail);
-                replayActions = Place(content, "Actions", new Vector2(.5f, 0), new Vector2(0, 0), new Vector2(1180, 48));
-                BuildReplayActions();
-                shortcuts.Add((KeyCode.K, ToggleReplayKept));
-                shortcuts.Add((KeyCode.Delete, DeleteReplay));
-                shortcuts.Add((KeyCode.Tab, () => { replayFilter = (ReplayFilter)(((int)replayFilter + 1) % ReplayFilterNames.Length); ShowReplays(); }));
-                if (first != null && EventSystemAvailable) UnityEngine.EventSystems.EventSystem.current.SetSelectedGameObject(first.gameObject);
-            });
-        }
+        { ShowOnlineHome(); }
 
         private bool Matches(VersusReplays.Entry entry)
         {

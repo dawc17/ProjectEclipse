@@ -202,7 +202,7 @@ everything plays normally, so the final hit is heard once.
 ## Rooms (no port forwarding)
 
 The room server is `Server/EclipseRooms/`; see its README for deployment. Online
-always connects to `rooms.projecteclipse.fyi:7300`, ignoring previously saved
+always connects to `rooms.projecteclipse.fyi:7301`, ignoring previously saved
 custom addresses. Players browse, create, or join rooms by code.
 
 - **Rooms.** Up to 8 members, including spectators. The host sets name, password,
@@ -229,7 +229,7 @@ custom addresses. Players browse, create, or join rooms by code.
   Ending or switching viewing unsubscribes; final history is released once the
   fight ends and all viewers have received it or left. Joining late may require
   substantial catch-up on slow devices. Portable fight snapshots are not used.
-  Room protocol 4 requires the updated server and clients to be deployed together.
+  Room protocol 5 requires the updated server and clients to be deployed together.
 - **Connecting a pair.** `RoomClient` uses one UDP socket for the server,
   hole-punch probes and the fight, so the opponent punches into the NAT mapping
   the server observed.
@@ -379,3 +379,39 @@ unity command eval 'return ValidateLocalVersusNative.Restore();' --caller plugin
   `Eclipse.CriticalPause` PlayerPref.
 - The round timer (`ViewerFight`) and round end (`Fight.RenderRound`) were
   already tick-driven. `GameUtils.LDBMFAMEMPF` (two steps per tick) is never set.
+
+## Restricted multiplayer playtest branch
+
+`playtest/multiplayer-beta` builds enter online rooms only. Campaign, local versus,
+training, replay playback and direct hosting/joining are disabled. The common
+scene loader and match-start path enforce the restriction as well as the menus.
+Simultaneous fights and spectators remain available during the test window.
+
+The server owns the adjustable schedule and supplies UTC start/end times and its
+current UTC time in welcome and heartbeat packets. Clients estimate elapsed time
+with a monotonic clock and require a heartbeat no older than three seconds. This
+also gates fight ticks before the normal frame pump, and ends direct fights when
+the room server goes away. There is no offline grant or device-clock fallback.
+Schedule boundaries are start-inclusive, end-exclusive. Both empty dates are a
+closed waiting state. Deploy this server separately on UDP 7301; normal main's
+protocol-4 server stays on 7300. See [server configuration](../../Server/EclipseRooms/README.md).
+
+Build using Unity 6.6's existing **SF2 > Build > Windows x86_64** or
+**Android ARM64 APK** commands. Both enforce IL2CPP for compatible fight math; the
+Editor uses Mono and cannot fight IL2CPP testers. Default output folders are
+`Builds/Playtest/Windows` and `Builds/Playtest/Android`. Editable XML builds are
+disabled here. Keep the enabled scene order intact because recovered loaders use
+numeric scene indices. This restricts gameplay in the distributed build; it does
+not remove archived campaign assets or provide tamper-proof DRM.
+
+Run `dotnet run --project Tools/NetplayTests` for schedule configuration, boundary,
+expiry, spectator, simultaneous-fight and heartbeat-loss regression checks, in
+addition to the ordinary netplay checks. The native spectator validator also
+checks restricted menu entry and shared scene/match guards using a controlled
+access fixture; it is not a distributed multi-device IL2CPP playtest.
+
+Verification: 55,257 core checks and 18 native Unity checks passed, along with
+managed compilation (runtime, firstpass, game and editor assemblies), server
+publish, Compose configuration validation and the modding documentation build.
+The expired title was inspected visually. Windows/Android player binaries and
+VPS deployment were not performed in this change.

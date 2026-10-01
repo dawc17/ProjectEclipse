@@ -204,22 +204,7 @@ namespace Eclipse.Multiplayer
         // ---- Online and replays ----
 
         public void ShowOnlineSetup()
-        {
-            if (OnlineVersusSession.IsActive) { ShowOnlineLobby(); return; }
-            EnsureEventSystem();
-            page = Page.OnlineSetup;
-            Rebuild("DIRECT CONNECT", "Host a match, or join a friend's address", body =>
-            {
-                nameField = AddTextField(body, "YOUR NAME", OnlineVersusSession.SavedName, 24);
-                addressField = AddTextField(body, "HOST ADDRESS", OnlineVersusSession.SavedAddress, 80, "e.g. 192.168.1.20:" + NetProtocolPort());
-                portField = AddTextField(body, "PORT TO HOST ON", OnlineVersusSession.SavedPort.ToString(), 5);
-                portField.contentType = UnityEngine.UI.InputField.ContentType.IntegerNumber;
-                AddButton(body, "HOST GAME", HostOnline);
-                AddButton(body, "JOIN GAME", JoinOnline);
-                AddButton(body, "BACK", ShowOnlineHome);
-            });
-            SetStatus("Both players need the same game version and mods. Hosting over the internet needs the UDP port forwarded, or a VPN such as Tailscale.");
-        }
+        { ShowOnlineHome(); }
 
         public void ShowOnlineLobby()
         {

@@ -20,7 +20,7 @@ internal static class RoomTests
     public static void Run(Action<bool, string> check)
     {
         Check = check;
-        using (_server = new Eclipse.RoomServer.RoomServer(0))
+        using (_server = new Eclipse.RoomServer.RoomServer(0, new PlaytestWindow(0, PlaytestWindow.MaxUnixMs)))
         {
             var server = new IPEndPoint(IPAddress.Loopback, _server.Port);
             var identity = new Func<string, NetIdentity>(name => new NetIdentity("1.0/IL2CPP", "mods:none", name));
@@ -125,6 +125,109 @@ internal static class RoomTests
         }
         _clients.Clear();
         _peers.Clear();
+        PlaytestGating();
+    }
+
+    private static void PlaytestGating()
+    {
+        var window = PlaytestWindow.FromEnvironment(key => key.EndsWith("START") ? "2026-10-01T18:00:00+02:00" : "2026-10-01T19:00:00+02:00");
+        Check(window.StartsUnixMs == DateTimeOffset.Parse("2026-10-01T16:00:00Z").ToUnixTimeMilliseconds(), "schedule converts explicit timezone to UTC");
+        Check(window.BlockReason(window.StartsUnixMs - 1) != null && window.BlockReason(window.StartsUnixMs) == null &&
+            window.BlockReason(window.EndsUnixMs - 1) == null && window.BlockReason(window.EndsUnixMs) == "Playtest is over.", "playtest start is inclusive and end exclusive");
+        Check(!PlaytestWindow.FromEnvironment(_ => "").Scheduled, "unset schedule stays closed");
+        foreach (var pair in new[] {
+            ("2026-10-01T18:00:00", "2026-10-01T19:00:00Z"),
+            ("", "2026-10-01T19:00:00Z"),
+            ("2026-10-01T20:00:00Z", "2026-10-01T19:00:00Z"),
+            ("2026-10-01T19:00:00Z", "2026-10-01T19:00:00Z"),
+            ("bad", "bad") })
+        {
+            bool refused = false;
+            try { PlaytestWindow.FromEnvironment(key => key.EndsWith("START") ? pair.Item1 : pair.Item2); }
+            catch (ArgumentException) { refused = true; }
+            Check(refused, "invalid or incomplete schedule is refused: " + pair);
+        }
+        var writer = new NetWriter();
+        window.Write(writer, window.StartsUnixMs);
+        var read = PlaytestWindow.Read(new NetReader(writer.Buffer, 0, writer.Length), out long serverUtc);
+        Check(read.StartsUnixMs == window.StartsUnixMs && read.EndsUnixMs == window.EndsUnixMs && serverUtc == window.StartsUnixMs, "64-bit schedule packet round-trips");
+        bool truncated = false;
+        try { PlaytestWindow.Read(new NetReader(writer.Buffer, 0, writer.Length - 1), out _); }
+        catch (NetFormatException) { truncated = true; }
+        Check(truncated, "truncated schedule packet is refused");
+
+        using (_server = new Eclipse.RoomServer.RoomServer(0))
+        {
+            var waiting = Connect(new IPEndPoint(IPAddress.Loopback, _server.Port), new NetIdentity("test", "none", "Waiting"));
+            Check(!waiting.CanPlay && waiting.PlaytestMessage.Contains("not been scheduled"), "unscheduled client connects in a locked waiting state");
+            waiting.CreateRoom(new RoomSettings(), "");
+            string error = null;
+            Pump(() => (error = Drain(waiting).FirstOrDefault(e => e.Type == RoomEventType.Error).Text) != null);
+            Check(error != null && _server.RoomCount == 0, "server refuses room creation even if a locked client sends it");
+            waiting.Dispose();
+        }
+        _clients.Clear();
+        long utc = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+        window = new PlaytestWindow(utc + 3000, utc + 60000);
+        using (_server = new Eclipse.RoomServer.RoomServer(0, window, () => utc))
+        {
+            var endpoint = new IPEndPoint(IPAddress.Loopback, _server.Port);
+            var players = Enumerable.Range(0, 5).Select(i => Connect(endpoint, new NetIdentity("test", "none", "Tester " + i))).ToArray();
+            Check(players.All(client => !client.CanPlay), "all clients wait before the server's start time");
+            players[0].CreateRoom(new RoomSettings(), "");
+            string error = null;
+            Pump(() => (error = Drain(players[0]).FirstOrDefault(e => e.Type == RoomEventType.Error).Text) != null);
+            Check(error != null && _server.RoomCount == 0, "server refuses rooms before the start time");
+            utc = window.StartsUnixMs;
+            Pump(() => players.All(client => client.CanPlay));
+            Check(players.All(client => client.CanPlay), "server heartbeat unlocks waiting clients without a rebuild or reconnect");
+            players[0].CreateRoom(new RoomSettings { Rotation = RoomRotation.Simultaneous }, "");
+            Pump(() => players[0].Room != null);
+            foreach (var player in players.Skip(1)) player.JoinByCode(players[0].Room.Code, "");
+            Pump(() => players[0].Room.Members.Count == 5);
+            foreach (var player in players.Take(4)) player.SetMember(Loadout(0), true);
+            Pump(() => players[0].Room.Fights.Count == 2);
+            Check(players[0].Room.Fights.Count == 2, "scheduled playtest supports simultaneous fights");
+            var pairing = players[0].Link.Pairing;
+            players[0].PublishStart(pairing.MatchId, new MatchStart { MatchIndex = 1, Arena = "dojo", HostLoadout = Loadout(0), GuestLoadout = Loadout(0), Seed = pairing.Seed,
+                WinsRequired = pairing.Settings.WinsRequired, RoundTimeSeconds = pairing.Settings.RoundTimeSeconds, InputDelay = 2 });
+            Pump(() => players[4].Room.Fights[0].CanSpectate);
+            players[4].Spectate(pairing.MatchId);
+            Pump(() => players[4].Spectating != null);
+            Check(players[4].Spectating != null, "scheduled playtest supports spectators");
+            utc = window.EndsUnixMs;
+            Pump(() => players.All(client => client.State == RoomClientState.Closed));
+            Check(_server.RoomCount == 0 && players.All(client => !client.CanPlay && client.CloseReason == "Playtest is over."), "expiry closes all simultaneous fighters and spectators and clears rooms");
+            foreach (var player in players) player.Dispose();
+            _clients.Clear();
+            var late = new RoomClient(endpoint, new NetIdentity("test", "none", "Late"), Array.Empty<IPAddress>(), Now);
+            _clients.Add(late);
+            Pump(() => late.State == RoomClientState.Closed);
+            Check(!late.CanPlay && late.CloseReason == "Playtest is over.", "client launched after expiry stays locked");
+            late.Dispose();
+        }
+        _clients.Clear();
+        using (_server = new Eclipse.RoomServer.RoomServer(0, new PlaytestWindow(0, 12000), () => 10000))
+        {
+            var client = Connect(new IPEndPoint(IPAddress.Loopback, _server.Port), new NetIdentity("test", "none", "Clock"));
+            long now = Now;
+            // A new heartbeat with an old UTC stamp models a delayed packet/loading hitch.
+            _server.Update(now + 1000);
+            client.Update(now + 1000);
+            Check(client.PlaytestMessageAt(now + 2000) == "Playtest is over.", "old heartbeat cannot rewind expiry, even before the frame pump runs");
+            client.Dispose();
+        }
+        _clients.Clear();
+        using (_server = new Eclipse.RoomServer.RoomServer(0, new PlaytestWindow(0, PlaytestWindow.MaxUnixMs)))
+        {
+            var client = Connect(new IPEndPoint(IPAddress.Loopback, _server.Port), new NetIdentity("test", "none", "Lease"));
+            long now = Now;
+            Check(client.CanPlay && !client.CanPlayAt(now + PlaytestWindow.LeaseMs), "access fails when server lease expires even before the client pump runs");
+            client.Update(now + PlaytestWindow.LeaseMs);
+            Check(client.State == RoomClientState.Closed && !client.CanPlay && client.CloseReason.Contains("Lost connection"), "loss of server heartbeat closes client within three seconds");
+            client.Dispose();
+        }
+        _clients.Clear();
     }
 
     private static void SpectatorPacing()

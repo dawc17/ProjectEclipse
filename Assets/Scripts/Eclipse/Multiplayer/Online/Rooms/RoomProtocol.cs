@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Net;
 
 namespace Eclipse.Multiplayer.Online.Rooms
@@ -12,8 +13,8 @@ namespace Eclipse.Multiplayer.Online.Rooms
     /// </summary>
     public static class RoomProtocol
     {
-        public const byte Version = 4;
-        public const int DefaultPort = 7300;
+        public const byte Version = 5;
+        public const int DefaultPort = 7301;
         public const int MaxMembers = 8;
         public const int MaxCandidates = 6;
 
@@ -79,6 +80,66 @@ namespace Eclipse.Multiplayer.Online.Rooms
             byte[] address = reader.Bytes(4);
             int port = reader.U16();
             return new IPEndPoint(new IPAddress(address), port);
+        }
+    }
+
+    /// <summary>The operator's UTC schedule. No configured window means no gameplay access.</summary>
+    public sealed class PlaytestWindow
+    {
+        public const long MaxUnixMs = 253402300799999;
+        public const int LeaseMs = 3000;
+        public long StartsUnixMs { get; }
+        public long EndsUnixMs { get; }
+        public bool Scheduled => EndsUnixMs != 0;
+
+        public PlaytestWindow(long startsUnixMs = 0, long endsUnixMs = 0)
+        {
+            if (startsUnixMs < 0 || endsUnixMs > MaxUnixMs ||
+                (startsUnixMs != 0 || endsUnixMs != 0) && endsUnixMs <= startsUnixMs)
+                throw new ArgumentException("The playtest end must be after its start.");
+            StartsUnixMs = startsUnixMs; EndsUnixMs = endsUnixMs;
+        }
+
+        public string BlockReason(long nowUnixMs)
+        {
+            if (!Scheduled) return "The playtest has not been scheduled yet.";
+            if (nowUnixMs < StartsUnixMs) return "Playtest starts at " + Format(StartsUnixMs) + ".";
+            if (nowUnixMs >= EndsUnixMs) return "Playtest is over.";
+            return null;
+        }
+
+        public string Message(long nowUnixMs) => BlockReason(nowUnixMs) ?? "Playtest ends at " + Format(EndsUnixMs) + ".";
+        private static string Format(long unixMs) => DateTimeOffset.FromUnixTimeMilliseconds(unixMs).ToString("yyyy-MM-dd HH:mm:ss 'UTC'", CultureInfo.InvariantCulture);
+
+        public static PlaytestWindow FromEnvironment(Func<string, string> read)
+        {
+            string start = read("ECLIPSE_PLAYTEST_START"), end = read("ECLIPSE_PLAYTEST_END");
+            if (string.IsNullOrWhiteSpace(start) && string.IsNullOrWhiteSpace(end)) return new PlaytestWindow();
+            return new PlaytestWindow(Parse(start), Parse(end));
+        }
+
+        private static long Parse(string value)
+        {
+            value = value?.Trim();
+            bool offset = value != null && (value.EndsWith("Z", StringComparison.Ordinal) ||
+                value.Length >= 6 && (value[value.Length - 6] == '+' || value[value.Length - 6] == '-') && value[value.Length - 3] == ':');
+            if (!offset || !DateTimeOffset.TryParse(value, CultureInfo.InvariantCulture, DateTimeStyles.None, out var date))
+                throw new ArgumentException("Set ECLIPSE_PLAYTEST_START and ECLIPSE_PLAYTEST_END to ISO 8601 timestamps with Z or an explicit timezone offset.");
+            return date.ToUnixTimeMilliseconds();
+        }
+
+        public void Write(NetWriter writer, long nowUnixMs)
+        {
+            writer.I64(StartsUnixMs); writer.I64(EndsUnixMs); writer.I64(nowUnixMs);
+        }
+
+        public static PlaytestWindow Read(NetReader reader, out long nowUnixMs)
+        {
+            long start = reader.I64(), end = reader.I64();
+            nowUnixMs = reader.I64();
+            if (nowUnixMs < 0 || nowUnixMs > MaxUnixMs) throw new NetFormatException("Invalid server clock.");
+            try { return new PlaytestWindow(start, end); }
+            catch (ArgumentException) { throw new NetFormatException("Invalid playtest window."); }
         }
     }
 

@@ -37,6 +37,7 @@ namespace Eclipse.Multiplayer
 
         public static void RequestEntry()
         {
+            RoomSession.RequireAccess();
             IsActive = true;
             IsReady = HasResult = false;
         }
@@ -67,6 +68,9 @@ namespace Eclipse.Multiplayer
         /// <param name="sourceFactory">Creates the fight's input source; null plays locally.</param>
         public static void StartMatch(LocalVersusSettings settings, Func<IVersusInputSource> sourceFactory = null)
         {
+            RoomSession.RequireAccess();
+            if (settings != null && settings.Mode != VersusMode.Online && settings.Mode != VersusMode.Spectator)
+                throw new InvalidOperationException("This playtest build only supports online multiplayer versus.");
             if (!IsActive || !IsReady || _starting || _returning)
                 throw new InvalidOperationException("Local versus is not ready to start.");
             if (settings == null) throw new ArgumentNullException(nameof(settings));
@@ -108,6 +112,7 @@ namespace Eclipse.Multiplayer
         private static void OpenFight(LocalVersusMatch match, LocalVersusSettings settings)
         {
             if (!_starting) return;
+            RoomSession.RequireAccess();
             _startedAt = Time.realtimeSinceStartup;
             LocalVersusMenu.Ensure().Hide();
             try { Module.GetInstance().OpenLocalVersus(match); }
@@ -270,6 +275,13 @@ namespace Eclipse.Multiplayer
         private void Update()
         {
             if (!IsActive || _returning) return;
+            if (!RoomSession.CanPlay)
+            {
+                // Changing the lobby name reconnects; it cannot start or advance a fight until access returns.
+                if (!_starting && VersusTickDriver.Source == null && RoomSession.Current?.Client?.State == Online.Rooms.RoomClientState.Connecting) return;
+                RoomSession.EndPlaytest(RoomSession.PlaytestMessage);
+                return;
+            }
             if (_starting)
             {
                 if (Time.realtimeSinceStartup - _startedAt > 45f)

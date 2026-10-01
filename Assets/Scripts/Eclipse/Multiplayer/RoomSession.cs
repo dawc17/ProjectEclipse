@@ -12,13 +12,45 @@ namespace Eclipse.Multiplayer
     /// Online rooms: the connection to the room server, the room the player is in, and
     /// the hand-off from a pairing to a peer-to-peer fight and back.
     /// </summary>
+    // Drain queued heartbeats before the local session evaluates access after a loading hitch.
+    [DefaultExecutionOrder(-100)]
     public sealed class RoomSession : MonoBehaviour
     {
-        public const string DefaultServer = "rooms.projecteclipse.fyi:7300";
+        public const string DefaultServer = "rooms.projecteclipse.fyi:7301";
         public const int AutoContinueSeconds = 20;
 
         public static RoomSession Current { get; private set; }
         public static bool IsActive => Current != null;
+        private static string _lastPlaytestMessage = "Connect to the playtest server to begin.";
+        public static bool CanPlay => Current?.Client?.CanPlayAt(OnlineVersusSession.NowMs) == true;
+        public static string PlaytestMessage => Current?.Client?.PlaytestMessageAt(OnlineVersusSession.NowMs) ?? _lastPlaytestMessage;
+
+        public static void ConnectPlaytest()
+        {
+            if (_lastPlaytestMessage == "Playtest is over.") return;
+            try { Connect(OnlineVersusSession.SavedName, null); }
+            catch (Exception exception) { _lastPlaytestMessage = exception.Message; }
+        }
+
+        public static void RequireAccess()
+        {
+            if (!CanPlay) throw new InvalidOperationException(PlaytestMessage);
+        }
+
+        public static void RequireScene(ScreenType screen)
+        {
+            if (screen == ScreenType.ModulePreloader || screen == ScreenType.Loader) return;
+            if (screen != ScreenType.ModuleFight || !(Module.GetInstance().CurrentScreen.Data is LocalVersusMatch))
+                throw new InvalidOperationException("This playtest build only supports online multiplayer versus.");
+            RequireAccess();
+        }
+
+        public static void EndPlaytest(string reason)
+        {
+            if (LocalVersusSession.IsActive) LocalVersusSession.ReturnToTitle();
+            else Shutdown(reason);
+            _lastPlaytestMessage = reason;
+        }
 
         public RoomClient Client { get; private set; }
         public string LocalName { get; private set; }
@@ -35,9 +67,6 @@ namespace Eclipse.Multiplayer
 
         private Action _whenConnected;
         private long _pairedAtMs, _lastQueueResendMs;
-
-        /// <summary>Set when the room server went away during a fight that is still running.</summary>
-        public string ServerLost { get; private set; }
 
         public RoomState Room => Client?.Room;
         public bool IsHost => Room != null && Room.HostId == Client.ClientId;
@@ -76,6 +105,7 @@ namespace Eclipse.Multiplayer
 
         public static void Shutdown(string reason = "Left online play.")
         {
+            _lastPlaytestMessage = reason;
             var session = Current;
             if (session == null) return;
             Current = null;
@@ -180,7 +210,7 @@ namespace Eclipse.Multiplayer
         public void RequestRematch()
         {
             uint matchId = OnlineVersusSession.Current?.RoomMatch?.MatchId ?? 0;
-            if (!InFight || matchId == 0 || RematchRequested || ServerLost != null || Client.State != RoomClientState.Connected) return;
+            if (!InFight || matchId == 0 || RematchRequested || Client.State != RoomClientState.Connected) return;
             RematchRequested = true;
             RematchRefusal = null;
             Client.Rematch(matchId, true);
@@ -196,13 +226,6 @@ namespace Eclipse.Multiplayer
             WantsQueue = false;
             RematchRequested = false;
             RematchRefusal = null;
-            if (ServerLost != null)
-            {
-                string reason = ServerLost;
-                Shutdown(reason);
-                LocalVersusMenu.Ensure().OnRoomClosed(reason);
-                return;
-            }
             InFight = false;
             AutoContinueAtMs = -1;
             uint matchId = OnlineVersusSession.Current?.RoomMatch?.MatchId ?? 0;
@@ -234,17 +257,8 @@ namespace Eclipse.Multiplayer
             if (Client.State == RoomClientState.Closed)
             {
                 string reason = Client.CloseReason;
-                // A fight already under way keeps going on its own link; leave after it.
-                if (InFight && ServerLost == null && OnlineVersusSession.Current != null)
-                {
-                    ServerLost = reason;
-                    Debug.Log("[Rooms] " + reason + " The current fight continues.");
-                    return;
-                }
-                if (InFight && ServerLost != null) return;
                 Debug.Log("[Rooms] " + reason);
-                Shutdown(reason);
-                LocalVersusMenu.Ensure().OnRoomClosed(reason);
+                EndPlaytest(reason);
                 return;
             }
             StartFightWhenLinked();

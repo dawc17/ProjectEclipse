@@ -23,7 +23,11 @@ namespace Eclipse.RoomServer
             string env = Environment.GetEnvironmentVariable("ECLIPSE_ROOMS_PORT");
             if (!string.IsNullOrEmpty(env) && int.TryParse(env, out int envPort) && envPort > 0 && envPort < 65536) port = envPort;
 
-            using (var server = new RoomServer(port))
+            Eclipse.Multiplayer.Online.Rooms.PlaytestWindow window;
+            try { window = Eclipse.Multiplayer.Online.Rooms.PlaytestWindow.FromEnvironment(Environment.GetEnvironmentVariable); }
+            catch (ArgumentException exception) { Console.Error.WriteLine(exception.Message); return 1; }
+            Console.WriteLine(window.Message(DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()));
+            using (var server = new RoomServer(port, window))
             {
                 server.Log = message => Console.WriteLine(DateTime.UtcNow.ToString("u") + " " + message);
                 bool stop = false;

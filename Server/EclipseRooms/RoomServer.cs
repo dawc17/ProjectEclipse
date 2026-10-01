@@ -114,14 +114,18 @@ namespace Eclipse.RoomServer
         private readonly Action<EndPoint, byte[], int> _handler;
         private uint _nextClientId = 1, _nextRoomId = 1, _nextMatchId = 1;
         private long _nowMs;
+        private readonly PlaytestWindow _window;
+        private readonly Func<long> _utcNowMs;
 
         public Action<string> Log { get; set; } = _ => { };
         public int Port => _socket.LocalPort;
         public int ClientCount => _byEndPoint.Count;
         public int RoomCount => _rooms.Count;
 
-        public RoomServer(int port)
+        public RoomServer(int port, PlaytestWindow window = null, Func<long> utcNowMs = null)
         {
+            _window = window ?? new PlaytestWindow();
+            _utcNowMs = utcNowMs ?? (() => DateTimeOffset.UtcNow.ToUnixTimeMilliseconds());
             _socket = new UdpTransport(port);
             _handler = OnDatagram;
             using (var rng = System.Security.Cryptography.RandomNumberGenerator.Create()) rng.GetBytes(_cookieKey);
@@ -132,6 +136,17 @@ namespace Eclipse.RoomServer
         public void Update(long nowMs)
         {
             _nowMs = nowMs;
+            string blocked = _window.BlockReason(_utcNowMs());
+            if (blocked != null && _rooms.Count > 0)
+            {
+                foreach (var client in _byEndPoint.Values.ToArray())
+                {
+                    RoomProtocol.WriteHeader(_writer, RoomProtocol.KindBye, client.Token);
+                    _writer.Str(blocked);
+                    _socket.Send(client.EndPoint, _writer.Buffer, _writer.Length);
+                    Drop(client, blocked);
+                }
+            }
             _socket.Poll(_handler);
             DropPending();
             _scratchClients.Clear();
@@ -209,7 +224,7 @@ namespace Eclipse.RoomServer
                     while (client.Reliable.TryReceive(out var message) && _byEndPoint.ContainsKey(endPoint)) HandleMessage(client, message);
                     break;
                 case RoomProtocol.KindRelay:
-                    Relay(client, buffer, reader);
+                    if (_window.BlockReason(_utcNowMs()) == null) Relay(client, buffer, reader);
                     break;
                 case RoomProtocol.KindPong:
                     ReadPong(client, reader.U32());
@@ -283,6 +298,7 @@ namespace Eclipse.RoomServer
             RoomProtocol.WriteHeader(_writer, RoomProtocol.KindWelcome, client.Token);
             _writer.U32(client.Id);
             RoomProtocol.WriteEndPoint(_writer, client.EndPoint);
+            _window.Write(_writer, _utcNowMs());
             _socket.Send(client.EndPoint, _writer.Buffer, _writer.Length);
         }
 
@@ -306,6 +322,7 @@ namespace Eclipse.RoomServer
             client.LastPingSentMs = _nowMs;
             RoomProtocol.WriteHeader(_writer, RoomProtocol.KindPing, client.Token);
             _writer.U32(unchecked((uint)_nowMs));
+            _window.Write(_writer, _utcNowMs());
             _socket.Send(client.EndPoint, _writer.Buffer, _writer.Length);
         }
 
@@ -373,6 +390,8 @@ namespace Eclipse.RoomServer
 
         private void HandleMessage(Client client, byte[] message)
         {
+            string blocked = _window.BlockReason(_utcNowMs());
+            if (blocked != null) { Send(client, RoomMessages.Error(blocked)); return; }
             try
             {
                 var reader = new NetReader(message, 1, message.Length - 1);
@@ -697,6 +716,7 @@ namespace Eclipse.RoomServer
 
         private void TryPair(Room room)
         {
+            if (_window.BlockReason(_utcNowMs()) != null) return;
             if (room.Matches.Count > 0 && room.Settings.Rotation != RoomRotation.Simultaneous) return;
             room.Queue.RemoveAll(id => room.Members.All(member => member.Id != id || member.Member.Status != MemberStatus.Queued));
             if (room.Settings.Rotation == RoomRotation.WinnerStays && room.ChampionId != 0)
@@ -783,6 +803,7 @@ namespace Eclipse.RoomServer
         /// <summary>Starts the rematch once the fight has resolved and both players asked for it.</summary>
         private bool TryRematch(Match match)
         {
+            if (_window.BlockReason(_utcNowMs()) != null) return false;
             var room = match.Room;
             var left = match.Left;
             var right = match.Right;

@@ -21,7 +21,7 @@ public class QuestActionDenomination : QuestAction
 		ListSF.CCDKHLAMKKO().HEIPPEGBOCK(NBBNANIILBL);
 		JEGCABAHHHJ(nPFOBKBJAOB);
 		MenuController.OPPMFDNNBDE();
-		ScreenType iPKNDMINFMJ = Module.GetInstance().DMCJGOMOJEF.ScreenType;
+		ScreenType iPKNDMINFMJ = Module.GetInstance().CurrentScreen.ScreenType;
 		if (iPKNDMINFMJ != ScreenType.ModuleFight)
 		{
 			Module.DLOKJOHNDID(iPKNDMINFMJ);
