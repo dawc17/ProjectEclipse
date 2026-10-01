@@ -28,8 +28,12 @@ Room members can click **Spectate** beside any ongoing fight once its host has
 published the setup. Watching removes the member from the queue. Viewers receive
 confirmed inputs and state checkpoints through the room server, independently of
 the fighters' direct/relay connection. Late viewers replay from the beginning at
-high speed with catch-up audio muted, then follow the live stream with a small
-buffer. Catch-up can take time on slow machines or late in a long match.
+high speed with catch-up audio muted, then follow the live stream at normal speed
+with a one-second input buffer. Catch-up restarts only when the backlog exceeds
+three seconds and stops with one second still buffered. If incoming data runs
+out, playback refills the buffer before resuming. This absorbs ordinary delivery
+batches instead of repeatedly accelerating and stalling between them.
+Catch-up can take time on slow machines or late in a long match.
 
 Spectators send no fighter input or results. They can open the menu with Escape
 and use **Back to room** to stop watching, then queue or select another fight.

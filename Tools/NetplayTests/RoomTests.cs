@@ -116,6 +116,7 @@ internal static class RoomTests
             Hardening(server, identity);
             ChatAndPing(server, identity);
             RoomStateFitsFullLoadouts();
+            SpectatorPacing();
             SimultaneousAndSpectating(server, identity);
 
             foreach (var client in _clients) client.Dispose();
@@ -124,6 +125,49 @@ internal static class RoomTests
         }
         _clients.Clear();
         _peers.Clear();
+    }
+
+    private static void SpectatorPacing()
+    {
+        foreach (int history in new[] { 0, 600 })
+        {
+            var playback = new SpectatorPlayback();
+            int received = history, played = 0, batch = 1, previousDelivery = 0;
+            int stalls = 0, catchups = 0, liveTicks = 0;
+            bool live = false, wasCatchingUp = false;
+            // Host publishes 20-tick batches. Delay some deliveries, retaining reliable ordering.
+            for (int clock = 0; clock < 1800; clock++)
+            {
+                while (batch <= 90)
+                {
+                    int delivery = Math.Max(previousDelivery, batch * 20 + (batch % 4 == 0 ? 30 : 0));
+                    if (delivery > clock) break;
+                    received += 20;
+                    previousDelivery = delivery;
+                    batch++;
+                }
+                int steps = playback.StepsWanted(received - played, false);
+                if (playback.CatchingUp && !wasCatchingUp) catchups++;
+                wasCatchingUp = playback.CatchingUp;
+                if (steps > 0 && !playback.CatchingUp) live = true;
+                if (live)
+                {
+                    if (steps == 0) stalls++;
+                    if (steps == 1) liveTicks++;
+                }
+                played += steps;
+                if (played > received) throw new Exception("Spectator predicted unavailable input.");
+            }
+            Check(stalls == 0 && liveTicks > 1500, "bursty spectator inputs play continuously at normal speed (history " + history + ")");
+            Check(catchups == (history == 0 ? 0 : 1), "spectator catches up once without chasing each live batch");
+        }
+        var refill = new SpectatorPlayback();
+        Check(refill.StepsWanted(60, false) == 1 && refill.StepsWanted(0, false) == 0, "real spectator underrun starts rebuffering");
+        Check(refill.StepsWanted(20, false) == 0 && refill.StepsWanted(40, false) == 0 && refill.StepsWanted(60, false) == 1, "underrun refills a full buffer before resuming");
+        Check(refill.StepsWanted(0, false) == 0 && refill.StepsWanted(12, true) == 1, "ended stream drains even an incomplete refill buffer");
+        int remaining = 200;
+        while (remaining > 0) remaining -= refill.StepsWanted(remaining, true);
+        Check(remaining == 0 && refill.StepsWanted(0, true) == 0, "ended stream drains exactly its available inputs");
     }
 
     private static void Hardening(IPEndPoint server, Func<string, NetIdentity> identity)

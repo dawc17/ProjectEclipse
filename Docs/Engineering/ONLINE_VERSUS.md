@@ -219,8 +219,12 @@ custom addresses. Players browse, create, or join rooms by code.
   replay's confirmed inputs and state checkpoints through the room connection.
   The server holds at most 30 minutes of input history per active fight, and sends
   it to each viewer in ordered chunks with backpressure. Viewers catch up from
-  tick zero using `SpectatorInputSource`, then follow live inputs with a three-tick
-  buffer. Playback checks the published hashes and reports divergence. It does
+  tick zero using `SpectatorInputSource`, then play live input at normal speed
+  behind a 60-tick (one-second) jitter buffer. Catch-up starts only above 180
+  buffered ticks and stops at 60, so ordinary 20-tick delivery batches do not
+  trigger speed changes. A real underrun refills 60 ticks before resuming; an
+  ended stream drains immediately without waiting for that refill.
+  Playback checks the published hashes and reports divergence. It does
   not publish fighter input, save a replay, report results, or enter rollback.
   Ending or switching viewing unsubscribes; final history is released once the
   fight ends and all viewers have received it or left. Joining late may require
@@ -250,12 +254,17 @@ custom addresses. Players browse, create, or join rooms by code.
   host migration and cleanup. It also covers four simultaneous pairings, isolated
   completion/rematches, multiple and late spectators, live input/checkpoint
   delivery, switching/unsubscribing, spectator result rejection, room membership
-  restrictions, bounded room-state encoding, and malformed stream chunks.
+  restrictions, bounded room-state encoding, malformed stream chunks, and
+  continuous spectator pacing under delayed 20-tick deliveries and buffer refill.
 
-Native spectator validation on 2026-10-01 passed nine checks in Unity 6.6:
-catch-up and live playback matched the original native fight's hashes, the final
-buffer drained before completion, and the room rendered four usable spectate
-buttons beside eight members. This used scripted input and a local UI fixture;
+Native spectator validation on 2026-10-01 passed ten checks in Unity 6.6:
+catch-up and live playback matched the original native fight's hashes, live
+20-tick deliveries played continuously at normal speed, the final buffer drained
+before completion, and the room rendered four usable spectate buttons beside
+eight members. The earlier three-tick buffer and two-speed live pacing drained
+each batch too early, repeatedly stalling between deliveries; the updated core
+check also covers delayed batches and recovery from a real underrun.
+This used scripted input and a local UI fixture;
 it does not verify internet latency or desktop/mobile spectator cross-play.
 To repeat with a connected editor from the repository root:
 

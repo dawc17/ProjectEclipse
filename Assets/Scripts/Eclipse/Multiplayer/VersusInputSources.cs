@@ -191,6 +191,7 @@ namespace Eclipse.Multiplayer
     public sealed class SpectatorInputSource : IVersusInputSource, IVersusStepRunner
     {
         private readonly Online.Rooms.SpectatorStream _stream;
+        private readonly Online.Rooms.SpectatorPlayback _playback = new Online.Rooms.SpectatorPlayback();
         private int _frame = -1;
         public SpectatorInputSource(Online.Rooms.SpectatorStream stream) { _stream = stream; }
         public void Pump() { }
@@ -206,9 +207,15 @@ namespace Eclipse.Multiplayer
         public void RunStep(Fight fight)
         {
             int backlog = _stream.Replay.TickCount - VersusTickDriver.Tick;
-            bool catchingUp = backlog > 60;
+            int steps = _playback.StepsWanted(backlog, _stream.Ended);
+            bool catchingUp = _playback.CatchingUp;
             // ponytail: replay from tick zero; portable snapshots if late-join catch-up becomes too slow.
-            int steps = catchingUp ? 32 : backlog > 6 ? 2 : 1;
+            if (steps == 0)
+            {
+                VersusTickDriver.MarkStalled(true);
+                if (_stream.Ended) LocalVersusSession.CompleteOnline(fight, -1, _stream.EndReason);
+                return;
+            }
             if (catchingUp && _frame == Time.frameCount) return;
             _frame = Time.frameCount;
             float volume = AudioListener.volume;
@@ -219,7 +226,7 @@ namespace Eclipse.Multiplayer
                 for (int i = 0; i < steps && !LocalVersusSession.HasResult && VersusTickDriver.Owns(fight); i++)
                 {
                     int tick = VersusTickDriver.Tick;
-                    if ((!_stream.Ended && _stream.Replay.TickCount - tick <= 3) || !TryGetTick(tick, out var left, out var right))
+                    if (!TryGetTick(tick, out var left, out var right))
                     {
                         VersusTickDriver.MarkStalled(true);
                         if (_stream.Ended) LocalVersusSession.CompleteOnline(fight, -1, _stream.EndReason);

@@ -19,6 +19,8 @@ public static class ValidateRoomSpectatingNative
     private static int phase, checks, captureFrame;
     private static double deadline;
     private static float previousScale;
+    private static float liveStartedAt;
+    private static int liveStartedTick;
     private static Inputs inputs;
     private static SpectatorStream stream;
     private static RoomClient client;
@@ -81,22 +83,30 @@ public static class ValidateRoomSpectatingNative
                 case 3:
                     if (LocalVersusSession.IsStarting) return;
                     if (LocalVersusSession.HasResult) throw new Exception("Spectator history diverged.");
-                    if (VersusTickDriver.Tick < 357) return;
+                    if (VersusTickDriver.Tick < 300) return;
                     Check(VersusTickDriver.Tick <= 360, "late viewer catches up without predicting unavailable inputs");
                     CheckHash();
-                    Append(540);
+                    liveStartedAt = Time.fixedTime;
+                    liveStartedTick = VersusTickDriver.Tick;
                     phase++;
                     break;
                 case 4:
                     if (LocalVersusSession.HasResult) throw new Exception("Live spectator inputs diverged.");
-                    if (VersusTickDriver.Tick < 537) return;
+                    // Deliver the same 20-tick batches as the live host, rather than a whole history at once.
+                    int elapsedTicks = Mathf.FloorToInt((Time.fixedTime - liveStartedAt) * 60);
+                    Append(Math.Min(660, 360 + elapsedTicks / 20 * 20));
+                    if (VersusTickDriver.IsStalled) throw new Exception("Live spectator playback ran out of its jitter buffer.");
+                    if (Math.Abs(VersusTickDriver.Tick - liveStartedTick - elapsedTicks) > 3)
+                        throw new Exception("Live spectator playback changed speed to chase an incoming batch.");
+                    if (stream.Replay.TickCount < 660 || VersusTickDriver.Tick < 600) return;
+                    Check(true, "native live batches play continuously at normal speed");
                     CheckHash();
                     stream.Ended = true;
                     phase++;
                     break;
                 case 5:
                     if (!LocalVersusSession.HasResult) return;
-                    Check(VersusTickDriver.Tick == 540, "spectator consumes the final buffer before ending");
+                    Check(VersusTickDriver.Tick == 660, "spectator consumes the final buffer before ending");
                     var back = LocalVersusMenu.Ensure().GetComponentsInChildren<UnityEngine.UI.Button>().First(button => button.GetComponentInChildren<UnityEngine.UI.Text>().text == "BACK TO ROOM");
                     back.onClick.Invoke();
                     Check(LocalVersusMenu.Ensure().IsShowing, "spectator can leave the result screen");

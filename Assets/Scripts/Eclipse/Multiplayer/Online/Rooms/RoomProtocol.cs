@@ -469,6 +469,37 @@ namespace Eclipse.Multiplayer.Online.Rooms
         }
     }
 
+    /// <summary>Absorbs bursty input delivery without chasing every incoming packet.</summary>
+    public sealed class SpectatorPlayback
+    {
+        public const int BufferTicks = 60;
+        public const int CatchUpTicks = 180;
+        private bool _buffering = true;
+        public bool CatchingUp { get; private set; }
+
+        public int StepsWanted(int bufferedTicks, bool ended)
+        {
+            if (bufferedTicks <= 0) { _buffering = true; CatchingUp = false; return 0; }
+            if (ended)
+            {
+                _buffering = false;
+                CatchingUp = bufferedTicks > BufferTicks;
+            }
+            else
+            {
+                if (_buffering)
+                {
+                    if (bufferedTicks < BufferTicks) return 0;
+                    _buffering = false;
+                }
+                if (bufferedTicks > CatchUpTicks) CatchingUp = true;
+                if (bufferedTicks <= BufferTicks) CatchingUp = false;
+            }
+            // Keep a second of confirmed input after catch-up; refill it after a real underrun.
+            return CatchingUp ? Math.Min(32, ended ? bufferedTicks : bufferedTicks - BufferTicks) : 1;
+        }
+    }
+
     public static class RoomMessages
     {
         public static byte[] Simple(RoomMessage type) => new[] { (byte)type };
