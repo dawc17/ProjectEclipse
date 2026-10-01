@@ -55,13 +55,13 @@ Changes made on 2026-09-12:
 Verification:
 
 - All four managed builds passed.
-- `Tools/TestFightPatches.ps1`: 60 checks passed, including canonical stage import,
+- `Tools/Tests/TestFightPatches.ps1`: 60 checks passed, including canonical stage import,
   Lua validation, atomic conflict rollback, stable identity and untouched encounters,
   core Lua rule dispatch selection, append/replace/clear XML projection, preservation
   of the original restoration source, and content fingerprints.
-- `Tools/TestBattleRules.ps1`: 104 checks passed.
-- `Tools/TestModdingContracts.ps1`: foundation and core/save contracts passed.
-- `Tools/TestP2ACombatRuntime.ps1`: existing combat/state/mode regressions passed.
+- `Tools/Tests/TestBattleRules.ps1`: 104 checks passed.
+- `Tools/Tests/TestModdingContracts.ps1`: foundation and core/save contracts passed.
+- `Tools/Tests/TestP2ACombatRuntime.ps1`: existing combat/state/mode regressions passed.
 - Editor generation/check, eight project tests, LuaLS and isolated VS Code passed.
 - Wiki: 41 pages, 98 binding sections, 3,059 local links/assets checked.
 - `git diff --check` passed.
@@ -88,15 +88,15 @@ Follow-up verification and additions:
 
 - Moved saved-level resolution into the shared production runtime method used by
   the dispatcher. Perks with no upgrade table retain their historical behavior.
-- `Tools/TestPerkUpgradeNative.ps1` passes 49 checks using production PerkItems and
+- `Tools/Tests/TestPerkUpgradeNative.ps1` passes 49 checks using production PerkItems and
   the actual extracted PerkInfoItem.Clone method. It verifies all ten archived
   added-perk payloads, descriptions, base isolation, duplicates and owned removal.
   The unrelated native parser/presentation is stubbed; this is not a Unity test.
-- `Tools/TestBattleRules.ps1` passes 143 checks, now covering malformed/future saved
+- `Tools/Tests/TestBattleRules.ps1` passes 143 checks, now covering malformed/future saved
   levels, reload, and preservation of XML and saved parameters.
 - Added `example.perk-upgrades` and its matching manual editor template, reusing
   the existing showcase icon. It offers a guard at level 2 and upgrades at 3–5.
-- `Tools/TestPerkUpgrades.ps1` passes 39 checks: real example entrypoint,
+- `Tools/Tests/TestPerkUpgrades.ps1` passes 39 checks: real example entrypoint,
   four levels of actual Lua damage callbacks, reload/re-enable, saved roll
   preservation, and invalid registration rollback.
 - Editor project tests now include the new example, and LuaLS verifies upgrade
@@ -224,8 +224,8 @@ profiling remain unverified. Source-order checks are not runtime playtests.
   restores owned focus; native destruction closes the model.
 - Added new Unity metadata without changing existing GUIDs. Updated local
   generated project compile lists so managed checks include the new source.
-- `Tools/TestModUiRuntime.ps1` passes 41 production state/lifetime checks.
-  `Tools/TestModUiUnity.ps1` passes 15 checks in an isolated Unity 2022.3.62f3
+- `Tools/Tests/TestModUiRuntime.ps1` passes 41 production state/lifetime checks.
+  `Tools/Tests/TestModUiUnity.ps1` passes 15 checks in an isolated Unity 2022.3.62f3
   play-mode project using the production renderer: hierarchy, font fallback,
   updates, scroll clipping components, guarded activation/focus and teardown.
   All four managed builds pass.
@@ -321,7 +321,7 @@ localization, additional widgets and ability authority remain open.
   example index, editor schema/generated definitions and recursive-node
   completion. The initial supported contract explicitly documents centered
   layouts, pointer-only HUD buttons and remaining widget/localization limits.
-- `Tools/TestModUiLua.ps1` passes 369 assertions using production Lua code,
+- `Tools/Tests/TestModUiLua.ps1` passes 369 assertions using production Lua code,
   including the complete example, stale/forged handles, strict types, tree
   validation, missing capability/renderer, failed mounts/entrypoints and an
   infinite click handler interrupted by its budget. A fixture originally used
@@ -796,7 +796,7 @@ clearing delivery collections, resetting unresumable saved quests or selecting a
 resume scene. ResumeQuests counts only eligible records. Default empty policy
 preserves existing behavior; no production suppression is installed yet.
 
-Tools/TestQuestSuppression.ps1 compiles the complete production manager with
+Tools/Tests/TestQuestSuppression.ps1 compiles the complete production manager with
 scene/roster stubs and the native event enum. Its 567 assertions cover all 51
 nonempty event types, object/name/saved queue paths, no comparison/preparation
 for suppressed quests, retained definitions/progress, re-enabling, mixed saved
@@ -1146,7 +1146,7 @@ and notifications explicitly published after rebinding can run for the new profi
 Clear cancels all subscriptions and invalidates old scopes, preventing stale owners
 from registering callbacks after a runtime restart.
 
-Tools/TestStoryEvents.ps1 compiles the production transport and identity types into
+Tools/Tests/TestStoryEvents.ps1 compiles the production transport and identity types into
 an isolated fixture: 30 checks pass, including callback mutation, cross-owner scope
 disposal, recursive publication, both capacity budgets, profile changes, stale scopes,
 failed handlers and failed logging. All four managed assemblies compile. This does
@@ -2600,7 +2600,7 @@ Connected active health-effect transfer alongside attribute effects via Transfer
   (`Temp/CharacterForms-ph67w0s2`), active flag retirement
   (`Temp/PerkFlagBaseline-5osattih`), and active variable retirement
   (`Temp/CharacterForms-7ssnevrp`). The final flag/variable fixture passes 160 checks.
-- Added `Tools/TestCharacterForms.py` to run the existing PowerShell fixtures'
+- Added `Tools/Tests/TestCharacterForms.py` to run the existing PowerShell fixtures'
   extracted production C# with the installed Unity compiler and .NET 10 runtime.
   It also launches the native acceptance fixture in an independent project copy
   and supports explicit source synchronization into a retained fixture with separate

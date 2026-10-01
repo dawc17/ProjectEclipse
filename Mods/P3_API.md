@@ -91,7 +91,7 @@ unnecessary.
 ## Remaining configuration classification
 
 The reproducible ledger is [PHASE3_CONFIGURATION_AUDIT.json](PHASE3_CONFIGURATION_AUDIT.json).
-Run `python Tools/AuditPhase3Configuration.py` to detect source drift. The audit
+Run `python Tools/Audits/AuditPhase3Configuration.py` to detect source drift. The audit
 compares semantic XML/JSON sections, ignoring indentation, and records hashes of
 both sources plus a decision for every differing section.
 

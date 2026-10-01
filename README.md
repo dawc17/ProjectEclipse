@@ -21,8 +21,9 @@ engine, compatibility, desktop, presentation, and future modding code lives unde
 - `Assets/vanillaXml/` - canonical vanilla 2.41.9 gameplay/configuration XML.
 - `Assets/DExml/` - archived pre-pivot Definitive Edition XML/model data; not the active base.
 - `Deobfuscation/` - reviewed identifier-recovery workflow.
-- `Tools/` - validation, repair, and audit utilities.
-- `BuildScripts/` - project build and reference scripts.
+- `Tools/` - [tool index](Tools/README.md), with tests, audits, recovery and save utilities grouped by purpose.
+- `BuildScripts/` - [build, release and reference scripts](BuildScripts/README.md).
+- `Docs/Engineering/` - [reconstruction notes and recovery procedures](Docs/Engineering/README.md).
 - `Docs/Modding/` - Astro Starlight modding wiki; see its [setup and deployment guide](Docs/Modding/README.md).
 
 ## Verify
@@ -69,8 +70,8 @@ project's existing signing settings; configure a release keystore separately
 before distributing a production release.
 
 See `AGENTS.md` for project conventions and validation guidance.
-See `CONTENT.md` for the content layout and validation. Use **SF2 > Content Browser** to search assets across the project from one window.
+See [runtime content](Docs/CONTENT.md) for the content layout and validation. Use **SF2 > Content Browser** to search assets across the project from one window.
 See [Mods/README.md](Mods/README.md) for loose mod assets, sprite descriptors, and the Lua API.
 See [Local Multiplayer](Docs/LOCAL_MULTIPLAYER.md) for the current two-player Local Versus controls and limitations.
-See `DE_SCOPE_AUDIT.md` for the current separation between reusable Eclipse work
+See [the scope audit](Docs/DE_SCOPE_AUDIT.md) for the current separation between reusable Eclipse work
 and behavior that overlaps with the Definitive Edition feature set.

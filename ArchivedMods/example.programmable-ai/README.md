@@ -28,7 +28,7 @@ far away to allow the Standard tactic to approach. Native eligibility, reaction
 throttling and interruptions still apply, so a hit is not guaranteed to be dodged.
 The old three encounter IDs and order are retained; the fourth is appended.
 
-`Tools/TestModAi.ps1` also runs the compiled native move parser, animation reader
+`Tools/Tests/TestModAi.ps1` also runs the compiled native move parser, animation reader
 and AI metadata adapter against shipped StepBack, StaffStepBack, HighKick and
 LowKick XML/67-node clip bytes. Their real snapshots drive the Reactive Guardian
 Lua checks. That test prewarms the native animation cache to bypass Unity resource

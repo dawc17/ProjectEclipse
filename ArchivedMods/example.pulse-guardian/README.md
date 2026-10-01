@@ -25,6 +25,6 @@ a live progress widget and fight/round UI lifetime.
 Counts describe damage callbacks, not button presses or completed combos. The
 meter is UI presentation, not a new glow or shader on the fighter.
 
-Automated checks: `Tools/TestVisualExamples.ps1` runs these exact Lua scripts.
-`Tools/TestModUiUnity.ps1` also mounts their UI in an isolated Unity fixture.
+Automated checks: `Tools/Tests/TestVisualExamples.ps1` runs these exact Lua scripts.
+`Tools/Tests/TestModUiUnity.ps1` also mounts their UI in an isolated Unity fixture.
 Those checks do not replace the full-game tests above.

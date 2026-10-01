@@ -17,7 +17,7 @@ Follow-up presentation repairs (native Unity 6000.6.0f1 checked):
   Exact loose `textures/logos/` sprite replacement is supported by the core provider.
 - All four managed assemblies and native Unity compilation passed. Wiki build
   checked 50 pages / 4717 links; menu-art import `--check` passed. The native
-  `Tools/VerifyPresentationLayouts.cs` fixture passed 43 assertions with the shop
+  `Tools/Tests/VerifyPresentationLayouts.cs` fixture passed 43 assertions with the shop
   forge open, including rendered reward glyphs, rotated-panel separation, selected
   dojo identity, screen effects, and transparent logo replacements.
 - Visually inspected captured Play-mode shop/forge and synthetic result screens
@@ -65,18 +65,18 @@ Implementation notes:
   files and reference a missing VS analyzer; the temporary
   `%TEMP%/Eclipse.LocalCompile.targets` override includes Eclipse source and removes
   only missing analyzer references. Plain `msbuild` could not locate the .NET SDK.
-- PASS: `Tools/TestUnderworldRuntime.ps1` — 1,282 assertions.
-- PASS: `Tools/TestUnderworldApi.ps1` — 112 API checks, including map color validation,
+- PASS: `Tools/Tests/TestUnderworldRuntime.ps1` — 1,282 assertions.
+- PASS: `Tools/Tests/TestUnderworldApi.ps1` — 112 API checks, including map color validation,
   capability/host behavior and battle timer boundaries; prerequisite 169 warrior checks.
-- PASS: `Tools/TestForgePendingTimers.ps1` — 16,219 DE foundation checks and 20 pending
+- PASS: `Tools/Tests/TestForgePendingTimers.ps1` — 16,219 DE foundation checks and 20 pending
   forge lifecycle checks. DE timer ownership expectations now cover both policies.
-- PASS: `Tools/TestFormAnimationEntry.ps1` — 71 checks; `Tools/TestSceneNavigation.ps1`
+- PASS: `Tools/Tests/TestFormAnimationEntry.ps1` — 71 checks; `Tools/Tests/TestSceneNavigation.ps1`
   — 35 checks, including resuming native loading after a deferred transition.
 - PASS: ModdingEditor generate/check, 44 tests, LuaLS (including new fields/timer),
   and VS Code integration using the installed LuaLS/Code executables in isolated fixtures.
 - PASS: wiki build, 50 pages / 4,717 links and assets. No dependency installation needed.
-- PASS: `Tools/ImportDE128MenuArt.py --check` — 19 replacements.
-- `Tools/AuditUnderworld.py` completed but reports the existing missing
+- PASS: `Tools/Recovery/ImportDE128MenuArt.py --check` — 19 replacements.
+- `Tools/Audits/AuditUnderworld.py` completed but reports the existing missing
   `fungus_raid/layer_0_2` resource; not repaired by this UI change.
 - Reviewed-map dry-run could not run: external `cross_build_map/authoritative_members.tsv`
   is unavailable at its configured path. No reviewed maps were applied.

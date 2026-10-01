@@ -37,8 +37,8 @@ needed; normal authoring does not need to manufacture qualified tactic IDs.
 The forge fixture borrows `sf2.forge.profile("Simple")`; it does not define or mutate shared forge
 prices, currencies, delivery timers, skip prices, upgrade tables, or any other core economy field.
 
-Run `Tools/TestPhase1Showcase.ps1` for the focused static contract and
-`Tools/TestPhase1ShowcaseRuntime.ps1` for real discovery, MoonSharp execution, transactional commit,
+Run `Tools/Tests/TestPhase1Showcase.ps1` for the focused static contract and
+`Tools/Tests/TestPhase1ShowcaseRuntime.ps1` for real discovery, MoonSharp execution, transactional commit,
 duplicate rollback, and teardown validation.
 
 ## Testing the current fixture
@@ -99,7 +99,7 @@ locale collisions are validated before stage/move application, and late locale
 binding failures cannot restart the parser. Locale teardown removes owned entries.
 
 The initial sample also omitted map art, a gameplay layer/spawn positions, and
-move activation events. These are now supplied. `Tools/TestModLocaleRuntime.ps1`
+move activation events. These are now supplied. `Tools/Tests/TestModLocaleRuntime.ps1`
 reproduces the original collision and parser retry failure; the showcase runtime
 test checks the actual Lua fixture against canonical locale metadata.
 
@@ -116,7 +116,7 @@ for event-only poses/steps are treated as unavailable rather than repeatedly log
 Two startup compatibility errors are also repaired: full version operands with
 `CompareType="Versions"`, and the shipped energy dialog's empty Close button
 (mapped to the recovered middle Cancel button). Run
-`Tools/TestShowcaseEditorRegressions.ps1` for these focused regression cases.
+`Tools/Tests/TestShowcaseEditorRegressions.ps1` for these focused regression cases.
 
 The next playtest confirmed the map, fighter visuals, dialogue, and forge recipe,
 but exposed stale tooltip descriptions, stalled AI, and an invisible arena.
@@ -143,7 +143,7 @@ Reward projection now sets the recovered `Drop` flag required by the results UI;
 owned external consumables remain eligible for another reward, and the duplicate
 quest grant is removed. Tests cover formatting, qualified path preservation,
 the real Unity location cache, projected reward visibility, and repeated consumable
-eligibility (`Tools/TestModConsumableRewards.ps1`). The subsequent user retests
+eligibility (`Tools/Tests/TestModConsumableRewards.ps1`). The subsequent user retests
 confirmed these paths without resetting the save.
 
 The next playtest confirmed the arena rendering, including its floating sword

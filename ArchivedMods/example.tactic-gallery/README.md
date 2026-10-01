@@ -26,6 +26,6 @@ native AI chooses instead. The reactive brain uses typed input, nominal timing
 and the opponent's active animation intervals. Physical timing/interruptions
 remain controlled by the game. All four retain their native portraits/equipment.
 
-Automated checks: `Tools/TestVisualExamples.ps1` runs these exact Lua scripts.
-`Tools/TestModUiUnity.ps1` also mounts their UI in an isolated Unity fixture.
+Automated checks: `Tools/Tests/TestVisualExamples.ps1` runs these exact Lua scripts.
+`Tools/Tests/TestModUiUnity.ps1` also mounts their UI in an isolated Unity fixture.
 Those checks do not replace the full-game tests above.

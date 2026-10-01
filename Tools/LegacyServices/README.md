@@ -10,7 +10,7 @@ permission/licensing modules, unreachable cloud-save and remote-license helpers,
 unsubscribed purchase callbacks, and confirmed unreferenced managed helpers.
 `AssemblyCleanup/assembly-cleanup.json` records the reason, original path, GUID, line count and
 SHA-256 hashes for each source and metadata file. Run
-`python Tools/AuditAssemblyCleanup.py` from the project root to verify the archive,
+`python Tools/Audits/AuditAssemblyCleanup.py` from the project root to verify the archive,
 project exclusions, and absence of removed names/GUIDs in active text assets.
 This is a reviewed removal list, not a general-purpose dead-code detector.
 The new removals live under `AssemblyCleanup/Assets/` and are tracked with their
@@ -19,8 +19,8 @@ manifest; older local-only SDK archives remain ignored.
 `NetworkController` retains local session/reward/quest completion. `ServerProvider`
 retains its configuration-facing API, local clock and unavailable-service
 callbacks, without receipt/device payload construction or cloud upload code.
-`Tools/TestAssemblyCleanup.ps1` checks complete retained source against minimal
-managed fakes; `Tools/TestOfflineRuntime.ps1` also checks the compiled assembly.
+`Tools/Tests/TestAssemblyCleanup.ps1` checks complete retained source against minimal
+managed fakes; `Tools/Tests/TestOfflineRuntime.ps1` also checks the compiled assembly.
 
 Gameplay statistics, local resource loading, XML-selected quest adapters, and UI
 components remain even when they have few direct C# references. Shared serializers,

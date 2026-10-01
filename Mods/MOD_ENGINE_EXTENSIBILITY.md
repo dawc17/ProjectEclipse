@@ -177,13 +177,13 @@ current wiki pages and an end-to-end creator fixture.
 ## Verification of this slice
 
 - All four managed project builds passed (Unity 2022.3.62f3 references).
-- `Tools/TestBattleRules.ps1`: 92 checks, including actual MoonSharp execution,
+- `Tools/Tests/TestBattleRules.ps1`: 92 checks, including actual MoonSharp execution,
   transactional rejection, target/mode/round filtering, per-rule/side/round/fight
   state, pending damage, capability enforcement and parameter fingerprints.
-- `Tools/TestP2ACombatRuntime.ps1`: existing behavior/migration/capability and
+- `Tools/Tests/TestP2ACombatRuntime.ps1`: existing behavior/migration/capability and
   mode/progression regression fixture passed; its prerequisite content showcase
   fixture also passed.
-- `Tools/TestUnderworldRuntime.ps1`: 1,282 assertions passed. The separate
+- `Tools/Tests/TestUnderworldRuntime.ps1`: 1,282 assertions passed. The separate
   `AuditUnderworld.py` still reports missing loose raid-location images; it is not
   a clean asset-coverage result.
 - Editor definition generation/check and seven project tests passed. Actual

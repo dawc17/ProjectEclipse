@@ -9,7 +9,7 @@ evidence-based changes and preserve serialized Unity identity.
 
 Definitive Edition is a downstream mod/content target, not the identity of the
 base project. Do not hard-code new DE policy into Eclipse when the behavior can
-wait for or belong behind the modding/content API. See `DE_SCOPE_AUDIT.md`.
+wait for or belong behind the modding/content API. See `Docs/DE_SCOPE_AUDIT.md`.
 
 ## Important locations
 
@@ -31,8 +31,11 @@ wait for or belong behind the modding/content API. See `DE_SCOPE_AUDIT.md`.
   and resource paths are often runtime contracts.
 - `Deobfuscation/` - audited, repeatable identifier-recovery workflow. Read
   `Deobfuscation/README.md` before changing mappings or running its scripts.
-- `Tools/` - focused repair, extraction, audit, and runtime-check utilities.
+- `Tools/` - [tool index](Tools/README.md); regression runners and fixtures in
+  `Tools/Tests/`, audits in `Tools/Audits/`, repair/extraction in `Tools/Recovery/`,
+  save utilities in `Tools/Saves/`, and historical upgrade tools in `Tools/UnityUpgrade/`.
 - `BuildScripts/` - project-specific build and reference maintenance scripts.
+- `Docs/Engineering/` - reconstruction notes, recovery procedures and verification history.
 - `Docs/Modding/` - Git-tracked Astro Starlight modding API wiki and GitHub
   Pages build configuration. Keep website tooling outside Unity's `Assets/`.
 - `Tools/ModdingEditor/` - VS Code/LuaLS modding extension, generated API contracts,
@@ -90,7 +93,7 @@ wait for or belong behind the modding/content API. See `DE_SCOPE_AUDIT.md`.
   the task explicitly requires a new asset.
 - Prefer existing asset-recovery/import workflows over handwritten serialized
   Unity YAML. In particular, **never manually restore or patch sprite vertex
-  layouts**. See `Tools/SPRITE_NATIVE_REBUILD.md`.
+  layouts**. See `Docs/Engineering/SPRITE_NATIVE_REBUILD.md`.
 - Do not commit generated Unity state (`Library/`, `Temp/`, `Logs/`, `obj/`,
   `.vs/`) or local research dumps under `ResearchSources/`.
 - Keep XML, resource, prefab, and C# naming compatible with existing runtime
@@ -124,8 +127,8 @@ msbuild Assembly-CSharp-Editor.csproj /nologo /v:quiet /clp:ErrorsOnly
 For Underworld, raid, health-bar, or Cocos frame-parser changes, also run:
 
 ```powershell
-.\Tools\TestUnderworldRuntime.ps1
-python .\Tools\AuditUnderworld.py
+.\Tools\Tests\TestUnderworldRuntime.ps1
+python .\Tools\Audits\AuditUnderworld.py
 ```
 
 For name-recovery work, preview before applying and confirm the second preview

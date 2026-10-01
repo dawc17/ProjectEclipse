@@ -73,7 +73,7 @@ the mods that require it. Core remains enabled. Unmet requirements appear under
 selections persist across launches without moving or deleting mod folders.
 Mod-owned saved progress is retained while a mod is disabled.
 
-See [mod menu verification](../Tools/MOD_MENU_TESTING.md) for the reload checklist.
+See [mod menu verification](../Docs/Engineering/MOD_MENU_TESTING.md) for the reload checklist.
 
 ## API design: definitions and behavior
 
@@ -954,11 +954,11 @@ core-owned atlas sprites and model assets, and the recovered shop consumes the s
 category lists that `LegacyContentAdapter` updates. `example.phase1` is the integrated
 public-API acceptance fixture spanning P0.5 plus P1A/P1B/P1C/P1D.
 
-Validation: `Tools/TestModdingContracts.ps1` checks all 740 vanilla equipment
+Validation: `Tools/Tests/TestModdingContracts.ps1` checks all 740 vanilla equipment
 rows, atomic registration, duplicate-name disambiguation, and save XML round
-trips. `Tools/TestModSaveRuntime.ps1` executes the recovered inventory parse and
+trips. `Tools/Tests/TestModSaveRuntime.ps1` executes the recovered inventory parse and
 actual `UserItem` XML mutation methods for ownership, upgrade, delivery, and
-equipment state. `Tools/TestPackagedArt.ps1` checks provider routing, MoonSharp
+equipment state. `Tools/Tests/TestPackagedArt.ps1` checks provider routing, MoonSharp
 registration, all five equipment registries, and the registry/legacy bridge in isolated
 Unity. The expanded editor fixture currently passes 160 checks, including vanilla-derived
 starting stats, the public Lua localization-patch path, reversible core localization binding,

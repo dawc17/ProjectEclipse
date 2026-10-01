@@ -43,7 +43,7 @@
     <UnityVersion>6000.6.0f1</UnityVersion>
   </PropertyGroup>
   <ItemGroup>
-    <Analyzer Include="/home/czapla/.vscode/extensions/visualstudiotoolsforunity.vstuc-1.3.1/Analyzers/Microsoft.Unity.Analyzers.dll" />
+    <Analyzer Include="/home/czapla/.vscode/extensions/visualstudiotoolsforunity.vstuc-1.3.2/Analyzers/Microsoft.Unity.Analyzers.dll" />
     <Analyzer Include="/home/czapla/Unity/Hub/Editor/6000.6.0f1/Editor/Data/Tools/BuildPipeline/Unity.SourceGenerators/Unity.SourceGenerators.dll" />
     <Analyzer Include="/home/czapla/Unity/Hub/Editor/6000.6.0f1/Editor/Data/Tools/BuildPipeline/Unity.SourceGenerators/Unity.Properties.SourceGenerator.dll" />
     <Analyzer Include="/home/czapla/Unity/Hub/Editor/6000.6.0f1/Editor/Data/Tools/BuildPipeline/Unity.SourceGenerators/Unity.UIToolkit.SourceGenerator.dll" />
@@ -1045,6 +1045,7 @@
     <Compile Include="Assets/Scripts/Assembly-CSharp/NoAnimationMove.cs" />
     <Compile Include="Assets/Scripts/Assembly-CSharp/AssetBundleExtension.cs" />
     <Compile Include="Assets/Scripts/Assembly-CSharp/ActionAnimation.cs" />
+    <Compile Include="Assets/Scripts/Eclipse/Multiplayer/Rollback/ModelNodeSnapshot.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets/Resources/textures/effects/magic/mgc_violet_flash_back_start_vfx_xml.txt" />

@@ -27,7 +27,7 @@ Artifacts:
 - [Complete delta ledger](DE_XML_DELTA_LEDGER.json.gz): compressed UTF-8 JSON with before/after attributes, text, order and complete added/removed subtrees. Compression avoids committing a very large expanded text dump.
 - [Named feature index](DE_XML_FEATURE_INDEX.json): every added/changed/removed item, set, perk, move, move template, main-file quest and achievement counter name, plus event/action/condition vocabulary used by changed or added records. Quest extensions remain individually covered by the complete ledger.
 - [File-by-file coverage assessment](DE_XML_FILE_COVERAGE.md): every path linked to the findings below. A domain-level partial assessment does not certify each child record as supported.
-- [Audit generator](../Tools/AuditDEXmlApi.py): `python Tools/AuditDEXmlApi.py --write` regenerates evidence; run without `--write` to detect XML source drift.
+- [Audit generator](../Tools/Audits/AuditDEXmlApi.py): `python Tools/Audits/AuditDEXmlApi.py --write` regenerates evidence; run without `--write` to detect XML source drift.
 
 The reference is the archived DE tree, **not the creator's forthcoming release**. Canonical vanilla already contains the owner's requested economy edits. Archive differences are evidence of required expressiveness, not proof that every difference was intentional DE design; source-version drift and compatibility repairs remain possible. Non-XML JSON, APK code and binary art/animations are outside this inventory. Their absence/semantics can still block a feature. Existing [P3 configuration audit](PHASE3_CONFIGURATION_AUDIT.json) separately covers selected JSON/configuration differences.
 
@@ -138,7 +138,7 @@ Evidence: [DE moves](../Assets/DExml/animations/moves.xml); [public move model](
 
 `ComputerSettings.xml` is equal to the base: no new global computer-settings API is justified by this archive. Add evidence-backed reaction/decision hooks or typed compatibility support only for the required semantics.
 
-Evidence: [DE tacticSettings](../Assets/DExml/tacticSettings.xml), `RegisterTactic` / `ReadTactic...` in [Lua binding](../Assets/Scripts/Eclipse/Modding/MoonSharpScriptRuntimeP1D.cs), `Tools/TestModAi.ps1`, `Mods/example.programmable-ai`. Native conditional-tree import and programmable equivalent behavior are distinct contracts. Live scenario coverage remains open.
+Evidence: [DE tacticSettings](../Assets/DExml/tacticSettings.xml), `RegisterTactic` / `ReadTactic...` in [Lua binding](../Assets/Scripts/Eclipse/Modding/MoonSharpScriptRuntimeP1D.cs), `Tools/Tests/TestModAi.ps1`, `Mods/example.programmable-ai`. Native conditional-tree import and programmable equivalent behavior are distinct contracts. Live scenario coverage remains open.
 
 ### G10 â€” Animated location layers and music selection
 

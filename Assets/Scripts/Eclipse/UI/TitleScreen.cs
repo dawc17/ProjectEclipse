@@ -410,7 +410,7 @@ namespace Eclipse.UI
                 new Rect(3f / 1024, 83f / 1024, 512f / 1024, 446f / 1024))?.rectTransform, GroundPlaneDepth);
         }
 
-        // The upscaled autumn location (Tools/ImportUpscaledLocations.py): one sky painting and
+        // The upscaled autumn location (Tools/Recovery/ImportUpscaledLocations.py): one sky painting and
         // one ground-plane painting holding the wall, the gate and both trees. Framed so the gate
         // sits under the sign and the trees stand either side of the menu, floor above the footer.
         private readonly Dictionary<Texture2D, FilterMode> filteredTextures = new Dictionary<Texture2D, FilterMode>();

@@ -16,5 +16,5 @@ That removes all native rules on this fight. `rules = {}` clears the list. These
 forms are mutually exclusive. Rule counters, when used, are transient as documented
 in the battle-rule reference.
 
-`Tools/TestFightPatches.ps1` checks registration against the canonical stage catalog,
+`Tools/Tests/TestFightPatches.ps1` checks registration against the canonical stage catalog,
 projection, and runtime rule selection. A full Unity encounter playtest is pending.

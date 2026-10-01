@@ -91,10 +91,10 @@ follow these two rules and still compare everything else strictly.
 
 | Check | Use |
 | --- | --- |
-| `Tools/TestDE128ShortFormEquivalence.ps1 -Files a.lua,b.lua` | Proof for a migrated file. Compares fixed approved native projections with the working-tree file through the real binding, including the projected native moves XML, move patches and tactics. Mutation-tested: catches changed frames, dropped conditions and reordered same-trigger actions. |
-| `Tools/TestMoveShortForm.ps1` | Every compact kind matches fixed native XML; legacy syntax and malformed tables are rejected. |
+| `Tools/Tests/TestDE128ShortFormEquivalence.ps1 -Files a.lua,b.lua` | Proof for a migrated file. Compares fixed approved native projections with the working-tree file through the real binding, including the projected native moves XML, move patches and tactics. Mutation-tested: catches changed frames, dropped conditions and reordered same-trigger actions. |
+| `Tools/Tests/TestMoveShortForm.ps1` | Every compact kind matches fixed native XML; legacy syntax and malformed tables are rejected. |
 | `Tools/ModdingEditor/test/lsp.cjs` | Opens the migrated DE128 files in LuaLS and requires zero diagnostics. Add each newly migrated file to the list in the "short-form DE128 moves" block. Run with `node test/lsp.cjs <path to lua-language-server.exe 3.18.2>`; the VS Code Lua extension ships one under `~/.vscode/extensions/sumneko.lua-3.18.2-win32-x64/server/bin/`. |
-| `Tools/TestDE128Foundation.ps1` and the relevant `Tools/TestDE128*.ps1` | Full-package regression; needs PowerShell 7. |
+| `Tools/Tests/TestDE128Foundation.ps1` and the relevant `Tools/TestDE128*.ps1` | Full-package regression; needs PowerShell 7. |
 
 ## Next steps
 
@@ -117,7 +117,7 @@ Watch for:
 - A repeated hit-sound list (`snd_hit1`…`snd_hit6`) appears in many files; a
   shared `content/sounds.lua` module would remove the duplication.
 - `sf2.moves.patch { conditions = ... }` also accepts the short form.
-- `chinese_swords_data.lua` is loaded by `Tools/TestMoveAttackAuthoring.ps1` and
+- `chinese_swords_data.lua` is loaded by `Tools/Tests/TestMoveAttackAuthoring.ps1` and
   compared to the archive; that test must keep passing.
 
 Also convert the long-form Lua in `Mods/example.phase1/scripts/main.lua`,
@@ -152,7 +152,7 @@ Sensei dialogue data was already authored as compact rows; no Sensei data
 generator exists in this repository.
 
 - `underworld_data.lua` (7.1k lines), `underworld_story_data.lua` (1.5k) and the
-  Sensei data come from `Tools/GenerateDE128Underworld.py` and related
+  Sensei data come from `Tools/Recovery/GenerateDE128Underworld.py` and related
   generators. They are hard to read because the generator writes one key per line
   and repeats defaults. Make the generators write compact rows (one warrior, perk
   or dialogue line per line), omit values equal to documented defaults, and

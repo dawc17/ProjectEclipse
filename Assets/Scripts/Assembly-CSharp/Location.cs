@@ -22,7 +22,7 @@ public class Location
 	{
 		// The other former entries (road, magic_rocks, stone_dragon, flooded_village and the
 		// _small/_thorny variants) now ship their own upscaled artwork and params
-		// (Tools/ImportUpscaledLocations.py); redirecting them would load another layout.
+		// (Tools/Recovery/ImportUpscaledLocations.py); redirecting them would load another layout.
 		{ "emerald_forest_new", "emerald_forest" }
 	};
 

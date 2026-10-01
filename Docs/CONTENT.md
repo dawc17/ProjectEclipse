@@ -106,7 +106,7 @@ by a `type=model` descriptor; immutable TexturePacker plist XML is stored as `.t
 After intentionally repacking an archive, run:
 
 ```powershell
-python Tools/AuditNativeContent.py --refresh --deep
+python Tools/Audits/AuditNativeContent.py --refresh --deep
 ```
 
 `--refresh` records the new compressed size, decoded TAR size, and SHA-256 in `catalog.json`.
@@ -117,20 +117,20 @@ python Tools/AuditNativeContent.py --refresh --deep
 - **SF2 > Validate Packaged Runtime Content** checks catalog structure, every archive size/SHA-256, loose font
   presence, and rejects leftover legacy native art beside the v3 catalog. The build preprocessor
   runs this automatically.
-- `python Tools/AuditNativeContent.py` performs the same repository-level integrity checks without
+- `python Tools/Audits/AuditNativeContent.py` performs the same repository-level integrity checks without
   Unity. Add `--deep` to validate every TAR descriptor and payload reference.
-- `Tools/TestPackagedArt.ps1` creates an isolated Unity project containing only the v3 catalog,
+- `Tools/Tests/TestPackagedArt.ps1` creates an isolated Unity project containing only the v3 catalog,
   TAR runtime, archives, and loose fonts. It exercises representative sprite, texture, audio, font,
   model, location-art and atlas-data lookups. The editor pass checks the complete location address
   inventory and parses all 281 location atlas records. `-BuildPlayer` additionally builds and runs a
   Windows content smoke player that resolves all 562 `CORE_LOCATIONS` addresses inside the player
   loop and explicitly verifies Moon's 98-vertex `layer3` tight mesh.
-- `Tools/MigrateNativeArtToTar.py` is the reproducible one-time bridge from the former native v2
+- `Tools/Recovery/MigrateNativeArtToTar.py` is the reproducible one-time bridge from the former native v2
   tree. `generate` is non-destructive, `verify-generated` checks the complete generated set, and
   `commit` removes the old imported groups only after validation.
-- `Tools/MigrateModelsToTar.py` and `Tools/MigrateLocationDataToTar.py` reproduce the model and
+- `Tools/Recovery/MigrateModelsToTar.py` and `Tools/Recovery/MigrateLocationDataToTar.py` reproduce the model and
   immutable location-metadata migrations. Gameplay/config XML is intentionally outside both tools.
-- `Tools/MigrateCoreLocationsToTar.py` plus `Tools/CoreLocationExporter.cs` are the one-time recovery
+- `Tools/Recovery/MigrateCoreLocationsToTar.py` plus `Tools/Recovery/CoreLocationExporter.cs` are the one-time recovery
   bridge from the safety copy of the former loose core-location Resources tree. Unity itself reads
   the exported Sprites during that bridge so custom geometry, normalized TexturePacker rotations,
   and texture-import settings are preserved rather than guessed. The installed TAR is the canonical
