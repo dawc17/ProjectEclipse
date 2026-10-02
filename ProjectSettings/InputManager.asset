@@ -435,7 +435,7 @@ InputManager:
     snap: 0
     invert: 0
     type: 2
-    axis: 9
+    axis: 0
     joyNum: 2
   - serializedVersion: 3
     m_Name: L_YAxis_2
@@ -451,7 +451,7 @@ InputManager:
     snap: 0
     invert: 0
     type: 2
-    axis: 9
+    axis: 1
     joyNum: 2
   - serializedVersion: 3
     m_Name: DPad_XAxis_2
@@ -467,7 +467,7 @@ InputManager:
     snap: 0
     invert: 0
     type: 2
-    axis: 9
+    axis: 5
     joyNum: 2
   - serializedVersion: 3
     m_Name: DPad_YAxis_2
@@ -483,7 +483,7 @@ InputManager:
     snap: 0
     invert: 1
     type: 2
-    axis: 9
+    axis: 6
     joyNum: 2
   - serializedVersion: 3
     m_Name: R_XAxis_2
@@ -499,7 +499,7 @@ InputManager:
     snap: 0
     invert: 0
     type: 2
-    axis: 9
+    axis: 3
     joyNum: 2
   - serializedVersion: 3
     m_Name: R_YAxis_2
@@ -515,7 +515,7 @@ InputManager:
     snap: 0
     invert: 0
     type: 2
-    axis: 9
+    axis: 4
     joyNum: 2
   - serializedVersion: 3
     m_Name: TriggersL_2
@@ -531,7 +531,7 @@ InputManager:
     snap: 0
     invert: 0
     type: 2
-    axis: 9
+    axis: 8
     joyNum: 2
   - serializedVersion: 3
     m_Name: TriggersR_2

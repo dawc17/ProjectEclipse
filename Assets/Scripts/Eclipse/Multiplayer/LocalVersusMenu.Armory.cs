@@ -157,7 +157,8 @@ namespace Eclipse.Multiplayer
             }
             ShowArmoryDetail(VersusRoster.Find(armorySlot, equipped));
             var focus = current ?? first;
-            if (focus != null && UnityEngine.EventSystems.EventSystem.current != null && armoryPresets == null)
+            if (focus != null && UnityEngine.EventSystems.EventSystem.current != null && armoryPresets == null &&
+                !(armoryFilter != null && armoryFilter.isFocused))
                 UnityEngine.EventSystems.EventSystem.current.SetSelectedGameObject(focus.gameObject);
         }
 

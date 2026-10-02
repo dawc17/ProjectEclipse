@@ -16,7 +16,7 @@ public static class NativeMusicFixture {
  public sealed class Entry {public string MusicAsset;}
  public static List<string> Select(bool hasExternalLocation,string single,string list,string PINIIFIOECE){
   var musics=new List<string>{"stale"};var externalLocation=new Entry{MusicAsset=single};
-  var xmlDocument=new XmlDocument();xmlDocument.LoadXml("<Root/>");xmlDocument.DocumentElement.SetAttribute("Music",list);
+  var xmlDocument=new XmlDocument();xmlDocument.LoadXml("<Root/>");if(list!=null)xmlDocument.DocumentElement.SetAttribute("Music",list);
   /* BLOCK */
   return musics;
  }
@@ -27,7 +27,9 @@ public static class NativeMusicFixture {
   if(string.Join("|",Select(false,"","1|2","fight"))!="fight")throw new Exception("Core fight override changed");
   if(string.Join("|",Select(false,"","1|2",""))!="1|2")throw new Exception("Core random music changed");
   if(string.Join("|",Select(true,"","core:audio/b",""))!="core:audio/b")throw new Exception("Single choice changed");
-  Console.WriteLine("PASS: 6 production location music selection checks (no audio playback).");
+  if(Select(false,"",null,"").Count!=0)throw new Exception("Missing music aborted arena preview");
+  if(Select(false,"","","").Count!=0)throw new Exception("Empty music created an invalid track choice");
+  Console.WriteLine("PASS: 8 production location music selection checks (no audio playback).");
  }
 }
 '@

@@ -23,7 +23,10 @@ public class Location
 		// The other former entries (road, magic_rocks, stone_dragon, flooded_village and the
 		// _small/_thorny variants) now ship their own upscaled artwork and params
 		// (Tools/Recovery/ImportUpscaledLocations.py); redirecting them would load another layout.
-		{ "emerald_forest_new", "emerald_forest" }
+		{ "emerald_forest_new", "emerald_forest" },
+		// The archived bridge layout has no installed artwork. Its preserved
+		// roster id uses the recovered bridge arena until that art is recovered.
+		{ "bridge", "night_bridge" }
 	};
 
 	public string name;
@@ -221,7 +224,9 @@ public class Location
 		}
 		else
 		{
-			string[] collection = xmlDocument["Root"].Attributes["Music"].CIPOICEEIBK().Split('|');
+			// Several installed layouts leave music to their encounter. Previews
+			// have no encounter track; an absent Music attribute must not abort art loading.
+			string[] collection = xmlDocument["Root"].GetAttribute("Music").Split(new[] { '|' }, System.StringSplitOptions.RemoveEmptyEntries);
 			musics = new List<string>(collection);
 		}
 		XmlAttribute cJBEMNNNHDM = xmlDocument["Root"].Attributes["FrictionForce"];

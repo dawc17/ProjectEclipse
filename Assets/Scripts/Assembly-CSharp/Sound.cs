@@ -399,7 +399,7 @@ public static class Sound
 
 	private static void FAEHODPALBB(float MJDCMAEEIPJ)
 	{
-		for (int i = OBCGCEHIFBH; i < AEAIOKEFHGG; i++)
+		for (int i = OBCGCEHIFBH; i <= AEAIOKEFHGG; i++)
 		{
 			SetVolumeToChannel(i, MJDCMAEEIPJ, KDIFBILDPCK);
 		}
@@ -413,7 +413,7 @@ public static class Sound
 
 	private static void PPBDLGFBOKL(bool JFIDKIMPPDH)
 	{
-		for (int i = OBCGCEHIFBH; i < AEAIOKEFHGG; i++)
+		for (int i = OBCGCEHIFBH; i <= AEAIOKEFHGG; i++)
 		{
 			SetMuteToChannel(i, JFIDKIMPPDH);
 		}
@@ -433,6 +433,12 @@ public static class Sound
 
 	public static int IFKCCDAIADF(string DPBKBKDCIOI, bool KKHJAJFEPPA = false, float JIJAJFEJJHK = 1f)
 	{
+		if (Eclipse.Multiplayer.SpectatorInputSource.SuppressAudio && !KKHJAJFEPPA) return -1;
+		if (KKHJAJFEPPA)
+		{
+			var loop = BKDELGBHEDP(DPBKBKDCIOI);
+			if (loop.Key != string.Empty && AudioManager.IsPlaying((int)loop.Value)) return (int)loop.Value;
+		}
 		if (Fight.GetCurrentFight()?.IsTitleSparring == true)
 		{
 			Eclipse.UI.EclipseUiAudio.PlayTitleFightSound(DPBKBKDCIOI, KKHJAJFEPPA, JIJAJFEJJHK, LoadSoundClip);
@@ -482,7 +488,7 @@ public static class Sound
 
 	public static void GKMINHHAMAK()
 	{
-		for (int i = OBCGCEHIFBH; i < AEAIOKEFHGG; i++)
+		for (int i = OBCGCEHIFBH; i <= AEAIOKEFHGG; i++)
 		{
 			AudioManager.Stop(i);
 		}
@@ -507,7 +513,7 @@ public static class Sound
 
 	public static void PMOECBEJGBL()
 	{
-		for (int i = OBCGCEHIFBH; i < AEAIOKEFHGG; i++)
+		for (int i = OBCGCEHIFBH; i <= AEAIOKEFHGG; i++)
 		{
 			AudioManager.Pause(true, i);
 		}
@@ -515,7 +521,7 @@ public static class Sound
 
 	public static void BPPCHJFPEHB()
 	{
-		for (int i = OBCGCEHIFBH; i < AEAIOKEFHGG; i++)
+		for (int i = OBCGCEHIFBH; i <= AEAIOKEFHGG; i++)
 		{
 			AudioManager.Pause(false, i);
 		}
@@ -638,14 +644,12 @@ public static class Sound
 	// best guess for name
 	public static void StopMusic()
 	{
-		if (AGCEHOJAJBK())
+		// Paused sources also need stopping when a fight is left.
+		AudioManager.Stop(FINECDOIGAH);
+		if (PJDJEAPBNLF() != null)
 		{
-			AudioManager.Stop(FINECDOIGAH);
-			if (PJDJEAPBNLF() != null)
-			{
-				AudioManager.UnloadAudio(PJDJEAPBNLF());
-				MDAIMFGPCEG(null);
-			}
+			AudioManager.UnloadAudio(PJDJEAPBNLF());
+			MDAIMFGPCEG(null);
 		}
 	}
 
@@ -747,7 +751,7 @@ public static class Sound
 	public static void Init()
 	{
 		int[] array = new int[AEAIOKEFHGG - OBCGCEHIFBH + 1];
-		for (int i = OBCGCEHIFBH; i < AEAIOKEFHGG; i++)
+		for (int i = OBCGCEHIFBH; i <= AEAIOKEFHGG; i++)
 		{
 			array[i - OBCGCEHIFBH] = i;
 		}
@@ -756,7 +760,7 @@ public static class Sound
 
 	public static int AONDDFIDNJE()
 	{
-		for (int i = OBCGCEHIFBH; i < AEAIOKEFHGG; i++)
+		for (int i = OBCGCEHIFBH; i <= AEAIOKEFHGG; i++)
 		{
 			if (!AudioManager.IsPlaying(i))
 			{

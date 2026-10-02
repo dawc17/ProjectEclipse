@@ -5,6 +5,12 @@ description: Build an arena from sprite layers and register a selectable languag
 
 Use localization files to translate your mod's text. Register a *locale* only when adding a language choice to the game. A *location* is the arena background and fighter placement used by a fight.
 
+Recovered location compatibility: the legacy `bridge` name uses the installed
+`night_bridge` artwork and layout because the original Bridge images are missing.
+Its runtime name stays `bridge`. A registered custom location uses its own supplied
+layout and artwork. A location without a music setting can still be previewed;
+its encounter supplies the battle track.
+
 ## sf2.locales.register
 
 **Signature:** `sf2.locales.register(definition)`

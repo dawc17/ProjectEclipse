@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.IO;
 using UnityEngine;
 
 namespace Eclipse.Input
@@ -13,7 +15,7 @@ namespace Eclipse.Input
         private const string Prefix = "Eclipse.Controller.";
         public static int Get(int action)
         {
-            int value = PlayerPrefs.GetInt(Prefix + Names[action], Defaults[action]);
+            int value = FightBindingPreferences.GetInt(Prefix + Names[action], Defaults[action]);
             return value >= 0 && value < Labels.Length ? value : Defaults[action];
         }
         public static string Display(int value) { return Labels[value]; }
@@ -33,23 +35,22 @@ namespace Eclipse.Input
             for (int i = 0; i < Names.Length; i++)
                 if (i != action && Get(i) == value)
                 { message = Display(value) + " is assigned to " + Names[i] + ". Choose another input."; return false; }
-            PlayerPrefs.SetInt(Prefix + Names[action], value);
-            PlayerPrefs.Save();
+            if (!FightBindingPreferences.TrySetInt(Prefix + Names[action], value, out message)) return false;
             message = Names[action] + " saved.";
             return true;
         }
-        public static GamePad.Stick MovementStick { get { return PlayerPrefs.GetInt(Prefix + "RightStick", 0) == 1
+        public static GamePad.Stick MovementStick { get { return FightBindingPreferences.GetInt(Prefix + "RightStick", 0) == 1
             ? GamePad.Stick.RightStick : GamePad.Stick.LeftStick; } }
         public static void ToggleStick()
         {
-            PlayerPrefs.SetInt(Prefix + "RightStick", MovementStick == GamePad.Stick.LeftStick ? 1 : 0);
-            PlayerPrefs.Save();
+            if (!FightBindingPreferences.TrySetInt(Prefix + "RightStick", MovementStick == GamePad.Stick.LeftStick ? 1 : 0, out var message))
+                Debug.LogWarning(message);
         }
         public static void Reset()
         {
-            foreach (var name in Names) PlayerPrefs.DeleteKey(Prefix + name);
-            PlayerPrefs.DeleteKey(Prefix + "RightStick");
-            PlayerPrefs.Save();
+            foreach (var name in Names) FightBindingPreferences.DeleteKey(Prefix + name);
+            FightBindingPreferences.DeleteKey(Prefix + "RightStick");
+            FightBindingPreferences.Save();
         }
     }
 
@@ -67,7 +68,7 @@ namespace Eclipse.Input
 
         public static KeyCode Get(KeyCode original)
         {
-            var key = (KeyCode)PlayerPrefs.GetInt(Prefix + original, (int)original);
+            var key = (KeyCode)FightBindingPreferences.GetInt(Prefix + original, (int)original);
             return IsAllowed(key) ? key : original;
         }
 
@@ -91,21 +92,118 @@ namespace Eclipse.Input
             for (int i = 0; i < Defaults.Length; i++)
                 if (i != action && Get(Defaults[i]) == key)
                 { message = Display(key) + " is assigned to " + Names[i] + ". Choose another key."; return false; }
-            PlayerPrefs.SetInt(Prefix + Defaults[action], (int)key);
-            PlayerPrefs.Save();
+            if (!FightBindingPreferences.TrySetInt(Prefix + Defaults[action], (int)key, out message)) return false;
             message = Names[action] + " saved.";
             return true;
         }
 
         public static void Reset()
         {
-            foreach (var key in Defaults) PlayerPrefs.DeleteKey(Prefix + key);
-            PlayerPrefs.Save();
+            foreach (var key in Defaults) FightBindingPreferences.DeleteKey(Prefix + key);
+            FightBindingPreferences.Save();
         }
 
         public static string Display(KeyCode key)
         {
             return key.ToString().Replace("Left", "Left ").Replace("Right", "Right ").Replace("Arrow", " Arrow").Trim();
+        }
+    }
+
+    // Bindings are installation settings, independent of the recovered profile
+    // and PlayerPrefs reset/reinitialization. Keep a durable copy and import old
+    // PlayerPrefs bindings once so existing custom controls are retained.
+    internal static class FightBindingPreferences
+    {
+        [Serializable] private sealed class Entry { public string key; public int value; }
+        [Serializable] private sealed class Data { public int version = 1; public Entry[] entries; }
+        private static Dictionary<string, int> values;
+        private static string FilePath => Path.Combine(Application.persistentDataPath, "controls.json");
+
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+        private static void ResetCache() => values = null;
+
+        private static void Load()
+        {
+            if (values != null) return;
+            values = new Dictionary<string, int>(StringComparer.Ordinal);
+            foreach (var key in FightKeyBindings.Defaults) Import("Eclipse.Key." + key);
+            foreach (var name in FightControllerBindings.Names) Import("Eclipse.Controller." + name);
+            Import("Eclipse.Controller.RightStick");
+            try
+            {
+                if (!File.Exists(FilePath)) return;
+                var data = JsonUtility.FromJson<Data>(File.ReadAllText(FilePath));
+                if (data == null || data.version != 1 || data.entries == null) return;
+                foreach (var entry in data.entries)
+                    if (entry != null && KnownKey(entry.key)) values[entry.key] = entry.value;
+            }
+            catch (Exception error) when (error is IOException || error is UnauthorizedAccessException || error is ArgumentException)
+            { Debug.LogWarning("[Controls] Could not read saved bindings: " + error.Message); }
+        }
+
+        private static bool KnownKey(string key)
+        {
+            if (key == "Eclipse.Controller.RightStick") return true;
+            foreach (var original in FightKeyBindings.Defaults) if (key == "Eclipse.Key." + original) return true;
+            foreach (var name in FightControllerBindings.Names) if (key == "Eclipse.Controller." + name) return true;
+            return false;
+        }
+
+        private static void Import(string key)
+        {
+            if (PlayerPrefs.HasKey(key)) values[key] = PlayerPrefs.GetInt(key);
+        }
+
+        internal static int GetInt(string key, int fallback)
+        {
+            Load();
+            return values.TryGetValue(key, out int value) ? value : fallback;
+        }
+
+        internal static bool TrySetInt(string key, int value, out string message)
+        {
+            Load();
+            bool existed = values.TryGetValue(key, out int previous);
+            values[key] = value;
+            try { Save(); }
+            catch (Exception error) when (error is IOException || error is UnauthorizedAccessException)
+            {
+                if (existed) values[key] = previous; else values.Remove(key);
+                message = "Could not save controls: " + error.Message;
+                return false;
+            }
+            PlayerPrefs.SetInt(key, value);
+            PlayerPrefs.Save();
+            message = string.Empty;
+            return true;
+        }
+
+        internal static void DeleteKey(string key)
+        {
+            Load();
+            values.Remove(key);
+            PlayerPrefs.DeleteKey(key);
+        }
+
+        internal static void Save()
+        {
+            Load();
+            var entries = new List<Entry>();
+            foreach (var pair in values) entries.Add(new Entry { key = pair.Key, value = pair.Value });
+            string path = FilePath, temporary = path + ".tmp";
+            Directory.CreateDirectory(Path.GetDirectoryName(path));
+            try
+            {
+                using (var stream = new FileStream(temporary, FileMode.Create, FileAccess.Write, FileShare.None))
+                using (var writer = new StreamWriter(stream))
+                {
+                    writer.Write(JsonUtility.ToJson(new Data { entries = entries.ToArray() }, true));
+                    writer.Flush(); stream.Flush(true);
+                }
+                if (File.Exists(path)) File.Replace(temporary, path, null); else File.Move(temporary, path);
+                PlayerPrefs.Save();
+            }
+            finally { if (File.Exists(temporary)) File.Delete(temporary); }
         }
     }
 }

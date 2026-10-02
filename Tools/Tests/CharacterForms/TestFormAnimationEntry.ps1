@@ -174,7 +174,7 @@ class Model {
     public bool FGKAFKFBFEM()=>Parameters.AiControlled;
     public Statistics FGACEEPJBIF()=>Stats;
     public int GLEKCPCMINJ()=>0;
-    public int LPOJKGLFMAL()=>0;
+    public int GetMagicCharges()=>0;
     public void IFDGGKPAHMC(InfoAnimation animation,bool hit){}
     public bool PlayAnimation(InfoAnimation animation,int sign,bool shifted,int shift){
         if(RejectPlay)return false;

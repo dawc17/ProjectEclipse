@@ -127,33 +127,33 @@ static void CheckMagicTransfer(){
   current.OGHAMAGPFLF(fraction);current.FLBDBIHFJAI(casts);
   next.OGHAMAGPFLF(0.125f);next.FLBDBIHFJAI(1);
   var undo=current.TransferFormCombatState(next);
-  Check(next.EKAFGLHNMCN()==fraction&&next.LPOJKGLFMAL()==casts,"partial magic charge and ready cast follow the fighter");
-  Check(current.EKAFGLHNMCN()==0.125f&&current.LPOJKGLFMAL()==1,"retired body receives prepared magic state");
+  Check(next.GetMagicChargeFraction()==fraction&&next.GetMagicCharges()==casts,"partial magic charge and ready cast follow the fighter");
+  Check(current.GetMagicChargeFraction()==0.125f&&current.GetMagicCharges()==1,"retired body receives prepared magic state");
   Check(current.magicEvents.Count==0&&next.magicEvents.Count==0&&next.DJOKGDICHAJ==0,"handover does not normalize, cast or emit magic events");
   undo();undo();
-  Check(current.EKAFGLHNMCN()==fraction&&current.LPOJKGLFMAL()==casts&&next.EKAFGLHNMCN()==0.125f&&next.LPOJKGLFMAL()==1,"rollback restores both magic states exactly once");
+  Check(current.GetMagicChargeFraction()==fraction&&current.GetMagicCharges()==casts&&next.GetMagicChargeFraction()==0.125f&&next.GetMagicCharges()==1,"rollback restores both magic states exactly once");
  }
  // Compare normal charging/casting on an uninterrupted body against two swaps.
  var control=new Model();var moving=new Model();
  control.OGHAMAGPFLF(0.375f);moving.OGHAMAGPFLF(0.375f);
  var destination=new Model();moving.TransferFormCombatState(destination);
  moving.OGHAMAGPFLF(0);moving.FLBDBIHFJAI(0);
- Check(destination.EKAFGLHNMCN()==0.375f,"clearing retired magic state cannot clear the active form");
+ Check(destination.GetMagicChargeFraction()==0.375f,"clearing retired magic state cannot clear the active form");
  foreach(float amount in new[]{0.125f,0.25f,0.5f}){
   control.JJHLOKBPBLD(amount);control.BFBFNKMLOJA();
   destination.JJHLOKBPBLD(amount);destination.BFBFNKMLOJA();
-  Check(control.EKAFGLHNMCN()==destination.EKAFGLHNMCN()&&control.LPOJKGLFMAL()==destination.LPOJKGLFMAL(),"native charging matches uninterrupted fighter");
+  Check(control.GetMagicChargeFraction()==destination.GetMagicChargeFraction()&&control.GetMagicCharges()==destination.GetMagicCharges(),"native charging matches uninterrupted fighter");
  }
- Check(destination.LPOJKGLFMAL()==1&&destination.EKAFGLHNMCN()==0&&destination.magicEvents.SequenceEqual(control.magicEvents),"native charge threshold grants one cast and matching UI events");
+ Check(destination.GetMagicCharges()==1&&destination.GetMagicChargeFraction()==0&&destination.magicEvents.SequenceEqual(control.magicEvents),"native charge threshold grants one cast and matching UI events");
  var third=new Model();destination.TransferFormCombatState(third);
  control.JJHLOKBPBLD(0.5f);third.JJHLOKBPBLD(0.5f);
- Check(third.LPOJKGLFMAL()==1&&third.EKAFGLHNMCN()==0,"a ready cast cannot gain another charge after repeated swaps");
+ Check(third.GetMagicCharges()==1&&third.GetMagicChargeFraction()==0,"a ready cast cannot gain another charge after repeated swaps");
  control.IPGBFKOCOCK(-1);control.BFBFNKMLOJA();
  third.IPGBFKOCOCK(-1);third.BFBFNKMLOJA();
- Check(third.LPOJKGLFMAL()==0&&third.DJOKGDICHAJ==1&&third.DJOKGDICHAJ==control.DJOKGDICHAJ,"cast consumption and usage count happen exactly once");
+ Check(third.GetMagicCharges()==0&&third.DJOKGDICHAJ==1&&third.DJOKGDICHAJ==control.DJOKGDICHAJ,"cast consumption and usage count happen exactly once");
  control.JJHLOKBPBLD(0.25f);control.BFBFNKMLOJA();
  third.JJHLOKBPBLD(0.25f);third.BFBFNKMLOJA();
- Check(third.EKAFGLHNMCN()==control.EKAFGLHNMCN()&&third.magicEvents.Last()==control.magicEvents.Last(),"charging and native UI output continue after the cast");
+ Check(third.GetMagicChargeFraction()==control.GetMagicChargeFraction()&&third.magicEvents.Last()==control.magicEvents.Last(),"charging and native UI output continue after the cast");
 }
 }
 '@

@@ -190,6 +190,7 @@ namespace Eclipse.Multiplayer
     /// <summary>Read-only room viewing, using the same deterministic simulation as a replay.</summary>
     public sealed class SpectatorInputSource : IVersusInputSource, IVersusStepRunner
     {
+        internal static bool SuppressAudio { get; private set; }
         private readonly Online.Rooms.SpectatorStream _stream;
         private readonly Online.Rooms.SpectatorPlayback _playback = new Online.Rooms.SpectatorPlayback();
         private int _frame = -1;
@@ -218,9 +219,10 @@ namespace Eclipse.Multiplayer
             }
             if (catchingUp && _frame == Time.frameCount) return;
             _frame = Time.frameCount;
-            float volume = AudioListener.volume;
             var clock = System.Diagnostics.Stopwatch.StartNew();
-            if (catchingUp) AudioListener.volume = 0f;
+            // Muting the listener only for this synchronous loop still queues
+            // voices that all become audible together once the listener is restored.
+            SuppressAudio = catchingUp || steps > 1;
             try
             {
                 for (int i = 0; i < steps && !LocalVersusSession.HasResult && VersusTickDriver.Owns(fight); i++)
@@ -241,7 +243,7 @@ namespace Eclipse.Multiplayer
                     if (clock.ElapsedMilliseconds >= 8) break;
                 }
             }
-            finally { if (catchingUp) AudioListener.volume = volume; }
+            finally { SuppressAudio = false; }
         }
 
         public void OnTickSimulated(int tick, byte left, byte right, uint? hash) { }

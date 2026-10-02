@@ -514,7 +514,7 @@ public class ModelAi
 
 	public void RandomizeBehavior(Model OGBHDKKOIGH)
 	{
-		TacticFactors oHKCJDCMOKN = new TacticFactors(_Model.FGACEEPJBIF(), _Model.GLEKCPCMINJ(), _Model.LPOJKGLFMAL());
+		TacticFactors oHKCJDCMOKN = new TacticFactors(_Model.FGACEEPJBIF(), _Model.GLEKCPCMINJ(), _Model.GetMagicCharges());
 		_Model.FGACEEPJBIF().GetCountAndDamage(true, COKFBIJAFLH, ref oHKCJDCMOKN.EOGLBDCLMBM, ref oHKCJDCMOKN.KFMJMBANIGF, ref oHKCJDCMOKN.AAKOCIPFDNM);
 		oHKCJDCMOKN.MGICNNKKCAN = (ObscuredFloat)(_Model.Parameters.KKMCHCNOHMB());
 		oHKCJDCMOKN.DDGNCMJGDAG = (ObscuredFloat)(OGBHDKKOIGH.Parameters.KKMCHCNOHMB());
@@ -600,7 +600,7 @@ public class ModelAi
 			RandomizeBehavior(OGBHDKKOIGH);
 			if (!IsIgnoredEnemyAnimation(cOKFBIJAFLH))
 			{
-				TacticFactors oHKCJDCMOKN = new TacticFactors(_Model.FGACEEPJBIF(), _Model.GLEKCPCMINJ(), _Model.LPOJKGLFMAL());
+				TacticFactors oHKCJDCMOKN = new TacticFactors(_Model.FGACEEPJBIF(), _Model.GLEKCPCMINJ(), _Model.GetMagicCharges());
 				_Model.FGACEEPJBIF().GetCountAndDamage(true, COKFBIJAFLH, ref oHKCJDCMOKN.EOGLBDCLMBM, ref oHKCJDCMOKN.KFMJMBANIGF, ref oHKCJDCMOKN.AAKOCIPFDNM);
 				oHKCJDCMOKN.MGICNNKKCAN = (ObscuredFloat)(_Model.Parameters.KKMCHCNOHMB());
 				oHKCJDCMOKN.DDGNCMJGDAG = (ObscuredFloat)(OGBHDKKOIGH.Parameters.KKMCHCNOHMB());
@@ -2267,7 +2267,7 @@ public class ModelAi
 
 	private TacticFactors SetFactors(Model FNKFIMEDNLP)
 	{
-		TacticFactors oHKCJDCMOKN = new TacticFactors(_Model.FGACEEPJBIF(), _Model.GLEKCPCMINJ(), _Model.LPOJKGLFMAL());
+		TacticFactors oHKCJDCMOKN = new TacticFactors(_Model.FGACEEPJBIF(), _Model.GLEKCPCMINJ(), _Model.GetMagicCharges());
 		_Model.FGACEEPJBIF().GetCountAndDamage(true, COKFBIJAFLH, ref oHKCJDCMOKN.EOGLBDCLMBM, ref oHKCJDCMOKN.KFMJMBANIGF, ref oHKCJDCMOKN.AAKOCIPFDNM);
 		oHKCJDCMOKN.MGICNNKKCAN = (ObscuredFloat)(_Model.Parameters.KKMCHCNOHMB());
 		oHKCJDCMOKN.DDGNCMJGDAG = (ObscuredFloat)(FNKFIMEDNLP.Parameters.KKMCHCNOHMB());
