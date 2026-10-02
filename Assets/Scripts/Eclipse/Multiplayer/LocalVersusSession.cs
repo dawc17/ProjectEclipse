@@ -15,6 +15,8 @@ namespace Eclipse.Multiplayer
         public static bool IsOnline => Settings != null && Settings.Mode == VersusMode.Online;
         public static bool IsReplay => Settings != null && Settings.Mode == VersusMode.Replay;
         public static bool IsSpectating => Settings != null && Settings.Mode == VersusMode.Spectator;
+        // Spectators observe player one; an online guest controls player two.
+        internal static int HudSide => IsOnline && VersusTickDriver.Source is OnlineInputSource online ? online.LocalSide : 0;
         /// <summary>A match is set up and its fight scene has not finished loading.</summary>
         public static bool IsStarting => _starting;
         /// <summary>The replay being watched, kept for "watch again".</summary>
@@ -222,6 +224,8 @@ namespace Eclipse.Multiplayer
             VersusTickDriver.MatchEnded(fight, winner, one, two);
             HasResult = true;
             fight.SetPaused(true);
+            Sound.StopMusic();
+            Sound.StopLoopedSounds();
             LocalVersusMenu.Ensure().ShowResult(winner, one, two);
         }
 
@@ -231,6 +235,8 @@ namespace Eclipse.Multiplayer
             if (HasResult || fight == null || !fight.IsLocalVersus) return;
             HasResult = true;
             fight.SetPaused(true);
+            Sound.StopMusic();
+            Sound.StopLoopedSounds();
             VersusTickDriver.Stop();
             int one = fight.GetPlayerModel().Parameters.RoundsWon;
             int two = fight.GetEnemyModel().Parameters.RoundsWon;
@@ -270,6 +276,18 @@ namespace Eclipse.Multiplayer
         private void OnApplicationFocus(bool focused)
         {
             if (!focused && Settings != null && Settings.Mode == VersusMode.Local) Pause("The game lost focus. Resume when both players are ready.");
+        }
+
+        private void LateUpdate()
+        {
+            var fight = Fight.GetCurrentFight();
+            if (!IsActive || _starting || _returning || fight == null || !fight.IsLocalVersus || fight.Controller == null) return;
+            var fighter = HudSide == 1 ? fight.GetEnemyModel() : fight.GetPlayerModel();
+            if (fighter == null) return;
+            var buttons = fight.Controller.GetActionButtons();
+            buttons.ShowMagic(fighter.Parameters.Magic != null && fighter.Parameters.Magic.SubType != "NoMagic");
+            float charge = fighter.GetMagicCharges() > 0 ? 1f : fighter.GetMagicChargeFraction();
+            buttons.SetNeededPercentageToActBtn(FightCID.MagicButton, charge > .97f && charge < 1f ? 97f : charge * 100f, 0f);
         }
 
         private void Update()

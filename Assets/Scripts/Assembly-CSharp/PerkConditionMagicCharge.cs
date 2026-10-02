@@ -25,7 +25,7 @@ public class PerkConditionMagicCharge : PerkConditionMatchMinMax
 			return false;
 		}
 		FMKBHHJDHDM.IBCPKBBAFNH();
-		float num = fGCODGKLHED.EKAFGLHNMCN();
+		float num = fGCODGKLHED.GetMagicChargeFraction();
 		if (!FMKBHHJDHDM.KEMLMMPIPGJ() && FMKBHHJDHDM.PPCEOKCAEBD() > num)
 		{
 			return false;

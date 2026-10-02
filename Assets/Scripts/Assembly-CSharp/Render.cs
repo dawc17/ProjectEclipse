@@ -297,6 +297,7 @@ public class Render
 	internal bool PresentationPass;
 
 	private Model _lightTarget;
+	private Eclipse.Multiplayer.VersusGroundHighlight _versusPlayerTwoMarker;
 	private float _lightRadius;
 	private float _lightShape;
 
@@ -406,6 +407,20 @@ public class Render
 		}
 		float dHDMNHCIPEH = JALEODAIDEO - (_location.JMLAKAKDBBL / 2f - DHDMNHCIPEH) * NIKDOKGPFOI;
 		float bGEEALIPKCC = _location.gameLayer.MJNPBMOAFML().transform.localPosition.y - 2f * KKICFAMLAAK * NIKDOKGPFOI - 10f;
+		var versusFight = Fight.GetCurrentFight();
+		if (versusFight != null && versusFight.IsLocalVersus)
+		{
+			var player = versusFight.GetPlayerModel();
+			var enemy = versusFight.GetEnemyModel();
+			if (player != null) dHDMNHCIPEH = JALEODAIDEO - (_location.JMLAKAKDBBL / 2f - player.InterpolatedPivot().GetX()) * NIKDOKGPFOI;
+			if (enemy != null)
+			{
+				if (_versusPlayerTwoMarker == null)
+					_versusPlayerTwoMarker = new Eclipse.Multiplayer.VersusGroundHighlight(_UnityObject.transform);
+				float x = JALEODAIDEO - (_location.JMLAKAKDBBL / 2f - enemy.InterpolatedPivot().GetX()) * NIKDOKGPFOI;
+				_versusPlayerTwoMarker.Update(x, bGEEALIPKCC, NIKDOKGPFOI);
+			}
+		}
 		PCIGCDELJAL(dHDMNHCIPEH, bGEEALIPKCC);
 	}
 

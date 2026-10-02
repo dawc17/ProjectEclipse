@@ -59,6 +59,20 @@ public static class GamePad
 
 	public static Vector2 GetStick(Stick NMADGDHJBGB, Player EKFPHMLKDAP, bool IMFLNPNECCO = false) // best guess for name
 	{
+		// Only numbered axes are configured. Pick the strongest connected pad
+		// for menus instead of looking up nonexistent *_0 axes.
+		if (EKFPHMLKDAP == Player.Any)
+		{
+			Vector2 strongest = Vector2.zero;
+			string[] devices = Input.GetJoystickNames();
+			for (int i = 0; i < devices.Length && i < 2; i++)
+			{
+				if (string.IsNullOrEmpty(devices[i])) continue;
+				Vector2 stick = GetStick(NMADGDHJBGB, (Player)(i + 1), IMFLNPNECCO);
+				if (stick.sqrMagnitude > strongest.sqrMagnitude) strongest = stick;
+			}
+			return strongest;
+		}
 		string axisName = string.Empty;
 		string axisName2 = string.Empty;
 		switch (NMADGDHJBGB)

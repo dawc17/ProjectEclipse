@@ -1019,7 +1019,7 @@ public class Model : global::EventDispatcher<object>
 	{
 		get
 		{
-			return EKAFGLHNMCN();
+			return GetMagicChargeFraction();
 		}
 		set
 		{
@@ -1031,7 +1031,7 @@ public class Model : global::EventDispatcher<object>
 	{
 		get
 		{
-			return LPOJKGLFMAL();
+			return GetMagicCharges();
 		}
 		set
 		{
@@ -1850,7 +1850,8 @@ public class Model : global::EventDispatcher<object>
 		}
 	}
 
-	public float EKAFGLHNMCN()
+	// best guess for name
+	public float GetMagicChargeFraction()
 	{
 		return NJDNNFJAFBG;
 	}
@@ -1864,7 +1865,8 @@ public class Model : global::EventDispatcher<object>
 		MJEJFBHOJKB = value;
 	}
 
-	public int LPOJKGLFMAL()
+	// best guess for name
+	public int GetMagicCharges()
 	{
 		return MJEJFBHOJKB;
 	}

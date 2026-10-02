@@ -767,10 +767,10 @@ public class PerkInfoItem
 				DCJLKCFKCOM.DCJLKCFKCOM = ACENLMONNPA.NPDOLGNNINO().ToString();
 				break;
 			case "MagicBullet":
-				DCJLKCFKCOM.DCJLKCFKCOM = ACENLMONNPA.LPOJKGLFMAL().ToString();
+				DCJLKCFKCOM.DCJLKCFKCOM = ACENLMONNPA.GetMagicCharges().ToString();
 				break;
 			case "MagicCharge":
-				DCJLKCFKCOM.DCJLKCFKCOM = ACENLMONNPA.EKAFGLHNMCN().ToString();
+				DCJLKCFKCOM.DCJLKCFKCOM = ACENLMONNPA.GetMagicChargeFraction().ToString();
 				break;
 			case "Magic":
 				DCJLKCFKCOM.DCJLKCFKCOM = (ACENLMONNPA.Parameters.Magic == null) ?

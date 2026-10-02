@@ -4,6 +4,27 @@ using UnityEngine.EventSystems;
 
 namespace Eclipse.Multiplayer
 {
+    /// <summary>A blue ground highlight that identifies player two independently of camera focus.</summary>
+    internal sealed class VersusGroundHighlight
+    {
+        private readonly SpriteRenderer renderer;
+
+        public VersusGroundHighlight(Transform parent)
+        {
+            renderer = new GameObject("Player two ground highlight").AddComponent<SpriteRenderer>();
+            renderer.transform.SetParent(parent, false);
+            renderer.sprite = Eclipse.Rendering.FxBuilder.ShapeSprite(Eclipse.Modding.ModFxShape.Glow);
+            renderer.color = new Color(.2f, .6f, 1f, .85f);
+        }
+
+        public void Update(float x, float y, float scale)
+        {
+            renderer.transform.localPosition = new Vector3(x, y, -40f);
+            var size = renderer.sprite.bounds.size;
+            renderer.transform.localScale = new Vector3(100f * scale / size.x, 12f * scale / size.y, 1f);
+        }
+    }
+
     /// <summary>Runs callbacks when a UI element gains or loses the pointer or the selection.</summary>
     public sealed class UiHover : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, ISelectHandler, IDeselectHandler
     {

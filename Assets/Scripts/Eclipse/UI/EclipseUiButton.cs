@@ -60,6 +60,9 @@ namespace Eclipse.UI
         public void OnPointerEnter(PointerEventData data)
         {
             if (target == null || !target.IsInteractable() || EventSystem.current == null) return;
+            var current = EventSystem.current.currentSelectedGameObject;
+            var field = current == null ? null : current.GetComponent<InputField>();
+            if (field != null && field.isFocused) return;
             if (EventSystem.current.currentSelectedGameObject != gameObject) { target.Select(); hovered = true; }
         }
 

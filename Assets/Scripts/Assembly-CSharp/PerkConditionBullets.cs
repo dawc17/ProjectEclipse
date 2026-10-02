@@ -27,7 +27,7 @@ public class PerkConditionBullets : PerkConditionMatchMinMax
 		int num = 0;
 		if (KCIIELDOBOM.Equals("MagicBullet"))
 		{
-			num = fGCODGKLHED.LPOJKGLFMAL();
+			num = fGCODGKLHED.GetMagicCharges();
 		}
 		else
 		{

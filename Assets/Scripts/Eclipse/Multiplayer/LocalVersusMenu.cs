@@ -16,6 +16,10 @@ namespace Eclipse.Multiplayer
         private RectTransform panel;
         private UnityEngine.UI.Text status;
         private EventSystem ownedEventSystem;
+        private EventSystem navigationEventSystem;
+        private bool previousNavigation;
+        private Vector2Int heldNavigation;
+        private float repeatNavigationAt;
         private VersusLoadout p1Loadout, p2Loadout;
         private string arena;
         private bool keyboardPlayerOne = true;
@@ -75,6 +79,7 @@ namespace Eclipse.Multiplayer
         private void OnDestroy()
         {
             SceneManager.sceneLoaded -= OnSceneLoaded;
+            RestoreNavigation();
             if (ownedEventSystem != null) Destroy(ownedEventSystem.gameObject);
             if (instance == this) instance = null;
         }
@@ -93,7 +98,11 @@ namespace Eclipse.Multiplayer
             // Pause keys belong to the fight and its pause menu. A menu page that handled
             // Escape itself (backing out to the title, say) must not also reopen the pause menu.
             bool overFight = !IsShowing || page == Page.Pause;
-            if (IsShowing) UpdateScreens();
+            if (IsShowing)
+            {
+                UpdateScreens();
+                if (IsShowing && inputFrame != Time.frameCount && !VersusStagePicker.IsOpen && page != Page.Splash) UpdateNavigation();
+            }
             if (page == Page.Lobby && Time.unscaledTime >= nextDeviceCheck)
             {
                 nextDeviceCheck = Time.unscaledTime + .5f;
@@ -194,6 +203,7 @@ namespace Eclipse.Multiplayer
 
         public void Hide()
         {
+            RestoreNavigation();
             IsShowing = false; page = Page.Hidden;
             LeaveBackdrop();
             if (EventSystem.current != null && EventSystem.current.currentSelectedGameObject != null && panel != null &&
@@ -641,9 +651,68 @@ namespace Eclipse.Multiplayer
 
         private void EnsureEventSystem()
         {
-            if (EventSystem.current != null) return;
-            ownedEventSystem = null;
-            ownedEventSystem = new GameObject("Local Versus Input", typeof(EventSystem), typeof(StandaloneInputModule)).GetComponent<EventSystem>();
+            if (EventSystem.current == null)
+                ownedEventSystem = new GameObject("Local Versus Input", typeof(EventSystem), typeof(StandaloneInputModule)).GetComponent<EventSystem>();
+            if (navigationEventSystem == EventSystem.current) return;
+            RestoreNavigation();
+            navigationEventSystem = EventSystem.current;
+            previousNavigation = navigationEventSystem.sendNavigationEvents;
+            navigationEventSystem.sendNavigationEvents = false;
+        }
+
+        private void RestoreNavigation()
+        {
+            if (navigationEventSystem != null) navigationEventSystem.sendNavigationEvents = previousNavigation;
+            navigationEventSystem = null;
+            heldNavigation = Vector2Int.zero;
+        }
+
+        // Explicit navigation keeps the recovered WASD axes out of text entry,
+        // and uses the same numbered D-pad/stick axes as combat.
+        private void UpdateNavigation()
+        {
+            var events = EventSystem.current;
+            if (events == null) return;
+            var selected = events.currentSelectedGameObject;
+            var field = selected == null ? null : selected.GetComponent<UnityEngine.UI.InputField>();
+            bool typing = field != null && field.isFocused;
+            var pad = GamePad.GetStick(GamePad.Stick.Dpad, GamePad.Player.Any, true);
+            var stick = GamePad.GetStick(GamePad.Stick.LeftStick, GamePad.Player.Any, true);
+            if (stick.sqrMagnitude > pad.sqrMagnitude) pad = stick;
+            var direction = new Vector2Int(Mathf.Abs(pad.x) > .6f ? (pad.x > 0 ? 1 : -1) : 0,
+                Mathf.Abs(pad.y) > .6f ? (pad.y > 0 ? 1 : -1) : 0);
+            bool keyboardMove = false;
+            if (!typing)
+            {
+                if (UnityEngine.Input.GetKeyDown(KeyCode.DownArrow) || UnityEngine.Input.GetKeyDown(KeyCode.Tab)) { direction = Vector2Int.down; keyboardMove = true; }
+                else if (UnityEngine.Input.GetKeyDown(KeyCode.UpArrow)) { direction = Vector2Int.up; keyboardMove = true; }
+                else if (UnityEngine.Input.GetKeyDown(KeyCode.LeftArrow)) { direction = Vector2Int.left; keyboardMove = true; }
+                else if (UnityEngine.Input.GetKeyDown(KeyCode.RightArrow)) { direction = Vector2Int.right; keyboardMove = true; }
+            }
+            if (direction != Vector2Int.zero && (keyboardMove || direction != heldNavigation || Time.unscaledTime >= repeatNavigationAt))
+            {
+                repeatNavigationAt = Time.unscaledTime + (direction != heldNavigation ? .38f : .1f);
+                if (typing) field.DeactivateInputField();
+                if (selected == null || !selected.activeInHierarchy || !selected.transform.IsChildOf(panel)) FocusFirst(panel);
+                else
+                {
+                    var move = new AxisEventData(events) { moveVector = new Vector2(direction.x, direction.y),
+                        moveDir = Mathf.Abs(direction.x) > Mathf.Abs(direction.y) ? (direction.x > 0 ? MoveDirection.Right : MoveDirection.Left) :
+                            direction.y > 0 ? MoveDirection.Up : MoveDirection.Down };
+                    ExecuteEvents.Execute(selected, move, ExecuteEvents.moveHandler);
+                }
+            }
+            heldNavigation = keyboardMove ? Vector2Int.zero : direction;
+            if (typing) return;
+            if (IsBackdropPage && backAction != null && GamePad.GetButtonDown(GamePad.Button.B, GamePad.Player.Any))
+            { Eclipse.UI.EclipseUiAudio.Play(Eclipse.UI.UiSound.Back); backAction(); return; }
+            if (UnityEngine.Input.GetKeyDown(KeyCode.Return) || UnityEngine.Input.GetKeyDown(KeyCode.KeypadEnter) ||
+                UnityEngine.Input.GetKeyDown(KeyCode.Space) || GamePad.GetButtonDown(GamePad.Button.A, GamePad.Player.Any))
+            {
+                selected = events.currentSelectedGameObject;
+                if (selected != null && selected.activeInHierarchy && selected.transform.IsChildOf(panel))
+                    ExecuteEvents.Execute(selected, new BaseEventData(events), ExecuteEvents.submitHandler);
+            }
         }
 
         private static void FocusFirst(RectTransform body)
