@@ -720,7 +720,7 @@ public class SystemProperties
 			float f = (float)Screen.width / Screen.dpi;
 			float f2 = (float)Screen.height / Screen.dpi;
 			float num = Mathf.Sqrt(Mathf.Pow(f, 2f) + Mathf.Pow(f2, 2f));
-			float num2 = float.Parse(xmlNode["TabletDiagonal"].Attributes["Value"].Value);
+			float num2 = float.Parse(xmlNode["TabletDiagonal"].Attributes["Value"].Value, System.Globalization.CultureInfo.InvariantCulture);
 			BIFPNNLNKHA.JGLKJECFHED = num >= num2;
 		}
 		XmlElement xmlElement2 = xmlElement["Devices"];

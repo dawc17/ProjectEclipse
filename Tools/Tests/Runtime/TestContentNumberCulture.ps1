@@ -6,9 +6,11 @@ New-Item -ItemType Directory -Path $fixture | Out-Null
 # test separately covers their use by real rigs, physics and mesh interpolation.
 $xml = Get-Content -Raw -LiteralPath (Join-Path $root 'Assets/Scripts/Assembly-CSharp/XmlUtils.cs')
 $vector = Get-Content -Raw -LiteralPath (Join-Path $root 'Assets/Scripts/Assembly-CSharp/Vector3f.cs')
+$devices = Get-Content -Raw -LiteralPath (Join-Path $root 'Assets/Plugins/Assembly-CSharp-firstpass/SystemProperties.cs')
 $parse = [regex]::Match($xml, '(?ms)^\tpublic static float ParseFloat\(.*?^\t\}').Value
 $create = [regex]::Match($vector, '(?ms)^\tpublic static Vector3f Create\(.*?^\t\}').Value
-if (!$parse -or !$create) { throw 'Production numeric reader extraction failed.' }
+$diagonal = [regex]::Match($devices, 'float num2 = ([^;]+);').Groups[1].Value
+if (!$parse -or !$create -or !$diagonal) { throw 'Production numeric reader extraction failed.' }
 $program = @'
 using System;
 using System.Globalization;
@@ -18,6 +20,7 @@ class Vector3f { public float X, Y; CREATE }
 static class Program
 {
     static int checks;
+    static float TabletDiagonal(XmlNode xmlNode) => DIAGONAL;
     static void Check(bool value, string message) { checks++; if (!value) throw new Exception(message); }
     static XmlAttribute Attribute(string text)
     {
@@ -26,15 +29,18 @@ static class Program
         attribute.Value = text;
         return attribute;
     }
-    static void Main()
+    static void Main(string[] args)
     {
+        var devices = new XmlDocument();
+        devices.Load(args[0]);
         var previous = CultureInfo.CurrentCulture;
         try
         {
-            foreach (var name in new[] { "hr-HR", "en-US", "de-DE", "fr-FR", "pl-PL", "nb-NO", "ar-EG" })
+            foreach (var name in new[] { "ru-RU", "hr-HR", "en-US", "de-DE", "fr-FR", "pl-PL", "nb-NO", "ar-EG" })
             {
                 var culture = CultureInfo.GetCultureInfo(name);
                 CultureInfo.CurrentCulture = culture;
+                Check(TabletDiagonal(devices["Root"]["Config"]) == 6.5f, name + " changed the device tablet diagonal");
                 // NTop and Wicked Veil cloth values from the packaged vanilla models.
                 foreach (var sample in new[] { ("-20.5197906494141", -20.5197906494141f),
                     ("283.477600097656", 283.477600097656f), ("0.772934436798096", .772934436798096f),
@@ -54,13 +60,13 @@ static class Program
             }
         }
         finally { CultureInfo.CurrentCulture = previous; }
-        Console.WriteLine("PASS: " + checks + " production XML numeric-reader checks across seven cultures.");
+        Console.WriteLine("PASS: " + checks + " production XML numeric-reader checks across eight cultures.");
     }
 }
 '@
-$program.Replace('PARSE', $parse).Replace('CREATE', $create) | Set-Content -Encoding UTF8 -LiteralPath (Join-Path $fixture 'Program.cs')
+$program.Replace('PARSE', $parse).Replace('CREATE', $create).Replace('DIAGONAL', $diagonal) | Set-Content -Encoding UTF8 -LiteralPath (Join-Path $fixture 'Program.cs')
 @'
 <Project Sdk="Microsoft.NET.Sdk"><PropertyGroup><OutputType>Exe</OutputType><TargetFramework>net10.0</TargetFramework><NuGetAudit>false</NuGetAudit></PropertyGroup></Project>
 '@ | Set-Content -Encoding UTF8 -LiteralPath (Join-Path $fixture 'Fixture.csproj')
-dotnet run --project (Join-Path $fixture 'Fixture.csproj')
+dotnet run --project (Join-Path $fixture 'Fixture.csproj') -- (Join-Path $root 'Assets/vanillaXml/devices.xml')
 if ($LASTEXITCODE -ne 0) { throw 'Content number culture regression failed.' }
