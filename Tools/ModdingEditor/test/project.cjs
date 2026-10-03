@@ -520,3 +520,17 @@ test('sequence playback has compact typed steps and declares UI and saved-state 
     const issues=p.analyze(header+'sf2.story.play_sequence { position="next", steps={} }',mod).issues;
     for(const cap of ['story.events','ui.create','state.read','state.write'])assert(issues.some(i=>i.capability===cap));
 });
+
+
+test('audio instances have distinct handles, bounds, capabilities and a mirrored starter', async()=>{
+ const schema=require('../scripts/api-schema.cjs');
+ assert.equal(schema.functions['sf2.audio.play'].returns,'Eclipse.AudioInstanceHandle|nil, string|nil');
+ for(const name of ['play','is_playing','set_volume','stop'])assert.equal(schema.functions['sf2.audio.'+name].capability,'audio.play');
+ const starter=await p.indexMod(template);
+ assert(p.analyze(header+'sf2.audio.play(clip,{volume=1.1})',starter).issues.some(i=>i.code==='range'));
+ assert(p.analyze(header+'sf2.audio.set_volume(sound,-1)',starter).issues.some(i=>i.code==='range'));
+ assert(p.analyze(header+'sf2.audio.stop(sound)',starter).issues.some(i=>i.capability==='audio.play'));
+ const dir=path.resolve(__dirname,'../../../Mods/example.audio-lab');const mod=await p.indexMod(dir);assert.deepEqual(mod.issues,[]);
+ assert.deepEqual(p.analyze(await fs.readFile(path.join(dir,'scripts/main.lua'),'utf8'),mod).issues,[]);
+ for(const file of ['mod.toml','README.md','scripts/main.lua','assets/audio/beacon.wav'])assert.deepEqual(await fs.readFile(path.join(dir,file)),await fs.readFile(path.resolve(__dirname,'../templates/audio-lab',file)));
+});

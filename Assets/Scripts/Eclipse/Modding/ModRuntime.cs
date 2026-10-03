@@ -231,7 +231,7 @@ namespace Eclipse.Modding
             ModModeRuntime.Warning = message => Debug.LogWarning(message);
             ModPolicies.Content = null;
             _scripts = Host.StartScripts(new MoonSharpScriptRuntime(Eclipse.UI.Modding.ModUiGameBridge.Attach,
-                () => LocalizationManager.ILAJKOBCHFH == null ? LocalizationManager.POIPGLLCCKC : LocalizationManager.ILAJKOBCHFH.name, DojoSelection, StoryEvents), LogScript, content =>
+                () => LocalizationManager.ILAJKOBCHFH == null ? LocalizationManager.POIPGLLCCKC : LocalizationManager.ILAJKOBCHFH.name, DojoSelection, StoryEvents, () => new ModAudioBackend()), LogScript, content =>
                 {
                     var import = System.Diagnostics.Stopwatch.StartNew();
                     ImportCoreContent(content);

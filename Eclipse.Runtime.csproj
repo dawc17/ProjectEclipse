@@ -79,6 +79,7 @@
     <Compile Include="Assets/Scripts/Eclipse/Runtime/Modding/ModVisuals.cs" />
     <Compile Include="Assets/Scripts/Eclipse/Runtime/Modding/ModDiscovery.cs" />
     <Compile Include="Assets/Scripts/Eclipse/Runtime/Modding/ModUiRuntime.cs" />
+    <Compile Include="Assets/Scripts/Eclipse/Runtime/Modding/ModAudioRuntime.cs" />
     <Compile Include="Assets/Scripts/Eclipse/Runtime/Modding/ModContentP1D.cs" />
     <Compile Include="Assets/Scripts/Eclipse/Runtime/Modding/ModDiagnostics.cs" />
     <Compile Include="Assets/Scripts/Eclipse/Runtime/Modding/ModCallbackDiagnostics.cs" />

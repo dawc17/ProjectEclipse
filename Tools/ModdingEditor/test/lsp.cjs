@@ -214,6 +214,16 @@ async function main() {
     notify('textDocument/didChange',{textDocument:{uri:activeUri,version:2},contentChanges:[{text:activeText}]});
     await until(()=>diagnostics.has(activeKey)&&diagnostics.get(activeKey).length===0,'clean active strike diagnostics');
     console.log('PASS: fighter/opponent playback, typed receipt/hover and complete Active Strike script');
+    const audioOptions=probe('audio-options.lua','local sf2=require("sf2")\nlocal clip=sf2.assets.audio("audio/beacon")\nsf2.audio.play(clip,{ | })');
+    await until(async()=>{const found=labels(await request('textDocument/completion',audioOptions));return ['volume','loop','clock','owner'].every(key=>found.some(n=>n.startsWith(key)));},'audio instance option completion');
+    const audioHover=probe('audio-hover.lua','local sf2=require("sf2")\nlocal clip=sf2.assets.audio("audio/beacon")\nsf2.audio.pl|ay(clip)');
+    await until(async()=>{const text=JSON.stringify(await request('textDocument/hover',audioHover));return text.includes('audio.play')&&text.includes('sf2audioplay')&&text.includes('AudioInstance');},'audio capability and distinct instance hover');
+    const audioText=fs.readFileSync(path.resolve(__dirname,'../../../Mods/example.audio-lab/scripts/main.lua'),'utf8');
+    const audioUri=open('audio-lab.lua',audioText+'\nsf2.price.coins("bad")\n');const audioKey=decodeURIComponent(audioUri).toLowerCase();
+    await until(()=>diagnostics.get(audioKey)?.some(d=>d.code==='param-type-mismatch'),'audio diagnostic publication');
+    notify('textDocument/didChange',{textDocument:{uri:audioUri,version:2},contentChanges:[{text:audioText}]});
+    await until(()=>diagnostics.has(audioKey)&&diagnostics.get(audioKey).length===0,'clean audio lab diagnostics');
+    console.log('PASS: audio options, capability/instance hover and complete Audio Lab script');
     const formReceipt = probe('form-receipt.lua', 'local sf2=require("sf2")\nlocal form=sf2.warriors.register { id="form" }\nsf2.behaviors.register { id="shift", on_tick=function(_, fighter)\n local result=fighter:change_form(form)\n local value=result.|\nend }');
     await until(async () => {
         const found=labels(await request('textDocument/completion',formReceipt));

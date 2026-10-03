@@ -634,3 +634,12 @@ fail. Begin/end calls produce timing diagnostics. Copy `templates/active-strike/
 for a complete authored punch/HUD/cooldown example. Native input/AI conditions
 are not selection gates for explicit playback: define ability readiness and
 cancellation in Lua. See the wiki's **Activate an authored move** guide.
+
+`sf2.audio.play(audio, options?)` (`audio.play`) returns a typed, owned audio
+instance plus an optional error. `is_playing`, `set_volume` and `stop` use that
+instance; an asset handle is a different type. The options complete volume,
+loop, game/real clock and an optional UI owner. Copy `templates/audio-lab/` for
+a complete original WAV/HUD example. Playback starts from runtime callbacks;
+instances follow scene/mod teardown and optional UI closure. Game-clock audio
+follows combat pause at normal playback rate. The analyzer checks literal
+volume bounds and capabilities; native audio and audibility need game checks.

@@ -2564,6 +2564,7 @@ namespace Eclipse.Modding
         private bool _completed;
 
         public ModDescriptor Mod { get; }
+        public bool IsCatalogFrozen => _catalog.IsFrozen;
         public int RegistrationCount => _extensions.Count + _localizations.Count + _weapons.Count + _armors.Count + _helms.Count +
             _ranged.Count + _magic.Count + _itemRedirects.Count + _shopListings.Count + _perks.Count +
             _enchantments.Count + _behaviors.Count + _zones.Count + _battles.Count + _fights.Count +

@@ -18,6 +18,16 @@ ignored `Temp/`. Tool-specific suites in `Tools/Animation/`, `Tools/ModdingEdito
 
 ## Python entry points
 
+Audio instance acceptance uses `Tools/Tests/Modding/TestAudioRuntime.ps1` for
+production Lua and owned lifetime/budget contracts with a controlled backend.
+`Tools/Tests/Modding/TestAudioUnity.ps1` boots the full game in an isolated
+Unity 6.6 project/profile, runs Audio Lab through native buttons and checks actual
+WAV/source progression, clocks, volume/mute, global bounds and teardown. Pass the
+matching editor with `-Unity`; `-ExistingFixture` requires this runner's marker
+inside repository `Temp`. Fresh Windows profiles use a junction to an immutable
+TAR cache inside the fixture, avoiding repeated system-drive extraction. The
+runner does not delete profiles or caches. Device audibility is not tested.
+
 ```sh
 python Tools/Tests/Runtime/TestAuditDECorpus.py
 python Tools/Tests/Runtime/TestDEXmlAudit.py

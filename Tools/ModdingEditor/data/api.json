@@ -1,5 +1,51 @@
 {
   "functions": {
+    "sf2.audio.play": {
+      "params": {
+        "audio": "Eclipse.AudioHandle",
+        "options?": "Eclipse.AudioOptions"
+      },
+      "returns": "`instance, nil` on acceptance; `nil, error` when the host, clip, UI owner or voice budget is unavailable. Malformed arguments, missing capability and invalid timing raise a Lua error. Acceptance is not proof of device audibility.",
+      "capability": "audio.play",
+      "url": "https://dawc17.github.io/ProjectEclipse/api/audio/#sf2audioplay",
+      "summary": "Start one sound instance owned by the current script.",
+      "requires": "`audio.play`; an audio asset handle resolved by this script. Cross-mod assets also require a declared dependency.",
+      "when": "After all mod registration finishes, from a combat, story, UI or other runtime callback. Playback during registration or a UI cleanup callback is rejected, including a loaded provider's framework handler called by a still-loading mod."
+    },
+    "sf2.audio.is_playing": {
+      "params": {
+        "instance": "Eclipse.AudioInstanceHandle"
+      },
+      "returns": "Boolean. `false` after completion, stop or lifetime cleanup. This is an instance-liveness query, not a signal-level or audibility measurement.",
+      "capability": "audio.play",
+      "url": "https://dawc17.github.io/ProjectEclipse/api/audio/#sf2audiois_playing",
+      "summary": "Query whether an owned instance remains active, including while paused or muted.",
+      "requires": "`audio.play`; an instance returned to this script by `sf2.audio.play`.",
+      "when": "Runtime callbacks after obtaining the instance; querying a stopped handle is safe while its script context remains alive."
+    },
+    "sf2.audio.set_volume": {
+      "params": {
+        "instance": "Eclipse.AudioInstanceHandle",
+        "volume": "number"
+      },
+      "returns": "`true` if the active instance was updated; `false` if it has already ended. Invalid volume or handles raise an error.",
+      "capability": "audio.play",
+      "url": "https://dawc17.github.io/ProjectEclipse/api/audio/#sf2audioset_volume",
+      "summary": "Change one owned instance's volume multiplier.",
+      "requires": "`audio.play`; this script's instance and a finite numeric volume in `0..1`. Exactly two arguments are required.",
+      "when": "Runtime callbacks, including while playback is paused or muted."
+    },
+    "sf2.audio.stop": {
+      "params": {
+        "instance": "Eclipse.AudioInstanceHandle"
+      },
+      "returns": "`true` if an active instance was stopped; `false` if it already ended. Repeated stop is safe. Invalid handles or extra arguments raise an error.",
+      "capability": "audio.play",
+      "url": "https://dawc17.github.io/ProjectEclipse/api/audio/#sf2audiostop",
+      "summary": "Stop and release one owned sound instance.",
+      "requires": "`audio.play`; exactly one instance owned by this script.",
+      "when": "Runtime and lifecycle callbacks while the owning script is alive."
+    },
     "sf2.extensions.register": {
       "params": {
         "definition": "Eclipse.ExtensionDefinition"
@@ -274,7 +320,7 @@
       "capability": null,
       "referenceKind": "audio",
       "url": "https://dawc17.github.io/ProjectEclipse/api/assets/#sf2assetsaudio",
-      "summary": "Get an audio handle for location, battle or fight music, a move's sound action, or a triggered screen effect's `sound`.",
+      "summary": "Get an audio handle for location, battle or fight music, a move's sound action, or a triggered screen effect's `sound`, or an owned [audio instance](../audio/).",
       "requires": "No capability; cross-mod references require a dependency.",
       "when": "During registration before using the handle."
     },
@@ -2328,6 +2374,31 @@
     "ExtensionHandle": {
       "fields": {
         "private __eclipseExtension": "true"
+      }
+    },
+    "AudioInstanceHandle": {
+      "fields": {
+        "private __eclipseAudioInstance": "true"
+      }
+    },
+    "AudioOptions": {
+      "fields": {
+        "volume?": [
+          "number",
+          "Finite 0..1 multiplier of saved sound volume. Default 1."
+        ],
+        "loop?": [
+          "boolean",
+          "Default false."
+        ],
+        "clock?": [
+          "\"game\"|\"real\"",
+          "Default game: follows combat pause at normal playback rate. Real ignores combat/listener pause."
+        ],
+        "owner?": [
+          "Eclipse.UiHandle",
+          "Open UI owned by this script; closing it stops the voice."
+        ]
       }
     },
     "ExtensionDefinition": {

@@ -118,6 +118,10 @@ function analyze(text,mod){
             const symbol=resolve(n.base,env),args=Array.isArray(n.arguments)?n.arguments:n.arguments?[n.arguments]:n.argument?[n.argument]:[];
             const name=api.aliases[symbol]??symbol,info=api.functions[name];
             if(info){calls.push({name,node:n,args});required(n,info.capability);
+                if(name==='sf2.audio.play'||name==='sf2.audio.set_volume'){
+                    const volume=name==='sf2.audio.play'?fields(args[1]).volume:args[1],value=literal(volume);
+                    if(typeof value==='number'&&(!Number.isFinite(value)||value<0||value>1))add(volume,'range','Audio volume must be finite from 0 through 1.');
+                }
                 if(name==='sf2.story.play_sequence'&&fields(args[0]).position)required(n,['state.read','state.write']);
                 if(name==='sf2.rules.behavior'&&literal(fields(args[0]).controls_outcome)===true)required(n,'combat.round_outcome');
                 if(name==='sf2.localization.register'){

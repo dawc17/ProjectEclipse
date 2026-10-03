@@ -77,6 +77,7 @@ A capability permits an operation; a dependency permits references to another ow
 | `story.progression` | Reveal, focus and change saved locks for your mod's own map battles; request the native story-map Eclipse switch. |
 | `presentation.navigate` | Request native map, shop, profile and dojo menu transitions. |
 | `ui.create` | Open mod-owned UI layouts; returned handles can update and close that script's views. |
+| `audio.play` | Play, query, update and stop mod-owned [audio instances](../../api/audio/). |
 | `ui.settings` | Register on/off switches shown under Options > Mod settings. |
 | `presentation.visuals` | Turn on and tune the engine's optional fight visuals, such as weapon trails, bloom and depth haze. |
 | `combat.motion` | Queue relative main-fighter displacement for movement abilities; see [fighter motion](../fighter-motion/). |

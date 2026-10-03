@@ -2,6 +2,14 @@
 
 Last broad reconciliation: 2026-09-12. Scope remains **G01–G14 plus E1–E8**.
 
+2026-10-03 creator-platform audio: mods can now own sound instances, query/stop
+them and update their volume. Game/real clocks distinguish combat/listener pause;
+scene, script and optional UI ownership bound their lifetime. Audio Lab passes
+104 full-game native checks with an original WAV, rendered HUD and source clock,
+volume/mute, shared-budget and cleanup evidence. This advances E6/E8. Physical
+device audibility, spatial audio, seeking, music-channel control and timed arena
+hazards remain open. Source and verification are recorded in the creator work log.
+
 2026-10-03 creator-platform playback: Lua abilities can explicitly start an owned
 registered move through queued `play_move` requests with startup/failure receipts.
 The shipped Active Strike passes real Campaign/core combat, native HUD activation,

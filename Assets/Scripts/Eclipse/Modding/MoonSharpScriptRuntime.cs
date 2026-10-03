@@ -25,12 +25,13 @@ namespace Eclipse.Modding
         public MoonSharpScriptRuntime(Action<ModUiSurface> mountUi) : this(mountUi, null) { }
         private readonly ModDojoSelection _dojoSelection;
         private readonly ModStoryEvents _storyEvents;
-        public MoonSharpScriptRuntime(Action<ModUiSurface> mountUi, Func<string> language, ModDojoSelection dojoSelection = null, ModStoryEvents storyEvents = null) { _mountUi = mountUi; _language = language; _dojoSelection = dojoSelection; _storyEvents = storyEvents; }
+        private readonly Func<IModAudioBackend> _audioBackend;
+        public MoonSharpScriptRuntime(Action<ModUiSurface> mountUi, Func<string> language, ModDojoSelection dojoSelection = null, ModStoryEvents storyEvents = null, Func<IModAudioBackend> audioBackend = null) { _mountUi = mountUi; _language = language; _dojoSelection = dojoSelection; _storyEvents = storyEvents; _audioBackend = audioBackend; }
         public string Name => "MoonSharp " + Script.VERSION;
 
         public IModScriptContext CreateContext(ModDescriptor mod, ModApiFacade api)
         {
-            return new MoonSharpScriptContext(mod, api, _mountUi, _language, _dojoSelection, _storyEvents);
+            return new MoonSharpScriptContext(mod, api, _mountUi, _language, _dojoSelection, _storyEvents, _audioBackend);
         }
 
         private sealed partial class MoonSharpScriptContext : IModScriptContext, IModBehaviorScriptContext,
@@ -105,7 +106,7 @@ namespace Eclipse.Modding
             private readonly ModDojoSelection _dojoSelection;
             private readonly ModStoryScope _storyScope;
             private readonly ModFightEntries _fightEntries;
-            public MoonSharpScriptContext(ModDescriptor mod, ModApiFacade api, Action<ModUiSurface> mountUi, Func<string> language, ModDojoSelection dojoSelection, ModStoryEvents storyEvents)
+            public MoonSharpScriptContext(ModDescriptor mod, ModApiFacade api, Action<ModUiSurface> mountUi, Func<string> language, ModDojoSelection dojoSelection, ModStoryEvents storyEvents, Func<IModAudioBackend> audioBackend)
             {
                 Mod = mod ?? throw new ArgumentNullException(nameof(mod));
                 _api = api ?? throw new ArgumentNullException(nameof(api));
@@ -117,6 +118,7 @@ namespace Eclipse.Modding
                     throw new ArgumentException("Script API facade belongs to another mod.", nameof(api));
                 _storyScope = storyEvents?.CreateScope(mod.Id);
                 _fightEntries = storyEvents?.FightEntries;
+                _audio = new ModAudioScope(audioBackend?.Invoke());
 
                 _script = new Script(CoreModules.Preset_HardSandbox);
                 _script.Options.DebugPrint = message => _api.Log(ModLogLevel.Info, message);
@@ -133,6 +135,7 @@ namespace Eclipse.Modding
                 {
                     DynValue function = LoadChunk(EntrypointId(), sourceName);
                     RunBounded(function, sourceName);
+                    _audioReady = true;
                 }
                 catch (InterpreterException exception)
                 {
@@ -728,6 +731,8 @@ namespace Eclipse.Modding
                 if (_disposed) return;
                 _callbackWorkers.Clear();
                 _disposed = true;
+                _audio.Dispose();
+                _audioInstances = new System.Runtime.CompilerServices.ConditionalWeakTable<Table, ModAudioInstance>();
                 _api.Extensions?.RemoveOwner(Mod.Id);
                 _extensionHandles = new System.Runtime.CompilerServices.ConditionalWeakTable<Table, ModExtensionDefinition>();
                 _api.State.BindingChanged -= OnSequenceBindingChanged;
@@ -1159,6 +1164,7 @@ namespace Eclipse.Modding
                 AddP2Modules(root);
                 AddP3Modules(root);
                 AddUiModule(root);
+                AddAudioModule(root);
                 AddVisualsModule(root);
                 AddUnderworldModule(root);
                 AddExtensionsModule(root);

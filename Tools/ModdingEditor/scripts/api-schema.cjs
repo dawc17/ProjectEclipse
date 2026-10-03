@@ -20,6 +20,12 @@ type('FieldSchema', { type: enumOf('number','integer','boolean','string'), 'requ
 const schema = `table<string,${E('FieldSchema')}|${enumOf('number','integer','boolean','string')}>`;
 const values = 'table<string,any>'; // Runtime schemas determine these keys/types; do not invent static types.
 type('ExtensionHandle', { 'private __eclipseExtension': 'true' });
+type('AudioInstanceHandle', { 'private __eclipseAudioInstance': 'true' });
+type('AudioOptions', { 'volume?':['number','Finite 0..1 multiplier of saved sound volume. Default 1.'], 'loop?':['boolean','Default false.'], 'clock?':[enumOf('game','real'),'Default game: follows combat pause at normal playback rate. Real ignores combat/listener pause.'], 'owner?':[H('Ui'),'Open UI owned by this script; closing it stops the voice.'] });
+fn('audio.play',{audio:H('Audio'),'options?':E('AudioOptions')},`${H('AudioInstance')}|nil, string|nil`,'audio.play');
+fn('audio.is_playing',{instance:H('AudioInstance')},'boolean','audio.play');
+fn('audio.set_volume',{instance:H('AudioInstance'),volume:'number'},'boolean','audio.play');
+fn('audio.stop',{instance:H('AudioInstance')},'boolean','audio.play');
 const extensionValues = 'table<string,number|boolean|string>';
 type('ExtensionDefinition', { id:'string', version:['integer','Exact service contract version, 1-1000000.'], 'request?':schema, 'response?':schema, handler:`fun(request:${extensionValues},caller:string):${extensionValues}` });
 fn('extensions.register',{definition:E('ExtensionDefinition')},'string','extensions.provide');

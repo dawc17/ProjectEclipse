@@ -923,6 +923,8 @@
     <Compile Include="Assets/Scripts/Assembly-CSharp/ResistanceStruct.cs" />
     <Compile Include="Assets/Scripts/Assembly-CSharp/MarketSettings.cs" />
     <Compile Include="Assets/Scripts/Eclipse/Modding/MoonSharpScriptRuntimeUi.cs" />
+    <Compile Include="Assets/Scripts/Eclipse/Modding/MoonSharpScriptRuntimeAudio.cs" />
+    <Compile Include="Assets/Scripts/Eclipse/Modding/ModAudioPlayer.cs" />
     <Compile Include="Assets/Scripts/Assembly-CSharp/QuestAction.cs" />
     <Compile Include="Assets/Scripts/Assembly-CSharp/ActionsParser.cs" />
     <Compile Include="Assets/Scripts/Assembly-CSharp/Nekki/SF2/GUI/Shop/ParameterProgressBar.cs" />

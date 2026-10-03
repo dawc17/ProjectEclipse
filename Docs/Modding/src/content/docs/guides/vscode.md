@@ -171,3 +171,11 @@ and also `combat.target` for opponent playback; begin/end calls are flagged.
 Copy the Active Strike starter for an authored punch activated by a HUD button.
 See [Activate an authored move](../move-abilities/) for explicit playback and
 ability policy. Editor checks do not confirm animation startup or contact damage.
+
+Audio instance functions complete separately from audio asset handles.
+`sf2.audio.play` offers typed volume/loop/clock/UI-owner options and an optional
+failure reason; `stop`, `is_playing` and `set_volume` require its instance handle.
+Literal volume bounds and missing `audio.play` capability are diagnosed. Copy
+`Tools/ModdingEditor/templates/audio-lab/` manually for a complete original WAV
+and HUD example. See the [audio reference](../../api/audio/); editor checks cannot
+verify native pause, source output or device audibility.

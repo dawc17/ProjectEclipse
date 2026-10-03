@@ -543,3 +543,123 @@ keyboard/controller/touch activation, Eclipse-mode playback, all equipment/rig/
 arena/cancel combinations, exported builds, original animation authoring and
 arbitrary actors/physics remain open. The full Minecraft-style objective remains
 active; this feature adds explicit ability control rather than closing the vision.
+
+
+## 2026-10-03: owned audio instances and Audio Lab
+
+Creators can now start sound independently of a move or screen effect, retain a
+playback handle, query liveness, change its volume and stop only that instance.
+This advances E6/E8 for ability cues, hazard telegraphs and custom UI. The existing
+character/animation tools were inspected before choosing this missing domain;
+no second exporter was created and no original-clip combat acceptance is claimed.
+
+### Source and API route
+
+| Source | Change |
+| --- | --- |
+| `Assets/Scripts/Eclipse/Runtime/Modding/ModAudioRuntime.cs` | Engine-independent options, backend/voice interfaces, per-script 16-voice scope and owned instance lifecycle; optional UI-owner close subscription. |
+| `Assets/Scripts/Eclipse/Modding/MoonSharpScriptRuntimeAudio.cs` | `sf2.audio.play`, `is_playing`, `set_volume`, `stop`; exact argument/option types and counts, `audio.play` capability, actual asset/instance/UI-handle identity and weak instance lookup. |
+| `Assets/Scripts/Eclipse/Modding/MoonSharpScriptRuntime.cs` | Audio backend injection, module binding, registration/cleanup playback exclusion and script-context shutdown. Existing constructor calls remain compatible through an optional argument. |
+| `Assets/Scripts/Eclipse/Modding/ModAudioPlayer.cs` | Independent non-spatial Unity AudioSources, shared 64-voice limit, saved sound-volume/mute multiplication, game/real pause semantics, natural completion and active-scene teardown. No Lua executes inside this backend. |
+| `Assets/Scripts/Eclipse/Runtime/Modding/ModContent.cs` | Exposes the shared catalog-freeze observation through registration so a loaded provider cannot play from a still-loading dependent. |
+| `Assets/Scripts/Eclipse/Modding/ModRuntime.cs` | Supplies the native backend to actual game script contexts. |
+| `Mods/example.audio-lab` and `Tools/ModdingEditor/templates/audio-lab` | Original beacon WAV and four native HUD buttons, game/real loop selection, quieter playback, explicit stop and round/fight cleanup through UI ownership. |
+
+The three new owned C# files have new meta GUIDs. Existing meta files and recovered
+code/assets are untouched. Main/runtime project includes were added with their
+original references/BOM retained; portable Unity 6.6 compile projects remain ignored.
+
+`sf2.assets.audio` supplies a typed asset handle resolved by this context. From a
+runtime callback, `sf2.audio.play(asset, options?)` validates volume (finite 0..1),
+loop, clock and optional open UI owner. It returns an opaque owned instance/nil
+or nil/error on runtime refusal. Structural/capability/timing misuse raises a Lua
+error. Other audio functions accept only an instance owned by the same context;
+writing fields on an asset/instance table cannot create, redirect or control a
+native voice. Instances are transient and cannot be saved or passed through the
+primitive-only framework service contracts.
+
+The scope retains at most 16 active voices; the native backend shares at most 64
+across scopes. Paused/muted voices count. New requests fail without evicting older
+voices. Completed/stopped instances free slots; stopped handles stay safe to query,
+update (false) or stop again (false). `is_playing` means active, including paused or
+muted, rather than proving an audible signal.
+
+Both clocks use normal real-time clip rate. Game means native combat/listener
+pause following, not sample-accurate simulation, slow-motion pitch or time-scale
+control. Real ignores combat/listener pause while still following saved sound
+volume/mute and normal listener effects. Native startup has a first-frame grace
+period and retains voices during listener/clip loading pause instead of mistaking
+`isPlaying=false` for completion. There is no spatial/pitch/pan/seek/stream or
+music-channel API in this change.
+
+All voices close on active-scene change or script/mod shutdown. An optional UI
+owner additionally closes its voices, including on UI callback failure. Without
+an owner, round/fight end does not itself stop a sound: author lifecycle cleanup
+in Lua. UI cleanup and an unfrozen registration catalog cannot start new audio, including
+a loaded framework provider invoked while a dependent is still loading. The
+example owns its loop through its
+round HUD and closes that HUD in both round/fight end callbacks.
+
+### Verification and limits
+
+- `TestAudioRuntime.ps1`: 153 checks execute the production Lua binding and scope
+  against controlled native voices. Covers defaults/options/updates/stop, fake/raw
+  handles, strict counts/types/nonfinite numbers, unknown fields, capability and
+  registration/cleanup exclusion (including post-entrypoint/pre-global-freeze),
+  unavailable/failed backend, per-scope bounds,
+  completed-slot reuse, UI/script shutdown and independent-scope ownership.
+  The actual shipped manifest and Lua source register against canonical stages;
+  real HUD click handlers exercise both clocks, replacement, volume, stop and
+  round/fight cleanup. The payload in generic metadata tests is controlled; this
+  is not an audio decoder or physical device test.
+- `TestAudioUnity.ps1`: 104 full-game Unity 6.6 checks, actual boot/Campaign/core
+  Tournament 3, fresh isolated post-tutorial profile and actual Audio Lab/native
+  buttons. The original 22,050-sample WAV decodes to a nonzero signal, native
+  timeSamples advances, volume follows 0.8 saved level then a 0.25 multiplier,
+  and saved mute yields zero source volume without losing the instance.
+  Game-clock samples stay fixed through combat and listener pause then resume;
+  real-clock playback advances through both. Natural completion and explicit
+  stop release sources. Four controlled native scopes fill the shared 64-voice
+  pool; another request rejects without eviction. This is backend composition,
+  not four independently installed audio mods. UI/scope/scene cleanup leaves no
+  retained source. Callback failure history is empty. The rendered Audio Lab HUD
+  was captured and visually inspected alongside the existing Active Strike HUD.
+- Controls/AI and post-tutorial profile are controlled; the native case is normal
+  mode. Physical controls, listening on the user's audio device, all platforms,
+  Eclipse-mode audio and exported builds remain unverified. No device audibility
+  or sample-perfect scheduling claim follows from source/clip checks.
+- `beacon.wav` is original mono PCM16 22,050 Hz, one second, a 660 Hz tone with a
+  sine-squared first-0.2-second envelope at 18% amplitude, then silence. SHA256
+  `F0B913926FCE2F93F6BECB1555986D6E945A89562E8E9B6A9BB7B84EAC6CE9EF`.
+  Example/template files are compared by the editor unit test.
+- Existing playback (283), trial-rule (50) and Phase1 runtime registration tests
+  pass. Both explicit-source fixture lists now include audio; the trial fixture
+  also needed its previously omitted extension/diagnostic/outcome dependencies.
+  Its pre-existing duplicate-source warnings remain. The playback .NET fixture
+  still prints its known default Unity-loader reflection warning before passing.
+  All four managed assemblies compile through the recorded ignored Unity 6.6
+  remapping; no tracked reference rewriting is included.
+- Editor generate/check and 49 unit tests pass. Actual LuaLS 3.18.2 offers audio
+  options, distinct instance types, capabilities/wiki hover and a clean complete
+  Audio Lab source; the full integration suite passes. Real VS Code integration
+  passes, including the new four-function audio completion check. Wiki coverage
+  (222 public sections), Astro types/build/search and 5928 links/assets across 58
+  pages pass. Public API, asset guide, capability table, examples, editor guide,
+  schema/generated data/types and mirrored starter update together.
+
+The first native attempt exposed a test-harness local-name compile collision;
+after repair, the shipped wildcard dependency range was rejected by actual
+manifest parsing. It now uses the supported core comparator range, with managed
+shipped-source coverage. A later native boot hit system-drive exhaustion while
+extracting TAR data. Automatic approval review rejected removing generated cache
+files (blocked by policy); no removal occurred. The runner now creates fresh
+acceptance profiles with a junction to a hash-addressed immutable cache inside
+its marked project-drive fixture. Existing profiles/caches remain intact. Fresh
+native passes above use that route; logs/results have unique/freshness checks.
+The editor's unrelated Search startup exception remains; logs are not claimed
+error-free. Native artifacts and fixture data are ignored.
+
+Owned audio is implemented and accepted in this scenario. Timed arena hazards,
+arbitrary actors/physics, spatial presentation, music-channel ownership, physical
+input/device listening, exported platforms and independent newcomer acceptance
+remain part of the full active Minecraft-style objective.

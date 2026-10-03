@@ -149,6 +149,17 @@ local FieldSchema = {}
 ---@field private __eclipseExtension true
 local ExtensionHandle = {}
 
+---@class (exact) Eclipse.AudioInstanceHandle
+---@field private __eclipseAudioInstance true
+local AudioInstanceHandle = {}
+
+---@class (exact) Eclipse.AudioOptions
+---@field volume? number Finite 0..1 multiplier of saved sound volume. Default 1.
+---@field loop? boolean Default false.
+---@field clock? "game"|"real" Default game: follows combat pause at normal playback rate. Real ignores combat/listener pause.
+---@field owner? Eclipse.UiHandle Open UI owned by this script; closing it stops the voice.
+local AudioOptions = {}
+
 ---@class (exact) Eclipse.ExtensionDefinition
 ---@field id string
 ---@field version integer Exact service contract version, 1-1000000.
@@ -2269,6 +2280,9 @@ local achievements = {}
 ---@class Eclipse.Module_assets
 local assets = {}
 
+---@class Eclipse.Module_audio
+local audio = {}
+
 ---@class Eclipse.Module_battles
 local battles = {}
 
@@ -2391,6 +2405,44 @@ local warriors = {}
 
 ---@class Eclipse.Module_zones
 local zones = {}
+
+---Start one sound instance owned by the current script.
+---Requires: `audio.play`; an audio asset handle resolved by this script. Cross-mod assets also require a declared dependency.
+---When: After all mod registration finishes, from a combat, story, UI or other runtime callback. Playback during registration or a UI cleanup callback is rejected, including a loaded provider's framework handler called by a still-loading mod.
+---Returns: `instance, nil` on acceptance; `nil, error` when the host, clip, UI owner or voice budget is unavailable. Malformed arguments, missing capability and invalid timing raise a Lua error. Acceptance is not proof of device audibility.
+---[Full reference](https://dawc17.github.io/ProjectEclipse/api/audio/#sf2audioplay)
+---@param audio Eclipse.AudioHandle
+---@param options? Eclipse.AudioOptions
+---@return Eclipse.AudioInstanceHandle|nil, string|nil
+function audio.play(audio, options) end
+
+---Query whether an owned instance remains active, including while paused or muted.
+---Requires: `audio.play`; an instance returned to this script by `sf2.audio.play`.
+---When: Runtime callbacks after obtaining the instance; querying a stopped handle is safe while its script context remains alive.
+---Returns: Boolean. `false` after completion, stop or lifetime cleanup. This is an instance-liveness query, not a signal-level or audibility measurement.
+---[Full reference](https://dawc17.github.io/ProjectEclipse/api/audio/#sf2audiois_playing)
+---@param instance Eclipse.AudioInstanceHandle
+---@return boolean
+function audio.is_playing(instance) end
+
+---Change one owned instance's volume multiplier.
+---Requires: `audio.play`; this script's instance and a finite numeric volume in `0..1`. Exactly two arguments are required.
+---When: Runtime callbacks, including while playback is paused or muted.
+---Returns: `true` if the active instance was updated; `false` if it has already ended. Invalid volume or handles raise an error.
+---[Full reference](https://dawc17.github.io/ProjectEclipse/api/audio/#sf2audioset_volume)
+---@param instance Eclipse.AudioInstanceHandle
+---@param volume number
+---@return boolean
+function audio.set_volume(instance, volume) end
+
+---Stop and release one owned sound instance.
+---Requires: `audio.play`; exactly one instance owned by this script.
+---When: Runtime and lifecycle callbacks while the owning script is alive.
+---Returns: `true` if an active instance was stopped; `false` if it already ended. Repeated stop is safe. Invalid handles or extra arguments raise an error.
+---[Full reference](https://dawc17.github.io/ProjectEclipse/api/audio/#sf2audiostop)
+---@param instance Eclipse.AudioInstanceHandle
+---@return boolean
+function audio.stop(instance) end
 
 ---Requires: `extensions.provide`. `id` uses the normal local definition path rules. `version` is an integer from 1–1000000. `handler` is a Lua function. Request/response schemas are optional; unknown registration fields fail.
 ---When: In the provider's entrypoint. Exports become available after its content transaction commits, before dependents load. Duplicate IDs and late registration fail.
@@ -2585,7 +2637,7 @@ function assets.sprite(reference) end
 ---@return Eclipse.ModelHandle
 function assets.model(reference) end
 
----Get an audio handle for location, battle or fight music, a move's sound action, or a triggered screen effect's `sound`.
+---Get an audio handle for location, battle or fight music, a move's sound action, or a triggered screen effect's `sound`, or an owned [audio instance](../audio/).
 ---Requires: No capability; cross-mod references require a dependency.
 ---When: During registration before using the handle.
 ---Returns: An audio handle. Missing or non-audio assets raise an error.
@@ -4214,4 +4266,4 @@ function Fighter:show_status_icon(key, sprite, frames, stacks?) end
 ---@param key string
 function Fighter:clear_status_icon(key) end
 
-return { achievements = achievements, assets = assets, battles = battles, behaviors = behaviors, counters = counters, enchantments = enchantments, events = events, extensions = extensions, fights = fights, forge = forge, fx = fx, items = items, itemsets = itemsets, locales = locales, localization = localization, locations = locations, log = log, mod = mod, modes = modes, moves = moves, perks = perks, price = price, profile = profile, progression = progression, quests = quests, raids = raids, random = random, rewards = rewards, rules = rules, scenes = scenes, services = services, settings = settings, shop = shop, state = state, story = story, tactics = tactics, timers = timers, ui = ui, underworld = underworld, visuals = visuals, warriors = warriors, zones = zones }
+return { achievements = achievements, assets = assets, audio = audio, battles = battles, behaviors = behaviors, counters = counters, enchantments = enchantments, events = events, extensions = extensions, fights = fights, forge = forge, fx = fx, items = items, itemsets = itemsets, locales = locales, localization = localization, locations = locations, log = log, mod = mod, modes = modes, moves = moves, perks = perks, price = price, profile = profile, progression = progression, quests = quests, raids = raids, random = random, rewards = rewards, rules = rules, scenes = scenes, services = services, settings = settings, shop = shop, state = state, story = story, tactics = tactics, timers = timers, ui = ui, underworld = underworld, visuals = visuals, warriors = warriors, zones = zones }

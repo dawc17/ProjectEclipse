@@ -55,6 +55,12 @@ exports.run = async function () {
         assert(servicesFound, 'Framework service function completion missing');
         passed.push('PASS: framework service registration, lookup and calls complete');
 
+        const audioUri=vscode.Uri.joinPath(folder.uri,'scripts','audio-completion.lua');
+        fs.writeFileSync(audioUri.fsPath,'local sf2=require("sf2")\nsf2.audio.');await vscode.workspace.openTextDocument(audioUri);
+        let audioFound=false;const audioDeadline=Date.now()+30000;
+        while(Date.now()<audioDeadline){const result=await vscode.commands.executeCommand('vscode.executeCompletionItemProvider',audioUri,new vscode.Position(1,10));const labels=result?.items.map(item=>String(typeof item.label==='string'?item.label:item.label.label))??[];if(['play','stop','set_volume','is_playing'].every(name=>labels.some(label=>label===name||label.startsWith(name+'(')))){audioFound=true;break;}await new Promise(resolve=>setTimeout(resolve,500));}
+        assert(audioFound,'Owned audio function completion missing');passed.push('PASS: owned audio play/query/volume/stop completion');
+
         const policyUri=vscode.Uri.joinPath(folder.uri,'scripts','rule-policy.lua');
         const policyLine='sf2.fights.patch { target="core:fights/zone_1/tournament/3", append_rules={} }';
         fs.writeFileSync(policyUri.fsPath,'local sf2=require("sf2")\n'+policyLine);
