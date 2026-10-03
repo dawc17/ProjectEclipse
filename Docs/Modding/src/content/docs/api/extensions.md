@@ -194,7 +194,11 @@ The managed extension runner executes separate production Lua environments,
 production session startup/teardown, provider/add-on combat callbacks, HUD data
 and saved resource reloads with controlled native sources. It checks contracts,
 dependencies, versions, failed providers, detached data and execution budgets.
-Native rendering, real contact timing and a full game playtest remain acceptance work.
+An isolated Unity 6.6 Play Mode runner executes the shipped pair, renders the HUD
+with the recovered game font and checks changing pixels, teardown and saved Focus
+after removing/reinstalling both mods. Its contact source and asset host are
+controlled. Real fight-contact ordering, native menus/profile integration and a
+full game playtest remain acceptance work.
 
 Services do not add raw C# plugins, arbitrary scenes, custom result authority,
 extra fighters, network messages, asynchronous RPC or a general event bus. They

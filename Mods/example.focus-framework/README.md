@@ -18,5 +18,8 @@ when inspecting this mechanic in isolation.
 
 The managed runner `Tools/Tests/Modding/TestModExtensions.ps1` executes the actual
 two-mod Lua and production routing with controlled combat/UI sources. Native
-rendering, real contact timing and a full game playtest still require acceptance.
+HUD rendering, font loading, changing pixels, removal/reinstall state preservation
+and teardown also pass in isolated Unity 6.6 Play Mode through
+`Tools/Tests/Modding/TestModExtensionsUnity.ps1`. Real contact timing, native
+menu/profile integration and a full game playtest still require acceptance.
 No custom outcome, extra fighters or unrestricted engine access is claimed.

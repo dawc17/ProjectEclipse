@@ -72,6 +72,14 @@ services, capability/dependency/version checks, isolated data, startup rollback,
 execution limits, migration restrictions and the shipped Focus framework/add-on
 with saved-state reload. It does not render a native fight or perform a game playtest.
 
+`Modding/TestModExtensionsUnity.ps1` uses the matching Unity editor with graphics
+enabled in isolated Play Mode. It executes the shipped Focus pair through the
+production script session, renders its production HUD view with the recovered
+font, checks changing pixels and teardown, and preserves serialized state through
+mod removal/reinstallation. Contacts, the asset host and unused artwork/scroll
+paths are controlled. Its PNGs/XML/logs stay in `Temp/`; full-game combat,
+native menu/profile integration and disk-crash acceptance remain separate.
+
 PvP balance checks are `Combat/TestPvpBalance.ps1` (strict JSON, immutable rules,
 hashing, inheritance, nonlethal chip and recovery with controlled native
 dependencies) and `Combat/TestPvpHealthRuntime.ps1` (compiled recovered health

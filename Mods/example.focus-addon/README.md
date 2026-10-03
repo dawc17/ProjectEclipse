@@ -10,5 +10,6 @@ The add-on owns its combat capability and HUD. Requests and responses carry
 plain typed data; fighter handles remain in this script. See the
 [framework README](../example.focus-framework/README.md) and the
 [API reference](../../Docs/Modding/src/content/docs/api/extensions.md).
-Managed production-Lua tests pass with controlled combat/UI sources. Full-game
-contact timing, rendering and save/menu acceptance remain unverified.
+Managed production-Lua tests and isolated Unity 6.6 HUD/font/pixel, removal/reinstall
+state and teardown checks pass with controlled fight contacts and asset-host
+inputs. Full-game contact timing and native save/menu acceptance remain unverified.

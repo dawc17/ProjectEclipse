@@ -74,8 +74,8 @@ cover the same contract. Editor-only definitions remain outside executable mods.
 - Wiki build, binding coverage, types, search index and local link checks pass.
   Build output is ignored; authored files and generated editor definitions are tracked.
 
-Unity editor validation and a full-game playtest have not been performed for
-this feature. The controlled combat test proves routed callbacks and HUD data,
+At the first feature commit, Unity editor validation and a full-game playtest
+had not been performed. The controlled combat test proves routed callbacks and HUD data,
 not real contact ordering, rendering, menu navigation or native save acceptance.
 
 ### Remaining work toward the vision
@@ -88,3 +88,26 @@ Framework composition needs further pack/lifecycle and native acceptance.
 Creator workflows should be demonstrated by independent mods, including their
 failure, removal/reinstallation and save cases. The broader objective remains
 active; this feature establishes reusable procedural composition only.
+
+## 2026-10-03: native framework acceptance follow-up
+
+Added `Tools/Tests/Modding/TestModExtensionsUnity.ps1`,
+`ModExtensionsUnity.cs` and `ModExtensionsUnityStubs.cs`. The runner creates an
+ignored fixture using the repository's matching Unity 6.6 editor/package versions,
+the production runtime APIs, MoonSharp context, script session, HUD view/fade and
+the actual shipped Focus mods. It imports canonical vanilla stage definitions
+and copies the recovered font with its existing GUID. It runs with graphics and
+exits only after recording acceptance evidence.
+
+33 Play Mode checks pass: separate provider/add-on activation, native font loading,
+HUD text and visible changing pixels, blocked-hit behavior, third-hit damage,
+fight-end cleanup, actual fade destruction, XML write/read and removal/reinstall
+state preservation. The `Focus: 2/3` screenshot was visually inspected. Screenshots,
+profiles and logs remain in `Temp/ModExtensionsUnity-*`; they are not committed.
+
+This strengthens verification of the existing feature; no public function or
+capability was added. Public reference/example verification statements and the
+test index now reflect that evidence. Contact notifications, asset-host construction
+and unused artwork/scroll paths are controlled. Full-game contact ordering,
+native menu/profile lifecycle, physical input and durable crash/restart acceptance
+remain open, as do the wider creator-platform requirements above.
