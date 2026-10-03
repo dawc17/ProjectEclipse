@@ -187,3 +187,80 @@ end-animation selection, full result/reward/save lifecycle, removal/reinstallati
 in a real profile and crash/restart acceptance are not proven by these fixtures.
 The wider creator-platform goal remains active, including broader actor/scene
 creation, pack conflicts/composition and independent creator workflows.
+
+## 2026-10-03: additive fight rules across mods
+
+Before this change, two independent `append_rules` patches to one fight conflicted
+even when their rules were compatible. This prevented the shipped Focus add-on
+and round-objective examples from running together. Additive contributions now
+compose; replacements and conflicting result authority retain explicit rejection.
+This advances E7/E8 without closing their broader requirements.
+
+### Source and API contract
+
+- `Runtime/Modding/ModContent.cs` gives fight rules an append/replace field policy
+  without granting removal, records `append_rules` as `Append`, and accepts only
+  compatible append/append overlap. The final immutable fight definition retains
+  contributor order and every patch record. Exclusive replacements report all
+  existing contributors. Duplicate handles, one-field-per-transaction and the
+  aggregate 100-handle limit still reject before any catalog mutation. Existing
+  controller validation checks the combined list before commit. Failures discard
+  the incoming mod's entire transaction and do not poison later independent mods.
+- `LegacyContentAdapter.cs` projects each `(target, field)` once. This is essential:
+  each patch record references the final combined list, so applying all records
+  separately would multiply static native rules. Original battle clones and the
+  existing restore path remain in use. No recovered XML/assets/GUIDs were edited.
+- Existing `DependencyResolver` ordering and `ModBattleRuleInstances` dispatch
+  supply the order: dependencies before dependents, ordinal ID selection among
+  ready mods, and authored order within each appended list. Discovery/folder
+  order does not control the combined definition. Order-dependent effects remain
+  sequential rather than being described as commutative.
+- Existing fingerprints include all patch owners and ordered fight rule handles.
+  Recording append operations changes fingerprints for older configurations that
+  used them; public docs state this compatibility implication. Owned state IDs and
+  schemas are unchanged. Removal still means an enabled-set change plus restart,
+  not hot unloading during a fight.
+
+The actual Focus/objective scripts and their editor starters now use separate
+upper-left HUD placements. The new public Combine mods guide explains setup,
+authority, order, conflicts, the whole-transaction failure boundary, removal and
+verification limits. The fight patch/round references, examples, compatibility
+and editor guides are updated. Authored schema/generated Lua definitions include
+field hover guidance for additive contributions versus exclusive replacement.
+
+### Verification
+
+- `TestModPackRules.ps1`: 86 checks with production Lua, script sessions, catalog,
+  dependency resolution, state/save data and current extracted native adapter
+  apply/remove and round methods. Covers input discovery order, dependency-before-ID
+  order, all replacement/append combinations, contributor diagnostics, controller
+  conflicts/disjoint scopes, failed dependencies, later independent recovery,
+  aggregate bounds, duplicate handles, static projection/restoration/reinstall and
+  the three shipped mods across objective/whole-pack removal and reinstallation.
+  Battle source storage and combat models/clock/settlement remain controlled.
+- `TestRoundOutcomesUnity.ps1 -WithFocusPack`: 651 isolated Unity 6.6 Play Mode
+  checks. The shipped framework/add-on/objective run together with a static-rule
+  fixture, actual HUD placement/fit, recovered font, pixels, fades, Focus's bonus
+  and custom round win/loss. Current adapter methods project normal/Eclipse source
+  clones once and restore them exactly around controlled battle source storage.
+  The combined `Focus: 0/3` and completed `3/3` screenshot was visually inspected.
+- Standalone objective native fixture: 636 checks. Standalone framework native
+  fixture: 33 checks, including saved-state removal/reinstall. Existing managed
+  outcome (702), extension (126) and fight-patch (179) checks pass. The fight-patch
+  runner now reads its existing examples from `ArchivedMods`, their authoritative
+  location, instead of failing before execution on stale `Mods` paths.
+- All four managed assemblies compile with the previously documented ignored
+  Unity 6.6 reference remapping. Original tracked project paths remain unchanged.
+- Editor generate/check/build, 46 unit tests, LuaLS 3.19.1 (including both field
+  hovers) and real VS Code field-hover integration pass. Wiki coverage/types,
+  build, search and links pass. Generated build/runtime artifacts remain ignored.
+
+Unity's search-index startup again logged an unrelated indexing exception; the
+explicit acceptance checks completed successfully. The managed fixture's default
+MoonSharp Unity-loader reflection warning under .NET is also unchanged. Neither
+is presented as a game failure or hidden by a claim of a clean editor log.
+
+Full native map/menu lifecycle, actual contacts/AI/end animations, result/reward
+and real-profile disk/crash/restart acceptance remain unverified. Arbitrary pack
+compatibility, automatic HUD conflict resolution, broader engine operations and
+source-free independent creator acceptance remain open. The full vision stays active.

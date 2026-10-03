@@ -10,7 +10,10 @@ sequence, result and reward flow remain in charge of the complete fight.
 The behavior uses round-local typed state, tick/damage observations, a HUD and
 `fighter:end_round`. Its attached rule explicitly claims `controls_outcome` and
 the manifest declares `combat.round_outcome`. Conflicting controllers are
-rejected; disable examples that patch the same fight when trying this mod.
+rejected. Focus Framework and Focus Trial can run alongside it through additive
+rules; the HUDs use separate upper-left positions. Disable mods that replace the
+fight's rules or claim overlapping objective authority. See
+[Combine mods](../../Docs/Modding/src/content/docs/guides/combine-mods.md).
 
 See the [round outcome reference](../../Docs/Modding/src/content/docs/api/round-outcomes.md).
 Managed production-Lua/native-method checks and isolated Unity 6.6 Play Mode HUD,

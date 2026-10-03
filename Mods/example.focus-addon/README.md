@@ -6,6 +6,11 @@ saved resource, mounts a Focus HUD and adds a damage bonus every third positive,
 unblocked outgoing hit. The bonus is half the pending damage, capped at one
 normalized damage unit.
 
+You can also enable `example.hit-objective`. Both mods append compatible rules
+to the same fight; their HUD lines use separate upper-left positions. Replacements
+or another overlapping objective controller can still conflict. See
+[Combine mods](../../Docs/Modding/src/content/docs/guides/combine-mods.md).
+
 The add-on owns its combat capability and HUD. Requests and responses carry
 plain typed data; fighter handles remain in this script. See the
 [framework README](../example.focus-framework/README.md) and the

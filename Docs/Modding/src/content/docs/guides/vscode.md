@@ -7,6 +7,12 @@ description: Explore the API, check your mod, and create a complete starter in V
 API. Explore functions as you type, look up real assets, and catch common mistakes
 before starting the game.
 
+The fight patch fields explain their composition contract in hover:
+`append_rules` combines compatible additions across mods; `rules` remains an
+exclusive replacement. The Focus and objective starters can run together with
+separate HUD placements. See [Combine mods](../combine-mods/) for order and limits;
+editor diagnostics do not establish gameplay compatibility.
+
 ## Install and enable
 
 The extension is installed from a `.vsix` package, not the Marketplace. Get it from

@@ -64,12 +64,12 @@ public sealed class RoundData { public int round=1,roundTotal=1; public bool pro
 public sealed class EndData { public ModelParameters ABKBEJBICOA,LEBLJJCFKOP; }
 public sealed class FixtureCamera { public void DFKKNMDAFDC(bool value) { } }
 public sealed class FixtureController { public void StopController() { } public void ClearScriptControlBlocks() { } }
-public sealed class ListSF { public static readonly ListSF Instance=new ListSF(); public static ListSF CCDKHLAMKKO()=>Instance; public bool Eclipse; public bool IsEclipseMode()=>Eclipse; public ListSF KJNPJKEHGLE()=>this; public void BFCLLIKOJGD() { } }
+public sealed partial class ListSF { public static readonly ListSF Instance=new ListSF(); public static ListSF CCDKHLAMKKO()=>Instance; public bool Eclipse; public bool IsEclipseMode()=>Eclipse; public ListSF KJNPJKEHGLE()=>this; public void BFCLLIKOJGD() { } }
 public sealed class ComboStatistic { }
 public static class Sound { public static void StopLoopedSounds() { } }
 public sealed class FixtureCounters { public void Complete(int rounds,bool surrender) { } public void HOCBEHCHOFL(bool surrender) { } }
 public static class GameUtils { public static void EndFight(ComboStatistic player,FightList fight,object winner,object loser,GameOverTypes result,ComboStatistic enemy,object data) {Fight.Current.Settlements++;} }
-public sealed partial class Fight : IModFighterOperations, IModRoundOutcomes, IModCombatSnapshotSource, IModDamageEventSource
+public sealed partial class Fight : IModFighterOperations, IModRoundOutcomes, IModCombatSnapshotSource, IModDamageEventSource, IModIncomingHitSource
 {
     public readonly ModelParameters Player=new ModelParameters{IsPlayer=true}, Enemy=new ModelParameters();
     ModelParameters NMNCKBPFCCP,AKBNKDBHCEO;
@@ -120,6 +120,7 @@ public sealed partial class Fight : IModFighterOperations, IModRoundOutcomes, IM
     public ModCombatSnapshot CaptureCombatSnapshot()=>new ModCombatSnapshot(new ModFighterSnapshot(Player.Health,1,1,0,0,0),new ModFighterSnapshot(Enemy.Health,1,1,10,0,0),Clock,round.processing);
     public int Clock=1;
     public ModDamageEvent DamageEvent { get; set; }
+    public ModIncomingHit IncomingHit { get; set; }
     sealed class EclipseFighterOperations { readonly Model model; public EclipseFighterOperations(Fight fight,Model value){model=value;} public double Health=>model.Parameters.Health; }
     void GameOver(ModelParameters winner,ModelParameters loser) {isGameOver=true;}
     void EndFight() {Settlements++;isGameOver=false;}

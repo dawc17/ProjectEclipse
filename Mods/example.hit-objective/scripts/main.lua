@@ -18,6 +18,7 @@ local goal = sf2.behaviors.register {
         close_hud()
         hud = sf2.ui.open {
             id = "objective", mount = "hud",
+            placement = { anchor = "top_left", x = 24, y = 144 },
             root = { id = "goal", kind = "text", width = 460, height = 48,
                 text = "Land 3 hits in 10 seconds: 0/3" },
         }

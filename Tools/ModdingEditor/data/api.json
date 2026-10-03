@@ -3099,8 +3099,14 @@
         ],
         "warriors?": "Eclipse.WarriorHandle[]",
         "reward_drops?": "Eclipse.RewardDropPatch[]",
-        "rules?": "Eclipse.RuleHandle[]",
-        "append_rules?": "Eclipse.RuleHandle[]"
+        "rules?": [
+          "Eclipse.RuleHandle[]",
+          "Exclusive replacement. Conflicts with any other patch to this fight’s rules."
+        ],
+        "append_rules?": [
+          "Eclipse.RuleHandle[]",
+          "Nonempty additions compose across mods in dependency load order. Replacements, duplicate handles and overlapping outcome controllers still conflict."
+        ]
       }
     },
     "HotGroundNode": {

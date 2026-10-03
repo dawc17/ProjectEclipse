@@ -702,8 +702,8 @@ local RewardDropPatch = {}
 ---@field music? Eclipse.AudioHandle|string Audio handle for mod-owned music, or an installed native track name.
 ---@field warriors? Eclipse.WarriorHandle[]
 ---@field reward_drops? Eclipse.RewardDropPatch[]
----@field rules? Eclipse.RuleHandle[]
----@field append_rules? Eclipse.RuleHandle[]
+---@field rules? Eclipse.RuleHandle[] Exclusive replacement. Conflicts with any other patch to this fight’s rules.
+---@field append_rules? Eclipse.RuleHandle[] Nonempty additions compose across mods in dependency load order. Replacements, duplicate handles and overlapping outcome controllers still conflict.
 local FightPatch = {}
 
 ---@class (exact) Eclipse.HotGroundNode

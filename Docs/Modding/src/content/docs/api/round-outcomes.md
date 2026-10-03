@@ -46,8 +46,10 @@ Only one distinct controller rule can apply to a fight in the same round/mode.
 Different targets therefore still conflict. Controllers with disjoint `rounds`
 or `mode` filters can coexist. Known conflicts reject the registering transaction
 before definitions or patches commit, naming both rules. Generated encounter rule
-lists are checked during encounter projection and again when selected for combat. Existing fight-patch conflict
-rules also continue to apply.
+lists are checked during encounter projection and again when selected for combat.
+[Additive rule patches](../content-graph/#sf2fightspatch) from separate mods can
+compose, including one controller alongside ordinary rules. Rule-list replacements
+remain exclusive; two overlapping controllers still conflict.
 
 For cooperating mods, use one controller and pass objective data through
 [framework services](../extensions/). Equipment perks, enchantments and ordinary
@@ -101,7 +103,9 @@ The [Three-hit Objective example](https://github.com/dawc17/ProjectEclipse/tree/
 combines round-local state, outgoing damage observations, a ten-second simulation
 clock, HUD and custom win/loss requests in Act I tournament battle 3. Copy both
 its manifest and script, enable it through Mods and use Apply & Restart.
-Disable examples that patch the same fight while testing it.
+You can enable it alongside Focus Framework and Focus Trial: their ordinary
+rule and this controller compose, and their HUDs use separate positions. Disable
+mods that replace the fight's rule list or add another overlapping controller.
 
 Managed tests execute the production Lua binding and native round arbitration,
 score, winner and surrender methods with controlled clock/model/presentation and

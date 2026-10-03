@@ -19,7 +19,8 @@ namespace Eclipse.Modding
         Replaceable = 2,
         Appendable = 3,
         Removable = 4,
-        Mergeable = 5
+        Mergeable = 5,
+        AppendAndReplace = 6
     }
 
     public sealed class ModContentPatchRecord
@@ -143,9 +144,11 @@ namespace Eclipse.Modding
             if (field.StartsWith("economy/", StringComparison.Ordinal)) return ModContentFieldPolicy.BaseOnly;
             if (target.Category == "localization" && field.StartsWith("values/", StringComparison.Ordinal))
                 return ModContentFieldPolicy.Replaceable;
+            if (target.Category == "fights" && field == FightRules)
+                return ModContentFieldPolicy.AppendAndReplace;
             if (target.Category == "fights" &&
                 (field == FightDescription || field == FightRounds || field == FightRoundTime ||
-                 field == FightRules || field == FightLocation || field == FightMusic || field == FightWarriors || field.StartsWith("fight/reward-drops/", StringComparison.Ordinal)))
+                 field == FightLocation || field == FightMusic || field == FightWarriors || field.StartsWith("fight/reward-drops/", StringComparison.Ordinal)))
                 return ModContentFieldPolicy.Replaceable;
             if (target.Category == "zones" && field.StartsWith(ZoneBattleChildren, StringComparison.Ordinal))
                 return ModContentFieldPolicy.Appendable;
@@ -163,9 +166,9 @@ namespace Eclipse.Modding
                 throw new ModContentException("Field '" + field + "' on '" + target + "' is read-only.");
 
             bool allowed = operation == ModContentPatchOperation.Replace
-                ? policy == ModContentFieldPolicy.Replaceable || policy == ModContentFieldPolicy.Mergeable
+                ? policy == ModContentFieldPolicy.Replaceable || policy == ModContentFieldPolicy.Mergeable || policy == ModContentFieldPolicy.AppendAndReplace
                 : operation == ModContentPatchOperation.Append
-                    ? policy == ModContentFieldPolicy.Appendable || policy == ModContentFieldPolicy.Mergeable
+                    ? policy == ModContentFieldPolicy.Appendable || policy == ModContentFieldPolicy.Mergeable || policy == ModContentFieldPolicy.AppendAndReplace
                     : operation == ModContentPatchOperation.Remove &&
                         (policy == ModContentFieldPolicy.Removable || policy == ModContentFieldPolicy.Mergeable);
             if (!allowed)
@@ -2071,7 +2074,9 @@ namespace Eclipse.Modding
             {
                 ModContentPatchRecord record = fightPatches[i].Record;
                 var key = new ModContentPatchKey(record.Target, record.Field);
-                _patchByKey.Add(key, record);
+                // Compatible appends share a semantic field, while every contributor
+                // remains in Patches for fingerprints, diagnostics and projection.
+                if (!_patchByKey.ContainsKey(key)) _patchByKey.Add(key, record);
                 _patches.Add(record);
             }
             for (int i = 0; i < collectionPatches.Length; i++)
@@ -2110,7 +2115,20 @@ namespace Eclipse.Modding
                 ModContentPolicies.RequirePatchAllowed(record.Target, record.Field, record.Operation);
                 var patchKey = new ModContentPatchKey(record.Target, record.Field);
                 ModContentPatchRecord existingPatch;
-                if (_patchByKey.TryGetValue(patchKey, out existingPatch)) throw PatchConflict(existingPatch, record);
+                if (_patchByKey.TryGetValue(patchKey, out existingPatch) &&
+                    !(record.Field == ModContentPolicies.FightRules && record.Operation == ModContentPatchOperation.Append &&
+                      existingPatch.Operation == ModContentPatchOperation.Append))
+                {
+                    if (record.Field == ModContentPolicies.FightRules)
+                    {
+                        var owners = _patches.Where(value => value.Target == record.Target && value.Field == record.Field)
+                            .Select(value => value.Owner.Value).Distinct().OrderBy(value => value, StringComparer.Ordinal);
+                        throw new ModContentException("Patch conflict on '" + record.Target + "' field '" + record.Field +
+                            "': mod '" + record.Owner + "' cannot combine a rule-list replacement with patches from " +
+                            string.Join(", ", owners) + ". Only append_rules from different mods can compose.");
+                    }
+                    throw PatchConflict(existingPatch, record);
+                }
                 if (!pendingKeys.Add(patchKey))
                     throw new ModContentException("Fight patch is staged more than once for '" + record.Target +
                         "' field '" + record.Field + "'.");
@@ -3363,11 +3381,13 @@ namespace Eclipse.Modding
                 throw new ModContentException("Mod '" + Mod.Id + "' cannot patch undeclared namespace '" + id.Namespace + "'.");
             FightDefinition existing;
             if (!_catalog.TryGetFight(id, out existing)) throw new ModContentException("Fight patch target is not registered: '" + id + "'.");
-            ModContentPolicies.RequirePatchAllowed(id, field, ModContentPatchOperation.Replace);
+            var operation = field == ModContentPolicies.FightRules && appendRules
+                ? ModContentPatchOperation.Append : ModContentPatchOperation.Replace;
+            ModContentPolicies.RequirePatchAllowed(id, field, operation);
             var key = new ModContentPatchKey(id, field);
             EnsureCapacityForNewRegistration();
             if (!_patchKeys.Add(key)) throw new ModContentException("Duplicate fight patch for '" + id + "' field '" + field + "'.");
-            var record = new ModContentPatchRecord(Mod.Id, id, field, ModContentPatchOperation.Replace);
+            var record = new ModContentPatchRecord(Mod.Id, id, field, operation);
             _fightPatches.Add(new FightFieldPatch(record, stringValue, intValue, rules, appendRules, warriors, rewardDrop));
             return id;
         }

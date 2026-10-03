@@ -413,9 +413,13 @@ namespace Eclipse.Modding
         {
             var patched = new Dictionary<DefinitionId, XmlNode>();
             var bindings = new Dictionary<DefinitionId, BattleSourceBinding>();
+            var projectedFields = new HashSet<(DefinitionId, string)>();
             for (int i = 0; i < _content.Patches.Count; i++)
             {
                 ModContentPatchRecord patch = _content.Patches[i];
+                // Several mods may contribute to the catalog's final rule list.
+                // Project that combined list once, preserving recovered rules once.
+                if (!projectedFields.Add((patch.Target, patch.Field))) continue;
                 BattleDefinition battleDefinition;
                 ZoneDefinition zoneDefinition;
                 FightDefinition fight = null;

@@ -1,4 +1,4 @@
-param([string]$Unity = '')
+param([string]$Unity = '', [switch]$WithFocusPack)
 $ErrorActionPreference = 'Stop'
 $root = Split-Path -Parent (Split-Path -Parent (Split-Path -Parent $PSScriptRoot))
 $versionFile = Join-Path $root 'ProjectSettings/ProjectVersion.txt'
@@ -24,6 +24,37 @@ foreach ($suffix in @('','.meta')) {
     Copy-Item -LiteralPath (Join-Path $root ('Assets/Resources/ui/fonts/AGOpusBold.ttf'+$suffix)) -Destination (Join-Path $fixture 'Assets/Resources/ui/fonts')
 }
 Copy-Item -LiteralPath (Join-Path $root 'Mods/example.hit-objective') -Destination (Join-Path $fixture 'Mods') -Recurse
+if ($WithFocusPack) {
+    & (Join-Path $PSScriptRoot '../Modding/TestPhase1ShowcaseRuntime.ps1')
+    foreach ($id in @('example.focus-framework','example.focus-addon')) {
+        Copy-Item -LiteralPath (Join-Path $root ('Mods/'+$id)) -Destination (Join-Path $fixture 'Mods') -Recurse
+    }
+    . (Join-Path $PSScriptRoot '../Modding/ExportModPackProjectionFixture.ps1')
+    Export-ModPackProjectionFixture $root (Join-Path $fixture 'Assets')
+    Copy-Item -LiteralPath (Join-Path $root 'Tools/Tests/Modding/ModPackProjectionStubs.cs') -Destination (Join-Path $fixture 'Assets')
+    '-define:ECLIPSE_MOD_PACK_FIXTURE' | Set-Content -LiteralPath (Join-Path $fixture 'Assets/csc.rsp')
+    $staticRoot = Join-Path $fixture 'Mods/fixture.static-rules'
+    New-Item -ItemType Directory -Force -Path (Join-Path $staticRoot 'scripts') | Out-Null
+    @'
+schema = 1
+id = "fixture.static-rules"
+name = "Static projection fixture"
+version = "1.0.0"
+authors = ["Fixture"]
+entrypoint = "scripts/main.lua"
+capabilities = ["content.register", "content.patch"]
+[[dependencies]]
+id = "core"
+version = ">=1.0.0 <2.0.0"
+'@ | Set-Content -LiteralPath (Join-Path $staticRoot 'mod.toml')
+    @'
+local sf2=require("sf2")
+local rule=sf2.rules.no_perks{id="fixture",target=sf2.rules.OPPONENT}
+for _,fight in ipairs{"core:fights/zone_1/tournament/3","core:fights/zone_1/tournament_eclipsemode/3"} do
+    sf2.fights.patch{target=fight,append_rules={rule}}
+end
+'@ | Set-Content -LiteralPath (Join-Path $staticRoot 'scripts/main.lua')
+}
 Copy-Item -LiteralPath (Join-Path $root 'Assets/vanillaXml/stages.xml') -Destination (Join-Path $fixture 'FixtureData')
 $log = Join-Path $fixture 'validation.log'
 Write-Host "Native objective fixture: $fixture"

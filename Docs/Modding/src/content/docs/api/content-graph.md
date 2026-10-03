@@ -793,12 +793,32 @@ when committing the mod still rejects the entire registration transaction.
 The current Lua sandbox does not provide `pcall`/`xpcall`; an entrypoint error
 aborts loading rather than letting the script recover and continue.
 
-`rules` and `append_rules` address the same semantic field: competing rule-list
-patches conflict, including two append requests. A conflict rolls back the whole
-registration transaction. Encounter IDs and saved campaign
+`append_rules` from different mods compose in dependency load order, preserving
+each list's order. Native XML projection preserves recovered entries first and
+then adds the combined static rules once. Lua behavior rules use the combined
+handle order at their existing combat dispatch boundary; they are not XML entries.
+Dependencies load before their dependents; among currently ready mods, IDs sort
+with an ordinal, case-sensitive comparison. Folder/discovery order is irrelevant.
+Lua rule callbacks use that combined order; order-dependent effects are not
+automatically commutative.
+
+`rules` remains an exclusive replacement: it conflicts with any other rule-list
+patch, and later appends cannot add to its replacement. Diagnostics name the
+incoming mod and existing contributors. A mod can patch a fight's rule field
+once per registration transaction. Duplicate attached handles, more than 100
+combined handles, and overlapping [round controllers](../round-outcomes/) still
+reject the entire registering transaction, including unrelated fields and
+definitions. Later independent compatible mods can continue loading.
+
+Encounter IDs and saved campaign
 progress are preserved. The patch is reapplied from base definitions at startup;
 disabling the mod and restarting restores base content. Content fingerprints
 distinguish appended rules from replacement, including an empty replacement.
+Append records now identify their operation as append; older profiles using
+these patches can therefore report a changed content fingerprint after upgrading.
+State IDs and schemas are unchanged by this feature.
+See [Combine mods](../../guides/combine-mods/) for the tested three-mod example
+and removal/reinstallation limits.
 
 ```lua
 local guard = sf2.rules.behavior { id = "guard", behavior = my_behavior }

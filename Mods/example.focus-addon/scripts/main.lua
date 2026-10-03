@@ -10,6 +10,7 @@ local focus = sf2.behaviors.register {
         local status = sf2.extensions.call(status_service, {})
         hud = sf2.ui.open {
             id = "focus", mount = "hud",
+            placement = { anchor = "top_left", x = 24, y = 92 },
             root = { id = "meter", kind = "text", width = 280, height = 48,
                 text = "Focus: " .. status.focus .. "/3" },
         }

@@ -45,29 +45,62 @@ public static class RoundOutcomesUnity
         root=Path.GetDirectoryName(Application.dataPath);
         Check(Application.isPlaying && SystemInfo.graphicsDeviceType!=GraphicsDeviceType.Null,"Play Mode with graphics required");
         var discovery=ModDiscovery.DiscoverLoose(Path.Combine(root,"Mods"));Check(discovery.Diagnostics.Count==0,"Shipped example discovery failed");
+        bool pack=discovery.Mods.Count>1;
         var host=new ModHost(discovery.Mods);var logs=new List<ModLogEntry>();var views=new List<ModUiView>();var surfaces=new List<ModUiSurface>();
         var canvasObject=new GameObject("Objective canvas",typeof(RectTransform),typeof(Canvas));var canvas=canvasObject.GetComponent<Canvas>();
-        canvas.renderMode=RenderMode.WorldSpace;var mount=canvasObject.GetComponent<RectTransform>();mount.sizeDelta=new Vector2(500,100);mount.localScale=Vector3.one*.01f;
+        canvas.renderMode=RenderMode.WorldSpace;var mount=canvasObject.GetComponent<RectTransform>();mount.sizeDelta=new Vector2(1280,720);mount.localScale=Vector3.one*.01f;
         var camera=new GameObject("Objective camera").AddComponent<Camera>();camera.transform.position=new Vector3(0,0,-10);
-        camera.orthographic=true;camera.orthographicSize=.5f;camera.clearFlags=CameraClearFlags.SolidColor;camera.backgroundColor=Color.black;canvas.worldCamera=camera;
-        var target=new RenderTexture(1000,200,24);target.Create();camera.targetTexture=target;
-        var runtime=new MoonSharpScriptRuntime(surface=>{surfaces.Add(surface);views.Add(ModUiView.Attach(surface,mount));});
+        camera.orthographic=true;camera.orthographicSize=3.6f;camera.clearFlags=CameraClearFlags.SolidColor;camera.backgroundColor=Color.black;canvas.worldCamera=camera;
+        var target=new RenderTexture(1280,720,24);target.Create();camera.targetTexture=target;
+        var runtime=new MoonSharpScriptRuntime(surface=>{surfaces.Add(surface);var view=ModUiView.Attach(surface,mount);view.FitToSafeArea(1280,720);views.Add(view);});
         using(var session=ModScriptSession.Start(host,runtime,logs.Add,content=>{
             var document=new XmlDocument();document.Load(Path.Combine(root,"FixtureData/stages.xml"));CoreContentImporter.ImportStages(content,document.SelectSingleNode("Stages/Zones"));
         }))
         {
-            Check(!session.HasErrors,session.FormatReport());var rule=session.Content.FightRules.Single();
+            Check(!session.HasErrors,session.FormatReport());var rule=session.Content.FightRules.Single(value=>value.ControlsOutcome);
+            Check(session.ActiveMods.Count==(pack?4:1),"Unexpected active mod count");
+            var profile=new XmlDocument();profile.LoadXml("<Warrior/>");ModSaveData.RecordContext(profile.DocumentElement,session.ActiveMods,session.Content,session.State);
+            Check(session.BindState(profile.DocumentElement).Count==0,"Initial profile bind failed");
+#if ECLIPSE_MOD_PACK_FIXTURE
+            var stages=new XmlDocument();stages.Load(Path.Combine(root,"FixtureData/stages.xml"));
+            var sources=new ListSF();var originals=new Dictionary<Battle,string>();
+            var initialRules=new Dictionary<Battle,int>();
+            foreach(var fightId in session.Content.Patches.Select(patch=>patch.Target).Distinct())
+            {
+                session.Content.TryGetFight(fightId,out var definition);session.Content.TryGetBattle(definition.Battle,out var battleDefinition);session.Content.TryGetZone(battleDefinition.Zone,out var zone);
+                var key=zone.LegacyName+"/"+battleDefinition.LegacyName;if(sources.Sources.ContainsKey(key))continue;
+                var original=stages.SelectSingleNode("//Zone[@Name='"+zone.LegacyName+"']/Battle[@Name='"+battleDefinition.LegacyName+"']");
+                Check(original!=null,"Canonical battle source missing");var battle=new Battle{Source=original.CloneNode(true)};sources.Sources.Add(key,battle);
+                originals.Add(battle,battle.Source.OuterXml);initialRules.Add(battle,battle.Source.SelectNodes("Fight[@Name='3']/Rules/NoPerks").Count);
+            }
+            var adapter=new PackAdapter(session.Content);adapter.Apply(sources);
+            Check(sources.Sources.Count==2,"Static fixture did not exercise normal and Eclipse battles");
+            foreach(var battle in sources.Sources.Values)
+                Check(battle.Replacements==1 && battle.Source.SelectNodes("Fight[@Name='3']/Rules/NoPerks").Count==initialRules[battle]+1,"Shared rule list projected static rule more than once");
+            adapter.Remove(sources);Check(originals.All(pair=>pair.Key.Source.OuterXml==pair.Value && pair.Key.Restorations==1),"Pack teardown did not restore source XML exactly");
+#endif
             ModRuntime.Scripts=new FixtureScripts{Content=session.Content};
             var fight=new Fight();fight.FightDefinition.FightId=session.Content.RuntimeFightId(DefinitionId.Parse("core:fights/zone_1/tournament/3"));
-            var xml=new XmlDocument();xml.LoadXml("<BattleRuleInstance/>");var fighter=new ModInstanceFighter(fight,xml.DocumentElement,rule);
             void Invoke(ModEffectEvent kind)
             {
-                Check(session.TryInvokeBehavior(rule.Behavior,kind,null,new Dictionary<string,string>{{"source","rule"},{"round",fight.round.round.ToString()},{"side","player"},{"fight_id",fight.FightDefinition.FightId}},fighter,out var error),error);
+                foreach(var attached in fight._eclipseBattleRules.Applicable(session.Content,fight.FightDefinition.FightId,true,fight.round.round,false))
+                    if(session.HasBehaviorHandler(attached.Behavior,kind))
+                        Check(session.TryInvokeBehavior(attached.Behavior,kind,attached.InitialParameters,new Dictionary<string,string>{{"source","rule"},{"round",fight.round.round.ToString()},{"side","player"},{"fight_id",fight.FightDefinition.FightId}},new ModInstanceFighter(fight,fight._eclipseBattleRules.Instance(attached.Id,true),attached),out var error),error);
             }
-            Invoke(ModEffectEvent.RoundBegin);Check(views.Count==1 && surfaces[0].Mount==ModUiMount.CombatHud,"Objective did not mount HUD");
-            var text=views[0].GetComponentInChildren<Text>();Check(text.font!=null && text.font.name=="AGOpusBold","Recovered font unavailable");
+            Invoke(ModEffectEvent.RoundBegin);Check(views.Count==(pack?2:1) && surfaces.All(surface=>surface.Mount==ModUiMount.CombatHud),"Objective did not mount HUD");
+            int objective=surfaces.FindIndex(surface=>surface.Id=="objective");
+            var text=views[objective].GetComponentInChildren<Text>();Check(text.font!=null && text.font.name=="AGOpusBold","Recovered font unavailable");
             Check(text.text.EndsWith("0/3"),"Initial objective text incorrect");yield return null;
             var initial=Capture(camera,target,"objective-initial");
+            if(pack)
+            {
+                int focus=surfaces.FindIndex(surface=>surface.Id=="focus");var focusText=views[focus].GetComponentInChildren<Text>();
+                Check(focusText.text=="Focus: 0/3" && Mathf.Abs(focusText.transform.position.y-text.transform.position.y)>.48f,"Pack HUDs overlap or framework text missing");
+                double damage=.1;fight.IncomingHit=new ModIncomingHit(()=>damage,value=>damage=value,false,false);
+                Invoke(ModEffectEvent.DamageDealing);Check(focusText.text=="Focus: 1/3" && damage==.1,"Composed framework hit did not execute");
+                Invoke(ModEffectEvent.DamageDealing);Invoke(ModEffectEvent.DamageDealing);
+                Check(focusText.text=="Focus: 0/3" && Math.Abs(damage-.15)<1e-10,"Framework bonus did not coexist with objective");
+            }
             fight.DamageEvent=new ModDamageEvent(1,1,.9,true,false);Invoke(ModEffectEvent.DamageDealt);
             Check(text.text.EndsWith("0/3"),"Blocked hit advanced goal");
             for(int i=1;i<=3;i++){fight.DamageEvent=new ModDamageEvent(1,1,.9,false,false);Invoke(ModEffectEvent.DamageDealt);Check(text.text.EndsWith(i+"/3"),"Hit HUD did not update");}
@@ -75,20 +108,20 @@ public static class RoundOutcomesUnity
             Invoke(ModEffectEvent.Tick);Check(fight.Player.RoundsWon==0,"Callback settled round recursively");fight.Step();
             Check(fight.Player.RoundsWon==1 && fight.Winner()==fight.Player && fight.Player.Health==1 && fight.Enemy.Health==1,"Nonlethal win ignored");
             fight.Step();Check(fight.Player.RoundsWon==1,"Repeated boundary scored twice");
-            Invoke(ModEffectEvent.RoundEnd);Check(surfaces[0].IsClosed,"Round end retained HUD");
-            yield return new WaitForSecondsRealtime(.3f);Check(views[0]==null,"Native fade did not destroy ended HUD");
-            fight.ResetForNextRound();Invoke(ModEffectEvent.RoundBegin);text=views[1].GetComponentInChildren<Text>();Check(text.text.EndsWith("0/3"),"Next round did not reset state");
+            Invoke(ModEffectEvent.RoundEnd);Check(surfaces[objective].IsClosed,"Round end retained HUD");
+            yield return new WaitForSecondsRealtime(.3f);Check(views[objective]==null,"Native fade did not destroy ended HUD");
+            fight.ResetForNextRound();Invoke(ModEffectEvent.RoundBegin);int nextObjective=surfaces.FindLastIndex(surface=>surface.Id=="objective");text=views[nextObjective].GetComponentInChildren<Text>();Check(text.text.EndsWith("0/3"),"Next round did not reset state");
             for(int i=0;i<599;i++){fight.Clock++;Invoke(ModEffectEvent.Tick);}
             Check(!fight._eclipseRoundOutcomes.PendingPlayerWins.HasValue,"Goal timeout ended too early");fight.Clock++;Invoke(ModEffectEvent.Tick);fight.Step();
             Check(fight.Enemy.RoundsWon==1 && fight.Winner()==fight.Enemy && fight.Player.Health==1,"Nonlethal objective loss ignored");
-            Invoke(ModEffectEvent.FightEnd);Check(surfaces[1].IsClosed,"Fight end retained HUD");
+            Invoke(ModEffectEvent.FightEnd);Check(surfaces.All(surface=>surface.IsClosed),"Fight end retained HUD");
             // Requests are transient. A new fight starts with no objective result.
             var next=new Fight();Check(!next._eclipseRoundOutcomes.PendingPlayerWins.HasValue && !next._eclipseRoundOutcomes.ResolvedPlayerWins.HasValue,"New fight retained result");
         }
         yield return new WaitForSecondsRealtime(.3f);Check(views.All(view=>view==null),"Session teardown retained native views");
         Check(!logs.Any(log=>log.Level==ModLogLevel.Error),"Lua reported an error");
         camera.targetTexture=null;target.Release();UnityEngine.Object.Destroy(target);UnityEngine.Object.Destroy(canvasObject);UnityEngine.Object.Destroy(camera.gameObject);
-        var result="[RoundOutcomesUnity] PASS: "+checks+" checks: shipped objective Lua, native font/HUD pixels/fades, extracted round score and winner. Controlled contacts, models, clock, presentation and settlement; not a full-game playtest.";
+        var result="[RoundOutcomesUnity] PASS: "+checks+" checks: "+(pack?"shipped Focus framework/add-on plus objective and static projection fixture, separate native HUDs and bonus; ":"shipped objective; ")+"native font/HUD pixels/fades, extracted round score/winner"+(pack?" and adapter projection/restoration":"")+". Controlled contacts, models, clock, battle source storage, presentation and settlement; not a full-game playtest.";
         File.WriteAllText(Path.Combine(root,"validation-result.txt"),result);Debug.Log(result);EditorApplication.Exit(0);
     }
 }

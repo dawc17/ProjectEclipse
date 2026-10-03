@@ -170,6 +170,11 @@ async function main() {
         const found = labels(await request('textDocument/completion', patchFields));
         return ['rules', 'append_rules', 'location', 'music'].every(key => found.some(value => value.startsWith(key)));
     }, 'fight patch rule and presentation fields');
+    const appendPolicy = probe('append-policy.lua', 'local sf2=require("sf2")\nsf2.fights.patch { target="core:fights/zone_1/tournament/3", app|end_rules={} }');
+    await until(async()=>JSON.stringify(await request('textDocument/hover',appendPolicy)).includes('compose across mods'),'additive rule composition hover');
+    const replacePolicy = probe('replace-policy.lua', 'local sf2=require("sf2")\nsf2.fights.patch { target="core:fights/zone_1/tournament/3", rul|es={} }');
+    await until(async()=>JSON.stringify(await request('textDocument/hover',replacePolicy)).includes('Exclusive replacement'),'exclusive rule replacement hover');
+    console.log('PASS: rule fields explain additive composition and exclusive replacement');
     const callback = probe('callback.lua', 'local sf2=require("sf2")\nsf2.behaviors.register { id="test", on_damage_resolving=function(params, fighter, event)\n fighter:|\nend }');
     await until(async () => labels(await request('textDocument/completion', callback)).some(n => n.startsWith('scale_incoming_damage')), 'resolving fighter callback inference');
     const event = probe('event.lua', 'local sf2=require("sf2")\nsf2.behaviors.register { id="test", on_damage_received=function(params, fighter, event)\n local value=event.|\nend }');

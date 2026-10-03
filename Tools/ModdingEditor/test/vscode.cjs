@@ -55,6 +55,19 @@ exports.run = async function () {
         assert(servicesFound, 'Framework service function completion missing');
         passed.push('PASS: framework service registration, lookup and calls complete');
 
+        const policyUri=vscode.Uri.joinPath(folder.uri,'scripts','rule-policy.lua');
+        const policyLine='sf2.fights.patch { target="core:fights/zone_1/tournament/3", append_rules={} }';
+        fs.writeFileSync(policyUri.fsPath,'local sf2=require("sf2")\n'+policyLine);
+        await vscode.workspace.openTextDocument(policyUri);
+        let policyFound=false;const policyDeadline=Date.now()+30000;
+        while(Date.now()<policyDeadline){
+            const hover=await vscode.commands.executeCommand('vscode.executeHoverProvider',policyUri,new vscode.Position(1,policyLine.indexOf('append_rules')+2));
+            if(hover?.some(h=>h.contents.some(c=>(c.value??String(c)).includes('compose across mods')))){policyFound=true;break;}
+            await new Promise(resolve=>setTimeout(resolve,500));
+        }
+        assert(policyFound,'Additive rule composition guidance missing from field hover');
+        passed.push('PASS: fight rule field hover explains mod composition');
+
         const stainUri = vscode.Uri.joinPath(folder.uri, 'scripts', 'stain-completion.lua');
         fs.writeFileSync(stainUri.fsPath, 'local sf2=require("sf2")\nsf2.fx.stain {\n    \n}');
         await vscode.workspace.openTextDocument(stainUri);

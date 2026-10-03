@@ -2,6 +2,14 @@
 
 Last broad reconciliation: 2026-09-12. Scope remains **G01–G14 plus E1–E8**.
 
+2026-10-03 creator-platform composition: separate mods can now append compatible
+rules to the same fight in dependency load order. Replacements remain exclusive;
+overlapping controllers, duplicates and aggregate bounds reject transactionally.
+The Focus framework/add-on and objective run together with separate HUDs in
+isolated Unity acceptance. Current adapter projection/restoration, pack removal
+and owned-state preservation are covered by controlled fixtures. Full game/profile
+and arbitrary pack acceptance remain open. See the creator-platform work log.
+
 2026-10-03 creator-platform continuation: typed, versioned Lua framework services
 now route between dependent mods with isolated records, ownership/capability
 checks and bounded execution. The shipped Focus framework/add-on demonstrates

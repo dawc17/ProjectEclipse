@@ -1,5 +1,12 @@
 # Eclipse Modding for VS Code
 
+`sf2.fights.patch { target = fight, append_rules = { rule } }` composes compatible
+additions from different mods in dependency load order. `rules` replacements stay
+exclusive; duplicate handles, aggregate limits and overlapping round controllers
+still reject registration. Generated field hovers explain this contract. The
+Focus and objective starters use separate HUD placements for their combined pack;
+see the public Combine mods guide for setup and verification limits.
+
 `sf2.underworld.set_map_colors { normal = "#FFFFFF", power = "#BA8A82", duration = 0.8 }`
 sets map-scoped normal/Power Mode background tints from a ready map callback and
 requires `story.progression`. Reapply on map entry. `duration` is 0–5 seconds.

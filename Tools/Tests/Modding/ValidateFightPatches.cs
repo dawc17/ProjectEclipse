@@ -194,10 +194,10 @@ public static class Program
         entry=Path.Combine(exampleRoot,"example.eclipse-reward/scripts/main.lua");
         manifest=Path.Combine(exampleRoot,"example.eclipse-reward/mod.toml");
         Directory.CreateDirectory(Path.GetDirectoryName(entry));
-        File.Copy(Path.Combine(repo,"Mods/example.eclipse-reward/mod.toml"),manifest,true);
+        File.Copy(Path.Combine(repo,"ArchivedMods/example.eclipse-reward/mod.toml"),manifest,true);
         try
         {
-            Check(Execute(exampleRoot,content,File.ReadAllText(Path.Combine(repo,"Mods/example.eclipse-reward/scripts/main.lua")),out var error),error);
+            Check(Execute(exampleRoot,content,File.ReadAllText(Path.Combine(repo,"ArchivedMods/example.eclipse-reward/scripts/main.lua")),out var error),error);
             var id=CoreContentImporter.FightId("ZONE_1","BOSS_LYNX_ECLIPSEMODE","1");
             content.TryGetFight(id,out var fight);
             Check(fight.RewardDrops.Count==1&&fight.RewardDrops[0].ResultIndex==1&&fight.RewardDrops[0].Mode==ModRuleMode.Eclipse,"Example targets wrong reward slot/mode");
@@ -279,7 +279,7 @@ public static class Program
         stages.Load(Path.Combine(args[1],"Assets/vanillaXml/stages.xml"));
         Check(CoreContentImporter.ImportStages(canonical,stages.SelectSingleNode("Stages/Zones"))>0,"Canonical stage fixture is empty");
         var originals=canonical.Fights.ToDictionary(f=>f.Id);
-        Check(Execute(args[0],canonical,File.ReadAllText(Path.Combine(args[1],"Mods/example.core-fight/scripts/main.lua")),out var sampleError),sampleError);
+        Check(Execute(args[0],canonical,File.ReadAllText(Path.Combine(args[1],"ArchivedMods/example.core-fight/scripts/main.lua")),out var sampleError),sampleError);
         var sampleId=CoreContentImporter.FightId("ZONE_1","BOSS_LYNX","1");
         Check(canonical.Fights.Count==originals.Count,"Example added duplicate campaign fights");
         canonical.TryGetFight(sampleId,out var sampleFight);
@@ -287,7 +287,7 @@ public static class Program
         Check(canonical.Fights.Where(f=>f.Id!=sampleId).All(f=>ReferenceEquals(f,originals[f.Id])),"Unrelated canonical encounters changed");
         File.WriteAllText(manifest,File.ReadAllText(manifest).Replace("\"content.register\"","\"content.register\", \"combat.modify_outgoing_hit\""));
         var outgoingCatalog=new ModContentCatalog();CoreContentImporter.ImportStages(outgoingCatalog,stages.SelectSingleNode("Stages/Zones"));
-        Check(Execute(args[0],outgoingCatalog,File.ReadAllText(Path.Combine(args[1],"Mods/example.outgoing-rule/scripts/main.lua")),out var outgoingError,(script,content)=>{
+        Check(Execute(args[0],outgoingCatalog,File.ReadAllText(Path.Combine(args[1],"ArchivedMods/example.outgoing-rule/scripts/main.lua")),out var outgoingError,(script,content)=>{
             var rule=content.FightRules.Single();var state=new XmlDocument();state.LoadXml("<Rule/>");
             for(int hit=1;hit<=7;hit++) {
                 bool blocked=hit==2;int round=hit==7?2:1;double damage=10;
@@ -298,7 +298,7 @@ public static class Program
             }
         }),outgoingError);
         var comboCatalog=new ModContentCatalog();CoreContentImporter.ImportStages(comboCatalog,stages.SelectSingleNode("Stages/Zones"));
-        Check(Execute(args[0],comboCatalog,File.ReadAllText(Path.Combine(args[1],"Mods/example.combo-reserve/scripts/main.lua")),out var comboError,(script,content)=>{
+        Check(Execute(args[0],comboCatalog,File.ReadAllText(Path.Combine(args[1],"ArchivedMods/example.combo-reserve/scripts/main.lua")),out var comboError,(script,content)=>{
             var rule=content.FightRules.Single();var state=new XmlDocument();state.LoadXml("<Rule/>");
             Func<ModCombatActivityEvent,int,int,double> invoke=(activity,frame,round)=>{
                 double damage=10;

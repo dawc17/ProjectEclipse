@@ -13,6 +13,11 @@ The current API supports typed content definitions, combat behavior callbacks an
 
 ## Test what players use
 
+[Combine mods](../combine-mods/) documents additive rule composition,
+dependency order and the Focus/objective pack. Different mods can append
+compatible rules to one fight. Rule-list replacements remain exclusive;
+overlapping controllers and duplicate handles still reject registration.
+
 A successful registration confirms that the supplied definitions passed validation. It cannot prove that a sprite looks right, an opponent behaves well, a reward is balanced, or an update preserves every intended player experience. Test your mod in Eclipse, including restart, failure, and existing-save cases relevant to your feature.
 
 Use <a href={pageUrl('examples')}>working examples</a> as starting points. Keep version numbers and saved IDs deliberate, and follow <a href={pageUrl('api/save-compatibility')}>save compatibility</a> when retiring content or changing state schemas.

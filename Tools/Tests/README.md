@@ -77,6 +77,17 @@ script sessions, native font/HUD/rendered pixels/fade teardown and extracted
 current round methods in an isolated Unity 6.6 Play Mode fixture. Contacts,
 models, clock, end presentation and settlement remain controlled. Both runners
 share `Combat/ExportRoundOutcomeFixture.ps1`; it is an extraction helper, not a test.
+Pass `-WithFocusPack` to include the actual Focus framework/add-on, separate HUD
+placements, bonus behavior and a controlled static-rule contributor. This mode
+also exercises extracted native adapter projection/restoration around controlled
+battle source storage. It does not instantiate full native map/fight menus.
+
+`Modding/TestModPackRules.ps1` tests additive append composition in production
+Lua/script sessions: dependency/discovery order, replacements/controllers,
+transaction rollback/recovery, duplicates and the aggregate rule limit. It uses
+extracted current adapter apply/remove and round methods with controlled battle
+storage/models, and the shipped Focus/objective save/removal/reinstallation pack.
+`Modding/ExportModPackProjectionFixture.ps1` is its shared extraction helper.
 
 `Modding/TestModExtensions.ps1` runs the production Lua runtime and script-session
 lifecycle against controlled asset/combat/UI sources. It covers typed framework
