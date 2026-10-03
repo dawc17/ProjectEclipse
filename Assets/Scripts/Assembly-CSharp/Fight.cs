@@ -356,6 +356,7 @@ public partial class Fight
     private void CloseModelTransitions()
     {
         CancelEclipseFighterMotion();
+        CancelEclipseFighterPlayback();
         _modelTransitionsClosed = true;
         var pending = new List<PendingModelTransition>(_modelTransitions.Values);
         foreach (var request in pending)
@@ -489,11 +490,16 @@ public partial class Fight
 		public int OGOLNFLBLBD;
 	}
 
-		private sealed class EclipseFighterOperations : IModFighterOperations, IModDamageEventSource, IModFighterTargets, IModIncomingHitSource, IModFighterEffects, IModCombatSnapshotSource, IModCombatActivitySource, IModFighterForms, IModFighterStatusIcons, IModAnimationLifecycleSource, IModFighterFlags, IModFighterControls, IModRoundOutcomes, IModFighterMotion
+		private sealed class EclipseFighterOperations : IModFighterOperations, IModDamageEventSource, IModFighterTargets, IModIncomingHitSource, IModFighterEffects, IModCombatSnapshotSource, IModCombatActivitySource, IModFighterForms, IModFighterStatusIcons, IModAnimationLifecycleSource, IModFighterFlags, IModFighterControls, IModRoundOutcomes, IModFighterMotion, IModFighterPlayback
 	{
 		private readonly Fight _fight;
 		private readonly Model _model;
         private readonly bool _controlSetup;
+        public bool TryPlayMove(DefinitionId move, Action<bool, string> complete, out string error)
+        {
+            if (_fight == null) { error = "Fight is unavailable."; return false; }
+            return _fight.TryQueueEclipseFighterPlayback(_model, move, complete, out error);
+        }
         public bool TryMoveBy(double x, double y, double z, out string error)
         {
             if (_fight == null) { error = "Fight is unavailable."; return false; }
@@ -1131,6 +1137,7 @@ public partial class Fight
         _eclipseBattleRules = new ModBattleRuleInstances();
         _eclipseRoundOutcomes.BeginRound(-1, null);
         CancelEclipseFighterMotion();
+        CancelEclipseFighterPlayback();
 		MNEOALEBNNA = true;
 		IOPJDMCBIMM = true;
 		KCNHDABOAAA = false;
@@ -1840,6 +1847,7 @@ public partial class Fight
 			KGKPLKJPDAI();
 		}
 		ApplyEclipseFighterMotion();
+		ApplyEclipseFighterPlayback();
 		RenderRound();
 		if (preFight != null)
 		{
@@ -2810,7 +2818,7 @@ public partial class Fight
 
 	private void OPCCHBOGHNO(Model ACENLMONNPA)
 	{
-		List<InfoAnimation> list = ACENLMONNPA.MCFPDHOLNGB();
+		List<InfoAnimation> list = ACENLMONNPA.GetAvailableAnimations();
 		for (int i = 0; i < list.Count; i++)
 		{
 			InfoAnimation pJAHIOELGGD = list[i];
@@ -3182,6 +3190,7 @@ public partial class Fight
 		round.round++;
         _eclipseRoundOutcomes.BeginRound(-1, null);
         CancelEclipseFighterMotion();
+        CancelEclipseFighterPlayback();
 		if (preFight != null)
 		{
 			preFight.ClearInscription();
@@ -4675,6 +4684,7 @@ public partial class Fight
 	{
         _eclipseRoundOutcomes.Cancel();
         CancelEclipseFighterMotion();
+        CancelEclipseFighterPlayback();
 		if (IsLocalVersus)
 		{
 			Eclipse.Multiplayer.LocalVersusSession.Complete(this, true);

@@ -215,6 +215,8 @@ namespace Eclipse.Modding
                                 throw new ScriptRuntimeException("Fighter operations have expired.")));
                         fighterTable.Set("move_by", DynValue.NewCallback((ctx, args) =>
                             MoveFighter(args, fighterTable, fighter, effectEvent, invocationActive, false)));
+                        fighterTable.Set("play_move", DynValue.NewCallback((ctx, args) =>
+                            PlayFighterMove(args, fighterTable, fighter, effectEvent, invocationActive, false)));
                     }
                     if (fighter is IModFighterTargets targets)
                     {
@@ -238,6 +240,8 @@ namespace Eclipse.Modding
                             }));
                             targetTable.Set("move_by", DynValue.NewCallback((ctx, args) =>
                                 MoveFighter(args, targetTable, target, effectEvent, invocationActive, true)));
+                            targetTable.Set("play_move", DynValue.NewCallback((ctx, args) =>
+                                PlayFighterMove(args, targetTable, target, effectEvent, invocationActive, true)));
                             fighterTable.Set("opponent", DynValue.NewTable(targetTable));
                         }
                     }
@@ -505,6 +509,32 @@ namespace Eclipse.Modding
                     return false;
                 }
                 finally { invocationActive = false; }
+            }
+
+            private DynValue PlayFighterMove(CallbackArguments args, Table handle, IModFighterOperations fighter,
+                ModEffectEvent kind, bool active, bool opponent)
+            {
+                if (!active) throw new ScriptRuntimeException("Fighter playback operations have expired.");
+                _api.RequireCapability("combat.animation");
+                if (opponent) _api.RequireCapability("combat.target");
+                if (kind == ModEffectEvent.FightBegin || kind == ModEffectEvent.RoundBegin ||
+                    kind == ModEffectEvent.RoundEnd || kind == ModEffectEvent.FightEnd)
+                    throw new ScriptRuntimeException("Fighter playback requires an active simulation callback.");
+                int offset = args[0].Type == DataType.Table && args[0].Table == handle ? 1 : 0;
+                var value = args[offset];
+                if (args.Count - offset != 1 || value.Type != DataType.Table || !_moveHandles.TryGetValue(value.Table, out var move))
+                    throw new ScriptRuntimeException("play_move requires exactly one move handle registered by this mod.");
+                var receipt = new Table(_script);
+                receipt.Set("status", DynValue.NewString("queued"));
+                receipt.Set("error", DynValue.Nil);
+                void Complete(bool success, string error)
+                {
+                    receipt.Set("status", DynValue.NewString(success ? "applied" : "failed"));
+                    receipt.Set("error", success ? DynValue.Nil : DynValue.NewString(error ?? "Move playback failed."));
+                }
+                if (!(fighter is IModFighterPlayback playback)) Complete(false, "Fighter playback is unavailable.");
+                else if (!playback.TryPlayMove(move, Complete, out var failure)) Complete(false, failure);
+                return DynValue.NewTable(receipt);
             }
 
             private DynValue MoveFighter(CallbackArguments args, Table handle, IModFighterOperations fighter,

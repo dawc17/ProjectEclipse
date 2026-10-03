@@ -445,3 +445,101 @@ exported-player acceptance remain open. This does not provide arbitrary actors,
 custom physics, attack animation authoring or swept collision. Native acceptance
 of this ability is useful progress toward Minecraft-style modding, not completion
 of the vision.
+
+## 2026-10-03: explicit authored move playback and Active Strike
+
+Creators can now start a registered attack/move from a live Lua ability instead
+of requiring recovered input/AI/event selection to activate it. Self and opponent
+`play_move` accept typed move handles owned by the current script. They require
+`combat.animation`, with `combat.target` for the opponent. Requests return
+transient queued/applied/failed receipts so Lua can distinguish acceptance from
+native startup and start cooldown only after application. This advances E2/E5/E8.
+
+### Source and contract
+
+| Source | Change |
+| --- | --- |
+| `Runtime/Modding/ModScripting.cs` | Independent playback interface with completion/update delegate and behavior-instance delegation. |
+| `Modding/MoonSharpScriptRuntime.cs` | Dedicated self/opponent binding, exact one-argument owned move handle, capability/lifetime/begin/end checks and receipt mutation. Updates do not execute Lua callbacks. |
+| `Modding/FightFighterPlayback.cs` | Owned partial Fight queue and receipt lifecycle. Current native animation-cache membership is checked at request and application. Shared active-round/main-body eligibility is reused from motion. |
+| `Assembly-CSharp/Fight.cs` | Typed native adapter, playback after motion before round arbitration/interpolation, and reset/next-round/transition-close/surrender cancellation. |
+| `Assembly-CSharp/Model.cs`, `ModelAi.cs`, `Nekki/SF2/Core/Fights/ModelContainer.cs` | Narrow inferred rename of the model animation-cache getter to `GetAvailableAnimations`, marked `// best guess for name`; existing callers and controlled fixtures updated. The unrelated SF2Paths token is unchanged. |
+| `Mods/example.active-strike` and `Tools/ModdingEditor/templates/active-strike` | An owned punch definition, compatible binary, Lua HUD intent/readiness, polling of playback receipt, round-scoped 120-frame cooldown and cleanup. Additive encounter patches in normal/Eclipse mode. |
+
+Owned source paths above are relative to `Assets/Scripts/Eclipse/`; recovered paths
+are relative to `Assets/Scripts/`. The new partial has its own meta GUID and main
+project include. Existing GUIDs and serialized identity are retained. Current
+callers/fixture declarations and serialized Unity text references were searched;
+this guess does not enter confirmed deobfuscation mappings.
+
+Native playback uses the existing named `Model.PlayAnimation` path and its
+readiness/physics checks. Explicit playback deliberately does not run selection
+events/conditions, input bindings, priorities, cancel windows or player control
+restrictions. Authors may interrupt running animation and define ability costs,
+readiness and cancellation policy in ordinary Lua. Rig/equipment/locks determine
+the fighter's available native animation cache; cache membership alone does not
+prove appropriateness in every state. Static attack/animation/effect data stays
+typed/declarative. No operation DSL or arbitrary engine-name call is introduced.
+
+One request per current main body/step is shared across mods. The first accepted
+request wins, including against a later identical request; competitors get a
+failed receipt without overwriting it. Bodies have independent slots. A later
+handler error does not roll back an accepted request. The batch detaches before
+native work and rejects playback requests during application to prevent recursive
+start/end chains. Native failure on one participant does not suppress the other.
+`applied` means startup, not completion/contact/damage. Receipts are transient
+tables, cannot control the host by editing fields and are never saved.
+
+Pause retains queued work; death, replacement/detachment, unavailable move,
+round/session change and teardown fail it without replay. A completion-update
+exception is isolated. Same-step displacement applies before playback; operations
+are independent rather than an atomic ability transaction.
+
+### Verification and limits
+
+- `TestFighterPlayback.ps1`: 283 checks execute production MoonSharp and the complete
+  playback/motion queues against controlled model/asset/session/clock services.
+  It covers strict/forged/expired handles, dot/colon calls, capabilities and
+  callback timing, both participants, independent mod conflicts, later handler
+  failure, stale/dead/replaced state, pause/resume, cache loss, native rejection/
+  exception, receipt failure, recursion and source cancellation/boundary hooks.
+  The actual shipped example covers HUD intent, queued/applied/failed receipts,
+  cooldown, unavailable equipment, teardown and next-round reset.
+- `TestFighterPlaybackUnity.ps1`: 17 full-game native Unity 6.6 checks. Real boot,
+  Campaign and Act I Tournament stage 3 use the shipped authored move/HUD button.
+  Startup is deferred from the click, the owned native animation plays, its
+  animation-start callback fires once, and the real attack reduces enemy health
+  from 1 to 0.9966142774. Cooldown is ready after 122 frames from click (startup
+  receipt is observed before its 120-frame cooldown begins). The applied HUD
+  state is observed with its button disabled, and premature recharge is rejected.
+  No callback failures
+  are retained. Another queued request survives native pause, then surrender
+  fails its receipt, clears the queue and closes the HUD.
+- Controls/AI/spacing and a fresh isolated post-tutorial profile are controlled;
+  first-time onboarding is excluded. Native acceptance uses the real rig and
+  binary, attack intervals/contact/damage path and rendering. The final right-side
+  HUD PNG was visually inspected, leaving space for the Repulse panel. This is
+  one normal-mode encounter; no complete damage/balance or all-arena claim follows.
+- `high_punch.bytes` is an unchanged base-game asset copied into the example and
+  template, SHA256 `EE6A6CDBFDEEC580EFCA6A705A42EF1DDEE08B2ED3D0E2ACA6161DFCB582F8E7`.
+  This verifies reuse of a compatible binary, not an original animation exporter.
+- Motion (477), round outcomes (702), AI eligibility (14), showcase editor and
+  model-transition regressions pass. Transition closure also checks playback
+  cancellation. All four managed assemblies compile with the recorded ignored
+  Unity 6.6 `dotnet msbuild` remapping; tracked references stay intact.
+- Editor schema/generated data/types/template, manifest/timing diagnostics and
+  guide update together. Generation/check, 48 unit tests, actual LuaLS completion/
+  hover/typed receipts/full-example diagnostics and real VS Code integration pass.
+  Wiki reference coverage (218), Astro types/build/search and 5772 local links/
+  assets across 57 pages pass.
+  On Windows the npm-forwarded VS Code path was escaped incorrectly; the same
+  built test was rerun successfully through the direct Node launcher.
+
+The fresh native editor logs its unrelated Search indexing startup exception;
+the controlled .NET fixture prints the known MoonSharp default Unity-loader
+reflection warning before passing. Neither log is described as error-free.
+Native PNGs/logs/profiles and test artifacts remain isolated/ignored. Physical
+keyboard/controller/touch activation, Eclipse-mode playback, all equipment/rig/
+arena/cancel combinations, exported builds, original animation authoring and
+arbitrary actors/physics remain open. The full Minecraft-style objective remains
+active; this feature adds explicit ability control rather than closing the vision.

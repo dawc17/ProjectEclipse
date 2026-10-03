@@ -334,7 +334,7 @@ namespace Nekki.SF2.Core.Fights
 			ModelObject bBGCMFGFMCL = CNAAFEHFGKD.CLDMEJKGLBA();
 			bool dPKOKLCJEHI = CNAAFEHFGKD.EPCNJLEHJCB();
 			bool eMGNKKHPGCJ = CNAAFEHFGKD.NJDJHGDMCIJ() != null;
-			List<InfoAnimation> lNKFKJKLCKP = CNAAFEHFGKD.MCFPDHOLNGB();
+			List<InfoAnimation> lNKFKJKLCKP = CNAAFEHFGKD.GetAvailableAnimations();
 			foreach (Model item in _models)
 			{
 				KMKOHGBJNBK(item, lNKFKJKLCKP, bBGCMFGFMCL, dPKOKLCJEHI, eMGNKKHPGCJ);
@@ -347,7 +347,7 @@ namespace Nekki.SF2.Core.Fights
 
 		private void KMKOHGBJNBK(Model ACENLMONNPA, List<InfoAnimation> LNKFKJKLCKP, ModelObject BBGCMFGFMCL, bool DPKOKLCJEHI, bool EMGNKKHPGCJ)
 		{
-			List<InfoAnimation> list = ACENLMONNPA.MCFPDHOLNGB();
+			List<InfoAnimation> list = ACENLMONNPA.GetAvailableAnimations();
 			foreach (InfoAnimation item in list)
 			{
 				item.BPHNHFJCFCD(BBGCMFGFMCL, DPKOKLCJEHI, EMGNKKHPGCJ, BBGCMFGFMCL);

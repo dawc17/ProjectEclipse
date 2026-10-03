@@ -164,3 +164,10 @@ Fighter and opponent completions include `move_by(x, y, z?)`. Manifest diagnosti
 require `combat.motion` and, for the opponent, `combat.target`. Calls in fight/round
 begin or end callbacks are flagged. The packaged Repulse starter demonstrates
 button intent consumed by `on_tick`; game testing is still required for movement.
+
+`play_move(move)` completion requires a typed registered move handle and returns
+a receipt with `status` and `error`. Manifest diagnostics require `combat.animation`
+and also `combat.target` for opponent playback; begin/end calls are flagged.
+Copy the Active Strike starter for an authored punch activated by a HUD button.
+See [Activate an authored move](../move-abilities/) for explicit playback and
+ability policy. Editor checks do not confirm animation startup or contact damage.

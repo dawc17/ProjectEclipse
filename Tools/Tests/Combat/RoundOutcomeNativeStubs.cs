@@ -73,6 +73,7 @@ public sealed partial class Fight : IModFighterOperations, IModRoundOutcomes, IM
 {
     // Movement is outside this round-arbitration fixture; covered by FighterMotionTests.
     private void CancelEclipseFighterMotion() { }
+    private void CancelEclipseFighterPlayback() { }
     public readonly ModelParameters Player=new ModelParameters{IsPlayer=true}, Enemy=new ModelParameters();
     ModelParameters NMNCKBPFCCP,AKBNKDBHCEO;
     Model playerModel,enemyModel;

@@ -2,6 +2,14 @@
 
 Last broad reconciliation: 2026-09-12. Scope remains **G01–G14 plus E1–E8**.
 
+2026-10-03 creator-platform playback: Lua abilities can explicitly start an owned
+registered move through queued `play_move` requests with startup/failure receipts.
+The shipped Active Strike passes real Campaign/core combat, native HUD activation,
+authored contact damage, start notification, cooldown and surrender cancellation.
+This advances E2/E5/E8; input/AI/spacing and a post-tutorial profile are controlled.
+Original animation authoring, arbitrary actors/physics, broad arena/equipment,
+physical input and exports remain open. See the creator-platform work log.
+
 2026-10-03 creator-platform movement: Lua can queue additive displacement of
 living main fighters through `move_by`, with shared per-step bounds and native
 rig/animation translation. The shipped Repulse ability and two independent

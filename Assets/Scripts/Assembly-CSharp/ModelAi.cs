@@ -468,7 +468,7 @@ public class ModelAi
             else
             {
                 _modDecisionFrame = decisionFrame;
-                var available = new List<InfoAnimation>(_Model.MCFPDHOLNGB());
+                var available = new List<InfoAnimation>(_Model.GetAvailableAnimations());
                 if (GetPlayableAnimations(available) == 0) available.Clear();
                 else available.RemoveAll(move => !IsTacticPlayableAnimations(move));
                 int? chosen = Eclipse.Modding.ModRuntime.DecideAi(modTactic, this, _Model, FNKFIMEDNLP, decisionFrame, available);
@@ -943,7 +943,7 @@ public class ModelAi
 
 	private int GetPlayableAnimations(List<InfoAnimation> MAHEJFLCCHP, List<int> FIFFFOLGCND = null, bool AEGBKDJEABP = false)
 	{
-		List<InfoAnimation> list = _Model.MCFPDHOLNGB();
+		List<InfoAnimation> list = _Model.GetAvailableAnimations();
 		int num = 0;
 		int count = MAHEJFLCCHP.Count;
 		ModelConditions dGJJDPIAEAO = get_Model().EBABHGHPLFK();
@@ -976,7 +976,7 @@ public class ModelAi
 
 	private int GetPlayableAnimations(List<Decision> PJGOCFKJGJJ)
 	{
-		List<InfoAnimation> list = _Model.MCFPDHOLNGB();
+		List<InfoAnimation> list = _Model.GetAvailableAnimations();
 		int num = 0;
 		int count = PJGOCFKJGJJ.Count;
 		ModelConditions dGJJDPIAEAO = get_Model().EBABHGHPLFK();
@@ -1004,7 +1004,7 @@ public class ModelAi
 		// AI executes its choices through key input. Event-only animations are
 		// started by their runtime events and cannot be selected by this path.
 		if (DBOLBEOCEME.ILBCHANCOBP() == null) return false;
-		List<InfoAnimation> list = _Model.MCFPDHOLNGB();
+		List<InfoAnimation> list = _Model.GetAvailableAnimations();
 		if (!list.Contains(DBOLBEOCEME))
 		{
 			return false;
@@ -1042,7 +1042,7 @@ public class ModelAi
 	private bool IsTacticPlayableAnimations(InfoAnimation DBOLBEOCEME)
 	{
 		if (DBOLBEOCEME.ILBCHANCOBP() == null) return false;
-		List<InfoAnimation> list = _Model.MCFPDHOLNGB();
+		List<InfoAnimation> list = _Model.GetAvailableAnimations();
 		if (!list.Contains(DBOLBEOCEME))
 		{
 			return false;
@@ -2059,7 +2059,7 @@ public class ModelAi
 		{
 			return;
 		}
-		List<InfoAnimation> available = _Model.MCFPDHOLNGB();
+		List<InfoAnimation> available = _Model.GetAvailableAnimations();
 		if (available == null)
 		{
 			return;

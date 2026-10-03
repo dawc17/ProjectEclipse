@@ -347,6 +347,11 @@ local OutgoingFighter = {}
 ---@field error? string
 local FormRequest = {}
 
+---@class (exact) Eclipse.PlayMoveRequest
+---@field status "queued"|"applied"|"failed"
+---@field error? string
+local PlayMoveRequest = {}
+
 ---@class (exact) Eclipse.WeaponInitialStats
 ---@field weapon_damage? integer 0-1000000. Unspecified stats remain absent in an explicit snapshot.
 local WeaponInitialStats = {}
@@ -4137,6 +4142,24 @@ function Fighter:move_by(x, y, z) end
 ---@param z number?
 ---@return boolean, string|nil
 function Opponent:move_by(x, y, z) end
+
+---Request explicit playback of an authored move on this main fighter.
+---Requires: `combat.animation`. `move` must be a handle returned by this mod's `sf2.moves.register` or `sf2.moves.replace`; raw names, forged handles and another script context's handles are rejected.
+---When: Active simulation callbacks with a living main fighter in an offline round. Unavailable in `on_fight_begin`, `on_round_begin`, `on_round_end`, `on_fight_end`, while paused, in training/title sparring, local versus, legacy PvP or online raids. Offline mod raids are eligible. Requests during the native playback boundary reject to prevent recursive start/end chains.
+---Returns: A `PlayMoveRequest` table with `status` (`"queued"`, `"applied"` or `"failed"`) and optional `error`. Native rejection immediately returns `failed`; accepted work starts `queued` and the host updates the receipt at its simulation boundary. `applied` means playback started, not that the move completed or hit. Invalid arguments, missing capabilities, expired references and forbidden callback timing raise Lua errors.
+---[Full reference](https://dawc17.github.io/ProjectEclipse/api/fighter/#fighterplay_move)
+---@param move Eclipse.MoveHandle
+---@return Eclipse.PlayMoveRequest
+function Fighter:play_move(move) end
+
+---Request explicit playback of a registered move on the opposing main fighter.
+---Requires: `combat.animation` and `combat.target`; a registered move handle owned by this script context.
+---When: The same active simulation callbacks and offline-round eligibility as the self method, with a living opponent. Check that the opponent table exists; begin/end callbacks cannot start a move on either participant.
+---Returns: A `PlayMoveRequest` with the same queued/applied/failed/error contract as the self method. `applied` confirms startup only, not completion or damage.
+---[Full reference](https://dawc17.github.io/ProjectEclipse/api/fighter/#fighteropponentplay_move)
+---@param move Eclipse.MoveHandle
+---@return Eclipse.PlayMoveRequest
+function Opponent:play_move(move) end
 
 ---Requires: `combat.round_outcome`, an applicable `controls_outcome = true` rule and a main fighter in an offline fight. Supported offline mod raids use the same round request; online raids, versus/PvP, training and title sparring reject requests. `outcome` must be exactly `"win"` or `"loss"`, relative to the **player**, even in an opponent callback. Missing capability, invalid argument types/values and expired/wrong callback timing raise errors.
 ---When: An active simulation callback for the controller's attached rule, normally `on_tick` or a combat observation. Unavailable in `on_fight_begin`, `on_round_begin`, `on_round_end` and `on_fight_end`, from expired captured fighter tables, while paused, or after a native result is pending.

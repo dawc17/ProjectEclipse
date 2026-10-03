@@ -625,3 +625,12 @@ calls produce a timing diagnostic. `templates/repulse/` mirrors the complete
 Repulse Trial: its HUD stores intent and its tick handler uses fresh handles.
 Movement queues until the simulation boundary; editor checks cannot confirm rig,
 collision or animation behavior. See the wiki's **Create a movement ability** guide.
+
+Explicit move playback uses `fighter:play_move(move)` (`combat.animation`) and
+`fighter.opponent:play_move(move)` (also `combat.target`). Completion returns a
+typed transient receipt: queued/applied/failed and optional error. It can be
+polled in later ticks. The first pending request per body/step wins; competitors
+fail. Begin/end calls produce timing diagnostics. Copy `templates/active-strike/`
+for a complete authored punch/HUD/cooldown example. Native input/AI conditions
+are not selection gates for explicit playback: define ability readiness and
+cancellation in Lua. See the wiki's **Activate an authored move** guide.

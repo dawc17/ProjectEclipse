@@ -189,7 +189,7 @@ async function main() {
     }, 'snapshot return type inference');
     console.log('PASS: combat snapshot return type and fighter fields complete');
     const flagMethods=probe('flag-methods.lua','local sf2=require("sf2")\nsf2.behaviors.register { id="flags",on_animation_start=function(_,fighter)\n fighter:|\nend }');
-    await until(async()=>{const found=labels(await request('textDocument/completion',flagMethods));return ['set_flag','has_flag','clear_flag','set_control_blocked','end_round','move_by'].every(key=>found.some(name=>name.startsWith(key)));},'scoped combat flag and outcome methods');
+    await until(async()=>{const found=labels(await request('textDocument/completion',flagMethods));return ['set_flag','has_flag','clear_flag','set_control_blocked','end_round','move_by','play_move'].every(key=>found.some(name=>name.startsWith(key)));},'scoped combat flag and outcome methods');
     const motionTarget=probe('motion-target.lua','local sf2=require("sf2")\nsf2.behaviors.register { id="motion",on_tick=function(_,fighter)\n if fighter.opponent then fighter.opponent:| end\nend }');
     await until(async()=>labels(await request('textDocument/completion',motionTarget)).some(name=>name.startsWith('move_by')),'opponent motion method');
     const motionHover=probe('motion-hover.lua','local sf2=require("sf2")\nsf2.behaviors.register { id="motion",on_tick=function(_,fighter)\n fighter:mo|ve_by(1,0)\nend }');
@@ -202,6 +202,18 @@ async function main() {
     await until(()=>diagnostics.has(repulseKey)&&diagnostics.get(repulseKey).length===0,'clean repulse diagnostics');
     assert.deepEqual(diagnostics.get(repulseKey),[],'Shipped Repulse has LuaLS diagnostics');
     console.log('PASS: fighter/opponent motion completion, capability/acceptance hover and complete Repulse script');
+    const playbackTarget=probe('playback-target.lua','local sf2=require("sf2")\nsf2.behaviors.register { id="play",on_tick=function(_,fighter)\n if fighter.opponent then fighter.opponent:| end\nend }');
+    await until(async()=>labels(await request('textDocument/completion',playbackTarget)).some(name=>name.startsWith('play_move')),'opponent playback completion');
+    const playbackHover=probe('playback-hover.lua','local sf2=require("sf2")\nsf2.behaviors.register { id="play",on_tick=function(_,fighter)\n fighter:pl|ay_move(move)\nend }');
+    await until(async()=>{const text=JSON.stringify(await request('textDocument/hover',playbackHover));return text.includes('combat.animation')&&text.includes('fighterplay_move')&&text.includes('queued');},'playback receipt and reference hover');
+    const playbackReceipt=probe('playback-receipt.lua','local sf2=require("sf2")\nlocal move=sf2.moves.register { id="move",animation="animations/punch" }\nsf2.behaviors.register { id="play",on_tick=function(_,fighter)\n local result=fighter:play_move(move)\n local value=result.|\nend }');
+    await until(async()=>{const found=labels(await request('textDocument/completion',playbackReceipt));return ['status','error'].every(key=>found.includes(key));},'playback receipt completion');
+    const activeText=fs.readFileSync(path.resolve(__dirname,'../../../Mods/example.active-strike/scripts/main.lua'),'utf8');
+    const activeUri=open('active-strike.lua',activeText+'\nsf2.price.coins("bad")\n');const activeKey=decodeURIComponent(activeUri).toLowerCase();
+    await until(()=>diagnostics.get(activeKey)?.some(d=>d.code==='param-type-mismatch'),'active strike diagnostic publication');
+    notify('textDocument/didChange',{textDocument:{uri:activeUri,version:2},contentChanges:[{text:activeText}]});
+    await until(()=>diagnostics.has(activeKey)&&diagnostics.get(activeKey).length===0,'clean active strike diagnostics');
+    console.log('PASS: fighter/opponent playback, typed receipt/hover and complete Active Strike script');
     const formReceipt = probe('form-receipt.lua', 'local sf2=require("sf2")\nlocal form=sf2.warriors.register { id="form" }\nsf2.behaviors.register { id="shift", on_tick=function(_, fighter)\n local result=fighter:change_form(form)\n local value=result.|\nend }');
     await until(async () => {
         const found=labels(await request('textDocument/completion',formReceipt));

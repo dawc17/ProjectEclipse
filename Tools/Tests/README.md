@@ -53,6 +53,20 @@ their help and docstrings for required inputs and execution behavior.
 
 ## PowerShell entry points
 
+`Combat/TestFighterPlayback.ps1` compiles the production Lua bindings and complete
+playback/motion queues with controlled native dependencies. It checks typed owned
+move handles, capability/timing/lifetime guards, competing mods, receipts,
+availability, native rejection/exception isolation, recursion, pause and teardown.
+The actual Active Strike source exercises HUD intent, applied/failed receipts,
+cooldown and next-round reset. `Combat/TestFighterPlaybackUnity.ps1` boots a marked
+isolated full game in Unity 6.6, plays the shipped authored punch through its
+native HUD button and verifies animation-start notification, contact damage,
+cooldown, pause retention and surrender cancellation. Controls/AI/spacing and a
+post-tutorial profile are controlled. The rendered PNG is under ignored Temp.
+Use `-ExistingFixture` only for a marked playback project inside repository Temp;
+each run has separate logs, save identity and freshness-checked result.
+Physical input, all rigs/equipment/arenas, Eclipse-mode and exports remain open.
+
 `Combat/TestFighterMotion.ps1` compiles the production Lua binding and complete
 fighter-motion queue with controlled models/session/translation. It checks typed
 arguments, capability/timing/lifetime guards, independent Lua contexts, shared

@@ -59,7 +59,7 @@ public sealed class ModelConditions { public bool IDCHHGHAENM; public int PDKPGK
 public sealed class ModelAnimation { public int KFCNPADAMHA() => 1; }
 public sealed class Model {
     public List<InfoAnimation> Moves = new List<InfoAnimation>();
-    public List<InfoAnimation> MCFPDHOLNGB() => Moves;
+    public List<InfoAnimation> GetAvailableAnimations() => Moves;
     public ModelConditions EBABHGHPLFK() => new ModelConditions();
 }
 public sealed class InfoAnimation {

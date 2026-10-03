@@ -69,6 +69,7 @@ const fighterMethods = {
     remove_damage_shield:{params:{key:'string'},capability:'combat.effects'},
     set_control_blocked:{params:{control:enumOf('punch','kick','ranged','magic','raid_charge'),blocked:'boolean'},capability:'combat.effects'},
     move_by:{params:{x:'number',y:'number',z:'number?'},returns:'boolean, string|nil',capability:'combat.motion'},
+    play_move:{params:{move:H('Move')},returns:E('PlayMoveRequest'),capability:'combat.animation'},
     end_round:{params:{outcome:enumOf('win','loss')},returns:'boolean, string|nil',capability:'combat.round_outcome'},
     set_flag:{params:{key:'string'},returns:'string',capability:'combat.effects'},
     clear_flag:{params:{key:'string'},capability:'combat.effects'},
@@ -77,6 +78,7 @@ const fighterMethods = {
     clear_status_icon:{params:{key:'string'},capability:'combat.effects'},
 };
 type('FormRequest',{status:enumOf('queued','applied','failed'),'error?':'string'});
+type('PlayMoveRequest',{status:enumOf('queued','applied','failed'),'error?':'string'});
 const equipment = { id:'string', display_name:H('Localization'), icon:H('Sprite'), model:H('Model') };
 const initialStatFields = {Weapon:['weapon_damage'],Armor:['body_defense','head_defense','unarmed_damage'],Helm:['head_defense'],Ranged:['ranged_damage','weapon_damage'],Magic:['magic_damage']};
 for (const name of ['Weapon','Armor','Helm','Ranged','Magic']) {

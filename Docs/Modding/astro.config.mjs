@@ -24,6 +24,7 @@ export default defineConfig({
           { slug: 'guides/first-battle' },
           { slug: 'guides/programmable-rules' },
           { slug: 'guides/fighter-motion' },
+            { slug: 'guides/move-abilities' },
           { slug: 'guides/combine-mods' },
           { slug: 'guides/character-authoring' },
           { slug: 'guides/gymnast' },

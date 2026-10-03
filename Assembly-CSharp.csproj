@@ -906,6 +906,7 @@
     <Compile Include="Assets/Scripts/Assembly-CSharp/Nekki/SF2/GUI/Shop/ButtonPanel.cs" />
     <Compile Include="Assets/Scripts/Eclipse/Multiplayer/LocalVersusMenu.Lobby.cs" />
     <Compile Include="Assets/Scripts/Eclipse/Modding/FightFighterMotion.cs" />
+    <Compile Include="Assets/Scripts/Eclipse/Modding/FightFighterPlayback.cs" />
     <Compile Include="Assets/Scripts/Eclipse/Modding/MoonSharpScriptRuntime.cs" />
     <Compile Include="Assets/Scripts/Eclipse/Underworld/Diagnostics/UnderworldRaidDiagnostics.cs" />
     <Compile Include="Assets/Scripts/Assembly-CSharp/TutorialToggle.cs" />

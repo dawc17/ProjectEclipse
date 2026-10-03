@@ -243,7 +243,8 @@ if fighter.opponent then
 end
 ```
 
-The opponent target also exposes [`move_by`](#fighteropponentmove_by). There are
+The opponent target also exposes [`move_by`](#fighteropponentmove_by) and
+[`play_move`](#fighteropponentplay_move). There are
 no opponent shield or opponent pending-hit methods on this target object.
 
 ## fighter:scale_incoming_damage
@@ -570,3 +571,93 @@ application and lifetime limits also apply. The opponent shares its pending
 queue with requests it receives through other behaviors. Moving both participants
 requires two independent calls; they are not a transaction. A call cannot target
 arbitrary child actors or retained fighters from earlier callbacks.
+
+## fighter:play_move
+
+Request explicit playback of an authored move on this main fighter.
+
+**Signature:** `fighter:play_move(move)`
+
+**Returns:** A `PlayMoveRequest` table with `status` (`"queued"`, `"applied"` or
+`"failed"`) and optional `error`. Native rejection immediately returns `failed`;
+accepted work starts `queued` and the host updates the receipt at its simulation
+boundary. `applied` means playback started, not that the move completed or hit.
+Invalid arguments, missing capabilities, expired references and forbidden
+callback timing raise Lua errors.
+
+**When:** Active simulation callbacks with a living main fighter in an offline
+round. Unavailable in `on_fight_begin`, `on_round_begin`, `on_round_end`,
+`on_fight_end`, while paused, in training/title sparring, local versus, legacy PvP
+or online raids. Offline mod raids are eligible. Requests during the native
+playback boundary reject to prevent recursive start/end chains.
+
+**Requires:** `combat.animation`. `move` must be a handle returned by this mod's
+`sf2.moves.register` or `sf2.moves.replace`; raw names, forged handles and another
+script context's handles are rejected.
+
+```lua
+-- strike is a move handle registered by this script during loading.
+-- Inside an active callback, request once when the ability activates:
+local request = fighter:play_move(strike)
+-- You may retain this receipt and poll it in later ticks, unlike fighter handles.
+if request.status == "failed" then sf2.log.warn(request.error) end
+```
+
+The move must exist in the current fighter's native animation cache, which is
+built for its rig/equipment/locks. Availability is checked at queuing and again
+at application. This API deliberately uses explicit named playback, rather than
+input/AI selection: it does **not** evaluate move selection events/conditions,
+key bindings, priorities, cancel windows or player control restrictions. It can
+interrupt a running animation. Native model readiness/physics checks still apply.
+Define ability costs, readiness, cancellation and cooldown policy in Lua; add
+attack windows, damage, effects and transitions to the declarative move. Test
+the binary's rig compatibility. A cached move alone is not proof that it is
+appropriate to play during every state.
+
+Only one request per body can be pending in a simulation step, shared across
+mods. The first accepted request wins; another returns a failed receipt without
+overwriting it, even for the same move. Each participant has a separate slot.
+An accepted request remains queued if its handler later raises an error; combat
+operations are not a transaction.
+The host applies motion first, then playback, after normal model/collision/
+animation processing and before round arbitration/interpolation capture.
+Snapshots inside the requesting callback still show the old animation.
+
+Pause retains already queued work until simulation resumes. A dead/replaced/
+detached body, unavailable move, stale round/session or round/fight teardown
+fails its receipt and never replays the request. Native start failure also sets
+`failed`, without suppressing the other participant's request. Receipt updates
+do not invoke a Lua completion callback. The receipt is transient; do not persist
+it in saved state. Editing its fields cannot control the host.
+
+See [Active Strike](../../examples/#active-strike-trial) for a complete HUD ability
+using a registered punch and an applied receipt before starting cooldown.
+
+## fighter.opponent:play_move
+
+Request explicit playback of a registered move on the opposing main fighter.
+
+**Signature:** `fighter.opponent:play_move(move)`
+
+**Returns:** A `PlayMoveRequest` with the same queued/applied/failed/error contract
+as the self method. `applied` confirms startup only, not completion or damage.
+
+**When:** The same active simulation callbacks and offline-round eligibility as
+the self method, with a living opponent. Check that the opponent table exists;
+begin/end callbacks cannot start a move on either participant.
+
+**Requires:** `combat.animation` and `combat.target`; a registered move handle
+owned by this script context.
+
+```lua
+-- Inside an active callback; reaction was registered during loading.
+if fighter.opponent then
+    local request = fighter.opponent:play_move(reaction)
+    if request.status == "failed" then sf2.log.warn(request.error) end
+end
+```
+
+All self-method availability, argument, explicit-selection, queue, receipt and
+lifetime rules apply. The opponent's slot is shared with requests it receives
+through its own behaviors. Two calls are independent, not an atomic pair; this
+operation cannot address arbitrary child actors.

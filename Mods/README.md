@@ -40,6 +40,7 @@ across launches. Disabling a mod retains its saved progress.
 ## Content and reference
 
 - [Repulse Trial](example.repulse/README.md) demonstrates a Lua movement ability using queued fighter displacement.
+- [Active Strike Trial](example.active-strike/README.md) starts an authored move through a Lua HUD ability and observes its playback receipt.
 - [Chiaroscuro](chiaroscuro/README.md) is the cinematic visuals mod kept here.
 - [Archived examples](../ArchivedMods/) preserve earlier showcases outside the active mod directory.
 - [Engineering records](../Docs/Engineering/Modding/README.md) contain plans, audits and verification history.

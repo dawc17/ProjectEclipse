@@ -1003,7 +1003,7 @@ public class Model : global::EventDispatcher<object>
 	{
 		get
 		{
-			return MCFPDHOLNGB();
+			return GetAvailableAnimations();
 		}
 	}
 
@@ -1824,7 +1824,8 @@ public class Model : global::EventDispatcher<object>
 		}
 	}
 
-	public List<InfoAnimation> MCFPDHOLNGB()
+	// best guess for name
+	public List<InfoAnimation> GetAvailableAnimations()
 	{
 		return OHAMEHHMEAL;
 	}
@@ -3982,7 +3983,7 @@ public class Model : global::EventDispatcher<object>
 		ModelObject eFALNIGJKLB = _ModelObject;
 		bool dPKOKLCJEHI = EPCNJLEHJCB();
 		bool eMGNKKHPGCJ = NJDJHGDMCIJ() != null;
-		List<InfoAnimation> lNKFKJKLCKP = MCFPDHOLNGB();
+		List<InfoAnimation> lNKFKJKLCKP = GetAvailableAnimations();
 		List<Trigger> aIPCBIBMFCB = NOJEIGNOPII();
 		foreach (Model item in INNLAFHKJNI)
 		{
@@ -3992,7 +3993,7 @@ public class Model : global::EventDispatcher<object>
 
 	public void KMKOHGBJNBK(List<InfoAnimation> LNKFKJKLCKP, ModelObject BBGCMFGFMCL, bool DPKOKLCJEHI, bool EMGNKKHPGCJ, List<Trigger> AIPCBIBMFCB)
 	{
-		List<InfoAnimation> list = MCFPDHOLNGB();
+		List<InfoAnimation> list = GetAvailableAnimations();
 		foreach (InfoAnimation item in list)
 		{
 			item.BPHNHFJCFCD(BBGCMFGFMCL, DPKOKLCJEHI, EMGNKKHPGCJ, BBGCMFGFMCL);

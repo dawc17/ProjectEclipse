@@ -24,7 +24,7 @@ for(const name of ['on_click','on_close','on_change','on_back','on_decide','on_p
 if (sources.some(source => source.includes('definition.Get("on_complete")'))) exported.add('on_complete');
 if (sources.some(source => source.includes('definition.Get("on_cancel")'))) exported.add('on_cancel');
 if (sources.some(source => source.includes('":on_before_fight"'))) exported.add('on_before_fight');
-const covered=new Set(['require',...Object.keys(schema.functions),...Object.keys(schema.aliases),...schema.callbacks,...schema.storyCallbacks,...schema.modeCallbacks,...schema.uiCallbacks,...schema.aiCallbacks,...Object.keys(schema.fighterMethods).map(n=>'fighter:'+n),'fighter.opponent:change_health','fighter.opponent:add_magic_charge','fighter.opponent:move_by']);
+const covered=new Set(['require',...Object.keys(schema.functions),...Object.keys(schema.aliases),...schema.callbacks,...schema.storyCallbacks,...schema.modeCallbacks,...schema.uiCallbacks,...schema.aiCallbacks,...Object.keys(schema.fighterMethods).map(n=>'fighter:'+n),'fighter.opponent:change_health','fighter.opponent:add_magic_charge','fighter.opponent:move_by','fighter.opponent:play_move']);
 assert.deepEqual([...covered].sort(),[...exported].sort(),'LuaLS schema must cover every runtime function, alias and callback exactly.');
 const docs={};
 for(const file of fs.readdirSync(path.join(repo,'Docs/Modding/src/content/docs/api'))){
@@ -56,7 +56,7 @@ for(const [name,f] of Object.entries(schema.functions)){
 }
 for(const [name,target] of Object.entries(schema.aliases)) out+=comment(name)+`${name.slice(4)} = ${target.slice(4)}\n\n`;
 for(const [name,value] of Object.entries(constants))out+=`---@type ${JSON.stringify(value)}\n${name.slice(4)} = ${JSON.stringify(value)}\n\n`;
-for(const [name,f] of Object.entries(schema.fighterMethods))for(const opponent of [false,...(['change_health','add_magic_charge','move_by'].includes(name)?[true]:[])]){
+for(const [name,f] of Object.entries(schema.fighterMethods))for(const opponent of [false,...(['change_health','add_magic_charge','move_by','play_move'].includes(name)?[true]:[])]){
     const symbol=`fighter${opponent?'.opponent':''}:${name}`;
     out+=comment(symbol);
     for(const [p,t] of Object.entries(f.params))out+=`---@param ${p} ${t}\n`;

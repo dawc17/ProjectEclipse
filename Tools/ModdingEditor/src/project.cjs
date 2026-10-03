@@ -140,7 +140,7 @@ function analyze(text,mod){
                     }
                 }
             }
-            if(typeof symbol==='string'&&symbol.startsWith('fighter.')){const method=symbol.split('.').at(-1),target=symbol.startsWith('fighter.opponent.');const spec=api.fighterMethods[method];if(spec){required(n,spec.capability);if(target)required(n,'combat.target');if(method==='move_by'&&['on_fight_begin','on_round_begin','on_round_end','on_fight_end'].includes(callback))add(n,'callback-timing','move_by requires an active simulation callback.');if(method==='scale_incoming_damage'&&callback!=='on_damage_resolving')add(n,'callback-timing','scale_incoming_damage is available only in on_damage_resolving.');}}
+            if(typeof symbol==='string'&&symbol.startsWith('fighter.')){const method=symbol.split('.').at(-1),target=symbol.startsWith('fighter.opponent.');const spec=api.fighterMethods[method];if(spec){required(n,spec.capability);if(target)required(n,'combat.target');if(['move_by','play_move'].includes(method)&&['on_fight_begin','on_round_begin','on_round_end','on_fight_end'].includes(callback))add(n,'callback-timing',method+' requires an active simulation callback.');if(method==='scale_incoming_damage'&&callback!=='on_damage_resolving')add(n,'callback-timing','scale_incoming_damage is available only in on_damage_resolving.');}}
             for(const arg of args){if(info&&name==='sf2.behaviors.register'&&arg===args[0]){for(const f of arg.fields??[])if(!api.callbacks.includes(f.key?.name))expression(f.value,env,callback);}else expression(arg,env,callback);}return;
         }
         if(n.type==='FunctionDeclaration'){const next=new Map(env);for(const p of n.parameters)next.set(p.name,null);block(n.body,next,callback);return;}

@@ -43,7 +43,7 @@ public class InfoAnimation {
 }
 public class Model {
  public List<InfoAnimation> Moves=new List<InfoAnimation>(); public ModelConditions Conditions=new ModelConditions();
- public List<InfoAnimation> MCFPDHOLNGB(){return Moves;} public ModelConditions EBABHGHPLFK(){return Conditions;}
+ public List<InfoAnimation> GetAvailableAnimations(){return Moves;} public ModelConditions EBABHGHPLFK(){return Conditions;}
 }
 public class ModelAnimation { public int Facing=1; public int KFCNPADAMHA(){return Facing;} }
 public static class LLLOJBFMONN { public static void Error(string message){} }

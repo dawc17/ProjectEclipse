@@ -107,7 +107,7 @@ static class Program
         var failed=new Fight();failed.Player.Throw=true;failed.Queue(failed.Player,10,0,0,out reason);failed.Queue(failed.Enemy,20,0,0,out reason);failed.Step();failed.Player.Throw=false;failed.Step();Check(failed.Player.X==0&&failed.Enemy.X==20,"Native failure replayed or suppressed other participant");
         ShippedRepulse();
         var source=File.ReadAllText(Path.Combine(repo,"Assets/Scripts/Assembly-CSharp/Fight.cs")).Replace("\r\n","\n");
-        Check(source.Contains("ApplyEclipseFighterMotion();\n\t\tRenderRound();"),"Native application boundary moved");
+        Check(source.Contains("ApplyEclipseFighterMotion();\n\t\tApplyEclipseFighterPlayback();\n\t\tRenderRound();"),"Native application boundary moved");
         Check(source.Split("CancelEclipseFighterMotion();").Length-1==4,"Native lifetime cancellation hook missing");
         Console.WriteLine("PASS: "+checks+" fighter-motion checks; real MoonSharp binding, independent Lua contexts and full production queue; model, clock/session and translation services controlled.");
     }

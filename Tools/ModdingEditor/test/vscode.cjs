@@ -90,11 +90,11 @@ exports.run = async function () {
         const controlDeadline=Date.now()+30000;
         while(Date.now()<controlDeadline) {
             const result=await vscode.commands.executeCommand('vscode.executeCompletionItemProvider',controlUri,new vscode.Position(2,9));
-            if(['set_control_blocked','end_round','move_by'].every(name=>result?.items.some(item=>String(typeof item.label==='string'?item.label:item.label.label).startsWith(name)))){controlFound=true;break;}
+            if(['set_control_blocked','end_round','move_by','play_move'].every(name=>result?.items.some(item=>String(typeof item.label==='string'?item.label:item.label.label).startsWith(name)))){controlFound=true;break;}
             await new Promise(resolve=>setTimeout(resolve,500));
         }
         assert(controlFound,'Player control restriction completion missing');
-        passed.push('PASS: fighter control restriction, round outcome and movement completion');
+        passed.push('PASS: fighter control restriction, round outcome, movement and playback completion');
 
         const uri = vscode.Uri.joinPath(folder.uri, 'scripts', 'editor-test.lua');
         fs.writeFileSync(uri.fsPath, 'local sf2 = require("sf2")\nsf2.assets.sprite("sprites/weapon")\nsf2.localization.key("weapon.training_blade")\n');

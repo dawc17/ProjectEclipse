@@ -2092,6 +2092,13 @@
       "returns": "boolean, string|nil",
       "capability": "combat.motion"
     },
+    "play_move": {
+      "params": {
+        "move": "Eclipse.MoveHandle"
+      },
+      "returns": "Eclipse.PlayMoveRequest",
+      "capability": "combat.animation"
+    },
     "end_round": {
       "params": {
         "outcome": "\"win\"|\"loss\""
@@ -2552,6 +2559,12 @@
       "parent": "Fighter"
     },
     "FormRequest": {
+      "fields": {
+        "status": "\"queued\"|\"applied\"|\"failed\"",
+        "error?": "string"
+      }
+    },
+    "PlayMoveRequest": {
       "fields": {
         "status": "\"queued\"|\"applied\"|\"failed\"",
         "error?": "string"

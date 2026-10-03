@@ -734,6 +734,11 @@ namespace Eclipse.Modding
         bool TryMoveBy(double x, double y, double z, out string error);
     }
 
+    public interface IModFighterPlayback
+    {
+        bool TryPlayMove(DefinitionId move, Action<bool, string> complete, out string error);
+    }
+
     public static class ModFighterMotionLimits
     {
         public const double MaximumDisplacement = 1000;
@@ -1058,7 +1063,7 @@ namespace Eclipse.Modding
         IModFighterOperations Opponent { get; }
     }
 
-    public sealed class ModInstanceFighter : IModFighterOperations, IModDamageEventSource, IModBehaviorInstanceSource, IModFighterTargets, IModIncomingHitSource, IModFighterEffects, IModCombatSnapshotSource, IModCombatActivitySource, IModFighterForms, IModFighterStatusIcons, IModAnimationLifecycleSource, IModFighterFlags, IModFighterControls, IModRoundOutcomes, IModFighterMotion
+    public sealed class ModInstanceFighter : IModFighterOperations, IModDamageEventSource, IModBehaviorInstanceSource, IModFighterTargets, IModIncomingHitSource, IModFighterEffects, IModCombatSnapshotSource, IModCombatActivitySource, IModFighterForms, IModFighterStatusIcons, IModAnimationLifecycleSource, IModFighterFlags, IModFighterControls, IModRoundOutcomes, IModFighterMotion, IModFighterPlayback
     {
         private readonly IModFighterOperations _inner;
         private readonly FightRuleDefinition _outcomeRule;
@@ -1104,6 +1109,11 @@ namespace Eclipse.Modding
         {
             if (_inner is IModFighterMotion motion) return motion.TryMoveBy(x, y, z, out error);
             error = "Fighter motion is unavailable."; return false;
+        }
+        public bool TryPlayMove(DefinitionId move, Action<bool, string> complete, out string error)
+        {
+            if (_inner is IModFighterPlayback playback) return playback.TryPlayMove(move, complete, out error);
+            error = "Fighter playback is unavailable."; return false;
         }
         public System.Xml.XmlNode SavedInstance { get; }
         public ModDamageEvent DamageEvent => (_inner as IModDamageEventSource)?.DamageEvent;

@@ -8,6 +8,18 @@ const { createMod } = require('../src/scaffold.cjs');
 const template = path.resolve(__dirname, '../templates/weapon');
 const header = 'local sf2 = require("sf2")\n';
 
+test('active strike starter validates playback capabilities, timing, handles and mirrored assets',async()=>{
+    const directory=path.resolve(__dirname,'../../../Mods/example.active-strike');
+    const mod=await p.indexMod(directory);const text=await fs.readFile(path.join(directory,'scripts/main.lua'),'utf8');
+    assert.deepEqual(mod.issues,[]);assert.deepEqual(p.analyze(text,mod).issues,[]);
+    for(const file of ['mod.toml','scripts/main.lua','assets/animations/high_punch.bytes'])
+        assert.deepEqual(await fs.readFile(path.resolve(__dirname,'../templates/active-strike',file)),await fs.readFile(path.join(directory,file)));
+    assert(p.analyze(text,{...mod,data:{...mod.data,capabilities:mod.data.capabilities.filter(c=>c!=='combat.animation')}}).issues.some(i=>i.capability==='combat.animation'));
+    for(const callback of ['on_fight_begin','on_round_begin','on_round_end','on_fight_end'])
+        assert(p.analyze(header+`sf2.behaviors.register{id="test",${callback}=function(_,fighter) fighter:play_move(move) end}`,mod).issues.some(i=>i.code==='callback-timing'));
+    assert(p.analyze(header+'sf2.behaviors.register{id="test",on_tick=function(_,fighter) fighter.opponent:play_move(move) end}',mod).issues.some(i=>i.capability==='combat.target'));
+});
+
 test('motion starter validates capabilities, lifetime timing and mirrored files', async () => {
     const directory=path.resolve(__dirname,'../../../Mods/example.repulse');
     const mod=await p.indexMod(directory);
