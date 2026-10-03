@@ -55,6 +55,11 @@ exports.run = async function () {
         assert(servicesFound, 'Framework service function completion missing');
         passed.push('PASS: framework service registration, lookup and calls complete');
 
+        const arenaUri=vscode.Uri.joinPath(folder.uri,'scripts','arena-completion.lua');
+        fs.writeFileSync(arenaUri.fsPath,'local sf2=require("sf2")\nsf2.world.');await vscode.workspace.openTextDocument(arenaUri);
+        let arenaFound=false;const arenaDeadline=Date.now()+30000;
+        while(Date.now()<arenaDeadline){const result=await vscode.commands.executeCommand('vscode.executeCompletionItemProvider',arenaUri,new vscode.Position(1,10));const labels=result?.items.map(item=>String(typeof item.label==='string'?item.label:item.label.label))??[];if(['remove_marker','is_marker_active','set_marker_color'].every(name=>labels.some(label=>label===name||label.startsWith(name+'(')))){arenaFound=true;break;}await new Promise(resolve=>setTimeout(resolve,500));}
+        assert(arenaFound,'Owned arena marker completion missing');passed.push('PASS: owned arena marker completion');
         const audioUri=vscode.Uri.joinPath(folder.uri,'scripts','audio-completion.lua');
         fs.writeFileSync(audioUri.fsPath,'local sf2=require("sf2")\nsf2.audio.');await vscode.workspace.openTextDocument(audioUri);
         let audioFound=false;const audioDeadline=Date.now()+30000;
@@ -96,7 +101,7 @@ exports.run = async function () {
         const controlDeadline=Date.now()+30000;
         while(Date.now()<controlDeadline) {
             const result=await vscode.commands.executeCommand('vscode.executeCompletionItemProvider',controlUri,new vscode.Position(2,9));
-            if(['set_control_blocked','end_round','move_by','play_move'].every(name=>result?.items.some(item=>String(typeof item.label==='string'?item.label:item.label.label).startsWith(name)))){controlFound=true;break;}
+            if(['set_control_blocked','end_round','move_by','play_move','mark_rect','overlaps_rect'].every(name=>result?.items.some(item=>String(typeof item.label==='string'?item.label:item.label.label).startsWith(name)))){controlFound=true;break;}
             await new Promise(resolve=>setTimeout(resolve,500));
         }
         assert(controlFound,'Player control restriction completion missing');

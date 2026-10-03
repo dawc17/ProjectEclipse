@@ -179,3 +179,11 @@ Literal volume bounds and missing `audio.play` capability are diagnosed. Copy
 `Tools/ModdingEditor/templates/audio-lab/` manually for a complete original WAV
 and HUD example. See the [audio reference](../../api/audio/); editor checks cannot
 verify native pause, source output or device audibility.
+
+
+Rectangle fields complete for `fighter:overlaps_rect` and `fighter:mark_rect`.
+Marker handles are distinct from UI/audio handles; `sf2.world` completes removal,
+recoloring and lifetime queries. Opponent sensors require `combat.target`; marker
+operations require `presentation.visuals`. Copy the manual `pulse-arena` starter
+for a complete timed hazard. See [Arena regions and markers](../../api/arena/).
+Editor checks cannot prove rendered alignment, native contacts or pause cleanup.

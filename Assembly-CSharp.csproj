@@ -54,6 +54,9 @@
     <Analyzer Include="/home/czapla/Unity/Hub/Editor/6000.6.0f1/Editor/Data/BCLExtensions/TargetingPacks/netstandard2.1/analyzers/dotnet/roslyn4.0/cs/System.Text.Json.SourceGeneration.dll" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Assets\Scripts\Eclipse\Modding\ModArenaGeometry.cs" />
+    <Compile Include="Assets\Scripts\Eclipse\Modding\ModArenaMarkerRenderer.cs" />
+    <Compile Include="Assets\Scripts\Eclipse\Modding\MoonSharpScriptRuntimeArena.cs" />
     <Compile Include="Assets\Scripts\Eclipse\Multiplayer\PvpRecoverableBar.cs" />
     <Compile Include="Assets\Scripts\Eclipse\Multiplayer\PvpBalanceCombat.cs" />
     <Compile Include="Assets\Scripts\Eclipse\Multiplayer\PvpBalanceProfiles.cs" />

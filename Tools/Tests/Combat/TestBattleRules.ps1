@@ -13,7 +13,9 @@ if ($hitStart -lt 0 -or $outgoing -le $hitStart -or $invulnerable -le $outgoing 
 & (Join-Path $PSScriptRoot '../Modding/TestPhase1ShowcaseRuntime.ps1')
 $fixture = Join-Path $root ('Temp/BattleRules-' + [Guid]::NewGuid().ToString('N'))
 New-Item -ItemType Directory -Force -Path (Join-Path $fixture 'Mods') | Out-Null
-Copy-Item -LiteralPath (Join-Path $root 'Mods/example.battle-rules') -Destination (Join-Path $fixture 'Mods') -Recurse
+$example = Join-Path $root 'Mods/example.battle-rules'
+if (!(Test-Path -LiteralPath $example)) { $example = Join-Path $root 'ArchivedMods/example.battle-rules' }
+Copy-Item -LiteralPath $example -Destination (Join-Path $fixture 'Mods') -Recurse
 Copy-Item -LiteralPath (Join-Path $PSScriptRoot 'ValidateBattleRules.cs') -Destination (Join-Path $fixture 'Program.cs')
 Copy-Item -LiteralPath (Join-Path $root 'Assets/Scripts/Eclipse/Modding/ModScriptSession.cs') -Destination (Join-Path $fixture 'ModScriptSession.cs')
 $production = [Security.SecurityElement]::Escape((Join-Path $root 'Temp/Phase1ShowcaseRuntime/bin/Debug/net10.0/Phase1ShowcaseRuntime.dll'))

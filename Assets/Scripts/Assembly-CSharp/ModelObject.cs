@@ -174,7 +174,7 @@ public class ModelObject
 	{
 		get
 		{
-			return ODDEMLAODPM();
+			return GetCollisionEdges();
 		}
 	}
 
@@ -320,7 +320,8 @@ public class ModelObject
 		return (CEHJGIHMKFF.NBJCHIJDDNN.Count == 0) ? CEHJGIHMKFF.OEAFIMFONDL : CEHJGIHMKFF.NBJCHIJDDNN;
 	}
 
-	public List<ModelEdge> ODDEMLAODPM()
+	// best guess for name
+	public List<ModelEdge> GetCollisionEdges()
 	{
 		return LCDOKKAKODE.ECNOHFFDIFG;
 	}

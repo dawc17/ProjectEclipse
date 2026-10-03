@@ -2,13 +2,22 @@
 
 Last broad reconciliation: 2026-09-12. Scope remains **G01–G14 plus E1–E8**.
 
+2026-10-04 creator-platform arenas: Lua can sample main-fighter collision capsules
+against bounded rectangles and own round-bound warning markers. Pulse Arena runs
+an equipment-free warning/active/recovery hazard through normal Campaign/core
+Tournament 3, with actual contact health loss, pause/resume and cleanup. Native
+shared-pool and post-round tick checks pass; this advances E6/E8. Input, AI and
+spacing are controlled. Solid/swept physics, arbitrary actors, broader arena/form,
+physical-input/export and independent creator acceptance remain open. Source and
+verification are recorded in the creator work log.
+
 2026-10-03 creator-platform audio: mods can now own sound instances, query/stop
 them and update their volume. Game/real clocks distinguish combat/listener pause;
 scene, script and optional UI ownership bound their lifetime. Audio Lab passes
 104 full-game native checks with an original WAV, rendered HUD and source clock,
 volume/mute, shared-budget and cleanup evidence. This advances E6/E8. Physical
-device audibility, spatial audio, seeking, music-channel control and timed arena
-hazards remain open. Source and verification are recorded in the creator work log.
+device audibility, spatial audio, seeking, music-channel control remain open. Timed arena hazard progress is recorded
+above. Source and verification are recorded in the creator work log.
 
 2026-10-03 creator-platform playback: Lua abilities can explicitly start an owned
 registered move through queued `play_move` requests with startup/failure receipts.

@@ -1,5 +1,39 @@
 {
   "functions": {
+    "sf2.world.remove_marker": {
+      "params": {
+        "marker": "Eclipse.ArenaMarkerHandle"
+      },
+      "returns": "`true` if the marker was active, otherwise `false`. A forged or foreign handle raises an error. The visual is hidden immediately; native Unity resources are destroyed using the normal deferred destruction path.",
+      "capability": "presentation.visuals",
+      "url": "https://dawc17.github.io/ProjectEclipse/api/arena/#sf2worldremove_marker",
+      "summary": "Release owned arena art. Repeated removal is safe.",
+      "requires": "`presentation.visuals`; a marker created by this script context.",
+      "when": "After creation, including round/fight cleanup callbacks. Automatic round/script cleanup still runs if the mod forgets to remove a marker."
+    },
+    "sf2.world.is_marker_active": {
+      "params": {
+        "marker": "Eclipse.ArenaMarkerHandle"
+      },
+      "returns": "`true` while the round-bound marker is active, including pause, otherwise `false`. A forged or foreign handle raises an error.",
+      "capability": "presentation.visuals",
+      "url": "https://dawc17.github.io/ProjectEclipse/api/arena/#sf2worldis_marker_active",
+      "summary": "Check marker lifetime. This does not test whether the camera currently sees it.",
+      "requires": "`presentation.visuals`; a marker created by this script context.",
+      "when": "After creation; safe for a retained closed handle in its owning script."
+    },
+    "sf2.world.set_marker_color": {
+      "params": {
+        "marker": "Eclipse.ArenaMarkerHandle",
+        "color": "string"
+      },
+      "returns": "`true` if the marker was active and updated, `false` if it has closed. Invalid colors, forged/foreign handles and extra arguments raise an error.",
+      "capability": "presentation.visuals",
+      "url": "https://dawc17.github.io/ProjectEclipse/api/arena/#sf2worldset_marker_color",
+      "summary": "Update owned warning art without replacing its geometry or extending its lifetime.",
+      "requires": "`presentation.visuals`; a marker created by this script context.",
+      "when": "After marker creation, from the owning script's runtime callbacks. Updating a closed handle cannot restart it."
+    },
     "sf2.audio.play": {
       "params": {
         "audio": "Eclipse.AudioHandle",
@@ -2073,6 +2107,21 @@
       "returns": "Eclipse.FormRequest",
       "capability": "combat.transform"
     },
+    "overlaps_rect": {
+      "params": {
+        "rectangle": "Eclipse.ArenaRect"
+      },
+      "returns": "boolean|nil, string|nil",
+      "capability": null
+    },
+    "mark_rect": {
+      "params": {
+        "rectangle": "Eclipse.ArenaRect",
+        "color": "string?"
+      },
+      "returns": "Eclipse.ArenaMarkerHandle|nil, string|nil",
+      "capability": "presentation.visuals"
+    },
     "snapshot": {
       "params": {},
       "returns": "Eclipse.CombatSnapshot|nil",
@@ -2374,6 +2423,31 @@
     "ExtensionHandle": {
       "fields": {
         "private __eclipseExtension": "true"
+      }
+    },
+    "ArenaMarkerHandle": {
+      "fields": {
+        "private __eclipseArenaMarker": "true"
+      }
+    },
+    "ArenaRect": {
+      "fields": {
+        "x": [
+          "number",
+          "Finite -10000..10000, arena minimum X."
+        ],
+        "y": [
+          "number",
+          "Finite -10000..10000, native positive-down Y."
+        ],
+        "width": [
+          "number",
+          "Positive, at most 4000."
+        ],
+        "height": [
+          "number",
+          "Positive, at most 4000."
+        ]
       }
     },
     "AudioInstanceHandle": {

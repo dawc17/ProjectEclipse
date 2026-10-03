@@ -116,6 +116,9 @@ Round-lifetime behavior state is available for the new round. Use round state fo
 
 ## on_tick
 
+After round-end or fight-end dispatch, no further combat ticks are sent to either
+side during the native result animation. This also applies after surrender.
+
 Update timed behavior even when neither fighter lands a hit.
 
 **Signature:** `on_tick = function(parameters, fighter, event)`; stateful behaviors

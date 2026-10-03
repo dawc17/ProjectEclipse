@@ -20,6 +20,11 @@ type('FieldSchema', { type: enumOf('number','integer','boolean','string'), 'requ
 const schema = `table<string,${E('FieldSchema')}|${enumOf('number','integer','boolean','string')}>`;
 const values = 'table<string,any>'; // Runtime schemas determine these keys/types; do not invent static types.
 type('ExtensionHandle', { 'private __eclipseExtension': 'true' });
+type('ArenaMarkerHandle', { 'private __eclipseArenaMarker': 'true' });
+type('ArenaRect', { x:['number','Finite -10000..10000, arena minimum X.'],y:['number','Finite -10000..10000, native positive-down Y.'],width:['number','Positive, at most 4000.'],height:['number','Positive, at most 4000.'] });
+fn('world.remove_marker',{marker:H('ArenaMarker')},'boolean','presentation.visuals');
+fn('world.is_marker_active',{marker:H('ArenaMarker')},'boolean','presentation.visuals');
+fn('world.set_marker_color',{marker:H('ArenaMarker'),color:'string'},'boolean','presentation.visuals');
 type('AudioInstanceHandle', { 'private __eclipseAudioInstance': 'true' });
 type('AudioOptions', { 'volume?':['number','Finite 0..1 multiplier of saved sound volume. Default 1.'], 'loop?':['boolean','Default false.'], 'clock?':[enumOf('game','real'),'Default game: follows combat pause at normal playback rate. Real ignores combat/listener pause.'], 'owner?':[H('Ui'),'Open UI owned by this script; closing it stops the voice.'] });
 fn('audio.play',{audio:H('Audio'),'options?':E('AudioOptions')},`${H('AudioInstance')}|nil, string|nil`,'audio.play');
@@ -65,6 +70,8 @@ type('ResolvingFighter',{},'Fighter');
 type('OutgoingFighter',{},'Fighter');
 const fighterMethods = {
     change_form:{params:{character:H('Warrior')},returns:E('FormRequest'),capability:'combat.transform'},
+    overlaps_rect:{params:{rectangle:E('ArenaRect')},returns:'boolean|nil, string|nil',capability:null},
+    mark_rect:{params:{rectangle:E('ArenaRect'),color:'string?'},returns:H('ArenaMarker')+'|nil, string|nil',capability:'presentation.visuals'},
     snapshot:{params:{},returns:`${E('CombatSnapshot')}|nil`,capability:null},
     change_health:{params:{amount:'number'},capability:'combat.change_life'},
     add_magic_charge:{params:{amount:'number'},capability:'combat.magic_charge'},

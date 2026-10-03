@@ -548,3 +548,23 @@ Navigation follow-up: grids now use directional geometry for arrows and
 D-pad/stick, alongside Tab/Shift+Tab traversal. Sliders retain horizontal input
 at their endpoints. Isolated Unity and bridge routing checks pass; device/game
 acceptance and virtualized collections remain pending.
+
+
+## Arena regions and owned markers delivered
+
+The world/presentation track now has pose-based XY rectangle sensors, filled
+arena-local warning markers and the shipped Pulse Arena Lua hazard. Static region
+geometry is a typed four-number rectangle; ordinary Lua controls warning/active/
+recovery timing and contact policy through the existing combat tick. Markers have
+script/round lifetimes and explicit per-script/session bounds. The actual native
+collision-edge list, margins and radii are queried, including collidable equipment
+edges; no pivot approximation or generic arithmetic DSL is introduced.
+
+Full-game Campaign/core Tournament 3 acceptance verifies warning/recolor, native
+projection, actual contacts/direct health changes, pause/resume, recovery,
+recurrence, shared bounds and surrender/owned-resource cleanup. A native lifecycle
+fix stops both sides' script ticks after round/fight-end dispatch. This supplies
+the timed hazard/telegraph proof for that controlled scenario, not closure of E6
+or the Minecraft-style objective. Solid/swept physics, arbitrary actors, general
+camera controls, all-arena/form and exported-platform acceptance remain open.
+See the creator work log and public arena reference for source and limits.

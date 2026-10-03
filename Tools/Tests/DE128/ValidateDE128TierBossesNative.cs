@@ -555,7 +555,7 @@ public static class ValidateDE128TierBossesNative
                         child.AddEventListener(6, value => ObserveRootHitBox(value as Model, fight));
                         var model = child.CLDMEJKGLBA();
                         var edges = model.HABIIJGLCMA().Concat(model.EKOGCJAAKDN())
-                            .Concat(model.ODDEMLAODPM()).Concat(model.BKAPPJMGPKP())
+                            .Concat(model.GetCollisionEdges()).Concat(model.BKAPPJMGPKP())
                             .GroupBy(edge => edge.get_Name()).Select(group => group.First()).ToArray();
                         raidTriggerEdge = edges.SingleOrDefault(edge => edge.get_Name() == "VerticalTrigger-Edge1");
                         if (raidTriggerEdge == null)

@@ -1973,6 +1973,9 @@ public class Model : global::EventDispatcher<object>
 		_perkCollisionDisabled = value;
 	}
 
+	// Typed rendering seam for Eclipse arena presentation.
+	public GameObject GetRenderObject() => _UnityObject;
+
 	public GameObject MJNPBMOAFML()
 	{
 		return _UnityObject;
@@ -2040,7 +2043,7 @@ public class Model : global::EventDispatcher<object>
 	public void DGNDJBDKNAI()
 	{
 		List<ModelEdge> list = _Animation.CPNOFKIMMCK();
-		List<ModelEdge> list2 = _ModelObject.ODDEMLAODPM();
+		List<ModelEdge> list2 = _ModelObject.GetCollisionEdges();
 		foreach (ModelEdge item in list)
 		{
 			item.AGMHEHLBFCG();

@@ -127,7 +127,7 @@ public class ModelCollision
 		{
 			return false;
 		}
-		List<ModelEdge> lONAJAHCJGH = HFGPAELCNMF.ODDEMLAODPM();
+		List<ModelEdge> lONAJAHCJGH = HFGPAELCNMF.GetCollisionEdges();
 		foreach (ModelEdge item in BLJEFDAPKBH)
 		{
 			if (CrossModel(lONAJAHCJGH, item))
@@ -155,7 +155,7 @@ public class ModelCollision
 			Strike.OJOMOLOIAOJ().Reset();
 			return true;
 		}
-		List<ModelEdge> lONAJAHCJGH = HFGPAELCNMF.ODDEMLAODPM();
+		List<ModelEdge> lONAJAHCJGH = HFGPAELCNMF.GetCollisionEdges();
 		foreach (ModelEdge item in BLJEFDAPKBH)
 		{
 			if (CrossModel(lONAJAHCJGH, item))
@@ -179,7 +179,7 @@ public class ModelCollision
 
 	public bool CrossModelByEdge(ModelObject HFGPAELCNMF, ModelEdge ADFIIAJCBHA)
 	{
-		List<ModelEdge> lONAJAHCJGH = HFGPAELCNMF.ODDEMLAODPM();
+		List<ModelEdge> lONAJAHCJGH = HFGPAELCNMF.GetCollisionEdges();
 		return CrossModel(lONAJAHCJGH, ADFIIAJCBHA);
 	}
 
@@ -192,13 +192,13 @@ public class ModelCollision
 	{
 		Vector3f eMAFACPEPDK = new Vector3f();
 		Vector3f eMAFACPEPDK2 = new Vector3f();
-		float kLDFJGIKIHG = PJMKFHFECLK.OBGOAOELMDJ();
+		float kLDFJGIKIHG = PJMKFHFECLK.GetCollisionRadius();
 		Vector3f hICHONIJHKL = PJMKFHFECLK.DOKBBJBFDCM();
 		Vector3f lNPFHLPCLOP = PJMKFHFECLK.EBDICFAPOME();
 		EquationLine hENNAFMBEAG = PJMKFHFECLK.HENNAFMBEAG;
 		foreach (ModelEdge item in LONAJAHCJGH)
 		{
-			float mGCKDDGGCBI = item.OBGOAOELMDJ();
+			float mGCKDDGGCBI = item.GetCollisionRadius();
 			Vector3f nMAJNHKJJEM = item.DOKBBJBFDCM();
 			Vector3f oNNJMGGPHEL = item.EBDICFAPOME();
 			EquationLine hENNAFMBEAG2 = item.HENNAFMBEAG;

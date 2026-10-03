@@ -663,3 +663,120 @@ Owned audio is implemented and accepted in this scenario. Timed arena hazards,
 arbitrary actors/physics, spatial presentation, music-channel ownership, physical
 input/device listening, exported platforms and independent newcomer acceptance
 remain part of the full active Minecraft-style objective.
+
+
+## 2026-10-04: arena geometry, owned warnings and Pulse Arena
+
+Continued the active full Minecraft-style objective through E6/E8. This is a new
+world seam: mods can author a timed environmental hazard with native pose sensors
+and owned arena art using ordinary Lua. The broad G01–G14/E1–E8 scope remains
+active; no overall completion percentage or platform-complete claim is made.
+
+### Source and public contract
+
+- New `Runtime/Modding/ModArenaRuntime.cs` holds an engine-independent rectangle,
+  exact capsule/rectangle XY distance test, `IModFighterRegions`, native marker
+  interface and per-script scope/instance. Rectangles require finite minimum X/Y
+  in -10000..10000 and positive width/height <=4000. Boundary contact counts;
+  rounded corners are not approximated by an inflated AABB.
+- New `Modding/ModArenaGeometry.cs` consumes the native collision-edge list with
+  current endpoint positions, endpoint margins and radius, capped at 512 edges.
+  This is the list filled by `ModelLoader` for `Type=Edge, Collisible>0` and read
+  by `ModelCollision.CrossModel`, including any collidable equipment edges. It
+  ignores attack/defense/invulnerability flags and Z. No swept/solid collision,
+  new physical actor or attack reaction is implied.
+- `ModelObject.GetCollisionEdges`, `ModelEdge.GetCollisionRadius`,
+  `GetStartMargin`, and `GetEndMargin` are narrow getter-name guesses supported
+  by loader/collision/segment code, each marked `// best guess for name`. Only
+  verified owning-type callers changed; no confirmed recovery map was amended.
+  `Model.GetRenderObject` adds a typed rendering seam without changing legacy
+  getter callers. The DE128 native tier-boss validator uses the renamed collision
+  getter as well. Existing asset/meta identities are preserved; four new source
+  files have new metas. Project source lists include the new files.
+- `Fight.EclipseFighterOperations` supplies current-main-fighter/offline-round
+  geometry and round-bound marker creation. Native PVP/online raids, local versus,
+  title sparring and stale/ended rounds reject. Mod-owned offline raids use the
+  same contract. `ModInstanceFighter` forwards both operations through rule/perk
+  wrappers. Creation captures fight/round identity, not the lifetime of the old
+  player model; current render coordinates follow a replacement model.
+- New `Modding/ModArenaMarkerRenderer.cs` owns each native mesh/material/object,
+  projects through the current player render transform and uses the arena parent.
+  Filled rectangles inherit native mirroring, use Sprites/Default and normal
+  deferred Unity destruction. Script disposal hides immediately; native round/
+  fight/arena invalidation removes art by the next presentation frame. Pause
+  retains art. A full session may have 64 active markers; excess creation rejects
+  without eviction. Handles are transient, never saved.
+- New `MoonSharpScriptRuntimeArena.cs` binds `fighter:overlaps_rect`,
+  `fighter.opponent:overlaps_rect`, `fighter:mark_rect` and
+  `sf2.world.{set_marker_color,is_marker_active,remove_marker}`. Fighter callable
+  references expire at callback exit. Self observation has no additional cap;
+  opponent observation requires `combat.target`. Marker creation/operations require
+  `presentation.visuals`. Strict shape/color/argument/handle identity checks reject
+  numeric strings, nonfinite values, unknown fields and forged/foreign handles.
+  Creation cannot occur during registration, begin/end callbacks or UI cleanup.
+  Queries share 32 calls per callback across self/opponent; a script owns 16 markers.
+  These bounds do not close the aggregate native/Lua frame-budget requirement.
+- Native testing revealed `round.processing` can remain true during the surrender
+  animation after round/fight-end callbacks. Both native script dispatch methods
+  now suppress Tick after `_eclipseEndedRound` or `_eclipseFightEndDispatched`.
+  This preserves cleanup; no recovered native simulation/animation timing changed.
+- `Mods/example.pulse-arena` and the mirrored editor starter derive a fixed column
+  from the initial fighter midpoint, then run two-second warning, active and safe
+  phases. Every 30 active ticks, geometric contact loses 0.025 normalized health
+  through the existing direct `change_health` route. That route bypasses native
+  attack/block/armor/critical calculations, shields and hit reactions. Lua owns
+  phase arithmetic and policy; no hard-coded Eclipse hazard behavior was added.
+  Round state, owned marker/HUD cleanup and closed-HUD checks are explicit.
+- Wiki arena reference has dedicated sections for all six bindings; callback,
+  fighter/location pointers, capability table, examples, sidebar and editor guide
+  update together. Editor authored schema, generated contracts/types, callback
+  timing diagnostics, unit/LuaLS/VS Code tests and starter mirror the contract.
+  Explicit managed Lua fixture inventories now include the arena module/runtime.
+
+### Verification and limits
+
+- `TestArenaRuntime.ps1`: 545 checks against production rectangle/Lua/scopes plus
+  the shipped hazard. It covers tangent/rounded-corner/degenerate capsules, strict
+  invalid inputs, expired references, scope teardown, unavailable/rejecting hosts,
+  query/marker bounds, global-registration and UI-cleanup guards, MoonSharp foreign
+  resource isolation, exact phase/contact/cooldown sequence and new-round reset.
+  Native geometry/render/clock providers are controlled in this managed runner.
+- `TestArenaUnity.ps1`: 104 full-game checks in Unity 6.6, Campaign/core normal
+  Tournament 3 with the actual shipped script. It checks native rig contacts and
+  pose displacement, warning/recolor projection, native health loss, pause/resume,
+  recovery/recurrence, 64 shared markers through four controlled native scopes,
+  scope/surrender cleanup and direct suppression of both ended-round Tick paths.
+  This is not four installed hazard mods or physical-input acceptance. Input/AI/
+  spacing are controlled and the fresh profile begins after tutorial. The rendered
+  PNG was inspected with Pulse Arena, Audio Lab and Active Strike HUDs visible.
+- The runner uses unique profiles and freshness-checked logs/results, sharing only
+  immutable TAR cache data through a junction into its marked project-drive fixture.
+  Native artifacts stay ignored under Temp. The root scene/profile is untouched.
+- Audio runtime (153), battle rules (268), trial rules (50) and prerequisite Phase1
+  registration pass. The battle runner now falls back to its archived example
+  (the active Mods path was removed earlier); this changes fixture lookup only.
+  Existing trial-runner duplicate-source warnings remain. All four managed projects
+  compile through ignored Unity 6.6 reference remapping, without tracked reference
+  rewrites. The original managed/native checks prove different parts of the contract.
+- Editor generate/check and 50 unit tests pass (228 bindings, 74 constants, 281
+  types). LuaLS 3.19.1 protocol integration passes, including arena table fields,
+  opponent sensors and complete hazard diagnostics. Real VS Code integration passes
+  14 checks, including world module and fighter sensor/marker completion. The absent
+  default LuaLS path was resolved with the installed isolated extension binary;
+  passing Code.exe directly to Node avoids npm's Windows space-path escaping.
+- Wiki Astro types/build/search and 6093 internal links/assets across 59 pages pass.
+  The existing duplicate 404 route warning remains; there are no Astro type issues.
+
+Early native attempts found an incorrectly assumed X=0 stage origin and then
+post-surrender ticks accessing an already-closed HUD. Initial health alone was
+insufficient contact evidence. The example now centers from live snapshots; the
+native test checks its actual Lua contact counter together with health loss, and
+the engine suppresses ended-round ticks. Managed fixture setup errors (foreign
+MoonSharp resource injection and missing logical UI mount) were corrected without
+relaxing production ownership/cleanup checks. Unity's unrelated Search startup
+exception remains in logs; logs are not claimed error-free.
+
+This provides a rendered timed hazard with real geometric contact for one native
+arena. General actors, solid/swept physics, arbitrary camera/lighting control,
+all-arena/form behavior, physical input, exported platforms and independent
+newcomer acceptance remain required parts of the active objective.

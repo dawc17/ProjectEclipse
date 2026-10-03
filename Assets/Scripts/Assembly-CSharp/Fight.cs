@@ -490,11 +490,31 @@ public partial class Fight
 		public int OGOLNFLBLBD;
 	}
 
-		private sealed class EclipseFighterOperations : IModFighterOperations, IModDamageEventSource, IModFighterTargets, IModIncomingHitSource, IModFighterEffects, IModCombatSnapshotSource, IModCombatActivitySource, IModFighterForms, IModFighterStatusIcons, IModAnimationLifecycleSource, IModFighterFlags, IModFighterControls, IModRoundOutcomes, IModFighterMotion, IModFighterPlayback
+		private sealed class EclipseFighterOperations : IModFighterOperations, IModDamageEventSource, IModFighterTargets, IModIncomingHitSource, IModFighterEffects, IModCombatSnapshotSource, IModCombatActivitySource, IModFighterForms, IModFighterStatusIcons, IModAnimationLifecycleSource, IModFighterFlags, IModFighterControls, IModRoundOutcomes, IModFighterMotion, IModFighterPlayback, IModFighterRegions
 	{
 		private readonly Fight _fight;
 		private readonly Model _model;
         private readonly bool _controlSetup;
+        private bool ArenaAvailable => _fight != null && GetCurrentFight() == _fight && !_fight.IsLocalVersus && !_fight.IsTitleSparring &&
+            _fight.FightDefinition != null && _fight.FightDefinition.get_Type() != BattleType.FightNone &&
+            _fight.FightDefinition.get_Type() != BattleType.FightPVP && (!_fight.get_IsRaidFight() || ModModeRuntime.IsRaid(_fight.FightDefinition)) &&
+            _fight.round.processing && !_fight._eclipseFightEndDispatched && _fight._eclipseEndedRound != _fight.round.round &&
+            _model != null && (_model == _fight.GetPlayerModel() || _model == _fight.GetEnemyModel());
+        public bool TryOverlapRect(ModArenaRect rect, out bool overlaps, out string error)
+        {
+            if (!ArenaAvailable) { overlaps = false; error = "Arena geometry requires a current main fighter in an active offline round."; return false; }
+            return ModArenaGeometry.TryOverlap(_model, rect, out overlaps, out error);
+        }
+        public bool TryMarkRect(ModArenaRect rect, ModUiColor color, out IModArenaMarker marker, out string error)
+        {
+            if (!ArenaAvailable) { marker = null; error = "Arena markers require a current main fighter in an active offline round."; return false; }
+            int roundNumber = _fight.round.round;
+            return ModArenaMarkerRenderer.TryCreate(rect, color,
+                () => GetCurrentFight() == _fight && _fight.round.processing && _fight.round.round == roundNumber &&
+                    !_fight._eclipseFightEndDispatched && _fight._eclipseEndedRound != roundNumber,
+                () => _fight.GetPlayerModel()?.GetRenderObject()?.transform, out marker, out error);
+        }
+
         public bool TryPlayMove(DefinitionId move, Action<bool, string> complete, out string error)
         {
             if (_fight == null) { error = "Fight is unavailable."; return false; }
@@ -3301,6 +3321,7 @@ public partial class Fight
     private void DispatchEclipseOpponent(ModEffectEvent effectEvent, ModDamageEvent damage = null, ModIncomingHit incoming = null, ModCombatActivityEvent activity = null, ModAnimationLifecycleEvent animation = null)
     {
         if (IsLocalVersus) return;
+        if (effectEvent == ModEffectEvent.Tick && (_eclipseEndedRound == round.round || _eclipseFightEndDispatched)) return;
         if (_eclipseOpponentDispatching || _eclipseCombatDispatching || CKNCPOABFBO == null || ModRuntime.Scripts == null) return;
         if (effectEvent == ModEffectEvent.FightBegin && round.round != 1) return;
         _eclipseOpponentDispatching = true;
@@ -3367,6 +3388,7 @@ public partial class Fight
 	private void DispatchEclipseCombatEvent(ModEffectEvent effectEvent = ModEffectEvent.FightBegin, ModDamageEvent damageEvent = null, ModIncomingHit incomingHit = null, ModCombatActivityEvent activity = null, ModAnimationLifecycleEvent animation = null)
 	{
 		if (IsLocalVersus) return;
+        if (effectEvent == ModEffectEvent.Tick && (_eclipseEndedRound == round.round || _eclipseFightEndDispatched)) return;
 		if (_eclipseCombatDispatching || _eclipseOpponentDispatching) return;
 		if (effectEvent == ModEffectEvent.FightBegin)
 		{

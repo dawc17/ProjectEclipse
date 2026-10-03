@@ -214,6 +214,16 @@ async function main() {
     notify('textDocument/didChange',{textDocument:{uri:activeUri,version:2},contentChanges:[{text:activeText}]});
     await until(()=>diagnostics.has(activeKey)&&diagnostics.get(activeKey).length===0,'clean active strike diagnostics');
     console.log('PASS: fighter/opponent playback, typed receipt/hover and complete Active Strike script');
+    const arenaOptions=probe('arena-options.lua','local sf2=require("sf2")\nsf2.behaviors.register {id="x",on_tick=function(_,fighter)\n fighter:mark_rect { | }\nend}');
+    await until(async()=>{const found=labels(await request('textDocument/completion',arenaOptions));return ['x','y','width','height'].every(key=>found.some(n=>n.startsWith(key)));},'arena rectangle fields');
+    const arenaTarget=probe('arena-target.lua','local sf2=require("sf2")\nsf2.behaviors.register {id="x",on_tick=function(_,fighter)\n fighter.opponent:|\nend}');
+    await until(async()=>labels(await request('textDocument/completion',arenaTarget)).some(n=>n.startsWith('overlaps_rect')),'opponent native capsule sensor');
+    const arenaText=fs.readFileSync(path.resolve(__dirname,'../../../Mods/example.pulse-arena/scripts/main.lua'),'utf8');
+    const arenaUri=open('pulse-arena.lua',arenaText+'\nsf2.price.coins("bad")\n');const arenaKey=decodeURIComponent(arenaUri).toLowerCase();
+    await until(()=>diagnostics.get(arenaKey)?.some(d=>d.code==='param-type-mismatch'),'arena diagnostic publication');
+    notify('textDocument/didChange',{textDocument:{uri:arenaUri,version:2},contentChanges:[{text:arenaText}]});
+    await until(()=>diagnostics.has(arenaKey)&&diagnostics.get(arenaKey).length===0,'clean pulse arena diagnostics');
+    console.log('PASS: arena rectangle/sensor completion and complete Pulse Arena script');
     const audioOptions=probe('audio-options.lua','local sf2=require("sf2")\nlocal clip=sf2.assets.audio("audio/beacon")\nsf2.audio.play(clip,{ | })');
     await until(async()=>{const found=labels(await request('textDocument/completion',audioOptions));return ['volume','loop','clock','owner'].every(key=>found.some(n=>n.startsWith(key)));},'audio instance option completion');
     const audioHover=probe('audio-hover.lua','local sf2=require("sf2")\nlocal clip=sf2.assets.audio("audio/beacon")\nsf2.audio.pl|ay(clip)');

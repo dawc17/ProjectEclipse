@@ -534,3 +534,14 @@ test('audio instances have distinct handles, bounds, capabilities and a mirrored
  assert.deepEqual(p.analyze(await fs.readFile(path.join(dir,'scripts/main.lua'),'utf8'),mod).issues,[]);
  for(const file of ['mod.toml','README.md','scripts/main.lua','assets/audio/beacon.wav'])assert.deepEqual(await fs.readFile(path.join(dir,file)),await fs.readFile(path.resolve(__dirname,'../templates/audio-lab',file)));
 });
+
+
+test('Pulse Arena ships mirrored typed marker/sensor example and capabilities',async()=>{
+ const dir=path.resolve(__dirname,'../../../Mods/example.pulse-arena');const mod=await p.indexMod(dir);assert.deepEqual(mod.issues,[]);
+ const lua=await fs.readFile(path.join(dir,'scripts/main.lua'),'utf8');assert.deepEqual(p.analyze(lua,mod).issues,[]);
+ for(const file of ['mod.toml','README.md','scripts/main.lua'])assert.deepEqual(await fs.readFile(path.join(dir,file)),await fs.readFile(path.resolve(__dirname,'../templates/pulse-arena',file)));
+ const api=require('../data/api.json');assert.equal(api.fighterMethods.mark_rect.capability,'presentation.visuals');assert.equal(api.fighterMethods.overlaps_rect.returns,'boolean|nil, string|nil');
+ for(const name of ['remove_marker','set_marker_color','is_marker_active'])assert.equal(api.functions['sf2.world.'+name].capability,'presentation.visuals');
+ const missing={...mod,data:{...mod.data,capabilities:['content.register']}};const issues=p.analyze('local sf2=require("sf2")\nsf2.behaviors.register{id="x",on_round_begin=function(_,fighter) fighter:mark_rect{x=0,y=0,width=1,height=1} end}\nsf2.world.remove_marker({})',missing).issues;
+ assert(issues.some(i=>i.capability==='presentation.visuals'));assert(issues.some(i=>i.code==='callback-timing'));
+});

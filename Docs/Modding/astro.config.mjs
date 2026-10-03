@@ -70,6 +70,7 @@ export default defineConfig({
           { slug: 'api/scenes' },
           { slug: 'api/ui' },
           { slug: 'api/audio' },
+          { slug: 'api/arena' },
           { slug: 'api/visuals' },
           { slug: 'api/mod-state' },
           { slug: 'api/random' },

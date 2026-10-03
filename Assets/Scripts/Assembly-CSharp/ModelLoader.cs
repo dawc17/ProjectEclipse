@@ -269,7 +269,7 @@ public class ModelLoader
 			ACENLMONNPA.HABIIJGLCMA().Add(nAKBKCDKEHF);
 			if (num > 0)
 			{
-				ACENLMONNPA.ODDEMLAODPM().Add(nAKBKCDKEHF);
+				ACENLMONNPA.GetCollisionEdges().Add(nAKBKCDKEHF);
 			}
 		}
 		else

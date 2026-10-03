@@ -105,7 +105,7 @@ public class ModelEdge : Segment3D
 	{
 		get
 		{
-			return OBGOAOELMDJ();
+			return GetCollisionRadius();
 		}
 		set
 		{
@@ -117,7 +117,7 @@ public class ModelEdge : Segment3D
 	{
 		get
 		{
-			return BCHMOKFJDLM();
+			return GetStartMargin();
 		}
 		set
 		{
@@ -129,7 +129,7 @@ public class ModelEdge : Segment3D
 	{
 		get
 		{
-			return MHOICOCAPGD();
+			return GetEndMargin();
 		}
 		set
 		{
@@ -289,7 +289,8 @@ public class ModelEdge : Segment3D
 		NBPKNIADCFH = value;
 	}
 
-	public float OBGOAOELMDJ()
+	// best guess for name
+	public float GetCollisionRadius()
 	{
 		return BOKNFPBHOLN;
 	}
@@ -304,12 +305,14 @@ public class ModelEdge : Segment3D
 		LEAKPNNFJJM = value;
 	}
 
-	public float BCHMOKFJDLM()
+	// best guess for name
+	public float GetStartMargin()
 	{
 		return LEAKPNNFJJM;
 	}
 
-	public float MHOICOCAPGD()
+	// best guess for name
+	public float GetEndMargin()
 	{
 		return HGNFLOJMJNG;
 	}

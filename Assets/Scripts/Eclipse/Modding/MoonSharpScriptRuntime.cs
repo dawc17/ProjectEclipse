@@ -190,6 +190,7 @@ namespace Eclipse.Modding
                             parameterTable.Set(pair.Key, ToDynValue(pair.Value));
                     }
                     var fighterTable = new Table(_script);
+                    var arenaQueryBudget = new ArenaQueryBudget();
                     if (context != null)
                     {
                         foreach (KeyValuePair<string, string> pair in context)
@@ -197,6 +198,10 @@ namespace Eclipse.Modding
                     }
                     if (fighter != null)
                     {
+                        fighterTable.Set("overlaps_rect", DynValue.NewCallback((ctx, args) =>
+                            OverlapRect(args, fighterTable, fighter, invocationActive, false, arenaQueryBudget)));
+                        fighterTable.Set("mark_rect", DynValue.NewCallback((ctx, args) =>
+                            MarkRect(args, fighterTable, fighter, effectEvent, invocationActive)));
                         fighterTable.Set("snapshot", DynValue.NewCallback((ctx, args) =>
                         {
                             if (!invocationActive) throw new ScriptRuntimeException("Fighter observations have expired.");
@@ -229,6 +234,8 @@ namespace Eclipse.Modding
                         {
                             var targetTable = new Table(_script);
                             if (target is IModFighterTargets query) targetTable.Set("health", DynValue.NewNumber(query.Health));
+                            targetTable.Set("overlaps_rect", DynValue.NewCallback((ctx, args) =>
+                                OverlapRect(args, targetTable, target, invocationActive, true, arenaQueryBudget)));
                             targetTable.Set("change_health", DynValue.NewCallback((ctx, args) =>
                             {
                                 if (!invocationActive) throw new ScriptRuntimeException("Target operations have expired.");
@@ -731,6 +738,7 @@ namespace Eclipse.Modding
                 if (_disposed) return;
                 _callbackWorkers.Clear();
                 _disposed = true;
+                _arenaMarkers.Dispose();
                 _audio.Dispose();
                 _audioInstances = new System.Runtime.CompilerServices.ConditionalWeakTable<Table, ModAudioInstance>();
                 _api.Extensions?.RemoveOwner(Mod.Id);
@@ -1165,6 +1173,7 @@ namespace Eclipse.Modding
                 AddP3Modules(root);
                 AddUiModule(root);
                 AddAudioModule(root);
+                AddWorldModule(root);
                 AddVisualsModule(root);
                 AddUnderworldModule(root);
                 AddExtensionsModule(root);

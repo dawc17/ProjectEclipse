@@ -164,6 +164,15 @@ references. `Presentation/TestPvpHealthBarNative.ps1` renders the production
 recovery component and native skew mesh in an isolated Unity project, with
 controlled health and atlas-base dependencies. None is a full online playtest.
 
+Arena region acceptance uses `Modding/TestArenaRuntime.ps1` for the production
+capsule/rectangle algorithm, Lua arguments, capabilities, ownership, budgets and
+complete Pulse Arena schedule with controlled native sources.
+`Modding/TestArenaUnity.ps1` runs the real game through Campaign/core Tournament 3
+in an isolated Unity project and post-tutorial profile. It verifies warning art,
+projection, pose/contact health loss, pause/resume, recovery, shared marker limits,
+scope/surrender cleanup and suppression of ticks after round-end. Input, AI and
+spacing are controlled; this does not prove solid/swept physics or all arenas.
+
 ## Native validators
 
 `Runtime/TestUnity6Workflows.ps1` uses the matching Unity 6.6 editor in an isolated

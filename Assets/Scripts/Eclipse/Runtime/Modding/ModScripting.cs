@@ -1063,7 +1063,7 @@ namespace Eclipse.Modding
         IModFighterOperations Opponent { get; }
     }
 
-    public sealed class ModInstanceFighter : IModFighterOperations, IModDamageEventSource, IModBehaviorInstanceSource, IModFighterTargets, IModIncomingHitSource, IModFighterEffects, IModCombatSnapshotSource, IModCombatActivitySource, IModFighterForms, IModFighterStatusIcons, IModAnimationLifecycleSource, IModFighterFlags, IModFighterControls, IModRoundOutcomes, IModFighterMotion, IModFighterPlayback
+    public sealed class ModInstanceFighter : IModFighterOperations, IModDamageEventSource, IModBehaviorInstanceSource, IModFighterTargets, IModIncomingHitSource, IModFighterEffects, IModCombatSnapshotSource, IModCombatActivitySource, IModFighterForms, IModFighterStatusIcons, IModAnimationLifecycleSource, IModFighterFlags, IModFighterControls, IModRoundOutcomes, IModFighterMotion, IModFighterPlayback, IModFighterRegions
     {
         private readonly IModFighterOperations _inner;
         private readonly FightRuleDefinition _outcomeRule;
@@ -1104,6 +1104,16 @@ namespace Eclipse.Modding
             error = "Form changes are unavailable."; return false;
         }
         public ModCombatActivityEvent ActivityEvent => (_inner as IModCombatActivitySource)?.ActivityEvent;
+        public bool TryOverlapRect(ModArenaRect rect, out bool overlaps, out string error)
+        {
+            if (_inner is IModFighterRegions regions) return regions.TryOverlapRect(rect, out overlaps, out error);
+            overlaps = false; error = "Arena geometry is unavailable."; return false;
+        }
+        public bool TryMarkRect(ModArenaRect rect, ModUiColor color, out IModArenaMarker marker, out string error)
+        {
+            if (_inner is IModFighterRegions regions) return regions.TryMarkRect(rect, color, out marker, out error);
+            marker = null; error = "Arena markers are unavailable."; return false;
+        }
         public ModCombatSnapshot CaptureCombatSnapshot() => (_inner as IModCombatSnapshotSource)?.CaptureCombatSnapshot();
         public bool TryMoveBy(double x, double y, double z, out string error)
         {

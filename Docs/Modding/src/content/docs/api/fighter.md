@@ -17,6 +17,9 @@ expired references, invalid values, or an unavailable fighter raise Lua errors.
 Most mutation methods return `nil` on success; exceptions are documented below.
 Observation methods return detached data.
 
+For native collision-rig rectangle queries and owned arena warning art, see
+[Arena regions and markers](../arena/).
+
 ## fighter:snapshot
 
 Read fresh combat observations, including both fighters and the engine's elapsed

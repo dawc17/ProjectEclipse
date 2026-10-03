@@ -149,6 +149,17 @@ local FieldSchema = {}
 ---@field private __eclipseExtension true
 local ExtensionHandle = {}
 
+---@class (exact) Eclipse.ArenaMarkerHandle
+---@field private __eclipseArenaMarker true
+local ArenaMarkerHandle = {}
+
+---@class (exact) Eclipse.ArenaRect
+---@field x number Finite -10000..10000, arena minimum X.
+---@field y number Finite -10000..10000, native positive-down Y.
+---@field width number Positive, at most 4000.
+---@field height number Positive, at most 4000.
+local ArenaRect = {}
+
 ---@class (exact) Eclipse.AudioInstanceHandle
 ---@field private __eclipseAudioInstance true
 local AudioInstanceHandle = {}
@@ -2403,8 +2414,39 @@ local visuals = {}
 ---@class Eclipse.Module_warriors
 local warriors = {}
 
+---@class Eclipse.Module_world
+local world = {}
+
 ---@class Eclipse.Module_zones
 local zones = {}
+
+---Release owned arena art. Repeated removal is safe.
+---Requires: `presentation.visuals`; a marker created by this script context.
+---When: After creation, including round/fight cleanup callbacks. Automatic round/script cleanup still runs if the mod forgets to remove a marker.
+---Returns: `true` if the marker was active, otherwise `false`. A forged or foreign handle raises an error. The visual is hidden immediately; native Unity resources are destroyed using the normal deferred destruction path.
+---[Full reference](https://dawc17.github.io/ProjectEclipse/api/arena/#sf2worldremove_marker)
+---@param marker Eclipse.ArenaMarkerHandle
+---@return boolean
+function world.remove_marker(marker) end
+
+---Check marker lifetime. This does not test whether the camera currently sees it.
+---Requires: `presentation.visuals`; a marker created by this script context.
+---When: After creation; safe for a retained closed handle in its owning script.
+---Returns: `true` while the round-bound marker is active, including pause, otherwise `false`. A forged or foreign handle raises an error.
+---[Full reference](https://dawc17.github.io/ProjectEclipse/api/arena/#sf2worldis_marker_active)
+---@param marker Eclipse.ArenaMarkerHandle
+---@return boolean
+function world.is_marker_active(marker) end
+
+---Update owned warning art without replacing its geometry or extending its lifetime.
+---Requires: `presentation.visuals`; a marker created by this script context.
+---When: After marker creation, from the owning script's runtime callbacks. Updating a closed handle cannot restart it.
+---Returns: `true` if the marker was active and updated, `false` if it has closed. Invalid colors, forged/foreign handles and extra arguments raise an error.
+---[Full reference](https://dawc17.github.io/ProjectEclipse/api/arena/#sf2worldset_marker_color)
+---@param marker Eclipse.ArenaMarkerHandle
+---@param color string
+---@return boolean
+function world.set_marker_color(marker, color) end
 
 ---Start one sound instance owned by the current script.
 ---Requires: `audio.play`; an audio asset handle resolved by this script. Cross-mod assets also require a declared dependency.
@@ -4082,6 +4124,34 @@ tactics.EXPONENTIAL = "exponential"
 ---@return Eclipse.FormRequest
 function Fighter:change_form(character) end
 
+---Query the current native collision capsules against a rectangle.
+---Requires: No additional capability for the callback's own fighter.
+---When: Inside a supported combat callback during an active offline round. The callable fighter reference expires at callback exit.
+---Returns: `boolean, nil` for a valid query, or `nil, error` when geometry is unavailable. `false` means the valid rig does not overlap; it is distinct from `nil`.
+---[Full reference](https://dawc17.github.io/ProjectEclipse/api/arena/#fighteroverlaps_rect)
+---@param rectangle Eclipse.ArenaRect
+---@return boolean|nil, string|nil
+function Fighter:overlaps_rect(rectangle) end
+
+---Query the opposing main fighter's collision capsules in the same coordinate space.
+---Requires: `combat.target`.
+---When: In the current combat callback during an active offline round. Check that `fighter.opponent` exists before using it; its callable reference expires with the callback.
+---Returns: `boolean, nil`, or `nil, error` when the native rig is unavailable.
+---[Full reference](https://dawc17.github.io/ProjectEclipse/api/arena/#fighteropponentoverlaps_rect)
+---@param rectangle Eclipse.ArenaRect
+---@return boolean|nil, string|nil
+function Opponent:overlaps_rect(rectangle) end
+
+---Create an owned filled rectangle in the arena. The art stays fixed as fighters move. Keep the returned marker for later recoloring or removal.
+---Requires: `presentation.visuals`.
+---When: During an active simulation callback, such as `on_tick`. Fight/round begin and end callbacks, registration and UI cleanup cannot create markers. The marker lasts through the current round, including pause; the fighter callable expires at callback exit. The handle may be kept until the marker closes.
+---Returns: `ArenaMarkerHandle, nil` on creation, or `nil, error` for an unavailable host/round/render transform/shader or exhausted marker budget. The default color is translucent yellow `#ffcc3366`.
+---[Full reference](https://dawc17.github.io/ProjectEclipse/api/arena/#fightermark_rect)
+---@param rectangle Eclipse.ArenaRect
+---@param color string?
+---@return Eclipse.ArenaMarkerHandle|nil, string|nil
+function Fighter:mark_rect(rectangle, color) end
+
 ---Read fresh combat observations, including both fighters and the engine's elapsed fight clock. Use this when making a health or distance decision; the older `fighter.health` field is captured at callback entry.
 ---Requires: No additional capability. Observing the opponent does not require `combat.target`; changing the opponent still requires the normal capabilities.
 ---When: Inside any supported combat behavior callback, including battle rules, perks, enchantments, and warrior behaviors. Each call samples the current state. The callable reference expires when that callback returns; the returned data may be retained as an observation, but will not update itself.
@@ -4266,4 +4336,4 @@ function Fighter:show_status_icon(key, sprite, frames, stacks?) end
 ---@param key string
 function Fighter:clear_status_icon(key) end
 
-return { achievements = achievements, assets = assets, audio = audio, battles = battles, behaviors = behaviors, counters = counters, enchantments = enchantments, events = events, extensions = extensions, fights = fights, forge = forge, fx = fx, items = items, itemsets = itemsets, locales = locales, localization = localization, locations = locations, log = log, mod = mod, modes = modes, moves = moves, perks = perks, price = price, profile = profile, progression = progression, quests = quests, raids = raids, random = random, rewards = rewards, rules = rules, scenes = scenes, services = services, settings = settings, shop = shop, state = state, story = story, tactics = tactics, timers = timers, ui = ui, underworld = underworld, visuals = visuals, warriors = warriors, zones = zones }
+return { achievements = achievements, assets = assets, audio = audio, battles = battles, behaviors = behaviors, counters = counters, enchantments = enchantments, events = events, extensions = extensions, fights = fights, forge = forge, fx = fx, items = items, itemsets = itemsets, locales = locales, localization = localization, locations = locations, log = log, mod = mod, modes = modes, moves = moves, perks = perks, price = price, profile = profile, progression = progression, quests = quests, raids = raids, random = random, rewards = rewards, rules = rules, scenes = scenes, services = services, settings = settings, shop = shop, state = state, story = story, tactics = tactics, timers = timers, ui = ui, underworld = underworld, visuals = visuals, warriors = warriors, world = world, zones = zones }

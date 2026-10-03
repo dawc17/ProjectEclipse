@@ -44,6 +44,9 @@ local language_id = sf2.locales.register {
 
 This registers the language option. Put translated strings in localization files separately; see [Localization](../localization-patches/).
 
+For procedural warnings and pose-based hazard sensors, see
+[Arena regions and markers](../arena/). Lua owns their timing and damage policy.
+
 ## sf2.locations.register
 
 **Signature:** `sf2.locations.register(definition)`
