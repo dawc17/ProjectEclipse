@@ -18,6 +18,7 @@ namespace Eclipse.Modding
         public ModContentCatalog Content { get; }
         internal string StartupTimings { get; private set; }
         public ModStateRuntime State { get; }
+        public ModCallbackDiagnostics CallbackDiagnostics { get; }
         private readonly ModExtensionRegistry _extensions;
 
         public bool HasErrors
@@ -34,7 +35,7 @@ namespace Eclipse.Modding
 
         private ModScriptSession(string runtimeName, List<IModScriptContext> contexts,
             ModDescriptor[] activeMods, ModDiagnostic[] diagnostics, ModContentCatalog content,
-            ModStateRuntime state, ModExtensionRegistry extensions)
+            ModStateRuntime state, ModExtensionRegistry extensions, ModCallbackDiagnostics callbackDiagnostics)
         {
             RuntimeName = runtimeName ?? string.Empty;
             _contexts = contexts;
@@ -43,6 +44,7 @@ namespace Eclipse.Modding
             Content = content ?? throw new ArgumentNullException(nameof(content));
             State = state ?? throw new ArgumentNullException(nameof(state));
             _extensions = extensions;
+            CallbackDiagnostics = callbackDiagnostics;
             // Registration is frozen before session construction. Cache handlers, not live
             // equipped instances: native rules may change the latter during an encounter.
             foreach (var behavior in Content.Behaviors)
@@ -100,7 +102,7 @@ namespace Eclipse.Modding
             _subscriptions.TryGetValue(kind, out var ids) && ids.Contains(id);
 
         internal static ModScriptSession Start(ModHost host, IModScriptRuntime runtime,
-            Action<ModLogEntry> logger, Action<ModContentCatalog> importCore)
+            Action<ModLogEntry> logger, Action<ModContentCatalog> importCore, ModCallbackDiagnostics callbackDiagnostics = null)
         {
             if (host == null) throw new ArgumentNullException(nameof(host));
             if (runtime == null) throw new ArgumentNullException(nameof(runtime));
@@ -113,6 +115,7 @@ namespace Eclipse.Modding
             var content = new ModContentCatalog();
             var state = new ModStateRuntime();
             var extensions = new ModExtensionRegistry();
+            callbackDiagnostics ??= new ModCallbackDiagnostics();
             importCore?.Invoke(content);
             long localizationMs = 0, contextMs = 0, executeMs = 0, commitMs = 0;
             var watch = new System.Diagnostics.Stopwatch();
@@ -135,7 +138,7 @@ namespace Eclipse.Modding
                     watch.Restart();
                     ModLocalizationLoader.Load(mod, host.Assets, registration);
                     localizationMs += watch.ElapsedMilliseconds;
-                    var api = new ModApiFacade(mod, host.Assets, registration, state, logger, extensions);
+                    var api = new ModApiFacade(mod, host.Assets, registration, state, logger, extensions, callbackDiagnostics);
                     watch.Restart();
                     context = runtime.CreateContext(mod, api);
                     contextMs += watch.ElapsedMilliseconds;
@@ -174,7 +177,7 @@ namespace Eclipse.Modding
             content.Freeze();
             host.Assets.SetReplacements(content.AssetReplacements);
             state.FreezeDefinitions();
-            return new ModScriptSession(runtime.Name, contexts, active.ToArray(), diagnostics.ToArray(), content, state, extensions)
+            return new ModScriptSession(runtime.Name, contexts, active.ToArray(), diagnostics.ToArray(), content, state, extensions, callbackDiagnostics)
             {
                 StartupTimings = "mod localizations " + localizationMs + " ms, contexts " + contextMs +
                     " ms, entrypoints " + executeMs + " ms (includes asset descriptions), commits " + commitMs +

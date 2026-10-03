@@ -58,6 +58,12 @@ the player, an NPC, or both. The dojo punchbag does not use the normal fight
 lifecycle. See <a href={pageUrl('api/combat-callbacks')}>combat callbacks</a> for
 the exact boundaries and event fields.
 
+Turn on the F3 performance overlay, reproduce the issue and press F4 to save
+the active versions, callback timings and recent execution failures. See
+<a href={pageUrl('guides/runtime-diagnostics')}>Debug callbacks in game</a> for
+nested provider attribution and the limits of this evidence. An absent timed
+row can also mean the overlay was off or that the callback was never dispatched.
+
 ## Content is unavailable after disabling a mod
 
 Missing mod-owned save records are preserved. Re-enable the mod and reload the

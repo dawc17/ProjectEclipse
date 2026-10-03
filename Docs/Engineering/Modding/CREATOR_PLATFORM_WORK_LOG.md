@@ -264,3 +264,86 @@ Full native map/menu lifecycle, actual contacts/AI/end animations, result/reward
 and real-profile disk/crash/restart acceptance remain unverified. Arbitrary pack
 compatibility, automatic HUD conflict resolution, broader engine operations and
 source-free independent creator acceptance remain open. The full vision stays active.
+
+## 2026-10-03: callback attribution and bounded runtime diagnostics
+
+Modders previously needed to interpret general native logs to find a failing or
+expensive Lua callback. The existing F3 performance overlay/F4 text report now
+include the active mod session and callback attribution. This advances E8's
+source-free diagnostics requirement; it does not close creator acceptance or
+make runtime control domains complete.
+
+### Source and creator contract
+
+- New `Runtime/Modding/ModCallbackDiagnostics.cs` is independent of Unity and
+  recovered assemblies. A session owns its collector; `ModApiFacade`,
+  `ModScriptSession`, `ModHost` and `ModRuntime` share it across active mods.
+  Captured rows contain only detached IDs, strings and numbers. The new `.meta`
+  and narrow generated-project compile inclusion are tracked; all existing GUIDs
+  and original project reference paths are preserved.
+- `MoonSharpScriptRuntime.RunBounded` brackets execution/worker setup and cleanup,
+  attributes the callback to its actual owner, records escaped exceptions, and
+  marks instruction exhaustion at the actual forced-yield limit. Nested service
+  calls retain parent IDs and subtract measured child time from caller self time.
+  A handled provider failure remains visible while the caller can succeed.
+  Existing worker reuse, capability checks, limits, callback order and exception
+  propagation remain in place. Diagnostics never access event/fighter arguments.
+- `UI/PerformanceOverlay.cs` starts/stops timing with the existing Off/Compact/
+  Detailed setting. Detailed shows totals and the two highest accumulated self
+  times, including during loading. Its larger text area was visually inspected.
+  F4 report format 5 includes active mod versions in resolved load order,
+  registration/state diagnostics, statistics, completion-order traces and errors.
+  The existing report save/clipboard path is retained. No Lua function/capability
+  or public content/save format is added; editor-generated contracts are unchanged.
+- Successful calls are not measured/retained while the overlay is off. Failures
+  are still retained in a separate 64-entry ring, so high tick volume cannot
+  immediately flush them. Limits are 1024 owner/source statistics, 128 timed
+  completions, 512-character source labels, 2048-character errors and 64 measured
+  nesting levels. Overflow counts are explicit. A new script session starts clean.
+
+The new public **Debug callbacks in game** guide documents setup, inclusive/self
+time, completion-order nesting, handled errors, forced yields, bounds, lifetime,
+instrumentation overhead and verification limits, with a supported Lua callback
+fragment. Logging/troubleshooting/sidebar and editor guide link the workflow.
+Timings are wall-clock observations; they do not grant aggregate frame budgets,
+correlate callbacks to individual simulation frames or alter results/RNG/saves.
+Only bounded execution is captured: parsing, host asset errors and pre/post-handler
+validation can still belong to ordinary game logs or other diagnostics.
+
+### Verification and limits
+
+- `TestModCallbackDiagnostics.ps1`: 33 checks with production MoonSharp/session,
+  actual nested provider/consumer calls, instruction exhaustion and recovery,
+  handled/untimed errors, recording toggles, clipped messages, bounded rings and
+  detached snapshots. A 10,000-call disabled-success check allocates no collector
+  records. Message text cannot forge the instruction-limit classification.
+- `TestModCallbackDiagnosticsUnity.ps1`: 21 Unity 6.6 Play Mode checks. Actual Lua
+  runs through the production overlay's native Update and IMGUI paths; scripted
+  F3/F4 keys control recording and write a real report/clipboard path. The captured
+  overlay PNG was visually inspected, and the saved report's provider ownership,
+  parent sequence, failure text and instruction-limit entries were inspected.
+  Game/session lookup, keys and report directory are controlled. The fixture uses
+  a hidden isolated editor with a rendering Game View: batch mode cannot present
+  this IMGUI screenshot. Earlier batch attempts were corrected after explicit
+  loading/capture failures; their results are not acceptance evidence.
+- Existing extension (126), pack composition (86), round outcome (702) and
+  culture-independent performance CSV (98) regressions pass. The shared showcase
+  runner includes the new runtime source. Native fixture artifacts remain ignored.
+- All four managed assemblies compile using `dotnet msbuild` and the previously
+  recorded ignored Unity 6.6 reference remapping. Direct installed Visual Studio
+  MSBuild still cannot resolve this machine's SDK; original tracked references
+  were not rewritten to make that limitation disappear.
+- Editor generate/check and 46 unit tests pass; no binding/hover surface changed,
+  so LuaLS/VS Code integration was not rerun. Wiki dedicated-function coverage
+  (214), types, build, search and 5462 links/assets across 55 pages pass.
+
+The fresh Unity fixture again logged the unrelated Search indexing startup
+exception; its explicit diagnostics acceptance completed. The .NET combat fixtures
+still print MoonSharp's default Unity-loader reflection warning and then pass.
+Neither log is described as completely error-free.
+
+Physical keyboard/controller/touch export, full-game callback-to-frame attribution,
+production overhead profiling, inspector/reload workflow, aggregate frame limits
+and independent creator acceptance remain open. This feature is creator tooling,
+not proof that arbitrary actors, scenes, combat systems or packs are now possible.
+The full Minecraft-style modding objective remains active.

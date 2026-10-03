@@ -147,6 +147,8 @@ namespace Eclipse.Diagnostics
 			bool wasCollecting = _collecting;
 			_mode = mode;
 			_collecting = mode != Mode.Off;
+			if (Eclipse.Modding.ModRuntime.Scripts != null)
+				Eclipse.Modding.ModRuntime.Scripts.CallbackDiagnostics.Recording = _collecting;
 			PlayerPrefs.SetInt(ModePlayerPref, (int)mode);
 			PlayerPrefs.Save();
 			if (_instance != null && _collecting != wasCollecting)
@@ -528,7 +530,8 @@ namespace Eclipse.Diagnostics
 			}
 			if (count == 0)
 			{
-				return "Loading...";
+				var loadingCallbacks = Eclipse.Modding.ModRuntime.Scripts?.CallbackDiagnostics;
+				return "Loading..." + (detailed && loadingCallbacks != null ? "\n" + loadingCallbacks.FormatSummary() : string.Empty);
 			}
 			float average = total / count;
 			float onePercentLow = Percentile(0.99f, out _);
@@ -580,6 +583,8 @@ namespace Eclipse.Diagnostics
 				text.Append("\nAll fights: ").Append(Mathf.RoundToInt(1000f / fightAverage)).Append(" FPS avg, 1% low ")
 					.Append(Mathf.RoundToInt(1000f / Mathf.Max(FightPercentile(0.99f), 0.01f))).Append(" FPS");
 			}
+			var callbacks = Eclipse.Modding.ModRuntime.Scripts?.CallbackDiagnostics;
+			if (callbacks != null) text.Append('\n').Append(callbacks.FormatSummary());
 			return text.ToString();
 		}
 
@@ -617,7 +622,7 @@ namespace Eclipse.Diagnostics
 		private string BuildReport()
 		{
 			StringBuilder report = new StringBuilder(49152);
-			report.AppendLine("Eclipse performance report (format 4)");
+			report.AppendLine("Eclipse performance report (format 5)");
 			report.AppendLine("Created: " + DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
 			report.AppendLine("Game version: " + Application.version + "  Unity " + Application.unityVersion);
 			report.AppendLine("OS: " + SystemInfo.operatingSystem);
@@ -652,6 +657,13 @@ namespace Eclipse.Diagnostics
 			report.AppendLine("Current window (last " + SampleCount + " frames, loading excluded):");
 			report.AppendLine(BuildSummary(true));
 			report.AppendLine();
+			var scripts = Eclipse.Modding.ModRuntime.Scripts;
+			if (scripts != null)
+			{
+				report.AppendLine("Active mod session (resolved load order):");
+				report.AppendLine(scripts.FormatReport());
+				report.AppendLine(scripts.CallbackDiagnostics.FormatReport());
+			}
 
 			if (_fightFrames > 0)
 			{
@@ -743,11 +755,11 @@ namespace Eclipse.Diagnostics
 			GUI.matrix = Matrix4x4.Scale(new Vector3(scale, scale, 1f));
 			float screenWidth = Screen.width / scale;
 
-			const float detailedTextHeight = 150f;
+			const float detailedTextHeight = 210f;
 			if (_collecting)
 			{
 				bool detailed = _mode == Mode.Detailed;
-				float width = detailed ? 360f : 190f;
+				float width = detailed ? 420f : 190f;
 				float height = detailed ? detailedTextHeight + GraphHeight + 34f : 46f;
 				Rect panel = new Rect(screenWidth - width - 12f, 12f, width, height);
 				GUI.DrawTexture(panel, _background);
@@ -828,6 +840,7 @@ namespace Eclipse.Diagnostics
 			_textStyle = new GUIStyle(GUI.skin.label)
 			{
 				fontSize = 13,
+				richText = false,
 				normal = { textColor = new Color(0.92f, 0.95f, 1f) }
 			};
 			_smallStyle = new GUIStyle(_textStyle)

@@ -39,6 +39,7 @@ namespace Eclipse.Modding
         public ModRegistrationTransaction Registration { get; }
         public ModStateRuntime State { get; }
         public ModExtensionRegistry Extensions { get; }
+        public ModCallbackDiagnostics CallbackDiagnostics { get; }
 
         public bool IsRewardConfigurationActive { get; private set; }
 
@@ -76,7 +77,8 @@ namespace Eclipse.Modding
         }
 
         public ModApiFacade(ModDescriptor mod, AssetResolver assets, ModRegistrationTransaction registration,
-            ModStateRuntime state, Action<ModLogEntry> logger, ModExtensionRegistry extensions = null)
+            ModStateRuntime state, Action<ModLogEntry> logger, ModExtensionRegistry extensions = null,
+            ModCallbackDiagnostics callbackDiagnostics = null)
         {
             Mod = mod ?? throw new ArgumentNullException(nameof(mod));
             Assets = assets ?? throw new ArgumentNullException(nameof(assets));
@@ -85,6 +87,7 @@ namespace Eclipse.Modding
             Registration = registration;
             State = state ?? throw new ArgumentNullException(nameof(state));
             Extensions = extensions;
+            CallbackDiagnostics = callbackDiagnostics ?? new ModCallbackDiagnostics();
             _logger = logger;
         }
 

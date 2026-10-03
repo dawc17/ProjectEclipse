@@ -53,6 +53,15 @@ their help and docstrings for required inputs and execution behavior.
 
 ## PowerShell entry points
 
+`Modding/TestModCallbackDiagnostics.ps1` exercises the actual Lua worker/session,
+nested framework provider attribution, instruction-budget failures/recovery,
+recording toggles, detached snapshots and bounded callback/failure histories.
+`Modding/TestModCallbackDiagnosticsUnity.ps1` uses an isolated hidden Unity 6.6
+editor with a rendering Game View to exercise the production overlay's native
+F3/F4 Update paths, IMGUI screenshot and saved report. Scripted keys, game/session
+lookup and report directory are controlled; no physical input or full-game frame
+attribution is claimed. Batch mode does not present IMGUI screens.
+
 Use PowerShell 7 (`pwsh`) for managed-runtime checks. Individual scripts may also
 require MSBuild, a .NET SDK, Visual Studio's compiler or a specified Unity editor.
 For example, when MSBuild and the matching managed references are available:

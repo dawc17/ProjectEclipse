@@ -25,6 +25,7 @@ $sources = @(
     'Assets/Scripts/Eclipse/Runtime/Modding/ModManifest.cs',
     'Assets/Scripts/Eclipse/Runtime/Modding/ModManifestReader.cs',
     'Assets/Scripts/Eclipse/Runtime/Modding/ModDiagnostics.cs',
+    'Assets/Scripts/Eclipse/Runtime/Modding/ModCallbackDiagnostics.cs',
     'Assets/Scripts/Eclipse/Runtime/Modding/ModDiscovery.cs',
     'Assets/Scripts/Eclipse/Runtime/Modding/DependencyResolver.cs',
     'Assets/Scripts/Eclipse/Runtime/Modding/AssetProvider.cs',

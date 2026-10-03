@@ -236,7 +236,7 @@ namespace Eclipse.Modding
                     var import = System.Diagnostics.Stopwatch.StartNew();
                     ImportCoreContent(content);
                     _coreImportMs = import.ElapsedMilliseconds;
-                });
+                }, new ModCallbackDiagnostics { Recording = Eclipse.Diagnostics.PerformanceOverlay.CurrentMode != Eclipse.Diagnostics.PerformanceOverlay.Mode.Off });
             ModVisuals.Bind(_scripts.Content);
             var dojoChoices = new List<DefinitionId>();
             foreach (var location in _scripts.Content.Locations)

@@ -2,6 +2,13 @@
 
 Last broad reconciliation: 2026-09-12. Scope remains **G01–G14 plus E1–E8**.
 
+2026-10-03 creator-platform diagnostics: the existing F3 overlay and F4 report now
+attribute bounded Lua callback time/errors to their owners, including nested
+framework calls. Native rendered-overlay/report acceptance passes with controlled
+session/input sources. This advances E8; physical-device input, full-game frame
+attribution, aggregate frame budgets and independent creator acceptance remain
+open. See the creator-platform work log for source changes and verification.
+
 2026-10-03 creator-platform composition: separate mods can now append compatible
 rules to the same fight in dependency load order. Replacements remain exclusive;
 overlapping controllers, duplicates and aggregate bounds reject transactionally.

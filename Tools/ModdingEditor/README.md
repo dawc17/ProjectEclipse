@@ -609,3 +609,11 @@ Owned fight intros use `sf2.story.before_fight(fight, function(request) ... end)
 Move definitions use compact condition keys, points, timelines and damage maps exclusively. Legacy move types are removed from completion. `sf2.story.play_sequence` provides typed dialog/act-screen steps and optional saved state cursors; see the story reference for callback and resume behavior.
 
 Rim-light definitions support optional `warmth` (0–1) and `softness` (0–3 screen pixels). Both default to zero; use them to warm and feather the edge without changing `alpha` or `lighten`. See the visuals reference for an example.
+
+For runtime callback diagnostics, enable the game's F3 performance overlay before
+reproducing, then press F4 to save a report. Detailed mode shows Lua call/failure
+counts and the two callbacks with most accumulated self time. Reports attribute
+nested framework handlers to the provider and include bounded error history and
+actual instruction-limit failures. Editor diagnostics cannot measure these
+runtime calls. See the wiki's **Debug callbacks in game** guide; no new Lua API,
+manifest capability or generated editor definition is required.

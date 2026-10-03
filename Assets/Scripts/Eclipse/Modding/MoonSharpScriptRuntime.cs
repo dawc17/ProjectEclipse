@@ -763,19 +763,23 @@ namespace Eclipse.Modding
 
             private DynValue RunBounded(DynValue function, string sourceName, int maxSlices, DynValue[] args)
             {
-                using var execution = _api.Extensions?.EnterExecution(Mod.Id);
                 // Each new MoonSharp coroutine allocates two 1 MiB stacks. Keep a
                 // private worker suspended between successful calls instead of
                 // allocating those stacks on every combat tick. Nested callbacks
                 // borrow another worker; a running worker is never in the pool.
-                CallbackWorker worker = _callbackWorkers.Count > 0 ? _callbackWorkers.Pop() : CreateCallbackWorker();
-                worker.Function = function;
-                worker.Arguments = args;
-                worker.Completed = false;
-                worker.Coroutine.AutoYieldCounter = InstructionSlice;
+                long measurement = _api.CallbackDiagnostics.Begin();
+                CallbackWorker worker = null;
+                int forcedYields = 0;
+                bool budgetExceeded = false;
+                string failure = null;
                 try
                 {
-                    int forcedYields = 0;
+                    using var execution = _api.Extensions?.EnterExecution(Mod.Id);
+                    worker = _callbackWorkers.Count > 0 ? _callbackWorkers.Pop() : CreateCallbackWorker();
+                    worker.Function = function;
+                    worker.Arguments = args;
+                    worker.Completed = false;
+                    worker.Coroutine.AutoYieldCounter = InstructionSlice;
                     while (true)
                     {
                         DynValue result = worker.Coroutine.Resume();
@@ -788,19 +792,27 @@ namespace Eclipse.Modding
                         {
                             forcedYields++;
                             if (forcedYields >= maxSlices)
+                            {
+                                budgetExceeded = true;
                                 throw new ScriptRuntimeException("Execution instruction budget exceeded in '" +
                                     sourceName + "' (limit " + (InstructionSlice * maxSlices) + ").");
+                            }
                             continue;
                         }
                         throw new ScriptRuntimeException("Unexpected Lua yield in '" + sourceName + "'.");
                     }
                 }
+                catch (Exception exception)
+                {
+                    failure = exception is InterpreterException interpreter ? interpreter.DecoratedMessage ?? exception.Message : exception.Message;
+                    throw;
+                }
                 finally
                 {
                     // Do not retain combat contexts through the idle worker. Failed
                     // or budget-exhausted workers never return to the pool.
-                    worker.Function = null;
-                    worker.Arguments = null;
+                    if (worker != null) { worker.Function = null; worker.Arguments = null; }
+                    _api.CallbackDiagnostics.End(measurement, Mod.Id, sourceName, forcedYields, budgetExceeded, failure);
                 }
             }
 

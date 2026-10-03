@@ -112,9 +112,9 @@ namespace Eclipse.Modding
         }
 
         public ModScriptSession StartScripts(IModScriptRuntime runtime, Action<ModLogEntry> logger = null,
-            Action<ModContentCatalog> importCore = null)
+            Action<ModContentCatalog> importCore = null, ModCallbackDiagnostics callbackDiagnostics = null)
         {
-            return ModScriptSession.Start(this, runtime, logger, importCore);
+            return ModScriptSession.Start(this, runtime, logger, importCore, callbackDiagnostics);
         }
 
         public string FormatReport()

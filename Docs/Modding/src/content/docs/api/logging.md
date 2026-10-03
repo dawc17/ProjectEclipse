@@ -3,6 +3,10 @@ title: Modules and logging
 description: Load the Eclipse API and your own Lua modules, identify your mod, and write useful diagnostics.
 ---
 
+For callback timings, nested framework calls and bounded runtime failure history,
+see [Debug callbacks in game](../../guides/runtime-diagnostics/). The F3 overlay
+and F4 report work without adding Lua logging or manifest capabilities.
+
 ## require
 
 Load the Eclipse API or a Lua module belonging to your mod.
