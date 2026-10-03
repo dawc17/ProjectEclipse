@@ -392,10 +392,11 @@ namespace Eclipse.Modding
         }
 
         public FightRuleDefinition RegisterBehaviorRule(string localId, DefinitionId behavior, ModRuleTarget target,
-            ModRuleMode mode, int[] rounds, IReadOnlyDictionary<string, ModParameterValue> parameters)
+            ModRuleMode mode, int[] rounds, IReadOnlyDictionary<string, ModParameterValue> parameters, bool controlsOutcome = false)
         {
             RequireCapability("content.register");
-            return RequireRegistration().RegisterBehaviorRule(localId, behavior, target, mode, rounds, parameters);
+            if (controlsOutcome) RequireCapability("combat.round_outcome");
+            return RequireRegistration().RegisterBehaviorRule(localId, behavior, target, mode, rounds, parameters, controlsOutcome);
         }
 
         public FightRuleDefinition RegisterNoPerksRule(string localId, ModRuleTarget target, ModRuleMode mode,
@@ -911,7 +912,7 @@ namespace Eclipse.Modding
         {
             if (!_initialized)
             {
-                _initialized = true;
+                _rules.Clear();
                 foreach (var fight in content.Fights)
                 {
                     if (content.RuntimeFightId(fight.Id) != runtimeFightId) continue;
@@ -921,6 +922,8 @@ namespace Eclipse.Modding
                             _rules.Add(rule);
                     break;
                 }
+                ModOutcomeAuthority.Validate(_rules, "Encounter '" + runtimeFightId + "'");
+                _initialized = true;
             }
             foreach (var rule in _rules)
             {
@@ -934,6 +937,16 @@ namespace Eclipse.Modding
                 }
                 yield return rule;
             }
+        }
+
+        public DefinitionId? OutcomeAuthority(ModContentCatalog content, string runtimeFightId, int round,
+            bool eclipse, IReadOnlyList<DefinitionId> encounterRules = null)
+        {
+            foreach (var rule in Applicable(content, runtimeFightId, true, round, eclipse, encounterRules))
+                if (rule.ControlsOutcome) return rule.Id;
+            foreach (var rule in Applicable(content, runtimeFightId, false, round, eclipse, encounterRules))
+                if (rule.ControlsOutcome) return rule.Id;
+            return null;
         }
 
         public System.Xml.XmlNode Instance(DefinitionId rule, bool player)
@@ -1027,9 +1040,16 @@ namespace Eclipse.Modding
         IModFighterOperations Opponent { get; }
     }
 
-    public sealed class ModInstanceFighter : IModFighterOperations, IModDamageEventSource, IModBehaviorInstanceSource, IModFighterTargets, IModIncomingHitSource, IModFighterEffects, IModCombatSnapshotSource, IModCombatActivitySource, IModFighterForms, IModFighterStatusIcons, IModAnimationLifecycleSource, IModFighterFlags, IModFighterControls
+    public sealed class ModInstanceFighter : IModFighterOperations, IModDamageEventSource, IModBehaviorInstanceSource, IModFighterTargets, IModIncomingHitSource, IModFighterEffects, IModCombatSnapshotSource, IModCombatActivitySource, IModFighterForms, IModFighterStatusIcons, IModAnimationLifecycleSource, IModFighterFlags, IModFighterControls, IModRoundOutcomes
     {
         private readonly IModFighterOperations _inner;
+        private readonly FightRuleDefinition _outcomeRule;
+        public bool TryEndRound(DefinitionId ignored, bool playerWins, out string error)
+        {
+            if (_outcomeRule != null && _outcomeRule.ControlsOutcome && _inner is IModRoundOutcomes outcomes)
+                return outcomes.TryEndRound(_outcomeRule.Id, playerWins, out error);
+            error = "Only a declared fight rule can control a round outcome."; return false;
+        }
         public bool TrySetControlBlocked(object owner, string control, bool blocked, out string error)
         {
             if (SavedInstance != null && _inner is IModFighterControls controls)
@@ -1089,7 +1109,8 @@ namespace Eclipse.Modding
                 return icons.TryClearStatusIcon((SavedInstance, key), out error);
             error = "Status icons are unavailable."; return false;
         }
-        public ModInstanceFighter(IModFighterOperations inner, System.Xml.XmlNode node) { _inner = inner; SavedInstance = node; }
+        public ModInstanceFighter(IModFighterOperations inner, System.Xml.XmlNode node, FightRuleDefinition outcomeRule = null)
+        { _inner = inner; SavedInstance = node; _outcomeRule = outcomeRule; }
         public bool TryChangeHealth(double amount, out string error)
         {
             error = "Fighter unavailable."; return _inner != null && _inner.TryChangeHealth(amount, out error);

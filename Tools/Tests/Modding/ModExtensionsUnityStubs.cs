@@ -19,7 +19,7 @@ namespace Eclipse.Modding
             Assets=new AssetResolver(EnabledMods.Select(mod=>(IAssetProvider)new LooseModProvider(mod)));
         }
     }
-    public static class ModRuntime { public static bool IsInitialized; public static FixtureHost Host; }
+    public static partial class ModRuntime { public static bool IsInitialized; public static FixtureHost Host; }
     public sealed class FixtureHost { public FixtureAssets TypedAssets; }
     public sealed class FixtureAssets { public Sprite LoadSprite(AssetId id)=>null; }
 }

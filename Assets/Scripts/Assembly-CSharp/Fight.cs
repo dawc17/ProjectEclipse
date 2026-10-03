@@ -488,11 +488,17 @@ public class Fight
 		public int OGOLNFLBLBD;
 	}
 
-		private sealed class EclipseFighterOperations : IModFighterOperations, IModDamageEventSource, IModFighterTargets, IModIncomingHitSource, IModFighterEffects, IModCombatSnapshotSource, IModCombatActivitySource, IModFighterForms, IModFighterStatusIcons, IModAnimationLifecycleSource, IModFighterFlags, IModFighterControls
+		private sealed class EclipseFighterOperations : IModFighterOperations, IModDamageEventSource, IModFighterTargets, IModIncomingHitSource, IModFighterEffects, IModCombatSnapshotSource, IModCombatActivitySource, IModFighterForms, IModFighterStatusIcons, IModAnimationLifecycleSource, IModFighterFlags, IModFighterControls, IModRoundOutcomes
 	{
 		private readonly Fight _fight;
 		private readonly Model _model;
         private readonly bool _controlSetup;
+        public bool TryEndRound(DefinitionId rule, bool playerWins, out string error)
+        {
+            if (_fight == null || _model == null || (_model != _fight.GetPlayerModel() && _model != _fight.GetEnemyModel()))
+            { error = "A main fighter is required."; return false; }
+            return _fight.TryQueueRoundOutcome(rule, playerWins, out error);
+        }
         public bool TryChangeForm(DefinitionId character, Action<bool, string> complete, out string error)
         {
             if (_fight == null || _model == null || complete == null)
@@ -1117,6 +1123,7 @@ public class Fight
         _eclipseOpponentInstances.Clear();
         _eclipseInnateInstances.Clear();
         _eclipseBattleRules = new ModBattleRuleInstances();
+        _eclipseRoundOutcomes.BeginRound(-1, null);
 		MNEOALEBNNA = true;
 		IOPJDMCBIMM = true;
 		KCNHDABOAAA = false;
@@ -3165,6 +3172,7 @@ public class Fight
 		HJCJMEELHPC = 0;
 		DOANFKMFJFK = false;
 		round.round++;
+        _eclipseRoundOutcomes.BeginRound(-1, null);
 		if (preFight != null)
 		{
 			preFight.ClearInscription();
@@ -3311,6 +3319,32 @@ public class Fight
     }
 
 	private ModBattleRuleInstances _eclipseBattleRules = new ModBattleRuleInstances();
+    private readonly ModRoundOutcomeState _eclipseRoundOutcomes = new ModRoundOutcomeState();
+
+    private bool TryQueueRoundOutcome(DefinitionId rule, bool playerWins, out string error)
+    {
+        if (GetCurrentFight() != this || IsLocalVersus || IsTitleSparring || FightDefinition == null ||
+            FightDefinition.get_Type() == BattleType.FightNone || FightDefinition.get_Type() == BattleType.FightPVP ||
+            get_IsRaidFight() && !ModModeRuntime.IsRaid(FightDefinition) ||
+            stageType != StageType.FDBBPEGEGMK.STAGE_FIGHT || !round.processing || IsPaused() ||
+            isEndRound || isGameOver || isStopFight || _eclipseFightEndDispatched ||
+            _endFightRule != null || preFight != null && preFight.IsTimeOut() ||
+            GetPlayerModel() == null || GetEnemyModel() == null ||
+            new EclipseFighterOperations(this, GetPlayerModel()).Health <= 0 ||
+            new EclipseFighterOperations(this, GetEnemyModel()).Health <= 0)
+        { error = "Round outcomes require an active offline round without a pending native result."; return false; }
+        try
+        {
+            var scripts = ModRuntime.Scripts;
+            if (scripts == null) { error = "Mod scripts are unavailable."; return false; }
+            if (_eclipseRoundOutcomes.Round != round.round)
+                _eclipseRoundOutcomes.BeginRound(round.round, _eclipseBattleRules.OutcomeAuthority(scripts.Content,
+                    FightDefinition.FightId.ToString(), round.round, ListSF.CCDKHLAMKKO().IsEclipseMode(),
+                    ModModeRuntime.ActiveRules(FightDefinition.FightId.ToString())));
+            return _eclipseRoundOutcomes.TryRequest(rule, playerWins, out error);
+        }
+        catch (Exception exception) { error = exception.Message; return false; }
+    }
 	private bool _eclipseCombatDispatching;
 	private void DispatchEclipseCombatEvent(ModEffectEvent effectEvent = ModEffectEvent.FightBegin, ModDamageEvent damageEvent = null, ModIncomingHit incomingHit = null, ModCombatActivityEvent activity = null, ModAnimationLifecycleEvent animation = null)
 	{
@@ -3675,6 +3709,7 @@ public class Fight
 			}
 			ActionModels(false);
 			round.processing = false;
+			_eclipseRoundOutcomes.Cancel();
 			if (preFight != null && preFight.IsTimeOut())
 			{
 				_endRoundType = EndRoundType.EndRoundTypeTimeOut;
@@ -3683,6 +3718,22 @@ public class Fight
 			}
 			EndRound(GetWinner(true), GetWinner(false), _endRoundType);
 		}
+        else if (round.processing && stageType == StageType.FDBBPEGEGMK.STAGE_FIGHT &&
+            GetCurrentFight() == this && !_eclipseFightEndDispatched && !IsPaused() &&
+            _eclipseRoundOutcomes.Round == round.round && _eclipseRoundOutcomes.PendingPlayerWins.HasValue &&
+            new EclipseFighterOperations(this, GetPlayerModel()).Health > 0 &&
+            new EclipseFighterOperations(this, GetEnemyModel()).Health > 0 &&
+            _eclipseRoundOutcomes.TryConsume(out var playerWins))
+        {
+            // Queue requests during callbacks; settle only at this simulation boundary.
+            // Native lethal/timeout/rule branches above always win the same-frame race.
+            ActionModels(false);
+            round.processing = false;
+            _endRoundType = EndRoundType.EndRoundTypeWin;
+            var winner = playerWins ? GetPlayerModel().Parameters : GetEnemyModel().Parameters;
+            var loser = playerWins ? GetEnemyModel().Parameters : GetPlayerModel().Parameters;
+            EndRound(winner, loser, _endRoundType);
+        }
 	}
 
 	private void EndRound(ModelParameters ABKBEJBICOA, ModelParameters LEBLJJCFKOP, EndRoundType LFLGCDNKNJI)
@@ -3774,6 +3825,8 @@ public class Fight
 
 	private ModelParameters GetWinner(bool PLGGPKEJPPJ)
 	{
+        if (!IsLocalVersus && _eclipseRoundOutcomes.Round == round.round && _eclipseRoundOutcomes.ResolvedPlayerWins.HasValue)
+            return _eclipseRoundOutcomes.ResolvedPlayerWins.Value == PLGGPKEJPPJ ? GetPlayerModel().Parameters : GetEnemyModel().Parameters;
 		if (IsLocalVersus)
 		{
 			int winner = Eclipse.Multiplayer.LocalVersusRoundRules.ResolveWinner(
@@ -4611,6 +4664,7 @@ public class Fight
 
 	private void HCNDAFDHACI(GameOverTypes MHNEKAEGNBO)
 	{
+        _eclipseRoundOutcomes.Cancel();
 		if (IsLocalVersus)
 		{
 			Eclipse.Multiplayer.LocalVersusSession.Complete(this, true);

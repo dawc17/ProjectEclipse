@@ -1440,7 +1440,7 @@ namespace Eclipse.Modding
                         { "round", round.ToString(System.Globalization.CultureInfo.InvariantCulture) },
                         { "player_result", playerResult ?? string.Empty }
                     };
-                    var instanceFighter = new ModInstanceFighter(fighter, instances.Instance(rule.Id, player));
+                    var instanceFighter = new ModInstanceFighter(fighter, instances.Instance(rule.Id, player), rule);
                     if (!_scripts.TryInvokeBehavior(rule.Behavior, effectEvent, rule.InitialParameters, context, instanceFighter, out var error))
                         UnityEngine.Debug.LogWarning("[ModCombat] " + effectEvent + " failed for rule " + rule.Id + ": " + error);
                 }

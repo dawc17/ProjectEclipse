@@ -32,6 +32,7 @@ $sources = @(
     'Assets/Scripts/Eclipse/Runtime/Modding/LooseModProvider.cs',
     'Assets/Scripts/Eclipse/Runtime/Modding/ModScripting.cs',
     'Assets/Scripts/Eclipse/Runtime/Modding/ModExtensions.cs',
+    'Assets/Scripts/Eclipse/Runtime/Modding/ModRoundOutcomes.cs',
     'Assets/Scripts/Eclipse/Runtime/Modding/ModUiRuntime.cs',
     'Assets/Scripts/Eclipse/Runtime/Modding/ModStoryEvents.cs','Assets/Scripts/Eclipse/Runtime/Modding/ModFightEntry.cs',
     'Assets/Scripts/Eclipse/Runtime/Modding/ModScriptingP1C.cs',

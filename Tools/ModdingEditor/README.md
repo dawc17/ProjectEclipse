@@ -46,7 +46,7 @@ are ready; native tutorials can defer completion. UI definitions now accept
 `on_back(view)` to acknowledge or retain a foreground menu/modal on user Back.
 Scene/profile cleanup continues to invoke only `on_close`.
 
-Editor support for all 41 public Eclipse API modules: 213 functions, aliases, and
+Editor support for all 41 public Eclipse API modules: 214 functions, aliases, and
 callbacks; 74 constants; and 276 typed structures. Version 0.1.0 retains the ID
 `eclipse-modding.eclipse-modding-preview` so it upgrades the original prototype.
 
@@ -128,6 +128,12 @@ The package is not on the Marketplace. Relevant GitHub Actions runs also produce
 VSIX artifact. Project indexing runs locally and never executes your Lua scripts.
 
 ## Features
+
+Round controllers complete `controls_outcome` on `sf2.rules.behavior` and
+`fighter:end_round("win")` / `"loss"` in callbacks. Both declaration and invocation
+need `combat.round_outcome`; the editor checks a literal enabled declaration.
+Copy `templates/hit-objective` for a complete timed three-hit objective/HUD mod.
+The game checks authority conflicts, active round timing and native precedence.
 
 Framework mods can publish typed services with `sf2.extensions.register` and
 dependent mods acquire them with `get`, then use `call` or `try_call`. Completion

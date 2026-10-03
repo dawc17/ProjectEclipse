@@ -70,6 +70,7 @@ A capability permits an operation; a dependency permits references to another ow
 | `combat.change_life`, `combat.magic_charge` | Supported health and magic-charge methods. |
 | `combat.modify_hit`, `combat.effects` | Incoming damage scaling; temporary shields, flags, status icons and player control restrictions, respectively. |
 | `combat.modify_outgoing_hit` | Scale an attacker's pending hit during `on_damage_dealing`. |
+| `combat.round_outcome` | Declare a round controller with `controls_outcome` and request offline round wins/losses. Native results retain precedence; see [custom objectives](../../api/round-outcomes/). |
 | `presentation.dojo` | Select, inspect or reset the saved dojo preference after profile loading. Selection is limited to the mod's own opted-in locations. |
 | `profile.read` | Read the active player's level and item ownership/equipped snapshots. |
 | `story.events` | Subscribe to purchases, enchantments, experience-driven level gains and initialized scene entry. |

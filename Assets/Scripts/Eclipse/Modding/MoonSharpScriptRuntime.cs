@@ -253,6 +253,22 @@ namespace Eclipse.Modding
                             return DynValue.Nil;
                         }));
                     }
+                    if (fighter is IModRoundOutcomes outcomes)
+                    {
+                        fighterTable.Set("end_round", DynValue.NewCallback((ctx, args) =>
+                        {
+                            if (!invocationActive) throw new ScriptRuntimeException("Round outcome operations have expired.");
+                            _api.RequireCapability("combat.round_outcome");
+                            if (effectEvent == ModEffectEvent.FightBegin || effectEvent == ModEffectEvent.RoundBegin ||
+                                effectEvent == ModEffectEvent.RoundEnd || effectEvent == ModEffectEvent.FightEnd)
+                                throw new ScriptRuntimeException("Round outcomes require an active simulation callback.");
+                            int offset = args[0].Type == DataType.Table && args[0].Table == fighterTable ? 1 : 0;
+                            string result = args.AsType(offset, "end_round", DataType.String, false).String;
+                            if (result != "win" && result != "loss") throw new ScriptRuntimeException("Round outcome must be 'win' or 'loss', relative to the player.");
+                            bool accepted = outcomes.TryEndRound(behaviorId, result == "win", out var failure);
+                            return DynValue.NewTuple(DynValue.NewBoolean(accepted), accepted ? DynValue.Nil : DynValue.NewString(failure ?? "Round outcome rejected."));
+                        }));
+                    }
                     if (fighter is IModFighterFlags flags)
                     {
                         string FlagName(CallbackArguments args, string function)
@@ -2116,14 +2132,15 @@ namespace Eclipse.Modding
                 Table table = args.AsType(0, function, DataType.Table, false).Table;
                 return ApiCall(function, () =>
                 {
-                    ValidateFields(table, function, "id", "behavior", "parameters", "target", "mode", "rounds");
+                    ValidateFields(table, function, "id", "behavior", "parameters", "target", "mode", "rounds", "controls_outcome");
                     ModBehaviorDefinition behavior = RequiredHandle(table, "behavior", _behaviorHandles, "behavior", function);
                     return NewHandle(_ruleHandles, _api.RegisterBehaviorRule(
                         RequiredString(table, "id", function), behavior.Id,
                         ParseRuleTarget(OptionalString(table, "target", "all", function), function),
                         ParseRuleMode(OptionalString(table, "mode", "all", function), function),
                         OptionalIntArray(table, "rounds", function),
-                        OptionalTypedParameterMap(table, "parameters", behavior.Parameters, function)).Id);
+                        OptionalTypedParameterMap(table, "parameters", behavior.Parameters, function),
+                        OptionalBool(table, "controls_outcome", false, function)).Id);
                 });
             }
 

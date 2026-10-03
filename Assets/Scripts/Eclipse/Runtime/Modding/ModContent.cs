@@ -1447,6 +1447,7 @@ namespace Eclipse.Modding
 
     public sealed class FightRuleDefinition
     {
+        public bool ControlsOutcome { get; }
         public DefinitionId Behavior { get; }
         public IReadOnlyDictionary<string, ModParameterValue> InitialParameters { get; }
 
@@ -1475,8 +1476,11 @@ namespace Eclipse.Modding
             IReadOnlyDictionary<string, float> attributes = null, DefinitionId behavior = default,
             IReadOnlyDictionary<string, ModParameterValue> initialParameters = null,
             double? perkAspect = null, ModTrialRulePayload trial = null, ModRuleGroupPayload group = null,
-            IReadOnlyDictionary<string, double> perkParameters = null)
+            IReadOnlyDictionary<string, double> perkParameters = null, bool controlsOutcome = false)
         {
+            if (controlsOutcome && kind != ModFightRuleKind.Behavior)
+                throw new ModContentException("Only behavior rules can control a round outcome.");
+            ControlsOutcome = controlsOutcome;
             Behavior = behavior;
             PerkParameters = ModPerkParameters.Copy(perkParameters, "Perk rule");
             if (PerkParameters.Count > 0 && kind != ModFightRuleKind.Perk) throw new ModContentException("Perk parameters require a perk rule.");
@@ -2033,6 +2037,7 @@ namespace Eclipse.Modding
 
             ValidateStageGraph(zones, battles, fights, warriors, fightRules, rewards,
                 weapons, armors, helms, ranged, magic, nonEquipmentItems, perks);
+            ValidateOutcomeAuthorities(fights, fightRules, fightReplacements);
 
             _localizations.AddRange(localizations);
             _weapons.AddRange(weapons);
@@ -3197,7 +3202,7 @@ namespace Eclipse.Modding
         }
 
         public FightRuleDefinition RegisterBehaviorRule(string localId, DefinitionId behavior, ModRuleTarget target,
-            ModRuleMode mode, int[] rounds, IReadOnlyDictionary<string, ModParameterValue> parameters)
+            ModRuleMode mode, int[] rounds, IReadOnlyDictionary<string, ModParameterValue> parameters, bool controlsOutcome = false)
         {
             ThrowIfCompleted();
             ValidateRuleEnums(target, mode);
@@ -3211,7 +3216,7 @@ namespace Eclipse.Modding
                 throw new ModContentException("Battle rules support fight or round state; use mod-owned state for persistent progression.");
             var values = definition.Parameters.ResolveValues(parameters);
             var rule = new FightRuleDefinition(id, ModFightRuleKind.Behavior, target, mode, rounds,
-                string.Empty, default, false, 0, behavior: behavior, initialParameters: values);
+                string.Empty, default, false, 0, behavior: behavior, initialParameters: values, controlsOutcome: controlsOutcome);
             EnsureCapacityForNewRegistration();
             _fightRules.Add(id, rule);
             return rule;

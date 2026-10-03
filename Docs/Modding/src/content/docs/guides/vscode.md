@@ -88,6 +88,13 @@ test the filename guard, fighter rig and strike in a running fight. See
 
 ## Understand warnings
 
+For a custom win/loss objective, completion offers `controls_outcome` on a
+behavior rule and `fighter:end_round` in combat callbacks. A literal enabled
+declaration and calls are checked for `combat.round_outcome`. The
+`Tools/ModdingEditor/templates/hit-objective` starter combines a timed objective,
+round-local state and HUD. Runtime conflict/timing checks and native result
+acceptance still require testing in Eclipse.
+
 Framework service authoring completes `sf2.extensions.register`, its schema fields
 and `handler(request, caller)`. Consumer lookups complete `get`, `call` and
 `try_call`; the editor checks capabilities and direct manifest dependencies.

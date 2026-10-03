@@ -349,3 +349,11 @@ portrait namespace. A combined managed story fixture covers all six acts,
 loss/retry, notification ordering and save/profile cancellation. Verified assets,
 perk-state availability, defeat dialogue and native campaign acceptance remain
 open; the installer stays outside main.lua and active DE128 remains 0.18.0.
+
+2026-10-03 creator-platform progress: declared offline round controllers now
+request player wins/losses through `fighter:end_round`, with exclusive scope,
+native KO/timeout/surrender precedence and normal round scoring. The shipped
+three-hit objective and matching editor starter pass production Lua/native-method
+checks and isolated Unity HUD/font/render/fade checks. Full native end-animation,
+reward/save and real-contact acceptance remain open; this does not close E2 or
+the broader vision. See the creator-platform work log for source and limits.

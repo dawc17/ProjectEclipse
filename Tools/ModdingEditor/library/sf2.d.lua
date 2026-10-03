@@ -816,6 +816,7 @@ local Rule_light_in_the_darkness = {}
 ---@field rounds? integer[]
 ---@field behavior Eclipse.BehaviorHandle
 ---@field parameters? table<string,any>
+---@field controls_outcome? boolean Default false. Exclusive round result controller; also requires combat.round_outcome. Overlapping mode/round scopes conflict.
 local Rule_behavior = {}
 
 ---@class (exact) Eclipse.Rule_recharge_magic_each_round
@@ -4114,6 +4115,14 @@ function Fighter:remove_damage_shield(key) end
 ---@param control "punch"|"kick"|"ranged"|"magic"|"raid_charge"
 ---@param blocked boolean
 function Fighter:set_control_blocked(control, blocked) end
+
+---Requires: `combat.round_outcome`, an applicable `controls_outcome = true` rule and a main fighter in an offline fight. Supported offline mod raids use the same round request; online raids, versus/PvP, training and title sparring reject requests. `outcome` must be exactly `"win"` or `"loss"`, relative to the **player**, even in an opponent callback. Missing capability, invalid argument types/values and expired/wrong callback timing raise errors.
+---When: An active simulation callback for the controller's attached rule, normally `on_tick` or a combat observation. Unavailable in `on_fight_begin`, `on_round_begin`, `on_round_end` and `on_fight_end`, from expired captured fighter tables, while paused, or after a native result is pending.
+---Returns: `true, nil` when the host queues the request; `false, reason` when the rule has no authority, the round is unavailable or another outcome is pending. An accepted request is provisional until the simulation boundary. It does not mean the round or complete fight has already ended.
+---[Full reference](https://dawc17.github.io/ProjectEclipse/api/round-outcomes/#fighterend_round)
+---@param outcome "win"|"loss"
+---@return boolean, string|nil
+function Fighter:end_round(outcome) end
 
 ---Create a native combat flag owned by this behavior instance.
 ---Requires: `combat.effects`.

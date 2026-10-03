@@ -66,6 +66,18 @@ Select the runner for the subsystem you changed rather than invoking every
 script. `Shared/LoadUnityManagedAssemblies.ps1` is the shared loader, not a test runner.
 Some historical DE checks require downstream content or local research inputs.
 
+`Combat/TestRoundOutcomes.ps1` executes production Lua bindings and extracts the
+current `Fight` round arbitration, score, winner, end-stance and surrender methods
+for a managed fixture. Models, clock, presentation and settlement are controlled.
+It checks declared authority/conflicts, repeat calls, native-result precedence,
+pause, stale fighter handles and round reset. It does not play native end animations,
+grant game rewards or prove full-game save/settlement acceptance.
+`Combat/TestRoundOutcomesUnity.ps1` runs the shipped objective with production
+script sessions, native font/HUD/rendered pixels/fade teardown and extracted
+current round methods in an isolated Unity 6.6 Play Mode fixture. Contacts,
+models, clock, end presentation and settlement remain controlled. Both runners
+share `Combat/ExportRoundOutcomeFixture.ps1`; it is an extraction helper, not a test.
+
 `Modding/TestModExtensions.ps1` runs the production Lua runtime and script-session
 lifecycle against controlled asset/combat/UI sources. It covers typed framework
 services, capability/dependency/version checks, isolated data, startup rollback,

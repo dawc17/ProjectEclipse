@@ -68,6 +68,7 @@ const fighterMethods = {
     add_damage_shield:{params:{key:'string',fraction:'number',frames:'integer'},capability:'combat.effects'},
     remove_damage_shield:{params:{key:'string'},capability:'combat.effects'},
     set_control_blocked:{params:{control:enumOf('punch','kick','ranged','magic','raid_charge'),blocked:'boolean'},capability:'combat.effects'},
+    end_round:{params:{outcome:enumOf('win','loss')},returns:'boolean, string|nil',capability:'combat.round_outcome'},
     set_flag:{params:{key:'string'},returns:'string',capability:'combat.effects'},
     clear_flag:{params:{key:'string'},capability:'combat.effects'},
     has_flag:{params:{key:'string'},returns:'boolean',capability:'combat.effects'},
@@ -143,6 +144,7 @@ const rule={id:'string','target?':enumOf('player','opponent','all'),'mode?':enum
 type('HotGroundNode',{name:'string',axis:enumOf('X','Y'),'min?':'number','max?':'number'});
 for (const [name,extra] of Object.entries({no_perks:{'name?':'string'},require_item:{item:H('Item'),'minimum_level?':'integer'},equip_item:{item:H('Item'),'minimum_level?':'integer'},avatar:{name:'string'},name:{name:'string'},no_button:{name:'string'},perk:{perk:H('Perk'),'aspect?':'number','parameters?':'table<string,number>'},no_health_bar:{},invert_joystick:{},random_area:{image:'string','icon?':'string',width:'number',fade_in:'integer',frames_on:'integer',fade_out:'integer',frames_off:'integer'},light_in_the_darkness:{radius:['number','Normalized light radius in (0, 1].'],'shape?':['number','0 is square, 1 is circular; default 1.']},behavior:{behavior:H('Behavior'),'parameters?':values},recharge_magic_each_round:{},attributes:{values:'table<string,number>'},hot_ground:{frames:'integer',nodes:E('HotGroundNode')+'[]','animations?':'string[]'},ring_out:{node:'string',axis:enumOf('X','Y'),min:'number',max:'number'},regeneration:{rate:'number',frames_after_hit:'integer'},remove_interval:{type:enumOf('Attack','Block','Invulnerable','SelfUninterrupt','Uninterrupt','Unstable')}})) {
     const fields={...rule,...extra};if(name==='require_item') delete fields['target?'];
+    if(name==='behavior') fields['controls_outcome?']=['boolean','Default false. Exclusive round result controller; also requires combat.round_outcome. Overlapping mode/round scopes conflict.'];
     if(name==='hot_ground') fields['target?']=enumOf('player','opponent');
     const shape='Rule_'+name;type(shape,fields);reg('rules.'+name,shape,'Rule');
 }

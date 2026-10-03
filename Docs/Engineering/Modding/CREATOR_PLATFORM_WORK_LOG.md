@@ -111,3 +111,79 @@ test index now reflect that evidence. Contact notifications, asset-host construc
 and unused artwork/scroll paths are controlled. Full-game contact ordering,
 native menu/profile lifecycle, physical input and durable crash/restart acceptance
 remain open, as do the wider creator-platform requirements above.
+
+## 2026-10-03: declared offline round objectives
+
+Adds reusable objective/result authority toward E2. A behavior rule declares
+`controls_outcome = true`, requiring `combat.round_outcome`; its active combat
+callback can call `fighter:end_round("win" | "loss")`. Results are relative to
+the player and are provisional until the existing native round boundary.
+No DE-specific policy, generic Lua operation DSL or direct reward grant is added.
+
+### Source and execution
+
+- `Runtime/Modding/ModRoundOutcomes.cs` supplies a recovered-type-independent
+  typed host interface, exclusive controller validation and per-round request
+  state. `ModContent.cs` validates attached controllers before catalog mutation;
+  disjoint mode/round scopes can coexist. `LegacyContentAdapter.cs` validates
+  generated encounter lists before returning projected XML. Selection checks
+  in `ModBattleRuleInstances` defend the combat boundary too.
+- `ModScripting.cs` associates result authority with a declared rule on its
+  instance wrapper; `ModRuntime.cs` supplies that rule only for fight-rule dispatch.
+  Ordinary rules, equipment and perks do not gain authority by sharing a behavior.
+  `MoonSharpScriptRuntime.cs` enforces capabilities, exact outcomes and callback
+  lifetime/timing, returning acceptance or a refusal reason.
+- `Fight.cs` queues requests while an offline round is active, consumes them
+  after native KO/timeout/end-rule arbitration, and uses the existing `EndRound`
+  score/end-stance path. Surrender cancels pending requests. `GetWinner` retains
+  the consumed result through end presentation; next-round setup resets it.
+  Same pending requests are idempotent, contradictory requests are refused.
+  No health mutation or recursive result settlement occurs in the Lua callback.
+  Requests are transient; accepted side effects are not rolled back by a later
+  callback error. Online raid, PvP/versus, training and title sparring refuse them.
+- `ModSaveData.cs` fingerprints declared authority without changing hashes for
+  ordinary rules. The new runtime source and `.meta` are tracked; recovered
+  asset identities and original project reference paths are preserved.
+
+### Creator workflow and verification
+
+`Mods/example.hit-objective` uses typed round state, damage/tick observations,
+a HUD and one controller: three positive unblocked hits within ten active
+simulation seconds win; expiry loses without killing either fighter. It patches
+Act I tournament battle 3 in normal and Eclipse modes. The editor ships the same
+manifest/script starter. Public round-outcome/rule references, manifest,
+compatibility, examples, editor guide, generated definitions, capability checks
+and sidebar cover the implemented contract.
+
+- `TestRoundOutcomes.ps1`: 702 checks using production MoonSharp/runtime APIs
+  and extracted current native arbitration/score/winner/surrender methods.
+  Covers invalid inputs, capability/instance isolation, conflict rollback,
+  disjoint scopes, expired callbacks, native-result precedence, lifecycle guards,
+  offline raids, generated encounter projection, queued pause/resume, ordinary
+  native results, zero-health/death-completion precedence, detached fights,
+  fingerprint distinction and both paths of the shipped example.
+  Models, clock, end presentation and settlement are controlled.
+- `TestRoundOutcomesUnity.ps1`: 634 isolated Unity 6.6 Play Mode checks using
+  production script sessions, shipped objective, actual font/view/fade and
+  rendered changing text. The completed `3/3` screenshot was visually inspected.
+  Round arbitration/score/winner methods are extracted from current `Fight.cs`;
+  model/contact/clock/end-presentation/settlement inputs remain controlled.
+  Unity's search-index startup logged an unrelated `ArgumentOutOfRangeException`;
+  the objective completed and wrote explicit acceptance evidence. The managed
+  fixture also prints MoonSharp's default Unity loader reflection warning under
+  .NET; production mod asset loading and all acceptance checks still pass.
+- All four managed assemblies compile with ignored temporary project copies
+  remapped to installed Unity 6.6 (`6000.6.0f1`). Standard tracked project paths
+  have the previously recorded local SDK/analyzer mismatch and are preserved.
+- Editor generation/check/build, 46 unit tests, LuaLS 3.19.1 protocol tests and
+  real VS Code integration pass; wiki coverage/types/build/search/link checks pass.
+- Underworld runtime: 1282 assertions pass against freshly built game assemblies.
+  `AuditUnderworld.py` still reports the previously recorded missing
+  `fungus_raid` `/layer_0_2`; no location assets were changed.
+
+This establishes a bounded round-objective contract. E2 stays open for broader
+combat control and full-game acceptance. Actual contact ordering, complete native
+end-animation selection, full result/reward/save lifecycle, removal/reinstallation
+in a real profile and crash/restart acceptance are not proven by these fixtures.
+The wider creator-platform goal remains active, including broader actor/scene
+creation, pack conflicts/composition and independent creator workflows.

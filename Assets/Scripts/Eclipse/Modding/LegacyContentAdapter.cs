@@ -824,6 +824,7 @@ namespace Eclipse.Modding
             if (plan.Description != null) node.SetAttribute("Description",plan.Description);
             if (plan.Rules != null)
             {
+                var controllers = new List<FightRuleDefinition>();
                 var rules = node["Rules"];
                 if (rules == null) { rules = document.CreateElement("Rules"); node.AppendChild(rules); }
                 else rules.RemoveAll();
@@ -831,8 +832,10 @@ namespace Eclipse.Modding
                 {
                     if (id.Namespace != fight.Id.Namespace || !_content.TryGetFightRule(id,out var rule))
                         throw new ModContentException("Generated encounter references an unavailable or foreign rule: " + id);
+                    controllers.Add(rule);
                     if (rule.Kind != ModFightRuleKind.Behavior) rules.AppendChild(BuildRuleNode(document,rule));
                 }
+                ModOutcomeAuthority.Validate(controllers, "Generated encounter '" + fight.Id + "'");
             }
             return node;
         }

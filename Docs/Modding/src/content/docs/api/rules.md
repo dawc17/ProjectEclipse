@@ -513,7 +513,7 @@ local twist = sf2.rules.random {
 Attach executable Lua behavior directly to a fight, without creating a perk or
 requiring an equipped item.
 
-**Signature:** `sf2.rules.behavior { id, behavior, parameters?, target?, mode?, rounds? }`
+**Signature:** `sf2.rules.behavior { id, behavior, parameters?, target?, mode?, rounds?, controls_outcome? }`
 
 **Returns:** A rule handle; put it in `sf2.fights.register { rules = { rule } }`.
 
@@ -529,6 +529,13 @@ registration. `target`, `mode`, and `rounds` use the shared defaults above.
 Unknown fields, missing behaviors, undeclared dependencies, and saved-lifetime
 behaviors are rejected. The behavior must use `fight` or `round` state (or no
 state); use `sf2.state` explicitly for longer-lived mod progression.
+
+`controls_outcome` is a boolean defaulting to `false`. Setting it to `true`
+requires `combat.round_outcome` at registration and declares this rule as the
+exclusive round controller in its mode/round scope. Its behavior can request
+`fighter:end_round("win")` or `"loss"` during active simulation callbacks.
+Different targets do not divide authority; overlapping controllers conflict.
+See [custom round objectives](../round-outcomes/) for timing, precedence and examples.
 
 ```lua
 local guard = sf2.behaviors.register {

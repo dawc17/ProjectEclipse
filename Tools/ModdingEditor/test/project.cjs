@@ -8,6 +8,20 @@ const { createMod } = require('../src/scaffold.cjs');
 const template = path.resolve(__dirname, '../templates/weapon');
 const header = 'local sf2 = require("sf2")\n';
 
+test('round controller starter validates declaration and invocation capabilities', async () => {
+    const directory = path.resolve(__dirname, '../../../Mods/example.hit-objective');
+    const mod = await p.indexMod(directory);
+    const text = await fs.readFile(path.join(directory, 'scripts/main.lua'), 'utf8');
+    assert.deepEqual(mod.issues, []);
+    assert.deepEqual(p.analyze(text, mod).issues, []);
+    for (const file of ['mod.toml', 'scripts/main.lua'])
+        assert.equal(await fs.readFile(path.resolve(__dirname, '../templates/hit-objective', file), 'utf8'), await fs.readFile(path.join(directory, file), 'utf8'));
+    const missing = {...mod, data:{...mod.data,capabilities:mod.data.capabilities.filter(cap=>cap!=='combat.round_outcome')}};
+    assert(p.analyze(text, missing).issues.some(issue=>issue.capability==='combat.round_outcome'));
+    assert(p.analyze(header+'sf2.rules.behavior { id="goal", controls_outcome=true }', missing).issues.some(issue=>issue.capability==='combat.round_outcome'));
+    assert(!p.analyze(header+'sf2.rules.behavior { id="goal", controls_outcome=false }', missing).issues.some(issue=>issue.capability==='combat.round_outcome'));
+});
+
 test('framework and add-on templates validate service capabilities and dependencies', async () => {
     for (const id of ['example.focus-framework', 'example.focus-addon']) {
         const directory = path.resolve(__dirname, '../../../Mods', id);

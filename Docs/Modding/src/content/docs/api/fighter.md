@@ -3,6 +3,10 @@ title: Fighter methods
 description: Observe combat, change health and magic charge, reduce pending damage, and manage temporary shields in callbacks.
 ---
 
+For objective-based victories and defeats, see
+[`fighter:end_round`](../round-outcomes/#fighterend_round). It requires a declared
+controller rule and queues a round result through the normal offline result flow.
+
 These methods are supplied as the `fighter` argument to supported
 [combat callbacks](../combat-callbacks/). Use a colon (`:`), which passes the
 fighter as the method's first argument. They are not global `sf2` functions.

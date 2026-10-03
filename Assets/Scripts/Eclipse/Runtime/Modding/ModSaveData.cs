@@ -784,6 +784,7 @@ namespace Eclipse.Modding
                 }
                 if (rule.Kind == ModFightRuleKind.Behavior)
                 {
+                    if (rule.ControlsOutcome) Append(canonical, "round-outcome-authority-v1");
                     Append(canonical, rule.Behavior.ToString());
                     var parameters = new List<string>(rule.InitialParameters.Keys); parameters.Sort(StringComparer.Ordinal);
                     Append(canonical, parameters.Count);

@@ -2083,6 +2083,13 @@
       },
       "capability": "combat.effects"
     },
+    "end_round": {
+      "params": {
+        "outcome": "\"win\"|\"loss\""
+      },
+      "returns": "boolean, string|nil",
+      "capability": "combat.round_outcome"
+    },
     "set_flag": {
       "params": {
         "key": "string"
@@ -3224,7 +3231,11 @@
         "mode?": "\"normal\"|\"eclipse\"|\"all\"",
         "rounds?": "integer[]",
         "behavior": "Eclipse.BehaviorHandle",
-        "parameters?": "table<string,any>"
+        "parameters?": "table<string,any>",
+        "controls_outcome?": [
+          "boolean",
+          "Default false. Exclusive round result controller; also requires combat.round_outcome. Overlapping mode/round scopes conflict."
+        ]
       }
     },
     "Rule_recharge_magic_each_round": {
