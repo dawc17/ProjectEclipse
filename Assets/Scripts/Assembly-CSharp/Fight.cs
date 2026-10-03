@@ -8,7 +8,7 @@ using Eclipse.Modding;
 using Eclipse.Underworld;
 using UnityEngine;
 
-public class Fight
+public partial class Fight
 {
     internal bool IsTitleSparring { get; private set; }
     internal float GetTitleSparringCenterX(float alpha)
@@ -355,6 +355,7 @@ public class Fight
 
     private void CloseModelTransitions()
     {
+        CancelEclipseFighterMotion();
         _modelTransitionsClosed = true;
         var pending = new List<PendingModelTransition>(_modelTransitions.Values);
         foreach (var request in pending)
@@ -488,11 +489,16 @@ public class Fight
 		public int OGOLNFLBLBD;
 	}
 
-		private sealed class EclipseFighterOperations : IModFighterOperations, IModDamageEventSource, IModFighterTargets, IModIncomingHitSource, IModFighterEffects, IModCombatSnapshotSource, IModCombatActivitySource, IModFighterForms, IModFighterStatusIcons, IModAnimationLifecycleSource, IModFighterFlags, IModFighterControls, IModRoundOutcomes
+		private sealed class EclipseFighterOperations : IModFighterOperations, IModDamageEventSource, IModFighterTargets, IModIncomingHitSource, IModFighterEffects, IModCombatSnapshotSource, IModCombatActivitySource, IModFighterForms, IModFighterStatusIcons, IModAnimationLifecycleSource, IModFighterFlags, IModFighterControls, IModRoundOutcomes, IModFighterMotion
 	{
 		private readonly Fight _fight;
 		private readonly Model _model;
         private readonly bool _controlSetup;
+        public bool TryMoveBy(double x, double y, double z, out string error)
+        {
+            if (_fight == null) { error = "Fight is unavailable."; return false; }
+            return _fight.TryQueueEclipseFighterMotion(_model, x, y, z, out error);
+        }
         public bool TryEndRound(DefinitionId rule, bool playerWins, out string error)
         {
             if (_fight == null || _model == null || (_model != _fight.GetPlayerModel() && _model != _fight.GetEnemyModel()))
@@ -1124,6 +1130,7 @@ public class Fight
         _eclipseInnateInstances.Clear();
         _eclipseBattleRules = new ModBattleRuleInstances();
         _eclipseRoundOutcomes.BeginRound(-1, null);
+        CancelEclipseFighterMotion();
 		MNEOALEBNNA = true;
 		IOPJDMCBIMM = true;
 		KCNHDABOAAA = false;
@@ -1832,6 +1839,7 @@ public class Fight
 			PEOIALGBJFB = false;
 			KGKPLKJPDAI();
 		}
+		ApplyEclipseFighterMotion();
 		RenderRound();
 		if (preFight != null)
 		{
@@ -3173,6 +3181,7 @@ public class Fight
 		DOANFKMFJFK = false;
 		round.round++;
         _eclipseRoundOutcomes.BeginRound(-1, null);
+        CancelEclipseFighterMotion();
 		if (preFight != null)
 		{
 			preFight.ClearInscription();
@@ -4665,6 +4674,7 @@ public class Fight
 	private void HCNDAFDHACI(GameOverTypes MHNEKAEGNBO)
 	{
         _eclipseRoundOutcomes.Cancel();
+        CancelEclipseFighterMotion();
 		if (IsLocalVersus)
 		{
 			Eclipse.Multiplayer.LocalVersusSession.Complete(this, true);

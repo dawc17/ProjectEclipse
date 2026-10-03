@@ -2083,6 +2083,15 @@
       },
       "capability": "combat.effects"
     },
+    "move_by": {
+      "params": {
+        "x": "number",
+        "y": "number",
+        "z": "number?"
+      },
+      "returns": "boolean, string|nil",
+      "capability": "combat.motion"
+    },
     "end_round": {
       "params": {
         "outcome": "\"win\"|\"loss\""

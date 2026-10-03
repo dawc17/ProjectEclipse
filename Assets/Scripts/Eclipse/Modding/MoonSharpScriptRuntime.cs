@@ -213,6 +213,8 @@ namespace Eclipse.Modding
                         fighterTable.Set("add_magic_charge", DynValue.NewCallback((ctx, args) =>
                             invocationActive ? FighterOperation("fighter:add_magic_charge", "combat.magic_charge", args, fighter.TryAddMagicCharge) :
                                 throw new ScriptRuntimeException("Fighter operations have expired.")));
+                        fighterTable.Set("move_by", DynValue.NewCallback((ctx, args) =>
+                            MoveFighter(args, fighterTable, fighter, effectEvent, invocationActive, false)));
                     }
                     if (fighter is IModFighterTargets targets)
                     {
@@ -234,6 +236,8 @@ namespace Eclipse.Modding
                                 _api.RequireCapability("combat.target");
                                 return FighterOperation("target:add_magic_charge", "combat.magic_charge", args, target.TryAddMagicCharge);
                             }));
+                            targetTable.Set("move_by", DynValue.NewCallback((ctx, args) =>
+                                MoveFighter(args, targetTable, target, effectEvent, invocationActive, true)));
                             fighterTable.Set("opponent", DynValue.NewTable(targetTable));
                         }
                     }
@@ -501,6 +505,33 @@ namespace Eclipse.Modding
                     return false;
                 }
                 finally { invocationActive = false; }
+            }
+
+            private DynValue MoveFighter(CallbackArguments args, Table handle, IModFighterOperations fighter,
+                ModEffectEvent kind, bool active, bool opponent)
+            {
+                if (!active) throw new ScriptRuntimeException("Fighter motion operations have expired.");
+                _api.RequireCapability("combat.motion");
+                if (opponent) _api.RequireCapability("combat.target");
+                if (kind == ModEffectEvent.FightBegin || kind == ModEffectEvent.RoundBegin ||
+                    kind == ModEffectEvent.RoundEnd || kind == ModEffectEvent.FightEnd)
+                    throw new ScriptRuntimeException("Fighter motion requires an active simulation callback.");
+                int offset = args[0].Type == DataType.Table && args[0].Table == handle ? 1 : 0;
+                if (args.Count - offset < 2 || args.Count - offset > 3)
+                    throw new ScriptRuntimeException("move_by expects x, y and optional z displacement.");
+                bool hasZ = args.Count - offset == 3 && !args[offset + 2].IsNil();
+                if (args[offset].Type != DataType.Number || args[offset + 1].Type != DataType.Number ||
+                    hasZ && args[offset + 2].Type != DataType.Number)
+                    throw new ScriptRuntimeException("move_by displacement arguments must be numbers.");
+                double x = args[offset].Number;
+                double y = args[offset + 1].Number;
+                double z = hasZ ? args[offset + 2].Number : 0;
+                if (!ModFighterMotionLimits.IsValid(x, y, z))
+                    throw new ScriptRuntimeException("Fighter displacement must be finite and within -1000..1000 on each axis.");
+                if (!(fighter is IModFighterMotion motion))
+                    return DynValue.NewTuple(DynValue.False, DynValue.NewString("Fighter motion is unavailable."));
+                bool accepted = motion.TryMoveBy(x, y, z, out var failure);
+                return DynValue.NewTuple(DynValue.NewBoolean(accepted), accepted ? DynValue.Nil : DynValue.NewString(failure ?? "Fighter motion rejected."));
             }
 
             private DynValue FighterSnapshotTable(ModFighterSnapshot snapshot)

@@ -159,3 +159,8 @@ A clean Problems panel does not confirm loading, appearance, or combat behavior.
 
 The extension does not install mods, launch Eclipse, or provide live reload or a
 debugger. Never copy its `sf2.d.lua` metadata into mod scripts: it is editor-only.
+
+Fighter and opponent completions include `move_by(x, y, z?)`. Manifest diagnostics
+require `combat.motion` and, for the opponent, `combat.target`. Calls in fight/round
+begin or end callbacks are flagged. The packaged Repulse starter demonstrates
+button intent consumed by `on_tick`; game testing is still required for movement.

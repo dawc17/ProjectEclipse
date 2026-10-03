@@ -4116,6 +4116,28 @@ function Fighter:remove_damage_shield(key) end
 ---@param blocked boolean
 function Fighter:set_control_blocked(control, blocked) end
 
+---Queue an additive displacement of the current main fighter.
+---Requires: `combat.motion`.
+---When: An active simulation callback with a living main fighter in an offline fight. Unavailable in `on_fight_begin`, `on_round_begin`, `on_round_end` and `on_fight_end`, while paused, after round ending, in training/title sparring, local versus, legacy PvP and online raids. Offline mod raid encounters are eligible.
+---Returns: `true, nil` for an accepted request; `false, reason` when the native host cannot accept it. Invalid arguments, missing capabilities, expired methods or forbidden callback timing raise a Lua error. Acceptance is not a completion receipt and does not change a snapshot taken in the same callback.
+---[Full reference](https://dawc17.github.io/ProjectEclipse/api/fighter/#fightermove_by)
+---@param x number
+---@param y number
+---@param z number?
+---@return boolean, string|nil
+function Fighter:move_by(x, y, z) end
+
+---Queue an additive displacement of the opposing main fighter.
+---Requires: `combat.motion` and `combat.target`.
+---When: The same active simulation callbacks and offline fight eligibility as `fighter:move_by`, with a living opposing main fighter. The opponent table may be absent; check it before calling. Begin/end callbacks cannot move either fighter.
+---Returns: `true, nil` for an accepted request; `false, reason` for native rejection. Invalid arguments, missing capabilities, expired methods and forbidden callback timing raise a Lua error. Acceptance does not guarantee application.
+---[Full reference](https://dawc17.github.io/ProjectEclipse/api/fighter/#fighteropponentmove_by)
+---@param x number
+---@param y number
+---@param z number?
+---@return boolean, string|nil
+function Opponent:move_by(x, y, z) end
+
 ---Requires: `combat.round_outcome`, an applicable `controls_outcome = true` rule and a main fighter in an offline fight. Supported offline mod raids use the same round request; online raids, versus/PvP, training and title sparring reject requests. `outcome` must be exactly `"win"` or `"loss"`, relative to the **player**, even in an opponent callback. Missing capability, invalid argument types/values and expired/wrong callback timing raise errors.
 ---When: An active simulation callback for the controller's attached rule, normally `on_tick` or a combat observation. Unavailable in `on_fight_begin`, `on_round_begin`, `on_round_end` and `on_fight_end`, from expired captured fighter tables, while paused, or after a native result is pending.
 ---Returns: `true, nil` when the host queues the request; `false, reason` when the rule has no authority, the round is unavailable or another outcome is pending. An accepted request is provisional until the simulation boundary. It does not mean the round or complete fight has already ended.

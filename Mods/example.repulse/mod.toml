@@ -1,0 +1,11 @@
+schema = 1
+id = "example.repulse"
+name = "Repulse Trial"
+version = "1.0.0"
+authors = ["Eclipse"]
+entrypoint = "scripts/main.lua"
+capabilities = ["content.register", "content.patch", "combat.motion", "combat.target", "ui.create"]
+
+[[dependencies]]
+id = "core"
+version = ">=1.0.0 <2.0.0"

@@ -53,6 +53,24 @@ their help and docstrings for required inputs and execution behavior.
 
 ## PowerShell entry points
 
+`Combat/TestFighterMotion.ps1` compiles the production Lua binding and complete
+fighter-motion queue with controlled models/session/translation. It checks typed
+arguments, capability/timing/lifetime guards, independent Lua contexts, shared
+limits, deferred application, pause, cancellation, failure isolation and the
+shipped Repulse button/cooldown/round state.
+`Combat/TestFighterMotionUnity.ps1` copies the full game assets/source into a
+marked isolated Unity 6.6 project and starts real Campaign/core combat. Independent
+probe mods exercise the actual callback/simulation boundary; further checks inspect
+real rig points and animation data, native HUD button/cooldown, continuing combat,
+pause and surrender cleanup. Input/AI are controlled; each isolated profile is
+seeded with completed tutorial state before its real campaign load. First-time
+onboarding is not tested.
+Use `-ExistingFixture <absolute marked path inside Temp>` to reuse imported assets
+while refreshing current source and mods. Each run gets a fresh save identity,
+separate log and timestamp-checked acceptance result. Physical controls, every
+animation/arena and exported-player behavior still need broader playtesting.
+
+
 `Modding/TestModCallbackDiagnostics.ps1` exercises the actual Lua worker/session,
 nested framework provider attribution, instruction-budget failures/recovery,
 recording toggles, detached snapshots and bounded callback/failure histories.

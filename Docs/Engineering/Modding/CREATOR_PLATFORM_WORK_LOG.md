@@ -347,3 +347,101 @@ production overhead profiling, inspector/reload workflow, aggregate frame limits
 and independent creator acceptance remain open. This feature is creator tooling,
 not proof that arbitrary actors, scenes, combat systems or packs are now possible.
 The full Minecraft-style modding objective remains active.
+
+## 2026-10-03: queued fighter movement and Repulse
+
+Lua abilities can now request relative movement of the callback's main fighter
+or its opponent. Previously Lua could observe positions and change health, but
+could not implement a retreat, dash or repulse through a supported displacement
+operation. `fighter:move_by(x, y, z?)` requires `combat.motion`; the opponent
+method additionally requires `combat.target`. This advances E2/E8 with a real
+playable ability, while the broader creative-freedom objective remains active.
+
+### Source and native boundary
+
+| Source | Responsibility |
+| --- | --- |
+| `Assets/Scripts/Eclipse/Runtime/Modding/ModScripting.cs` | Independent typed motion interface, shared finite/axis/request limits and behavior-instance delegation. |
+| `Assets/Scripts/Eclipse/Modding/MoonSharpScriptRuntime.cs` | Self/opponent bindings; strict numeric arguments, optional Z, capability checks, callback lifetime and begin/end rejection. Returns acceptance plus a reason, without running native translation inside Lua. |
+| `Assets/Scripts/Eclipse/Modding/FightFighterMotion.cs` | Owned partial Fight implementation: eligibility, additive per-body queue, round/session identity, coalescing, pause retention, stale/dead/body cancellation and native failure isolation. |
+| `Assets/Scripts/Assembly-CSharp/Fight.cs` | Narrow typed adapter and application before `RenderRound`, after model/collision/animation processing. Reset, next round, transition closure/unload and native surrender/failure clear pending motion. |
+| `Mods/example.repulse/` and `Tools/ModdingEditor/templates/repulse/` | A Lua HUD button, intent consumed by fresh tick handles, independent retreat/opponent requests, round-scoped 180-frame cooldown and lifecycle cleanup. Appends its rule to Act I Tournament stage 3 in normal/Eclipse mode. |
+
+Accepted requests add in callback order, shared across mods. Each axis of an
+individual request and its running sum is bounded to ±1000 native units; at most
+32 nonzero requests can be pending per body/step. A rejected request preserves
+earlier ones. Zero requests use no slot; a net-zero sum skips native translation.
+One translation per current participant uses `Model.ShiftModelPosition(delta,
+true)`, which moves current/previous rig points and running keyframes/buffers.
+Its native constraint/friction solver also adjusts rig positions and velocity.
+Positive model Y is downward, supported by the recovered integration and floor
+constraint code. This is displacement, not a velocity impulse or a safe-destination
+query, and does not sweep collision along the path.
+
+Paused application retains pending movement until simulation resumes; new
+requests while paused reject. Eligibility is checked again before application.
+Replaced/dead/detached bodies and ended rounds/sessions discard their requests.
+Local versus, PvP, title sparring and unsupported raids reject; the owned offline
+raid path is eligible. Self and opponent calls are independent, not an atomic
+pair. Acceptance is not a completion receipt or an invulnerability/attack grant.
+
+The wiki adds dedicated self/opponent sections and a beginner movement-ability
+guide, with manifests, examples, sidebar and editor guide updated together.
+The editor's authored schema, generated data/definitions, callback diagnostics
+and template include the new contract. No executable Lua definitions ship.
+
+### Verification and limits
+
+- `TestFighterMotion.ps1`: 477 checks with production MoonSharp bindings and the
+  complete production queue, controlled native models/clock/session/translation.
+  Includes strict types, bounds, capabilities, expired handles, unsupported
+  callbacks/modes, additive independent contexts, zero/cancelled sums, per-step
+  limits, pause/resume, stale/dead bodies, cancellation and translation failures.
+  The actual shipped Lua source also exercises click intent, rejected requests,
+  cooldown, HUD teardown and next-round reinitialization.
+- `TestFighterMotionUnity.ps1`: 8689 full-game native checks in an isolated Unity
+  6.6 project with actual assets, boot, Campaign and the core encounter. Separate
+  Lua rules produce observed self/opponent deltas of 56.9948/-30.1646 for queued
+  sums +57/-30. Native simulation continues between observations. A bounded
+  rig/physics/animation snapshot restores an identical baseline, then compares
+  every XYZ rig point against the existing native translation path, including
+  constraint corrections. It checks 410 real current/previous coordinates and
+  2613 real animation-buffer/keyframe coordinates. This is not whole-game rollback.
+- Native pause preserves movement, resume applies it once, and the shipped native
+  HUD button queues approximately -39.9944/+100.1351 displacement. Its 180-frame
+  cooldown recharges with running animation retained. Surrender through the
+  recovered result path closes the HUD and clears queued motion. Callback failure
+  history is empty. The final rendered `repulse-native.png` was visually inspected;
+  the panel was moved below the portrait and given readable status styling.
+- The matching hidden, graphics-enabled fixture uses controlled idle/immortal
+  participants and a fresh isolated native save seeded with `Tutorial="END"`
+  after the title releases its preview. An earlier fresh-profile attempt was
+  blocked by onboarding; invoking its dialog handler without tutorial movement
+  could not establish a valid tutorial fight. The corrected fixture explicitly
+  excludes first-time onboarding rather than bypassing native HUD input gating.
+  Earlier overly strict pure-translation assertions were corrected to compare
+  native constraint behavior. Only passing final runs are acceptance evidence.
+- Existing round-outcome (702), pack-composition (86), and model-transition
+  regressions pass; transition closure now also asserts motion cancellation.
+  All four managed assemblies compile using the previously recorded ignored
+  `dotnet msbuild` Unity 6.6 reference remapping. Tracked machine references remain
+  intact; the new owned source has its explicit main-project include and meta GUID.
+- Editor generation/check, 47 unit tests, LuaLS completion/hover/full-example
+  diagnostics and VS Code integration pass. Wiki reference coverage (216), types,
+  site/search build and 5615 local links/assets across 56 pages pass. The initially
+  missing default LuaLS test binary was resolved
+  by passing the installed 3.18.2 executable explicitly.
+
+Native artifacts are ignored under `Temp/FighterMotionUnity-*`; the reusable
+fixture runner checks its marker/path and freshness of the result. It never
+imports the test harness into the main game project. The editor still logs its
+unrelated Search indexing startup exception, and the managed fixture prints the
+known default MoonSharp Unity-loader reflection warning before passing. Neither
+log is claimed error-free.
+
+Vertical/Z movement, every arena/animation/contact combination, normal-versus-
+Eclipse gameplay coverage, physical keyboard/controller/touch activation and
+exported-player acceptance remain open. This does not provide arbitrary actors,
+custom physics, attack animation authoring or swept collision. Native acceptance
+of this ability is useful progress toward Minecraft-style modding, not completion
+of the vision.

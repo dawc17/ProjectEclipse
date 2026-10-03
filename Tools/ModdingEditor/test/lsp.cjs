@@ -189,7 +189,19 @@ async function main() {
     }, 'snapshot return type inference');
     console.log('PASS: combat snapshot return type and fighter fields complete');
     const flagMethods=probe('flag-methods.lua','local sf2=require("sf2")\nsf2.behaviors.register { id="flags",on_animation_start=function(_,fighter)\n fighter:|\nend }');
-    await until(async()=>{const found=labels(await request('textDocument/completion',flagMethods));return ['set_flag','has_flag','clear_flag','set_control_blocked','end_round'].every(key=>found.some(name=>name.startsWith(key)));},'scoped combat flag and outcome methods');
+    await until(async()=>{const found=labels(await request('textDocument/completion',flagMethods));return ['set_flag','has_flag','clear_flag','set_control_blocked','end_round','move_by'].every(key=>found.some(name=>name.startsWith(key)));},'scoped combat flag and outcome methods');
+    const motionTarget=probe('motion-target.lua','local sf2=require("sf2")\nsf2.behaviors.register { id="motion",on_tick=function(_,fighter)\n if fighter.opponent then fighter.opponent:| end\nend }');
+    await until(async()=>labels(await request('textDocument/completion',motionTarget)).some(name=>name.startsWith('move_by')),'opponent motion method');
+    const motionHover=probe('motion-hover.lua','local sf2=require("sf2")\nsf2.behaviors.register { id="motion",on_tick=function(_,fighter)\n fighter:mo|ve_by(1,0)\nend }');
+    await until(async()=>{const text=JSON.stringify(await request('textDocument/hover',motionHover));return text.includes('combat.motion')&&text.includes('fightermove_by')&&text.includes('accepted');},'motion capability, acceptance and reference hover');
+    const repulseText=fs.readFileSync(path.resolve(__dirname,'../../../Mods/example.repulse/scripts/main.lua'),'utf8');
+    const repulseUri=open('repulse.lua',repulseText+'\nsf2.price.coins("bad")\n');
+    const repulseKey=decodeURIComponent(repulseUri).toLowerCase();
+    await until(()=>diagnostics.get(repulseKey)?.some(d=>d.code==='param-type-mismatch'),'repulse diagnostic publication');
+    notify('textDocument/didChange',{textDocument:{uri:repulseUri,version:2},contentChanges:[{text:repulseText}]});
+    await until(()=>diagnostics.has(repulseKey)&&diagnostics.get(repulseKey).length===0,'clean repulse diagnostics');
+    assert.deepEqual(diagnostics.get(repulseKey),[],'Shipped Repulse has LuaLS diagnostics');
+    console.log('PASS: fighter/opponent motion completion, capability/acceptance hover and complete Repulse script');
     const formReceipt = probe('form-receipt.lua', 'local sf2=require("sf2")\nlocal form=sf2.warriors.register { id="form" }\nsf2.behaviors.register { id="shift", on_tick=function(_, fighter)\n local result=fighter:change_form(form)\n local value=result.|\nend }');
     await until(async () => {
         const found=labels(await request('textDocument/completion',formReceipt));

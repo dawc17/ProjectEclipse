@@ -2,6 +2,15 @@
 
 Last broad reconciliation: 2026-09-12. Scope remains **G01–G14 plus E1–E8**.
 
+2026-10-03 creator-platform movement: Lua can queue additive displacement of
+living main fighters through `move_by`, with shared per-step bounds and native
+rig/animation translation. The shipped Repulse ability and two independent
+probe rules pass actual Campaign/core-fight acceptance, including native HUD,
+cooldown, pause and surrender cleanup. Input/AI are controlled and the isolated
+profile starts after the tutorial. This advances E2/E8; impulses, arbitrary actors,
+custom physics, swept collision, all-arena/animation and exported-player acceptance
+remain open. See [the creator-platform work log](CREATOR_PLATFORM_WORK_LOG.md).
+
 2026-10-03 creator-platform diagnostics: the existing F3 overlay and F4 report now
 attribute bounded Lua callback time/errors to their owners, including nested
 framework calls. Native rendered-overlay/report acceptance passes with controlled

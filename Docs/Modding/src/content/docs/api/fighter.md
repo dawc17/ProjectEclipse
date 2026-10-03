@@ -1,6 +1,6 @@
 ---
 title: Fighter methods
-description: Observe combat, change health and magic charge, reduce pending damage, and manage temporary shields in callbacks.
+description: Observe combat, move fighters, change health and magic charge, reduce pending damage, and manage temporary shields in callbacks.
 ---
 
 For objective-based victories and defeats, see
@@ -243,8 +243,8 @@ if fighter.opponent then
 end
 ```
 
-There are no opponent shield or opponent pending-hit methods on this target
-object. The explicitly exposed methods are the two operations above.
+The opponent target also exposes [`move_by`](#fighteropponentmove_by). There are
+no opponent shield or opponent pending-hit methods on this target object.
 
 ## fighter:scale_incoming_damage
 
@@ -494,3 +494,79 @@ fighter:clear_status_icon("relentless")
 
 The key uses the same validation and behavior-instance isolation as
 `show_status_icon`; it does not clear arbitrary status entries owned elsewhere.
+
+## fighter:move_by
+
+Queue an additive displacement of the current main fighter.
+
+**Signature:** `fighter:move_by(x, y, z?)`
+
+**Returns:** `true, nil` for an accepted request; `false, reason` when the native
+host cannot accept it. Invalid arguments, missing capabilities, expired methods
+or forbidden callback timing raise a Lua error. Acceptance is not a completion
+receipt and does not change a snapshot taken in the same callback.
+
+**When:** An active simulation callback with a living main fighter in an offline
+fight. Unavailable in `on_fight_begin`, `on_round_begin`, `on_round_end` and
+`on_fight_end`, while paused, after round ending, in training/title sparring,
+local versus, legacy PvP and online raids. Offline mod raid encounters are eligible.
+
+**Requires:** `combat.motion`.
+
+```lua
+-- Inside on_tick, when your ability becomes ready:
+local accepted, reason = fighter:move_by(80, 0)
+if not accepted then sf2.log.warn(reason) end
+```
+
+`x` and `y` are required finite numbers; `z` is optional and defaults to `0`
+(including an explicit `nil`). Each axis must be within `-1000..1000` native rig
+units. Positive X is independent of facing, positive Y is downward (negative Y moves upward); these are
+relative offsets, not pixels, destinations or velocities. Only two or three
+arguments are accepted. Both colon and dot-call syntax are supported.
+
+Accepted requests add together for each body and apply once after model,
+collision and animation processing, before round arbitration and interpolation
+capture. The running sum must stay within the same per-axis bound; at most 32
+nonzero requests can be pending per body per step across all behaviors/mods.
+A rejection preserves earlier accepted requests. Zero offsets consume no slot.
+
+The rig's current/previous points, derived geometry, keyframes and animation
+buffers translate together. The native constraint/friction solver can correct rig
+positions and velocity, including configured wall/floor constraints. This does not
+create a hit or sweep collisions along the path. The API does not validate a safe
+destination; native collision processing continues on subsequent steps. A stale round, body,
+script session or dead fighter discards pending motion; pause retains it until
+simulation resumes. There is no completion callback. See
+[Create a movement ability](../../guides/fighter-motion/) for the complete example
+and composition rules.
+
+## fighter.opponent:move_by
+
+Queue an additive displacement of the opposing main fighter.
+
+**Signature:** `fighter.opponent:move_by(x, y, z?)`
+
+**Returns:** `true, nil` for an accepted request; `false, reason` for native
+rejection. Invalid arguments, missing capabilities, expired methods and forbidden
+callback timing raise a Lua error. Acceptance does not guarantee application.
+
+**When:** The same active simulation callbacks and offline fight eligibility as
+`fighter:move_by`, with a living opposing main fighter. The opponent table may be
+absent; check it before calling. Begin/end callbacks cannot move either fighter.
+
+**Requires:** `combat.motion` and `combat.target`.
+
+```lua
+-- Inside an active combat callback:
+if fighter.opponent then
+    local accepted, reason = fighter.opponent:move_by(-60, 0, 0)
+    if not accepted then sf2.log.warn(reason) end
+end
+```
+
+The self method's coordinate, argument, displacement, request-count, deferred
+application and lifetime limits also apply. The opponent shares its pending
+queue with requests it receives through other behaviors. Moving both participants
+requires two independent calls; they are not a transaction. A call cannot target
+arbitrary child actors or retained fighters from earlier callbacks.

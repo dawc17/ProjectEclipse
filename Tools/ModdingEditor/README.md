@@ -617,3 +617,11 @@ nested framework handlers to the provider and include bounded error history and
 actual instruction-limit failures. Editor diagnostics cannot measure these
 runtime calls. See the wiki's **Debug callbacks in game** guide; no new Lua API,
 manifest capability or generated editor definition is required.
+
+Fighter motion uses `fighter:move_by(x, y, z?)` (`combat.motion`) and
+`fighter.opponent:move_by(...)` (also `combat.target`). The generated definitions
+provide both methods and their acceptance/reason returns. Begin/end callback
+calls produce a timing diagnostic. `templates/repulse/` mirrors the complete
+Repulse Trial: its HUD stores intent and its tick handler uses fresh handles.
+Movement queues until the simulation boundary; editor checks cannot confirm rig,
+collision or animation behavior. See the wiki's **Create a movement ability** guide.

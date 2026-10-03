@@ -68,6 +68,7 @@ const fighterMethods = {
     add_damage_shield:{params:{key:'string',fraction:'number',frames:'integer'},capability:'combat.effects'},
     remove_damage_shield:{params:{key:'string'},capability:'combat.effects'},
     set_control_blocked:{params:{control:enumOf('punch','kick','ranged','magic','raid_charge'),blocked:'boolean'},capability:'combat.effects'},
+    move_by:{params:{x:'number',y:'number',z:'number?'},returns:'boolean, string|nil',capability:'combat.motion'},
     end_round:{params:{outcome:enumOf('win','loss')},returns:'boolean, string|nil',capability:'combat.round_outcome'},
     set_flag:{params:{key:'string'},returns:'string',capability:'combat.effects'},
     clear_flag:{params:{key:'string'},capability:'combat.effects'},

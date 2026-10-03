@@ -729,6 +729,21 @@ namespace Eclipse.Modding
         bool TryAddMagicCharge(double amount, out string error);
     }
 
+    public interface IModFighterMotion
+    {
+        bool TryMoveBy(double x, double y, double z, out string error);
+    }
+
+    public static class ModFighterMotionLimits
+    {
+        public const double MaximumDisplacement = 1000;
+        public const int MaximumRequestsPerStep = 32;
+        public static bool IsValid(double x, double y, double z) =>
+            !double.IsNaN(x) && !double.IsInfinity(x) && Math.Abs(x) <= MaximumDisplacement &&
+            !double.IsNaN(y) && !double.IsInfinity(y) && Math.Abs(y) <= MaximumDisplacement &&
+            !double.IsNaN(z) && !double.IsInfinity(z) && Math.Abs(z) <= MaximumDisplacement;
+    }
+
     public interface IModFighterForms
     {
         bool TryChangeForm(DefinitionId character, Action<bool, string> complete, out string error);
@@ -1043,7 +1058,7 @@ namespace Eclipse.Modding
         IModFighterOperations Opponent { get; }
     }
 
-    public sealed class ModInstanceFighter : IModFighterOperations, IModDamageEventSource, IModBehaviorInstanceSource, IModFighterTargets, IModIncomingHitSource, IModFighterEffects, IModCombatSnapshotSource, IModCombatActivitySource, IModFighterForms, IModFighterStatusIcons, IModAnimationLifecycleSource, IModFighterFlags, IModFighterControls, IModRoundOutcomes
+    public sealed class ModInstanceFighter : IModFighterOperations, IModDamageEventSource, IModBehaviorInstanceSource, IModFighterTargets, IModIncomingHitSource, IModFighterEffects, IModCombatSnapshotSource, IModCombatActivitySource, IModFighterForms, IModFighterStatusIcons, IModAnimationLifecycleSource, IModFighterFlags, IModFighterControls, IModRoundOutcomes, IModFighterMotion
     {
         private readonly IModFighterOperations _inner;
         private readonly FightRuleDefinition _outcomeRule;
@@ -1085,6 +1100,11 @@ namespace Eclipse.Modding
         }
         public ModCombatActivityEvent ActivityEvent => (_inner as IModCombatActivitySource)?.ActivityEvent;
         public ModCombatSnapshot CaptureCombatSnapshot() => (_inner as IModCombatSnapshotSource)?.CaptureCombatSnapshot();
+        public bool TryMoveBy(double x, double y, double z, out string error)
+        {
+            if (_inner is IModFighterMotion motion) return motion.TryMoveBy(x, y, z, out error);
+            error = "Fighter motion is unavailable."; return false;
+        }
         public System.Xml.XmlNode SavedInstance { get; }
         public ModDamageEvent DamageEvent => (_inner as IModDamageEventSource)?.DamageEvent;
         public ModIncomingHit IncomingHit => (_inner as IModIncomingHitSource)?.IncomingHit;

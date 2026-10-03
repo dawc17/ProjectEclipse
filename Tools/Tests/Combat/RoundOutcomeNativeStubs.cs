@@ -71,6 +71,8 @@ public sealed class FixtureCounters { public void Complete(int rounds,bool surre
 public static class GameUtils { public static void EndFight(ComboStatistic player,FightList fight,object winner,object loser,GameOverTypes result,ComboStatistic enemy,object data) {Fight.Current.Settlements++;} }
 public sealed partial class Fight : IModFighterOperations, IModRoundOutcomes, IModCombatSnapshotSource, IModDamageEventSource, IModIncomingHitSource
 {
+    // Movement is outside this round-arbitration fixture; covered by FighterMotionTests.
+    private void CancelEclipseFighterMotion() { }
     public readonly ModelParameters Player=new ModelParameters{IsPlayer=true}, Enemy=new ModelParameters();
     ModelParameters NMNCKBPFCCP,AKBNKDBHCEO;
     Model playerModel,enemyModel;

@@ -79,6 +79,7 @@ A capability permits an operation; a dependency permits references to another ow
 | `ui.create` | Open mod-owned UI layouts; returned handles can update and close that script's views. |
 | `ui.settings` | Register on/off switches shown under Options > Mod settings. |
 | `presentation.visuals` | Turn on and tune the engine's optional fight visuals, such as weapon trails, bloom and depth haze. |
+| `combat.motion` | Queue relative main-fighter displacement for movement abilities; see [fighter motion](../fighter-motion/). |
 | `combat.target` | Use supported operations on the opposing fighter. |
 | `progression.read`, `progression.write` | Read and update achievement counters. |
 | `policy.timers`, `policy.services` | Supported timer settings and service switches. |
