@@ -44,7 +44,7 @@ Install Unity **6000.6.0f1** with Windows build support and **Android Build
 Support**, including its SDK/NDK tools and OpenJDK. Use Unity's embedded Android
 toolchain rather than an unrelated system Java installation.
 
-In Unity, select the target platform in Build Settings, then use
+In Unity, activate **Eclipse Windows** or **Eclipse Android** in **File > Build Profiles**, then use
 **SF2 > Build > Windows x86_64** or **Android ARM64 APK**.
 Outputs go to the ignored `Builds/Windows/Eclipse.exe`
 and `Builds/Android/Eclipse.apk` paths. Android uses IL2CPP, ARM64 only, and
@@ -58,12 +58,15 @@ For unattended builds, close the editor for this project first and run:
 & .\BuildScripts\BuildPlayers.ps1 -Target All
 ```
 
-Use `-Target Windows` or `-Target Android` to build just one target. Pass
+Use `-Target Windows` or `-Target Android` to build just one target.
+`WindowsDevelopment` and `WindowsEditableXml` select the corresponding tester
+profiles. See [Unity 6 workflows](Docs/Engineering/UNITY_6_WORKFLOWS.md) for the
+Input System migration and ready-to-use Multiplayer Play Mode scenarios. Pass
 `-Version major.minor.patch` for a release build: packaging requires it, and the
 player uses it to refuse to start once a newer release is published (see
 `Launcher/README.md`). Builds without `-Version` are unversioned dev builds that
 never check for updates. The script
-starts a separate Unity process with an explicit platform for each build; use
+starts a separate Unity process with an explicit Build Profile for each build; use
 `-Unity`, `-ProjectPath`, and `-OutputDirectory` to override its paths. Each target
 gets a build log alongside the output directories. The APK uses the
 project's existing signing settings; configure a release keystore separately

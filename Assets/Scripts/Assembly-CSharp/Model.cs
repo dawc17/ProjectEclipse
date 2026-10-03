@@ -3213,14 +3213,14 @@ public class Model : global::EventDispatcher<object>
 		{
 			Debug.LogError("Both is player! Wat!?");
 		}
-		List<global::Pair<string, float>> list = CHCGJBLDPML.ACCOBHPHDDN();
+		List<global::Pair<string, float>> list = CHCGJBLDPML.GetDamageAttributes();
 		foreach (global::Pair<string, float> item in list)
 		{
 			if (item.First == "RaidChargeDamage")
 			{
 				int raidChargeDamage = 0; // best guess for name
 				fGCODGKLHED.Parameters.IBLHIAHECLK.Get(item.First, ref raidChargeDamage);
-				return Eclipse.Multiplayer.LocalVersusMatch.ScaleStrikeDamage(Fight.GetCurrentFight(), raidChargeDamage, blocked);
+				return Eclipse.Multiplayer.LocalVersusMatch.ScaleStrikeDamage(Fight.GetCurrentFight(), raidChargeDamage, blocked, fGCODGKLHED, CHCGJBLDPML, this);
 			}
 		}
 		string kLIIDDMHNOL = GetDefenseAttribute(CHCGJBLDPML, blocked, GCFJNDJBBOI);
@@ -3247,7 +3247,7 @@ public class Model : global::EventDispatcher<object>
 			Debug.LogError("Model::getTotalDamage - wtf so strong");
 		}
 		// Scale before ResolveStrikeDamage caps lethal hits to remaining health.
-		return Eclipse.Multiplayer.LocalVersusMatch.ScaleStrikeDamage(Fight.GetCurrentFight(), a, blocked);
+		return Eclipse.Multiplayer.LocalVersusMatch.ScaleStrikeDamage(Fight.GetCurrentFight(), a, blocked, fGCODGKLHED, CHCGJBLDPML, this);
 	}
 
 	public IntervalAnimation FDMAIINMCHH()
@@ -4432,7 +4432,7 @@ public class Model : global::EventDispatcher<object>
 		kAOPLEPILDH.BHHLEBHLBLH = false;
 		kAOPLEPILDH.PCALDKCJGCK = false;
 		kAOPLEPILDH.RoundsWon = 0;
-		kAOPLEPILDH.CIDCNCDFONA = 0f;
+		kAOPLEPILDH.MaxLife = 0f;
 		kAOPLEPILDH.Skeleton = null;
 		kAOPLEPILDH.Armor = null;
 		kAOPLEPILDH.Helm = null;

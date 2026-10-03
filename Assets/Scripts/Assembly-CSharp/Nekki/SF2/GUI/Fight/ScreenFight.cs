@@ -98,6 +98,7 @@ namespace Nekki.SF2.GUI.Fight
 		private VsScreen vsScreen;
 
 		private EnemiesScreen enemiesScreen;
+		private bool customVersusIntro;
 
 		public bool get_Pause()
 		{
@@ -111,6 +112,8 @@ namespace Nekki.SF2.GUI.Fight
 
 		public void PreInit(FightList KGKDKENMAOA)
 		{
+			customVersusIntro = KGKDKENMAOA is Eclipse.Multiplayer.LocalVersusMatch match &&
+				(match.Settings.Mode == Eclipse.Multiplayer.VersusMode.Local || match.Settings.Mode == Eclipse.Multiplayer.VersusMode.Online);
 			maxRounds = KGKDKENMAOA.RoundsToWin * KGKDKENMAOA.PNHLGCBPFIG();
 			ruleDesc = KGKDKENMAOA.GJOAJAIJHOE();
 			set_Pause(false);
@@ -332,6 +335,9 @@ namespace Nekki.SF2.GUI.Fight
 			ClearPictures();
 			vsScreen = Object.Instantiate(vsScreenPrefab).GetComponent<VsScreen>();
 			vsScreen.transform.SetParent(base.transform, false);
+			// Keep the established VS timer and stop event on the same simulation ticks
+			// for peers and saved replays, but let our persistent introduction own the art.
+			if (customVersusIntro) vsScreen.gameObject.SetActive(false);
 			ModelParameters kIKOGDEPGHB = null;
 			if (BBFBFDDDJMJ.BDANFHBMIOF.Count > BBFBFDDDJMJ.BLOOLFFMKFI)
 			{

@@ -265,7 +265,7 @@ public static class ValidateDE128TierBossesNative
                 !ObserveTeleportation(fight, enemy, true)) return;
             if (Environment.GetEnvironmentVariable("ECLIPSE_DE128_MERCENARY_WAVE") == "1" &&
                 !ObserveMercenaryWave(fight, enemy)) return;
-            var live = fight.OGNINOBBHIG();
+            var live = fight.GetFightDefinition();
             if (live?.FightId?.ToString() != new FightIDS(scripts.Content.RuntimeFightId(Target.Id)).ToString() ||
                 enemy.CLDMEJKGLBA() == null || player.CLDMEJKGLBA() == null)
                 throw new Exception("Tier boss fight or native fighter rig differs: " + Target.Id);

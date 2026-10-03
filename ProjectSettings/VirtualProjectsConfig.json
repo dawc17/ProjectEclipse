@@ -1,0 +1,10 @@
+{
+  "PlayerTags": [
+    "EclipseHost",
+    "EclipseGuest",
+    "EclipseRoomHost",
+    "EclipseRoomGuest",
+    "EclipseObserver"
+  ],
+  "version": "6000.6.0f1"
+}

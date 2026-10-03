@@ -1775,11 +1775,11 @@ public static class GameUtils
 		int num = (ObscuredInt)(JCICKLIMBEF.OJLKDEHMIAC());
 		if (num > 0)
 		{
-			JCICKLIMBEF.CIDCNCDFONA = num;
+			JCICKLIMBEF.MaxLife = num;
 		}
 		else
 		{
-			JCICKLIMBEF.CIDCNCDFONA = 1f;
+			JCICKLIMBEF.MaxLife = 1f;
 		}
 		JCICKLIMBEF.EAJHPCJJCDI = false;
 		JCICKLIMBEF.ABLMGLAKJBL = true;

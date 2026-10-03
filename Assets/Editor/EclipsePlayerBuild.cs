@@ -7,6 +7,7 @@ using Eclipse.UI;
 using UnityEditor;
 using UnityEditor.Build;
 using UnityEditor.Build.Reporting;
+using UnityEditor.Build.Profile;
 using UnityEngine;
 
 public static class EclipsePlayerBuild
@@ -22,7 +23,15 @@ public static class EclipsePlayerBuild
     {
         BuildPlayer(
             BuildTarget.StandaloneWindows64,
-            ResolveOutputPath(WindowsOutputVariable, "Builds/Windows/Eclipse.exe"));
+            ResolveOutputPath(WindowsOutputVariable, "Builds/Windows/Eclipse.exe"), EclipseUnity6Workflows.Windows);
+    }
+
+    [MenuItem("SF2/Build/Windows x86_64 (Development)")]
+    public static void BuildWindowsDevelopment()
+    {
+        BuildPlayer(BuildTarget.StandaloneWindows64,
+            ResolveOutputPath("ECLIPSE_WINDOWS_DEVELOPMENT_OUTPUT", "Builds/WindowsDevelopment/Eclipse.exe"),
+            EclipseUnity6Workflows.Development);
     }
 
     // Tester build: gameplay XML is also written loose beside the executable and
@@ -31,11 +40,10 @@ public static class EclipsePlayerBuild
     public static void BuildWindowsEditableXml()
     {
         string outputPath = ResolveOutputPath(EditableXmlOutputVariable, "Builds/WindowsEditableXml/Eclipse.exe");
-        BuildPlayer(BuildTarget.StandaloneWindows64, outputPath);
-        WriteEditableXml(Path.GetDirectoryName(outputPath));
+        BuildPlayer(BuildTarget.StandaloneWindows64, outputPath, EclipseUnity6Workflows.EditableXml);
     }
 
-    private static void WriteEditableXml(string gameDirectory)
+    internal static void WriteEditableXml(string gameDirectory)
     {
         string source = GameplayContentArchive.NormalizeSourceRoot(
             Path.Combine(Application.dataPath, GameplayContentArchive.EditorSourceDirectoryName));
@@ -71,13 +79,16 @@ public static class EclipsePlayerBuild
 
         BuildPlayer(
             BuildTarget.Android,
-            ResolveOutputPath(AndroidOutputVariable, "Builds/Android/Eclipse.apk"));
+            ResolveOutputPath(AndroidOutputVariable, "Builds/Android/Eclipse.apk"), EclipseUnity6Workflows.Android);
     }
 
-    private static void BuildPlayer(BuildTarget target, string outputPath)
+    private static void BuildPlayer(BuildTarget target, string outputPath, string profileName)
     {
+        var profile = AssetDatabase.LoadAssetAtPath<BuildProfile>(EclipseUnity6Workflows.ProfilePath(profileName));
+        if (profile == null || BuildProfile.GetActiveBuildProfile() != profile)
+            throw new BuildFailedException("Activate " + profileName + " in File > Build Profiles first, or use BuildScripts/BuildPlayers.ps1.");
         if (EditorUserBuildSettings.activeBuildTarget != target)
-            throw new BuildFailedException("Select " + target + " in Build Settings first, or use " +
+            throw new BuildFailedException("Select " + target + " in Build Profiles first, or use " +
                 "BuildScripts/BuildPlayers.ps1 (which launches Unity with an explicit -buildTarget).");
 
         string[] scenes = EditorBuildSettings.scenes
@@ -86,7 +97,7 @@ public static class EclipsePlayerBuild
             .ToArray();
 
         if (scenes.Length == 0)
-            throw new BuildFailedException("No enabled scenes are configured in Build Settings.");
+            throw new BuildFailedException("No enabled scenes are configured in Build Profiles.");
 
         string missingScene = scenes.FirstOrDefault(scene => !File.Exists(scene));
         if (!string.IsNullOrEmpty(missingScene))
@@ -108,11 +119,10 @@ public static class EclipsePlayerBuild
         BuildReport report;
         try
         {
-            report = BuildPipeline.BuildPlayer(new BuildPlayerOptions
+            report = BuildPipeline.BuildPlayer(new BuildPlayerWithProfileOptions
             {
-                scenes = scenes,
+                buildProfile = profile,
                 locationPathName = outputPath,
-                target = target,
                 // Raw recovered Resources plus the streaming archives exceed Gradle's
                 // intermediate AAR limit. Compress Unity data without dropping content.
                 options = target == BuildTarget.Android ? BuildOptions.CompressWithLz4HC : BuildOptions.None
@@ -153,5 +163,18 @@ public static class EclipsePlayerBuild
         string configuredPath = Environment.GetEnvironmentVariable(variableName);
         string path = string.IsNullOrWhiteSpace(configuredPath) ? defaultRelativePath : configuredPath;
         return Path.GetFullPath(path);
+    }
+}
+
+// Also applies when building directly through Unity's Build Profiles window.
+public sealed class EclipseEditableXmlBuildProcessor : IPostprocessBuildWithReport
+{
+    public int callbackOrder => 100;
+    public void OnPostprocessBuild(BuildReport report)
+    {
+#if ECLIPSE_EDITABLE_XML
+        if (report.summary.platform == BuildTarget.StandaloneWindows64)
+            EclipsePlayerBuild.WriteEditableXml(Path.GetDirectoryName(report.summary.outputPath));
+#endif
     }
 }

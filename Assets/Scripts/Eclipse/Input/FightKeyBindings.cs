@@ -117,7 +117,7 @@ namespace Eclipse.Input
         [Serializable] private sealed class Entry { public string key; public int value; }
         [Serializable] private sealed class Data { public int version = 1; public Entry[] entries; }
         private static Dictionary<string, int> values;
-        private static string FilePath => Path.Combine(Application.persistentDataPath, "controls.json");
+        private static string FilePath => Path.Combine(Eclipse.Runtime.EditorPlayModeContext.PersistentDataPath, "controls.json");
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
         private static void ResetCache() => values = null;
@@ -151,6 +151,7 @@ namespace Eclipse.Input
 
         private static void Import(string key)
         {
+            if (Eclipse.Runtime.EditorPlayModeContext.Role != null) return;
             if (PlayerPrefs.HasKey(key)) values[key] = PlayerPrefs.GetInt(key);
         }
 
@@ -172,8 +173,11 @@ namespace Eclipse.Input
                 message = "Could not save controls: " + error.Message;
                 return false;
             }
-            PlayerPrefs.SetInt(key, value);
-            PlayerPrefs.Save();
+            if (Eclipse.Runtime.EditorPlayModeContext.Role == null)
+            {
+                PlayerPrefs.SetInt(key, value);
+                PlayerPrefs.Save();
+            }
             message = string.Empty;
             return true;
         }
@@ -182,7 +186,7 @@ namespace Eclipse.Input
         {
             Load();
             values.Remove(key);
-            PlayerPrefs.DeleteKey(key);
+            if (Eclipse.Runtime.EditorPlayModeContext.Role == null) PlayerPrefs.DeleteKey(key);
         }
 
         internal static void Save()

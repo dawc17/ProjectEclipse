@@ -140,7 +140,7 @@ namespace Eclipse.UI
             start = fightStart;
             if (fight == null) return "In a fight";
             if (fight.IsLocalVersus) return "Local versus";
-            var definition = fight.OGNINOBBHIG();
+            var definition = fight.GetFightDefinition();
             var battle = definition == null ? null : definition.Battle;
             string title = battle == null ? null : Localized(battle.IGPOHDHPIIL());
             bool raid = definition != null && definition.get_Type() == BattleType.FightRaid;

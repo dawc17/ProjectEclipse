@@ -26,6 +26,7 @@ namespace Eclipse.Multiplayer
         private ModelContainer _container;
         private UnityEngine.Camera _camera;
         private RenderTexture _texture;
+        private bool _persistForLoading;
         private VersusLoadout _shown, _wanted;
         private float _rebuildAt = -1f;
         private int _slot;
@@ -93,6 +94,7 @@ namespace Eclipse.Multiplayer
             var origin = new Vector3(FarX - _slot * 500f, 0f, 0f);
             _world = new GameObject("Versus fighter preview " + _slot);
             _world.transform.position = origin;
+            if (_persistForLoading) DontDestroyOnLoad(_world);
             _container = _world.AddComponent<ModelContainer>();
             _container.Init();
             var host = new GameObject("Versus fighter preview camera " + _slot);
@@ -152,6 +154,28 @@ namespace Eclipse.Multiplayer
                 else bounds.Encapsulate(b);
             }
             return any;
+        }
+
+        /// <summary>Keeps the live model and camera through the fight scene transition.</summary>
+        internal void KeepAliveDuringLoading()
+        {
+            _persistForLoading = true;
+            // ModelContainer's render layer, fighter models and camera are children
+            // of this root. Preserve their normal update/render path while the UI
+            // remains visible, then destroy them with their owning preview.
+            if (_world != null) DontDestroyOnLoad(_world);
+        }
+
+        private void OnEnable()
+        {
+            if (_world != null) _world.SetActive(true);
+        }
+
+        private void OnDisable()
+        {
+            // The persistent world does not inherit the menu's active state.
+            // Stop rendering and ticking as soon as the fight replaces the splash.
+            if (_world != null) _world.SetActive(false);
         }
 
         private void OnDestroy()

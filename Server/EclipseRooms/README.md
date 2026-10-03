@@ -48,8 +48,13 @@ Spectator sending leaves reliable-channel capacity for room control messages.
 This remains a friendly-room design: the server validates membership and the
 publishing host, but cannot prove that uploaded inputs represent an honest fight.
 
-These features use **room protocol 4**. Deploy the updated server and distribute
-matching clients together; protocol 3 clients are refused with an update message.
+These features use **room protocol 5**. Deploy the updated server and distribute
+matching clients together; older clients are refused with an update message.
+
+Balance-enabled match starts carry the rules hash (netplay protocol 4).
+Spectators need the same JSON gameplay rules as the fight host; the server
+relays the hash rather than installing profiles. See
+[the balance guide](../../Docs/Modding/src/content/docs/guides/pvp-balance.md).
 
 ## Run it
 

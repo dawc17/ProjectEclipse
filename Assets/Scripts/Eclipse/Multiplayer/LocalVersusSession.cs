@@ -111,7 +111,9 @@ namespace Eclipse.Multiplayer
         {
             if (!_starting) return;
             _startedAt = Time.realtimeSinceStartup;
-            LocalVersusMenu.Ensure().Hide();
+            // The versus introduction also covers native scene/model loading.
+            // Other modes do not have an introduction to keep on screen.
+            if (!LocalVersusMenu.VersusSplashVisible) LocalVersusMenu.Ensure().Hide();
             try { Module.GetInstance().OpenLocalVersus(match); }
             catch
             {
@@ -128,7 +130,9 @@ namespace Eclipse.Multiplayer
             if (replay == null) throw new ArgumentNullException(nameof(replay));
             if (OnlineVersusSession.IsActive) throw new InvalidOperationException("Leave the online session before watching a replay.");
             var settings = new LocalVersusSettings(VersusLoadout.FromIds(replay.LeftLoadout), VersusLoadout.FromIds(replay.RightLoadout), replay.Arena, true, replay.WinsRequired,
-                replay.RoundTimeSeconds, VersusMode.Replay, replay.LeftName, replay.RightName, replay.Seed);
+                replay.RoundTimeSeconds, VersusMode.Replay, replay.LeftName, replay.RightName, replay.Seed,
+                balance: Eclipse.Multiplayer.Balance.PvpBalanceProfile.Parse(replay.BalanceJson).Compile());
+            if (settings.Balance.Hash != replay.BalanceHash) throw new InvalidOperationException("The recorded balance hash differs from its profile.");
             StartMatch(settings, rollbackTest ? (Func<IVersusInputSource>)(() => new Rollback.RollbackSelfTest(replay)) : () => new ReplayInputSource(replay));
             CurrentReplay = replay;
             if (!rollbackTest)
@@ -299,6 +303,10 @@ namespace Eclipse.Multiplayer
                 return;
             }
             var fight = Fight.GetCurrentFight();
+            // FightReady attaches the tick driver before the native VS stage completes.
+            // Reveal the arena only after the first round has actually been prepared.
+            if (!HasResult && fight != null && fight.IsLocalVersus && VersusTickDriver.Owns(fight) && fight.get_RoundNumber() > 0)
+                LocalVersusMenu.FinishVersusSplash();
             // A replay that stops short of a result (a disconnect, say) ends where its inputs end.
             if (IsReplay && fight != null && fight.IsLocalVersus && !HasResult &&
                 (VersusTickDriver.Source is ReplayInputSource replay && replay.ReachedEnd ||

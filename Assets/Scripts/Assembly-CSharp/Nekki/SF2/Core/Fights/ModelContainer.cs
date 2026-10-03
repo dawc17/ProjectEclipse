@@ -593,11 +593,11 @@ namespace Nekki.SF2.Core.Fights
 
 		private void FixedUpdate()
 		{
-			if (OGKFKJFGOIE || Input.GetKeyDown(KeyCode.Equals))
+			if (OGKFKJFGOIE || Eclipse.Input.EclipseInput.GetKeyDown(KeyCode.Equals))
 			{
 				Render();
 			}
-			if (Input.GetKeyDown(KeyCode.Minus))
+			if (Eclipse.Input.EclipseInput.GetKeyDown(KeyCode.Minus))
 			{
 				OGKFKJFGOIE = !OGKFKJFGOIE;
 			}

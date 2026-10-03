@@ -11,14 +11,12 @@ namespace Eclipse.Multiplayer
     public sealed class LocalVersusMatch : FightList
     {
         // Peers and recordings must agree on these rules as well as their loadouts.
-        internal const string CombatBalanceId = "hit0.5-block0.25-v1";
-        private const float HitDamageScale = .5f;
-        private const float BlockedDamageScale = .25f;
+        internal const string CombatBalanceId = "pvp-json-recoverable-v2";
 
-        internal static float ScaleStrikeDamage(Fight fight, float damage, bool blocked)
+        internal static float ScaleStrikeDamage(Fight fight, float damage, bool blocked, Model attacker = null, IntervalAttack attack = null, Model defender = null)
         {
             return fight?.IsLocalVersus == true
-                ? damage * (blocked ? BlockedDamageScale : HitDamageScale)
+                ? PvpBalanceCombat.ScaleDamage(fight, damage, blocked, attacker, attack, defender)
                 : damage;
         }
 

@@ -56,7 +56,7 @@ namespace Eclipse.Content
             string root;
             try
             {
-                root = ExtractArchive(asset.bytes, Path.Combine(Application.persistentDataPath, "Content/gameplay"));
+                root = ExtractArchive(asset.bytes, Path.Combine(Eclipse.Runtime.EditorPlayModeContext.PersistentDataPath, "Content/gameplay"));
             }
             finally
             {

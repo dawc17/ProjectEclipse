@@ -83,10 +83,12 @@ namespace Eclipse.Multiplayer
         /// <summary>Shows the backdrop with <paramref name="arena"/> (a roster id); unknown ids show the dojo.</summary>
         public void Show(string arena)
         {
+            enabled = true;
             gameObject.SetActive(true);
             if (string.IsNullOrEmpty(arena) || arena == VersusRoster.RandomArena) arena = _arena ?? "dojo";
             if (arena == _arena && _render != null) { EnsureCamera(); return; }
             EnsureCamera();
+            _camera.enabled = true;
             if (_render != null)
             {
                 // Keep the old arena on screen while the new one builds, then fade it away.
@@ -127,6 +129,15 @@ namespace Eclipse.Multiplayer
             Release(ref _fadeTexture);
             _fading.enabled = false;
             gameObject.SetActive(false);
+        }
+
+        /// <summary>Keeps the rendered arena visible while its scene is replaced.</summary>
+        internal void HoldForLoading()
+        {
+            // Stop the persistent camera clearing the texture after its scenery unloads.
+            if (_camera != null) _camera.enabled = false;
+            DestroyScenery();
+            enabled = false;
         }
 
         private void EnsureCamera()
@@ -197,7 +208,7 @@ namespace Eclipse.Multiplayer
             _render?.UpdateMenuBackdrop(_camera, false);
             // Slow drift and breathing zoom, plus a little parallax toward the pointer.
             float time = Time.unscaledTime;
-            Vector2 pointer = new Vector2(UnityEngine.Input.mousePosition.x / Mathf.Max(1, Screen.width) - .5f, UnityEngine.Input.mousePosition.y / Mathf.Max(1, Screen.height) - .5f);
+            Vector2 pointer = new Vector2(Eclipse.Input.EclipseInput.mousePosition.x / Mathf.Max(1, Screen.width) - .5f, Eclipse.Input.EclipseInput.mousePosition.y / Mathf.Max(1, Screen.height) - .5f);
             _parallax = Vector2.Lerp(_parallax, pointer, 1f - Mathf.Exp(-Time.unscaledDeltaTime * 2f));
             float zoom = 1.06f + .015f * Mathf.Sin(time * .11f);
             var drift = new Vector2(Mathf.Sin(time * .05f) * 10f, Mathf.Sin(time * .07f + 1.3f) * 5f) - _parallax * 18f;

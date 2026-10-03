@@ -14,7 +14,8 @@ namespace Eclipse.Multiplayer
     /// </summary>
     public sealed class RoomSession : MonoBehaviour
     {
-        public const string DefaultServer = "rooms.projecteclipse.fyi:7300";
+        public static string DefaultServer => Eclipse.Runtime.EditorPlayModeContext.IsRoomScenario ?
+            "127.0.0.1:7300" : "rooms.projecteclipse.fyi:7300";
         public const int AutoContinueSeconds = 20;
 
         public static RoomSession Current { get; private set; }
@@ -306,9 +307,13 @@ namespace Eclipse.Multiplayer
                         var start = stream.Start;
                         if (!VersusLoadouts.TryFromCode(start.HostLoadout, out var left) || !VersusLoadouts.TryFromCode(start.GuestLoadout, out var right))
                             throw new InvalidOperationException("The fighter loadouts are not recognised.");
+                        if (!PvpBalanceProfiles.TryFind(start.BalanceHash, out var balance))
+                            throw new InvalidOperationException("Install the match's balance profile before spectating.");
+                        stream.Replay.BalanceHash = balance.Hash;
+                        stream.Replay.BalanceJson = balance.ToJson();
                         var settings = new LocalVersusSettings(left, right,
                             VersusRoster.ResolveArena(start.Arena, start.Seed), true, start.WinsRequired, start.RoundTimeSeconds,
-                            VersusMode.Spectator, stream.Replay.LeftName, stream.Replay.RightName, start.Seed);
+                            VersusMode.Spectator, stream.Replay.LeftName, stream.Replay.RightName, start.Seed, balance: balance);
                         LocalVersusSession.StartMatch(settings, () => new SpectatorInputSource(stream));
                     }
                     catch (Exception exception)

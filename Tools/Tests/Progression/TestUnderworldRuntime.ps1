@@ -1,9 +1,10 @@
 # Runs the actual compiled managed runtime, without launching/controlling Unity
 # or reading/writing a save. Build Assembly-CSharp.csproj before running.
+param([string]$AssemblyDirectory = '', [string]$UnityManagedDirectory = '')
 $ErrorActionPreference = 'Stop'
 $projectPath = Split-Path -Parent (Split-Path -Parent (Split-Path -Parent $PSScriptRoot))
 . (Join-Path $PSScriptRoot '../Shared/LoadUnityManagedAssemblies.ps1')
-$null = Import-SF2ManagedRuntime $projectPath
+$null = Import-SF2ManagedRuntime $projectPath $AssemblyDirectory $UnityManagedDirectory
 $checks = 0
 function Assert-Near($actual, $expected, $label) {
     if ([Math]::Abs($actual - $expected) -gt 0.0002) { throw "${label}: expected $expected, got $actual" }
@@ -11,7 +12,7 @@ function Assert-Near($actual, $expected, $label) {
 }
 foreach ($count in @(0, 1, 15, 20, 23, 28, 36, 57)) {
     $model = New-Object ModelParameters
-    $model.CIDCNCDFONA = 1
+    $model.MaxLife = 1
     $model.ShieldTotal = $count
     $model.HasShieldTotalOverride = $true
     $model.GFNCMLFKBGP(1)
@@ -49,7 +50,7 @@ foreach ($count in @(0, 1, 15, 20, 23, 28, 36, 57)) {
 foreach ($count in @(0, 1, 15, 40, 57)) {
     foreach ($rawDamage in @(0.25, 2.5)) {
         $model = New-Object ModelParameters
-        $model.CIDCNCDFONA = 1
+        $model.MaxLife = 1
         $model.ShieldTotal = $count
         $model.GFNCMLFKBGP(1)
         $bars = [Math]::Max(1, $count)
@@ -72,7 +73,7 @@ foreach ($count in @(0, 1, 15, 40, 57)) {
     }
 }
 $model = New-Object ModelParameters
-$model.CIDCNCDFONA = 1
+$model.MaxLife = 1
 $model.ShieldTotal = 40
 foreach ($remainingBars in @(40.0, 20.0, 5.0, 1.0, 0.5)) {
     $model.GFNCMLFKBGP($remainingBars / 40)

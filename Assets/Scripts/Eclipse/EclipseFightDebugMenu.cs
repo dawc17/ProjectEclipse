@@ -63,23 +63,23 @@ namespace Eclipse.Diagnostics
 
 		private void Update()
 		{
-			if (UnityEngine.Input.GetKeyDown(KeyCode.F1))
+			if (Eclipse.Input.EclipseInput.GetKeyDown(KeyCode.F1))
 			{
 				_menuOpen = !_menuOpen;
 			}
 
-			if (UnityEngine.Input.GetKeyDown(KeyCode.Escape) && _menuOpen)
+			if (Eclipse.Input.EclipseInput.GetKeyDown(KeyCode.Escape) && _menuOpen)
 			{
 				_menuOpen = false;
 			}
 
-			if (UnityEngine.Input.GetKeyDown(KeyCode.F7))
+			if (Eclipse.Input.EclipseInput.GetKeyDown(KeyCode.F7))
 			{
 				SetProgressionSprint(!_progressionSprint);
 			}
 
 			Fight fight = GetActiveFight();
-			if (UnityEngine.Input.GetKeyDown(KeyCode.F8) && fight != null)
+			if (Eclipse.Input.EclipseInput.GetKeyDown(KeyCode.F8) && fight != null)
 			{
 				DefeatOpponent();
 			}
@@ -372,7 +372,7 @@ namespace Eclipse.Diagnostics
 
 				ModelParameters parameters = model.Parameters;
 				float current = parameters.RemainingHealthInDamageUnits;
-				float maximum = parameters.CIDCNCDFONA * parameters.HealthBarCount;
+				float maximum = parameters.MaxLife * parameters.HealthBarCount;
 				string role = model.IsPlayer ? "PLAYER" : "OPPONENT";
 				string text = role + "  " + current.ToString("0.##") + " / " + maximum.ToString("0.##") + " HP";
 				Vector2 size = _healthStyle.CalcSize(new GUIContent(text));

@@ -12,6 +12,7 @@ namespace Eclipse.Multiplayer.Online
     /// and periodic state hashes. Replaying it through the same build reproduces the
     /// match exactly, and a hash mismatch pinpoints where the simulation diverged.
     /// <para>
+    /// Format 3 adds the immutable balance JSON and its hash to the uncompressed header.
     /// Format 2 keeps a small uncompressed header in front of the compressed inputs, so
     /// a replay browser can list matchups, results and lengths without inflating files.
     /// Format 1 files (weapon only, no result) still load.
@@ -20,7 +21,7 @@ namespace Eclipse.Multiplayer.Online
     public sealed class VersusReplay
     {
         private static readonly byte[] Magic = Encoding.ASCII.GetBytes("ECLRPL");
-        public const byte FormatVersion = 2;
+        public const byte FormatVersion = 3;
         public const int MaxTicks = 60 * 60 * 60;
         /// <summary>Loadout slots in order: weapon, armor, helm, ranged, magic.</summary>
         public const int LoadoutSlots = 5;
@@ -30,6 +31,8 @@ namespace Eclipse.Multiplayer.Online
 
         public string Build = string.Empty;
         public string Content = string.Empty;
+        public string BalanceHash = string.Empty;
+        public string BalanceJson = string.Empty;
         /// <summary>A name the player gave the replay, or empty.</summary>
         public string Title = string.Empty;
         public string LeftName = string.Empty;
@@ -92,6 +95,7 @@ namespace Eclipse.Multiplayer.Online
                 using (var writer = new BinaryWriter(buffer, Encoding.UTF8, true)) WriteHeader(writer);
                 header = buffer.ToArray();
             }
+            if (header.Length > MaxHeaderBytes) throw new InvalidDataException("Replay header is too large.");
             var length = BitConverter.GetBytes(header.Length);
             if (!BitConverter.IsLittleEndian) Array.Reverse(length);
             stream.Write(length, 0, 4);
@@ -123,6 +127,8 @@ namespace Eclipse.Multiplayer.Online
             for (int i = 0; i < ends; i++) writer.Write(RoundEnds[i]);
             writer.Write(Kept);
             writer.Write(Tag ?? string.Empty);
+            writer.Write(BalanceHash ?? string.Empty);
+            writer.Write(BalanceJson ?? string.Empty);
         }
 
         private void ReadHeaderFields(BinaryReader reader)
@@ -142,6 +148,12 @@ namespace Eclipse.Multiplayer.Online
             for (int i = 0; i < ends; i++) RoundEnds.Add(reader.ReadInt32());
             Kept = reader.ReadBoolean();
             Tag = reader.ReadString();
+            if (SourceFormat >= 3)
+            {
+                BalanceHash = reader.ReadString();
+                BalanceJson = reader.ReadString();
+                if (Encoding.UTF8.GetByteCount(BalanceJson) > 32768) throw new InvalidDataException("Replay balance profile exceeds 32 KiB.");
+            }
         }
 
         /// <summary>A whole replay: header, inputs and hashes.</summary>
@@ -160,7 +172,7 @@ namespace Eclipse.Multiplayer.Online
             int version = stream.ReadByte();
             var replay = new VersusReplay { SourceFormat = version, HeaderOnly = headerOnly };
             if (version == 1) { ReadVersionOne(stream, replay, headerOnly); return replay; }
-            if (version != FormatVersion) throw new InvalidDataException("Unsupported replay version " + version + ".");
+            if (version != 2 && version != FormatVersion) throw new InvalidDataException("Unsupported replay version " + version + ".");
             var lengthBytes = new byte[4];
             if (ReadFully(stream, lengthBytes) != 4) throw new InvalidDataException("Replay header is cut short.");
             if (!BitConverter.IsLittleEndian) Array.Reverse(lengthBytes);

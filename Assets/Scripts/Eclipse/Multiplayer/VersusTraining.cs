@@ -110,7 +110,7 @@ namespace Eclipse.Multiplayer
             // paired grabs (throws) retarget it, which credited throws to the wrong side.
             attacker = victim == fight.GetPlayerModel() ? fight.GetEnemyModel() : fight.GetPlayerModel();
             int tick = VersusTickDriver.Tick;
-            float full = victim != null && victim.Parameters != null ? victim.Parameters.CIDCNCDFONA : 0f;
+            float full = victim != null && victim.Parameters != null ? victim.Parameters.MaxLife : 0f;
             float percent = full > 0f ? damage * 100f / full : 0f;
             if (victim == fight.GetEnemyModel()) LastDummyHitTick = tick;
             // A combo is one attacker's unblocked hits, each within ComboGapTicks of the last.
@@ -225,7 +225,7 @@ namespace Eclipse.Multiplayer
         private static void Refill(Fight fight, Model model)
         {
             if (model == null || model.Parameters == null) return;
-            if (model.KKMCHCNOHMB() < model.Parameters.CIDCNCDFONA) fight.SetLife(model, model.Parameters.CIDCNCDFONA);
+            if (model.KKMCHCNOHMB() < model.Parameters.MaxLife) fight.SetLife(model, model.Parameters.MaxLife);
         }
 
         private const int MeasureTimeoutTicks = 400;
@@ -457,18 +457,18 @@ namespace Eclipse.Multiplayer
             _group.alpha = Mathf.MoveTowards(_group.alpha, menu ? 0f : 1f, Time.unscaledDeltaTime * 4f);
             if (!menu && _replay)
             {
-                if (UnityEngine.Input.GetKeyDown(KeyCode.F8)) VersusTraining.ShowReadouts = !VersusTraining.ShowReadouts;
-                if (UnityEngine.Input.GetKeyDown(KeyCode.F11)) Eclipse.Diagnostics.EclipseFightDebugMenu.ShowCollisionShapes = !Eclipse.Diagnostics.EclipseFightDebugMenu.ShowCollisionShapes;
-                if (UnityEngine.Input.GetKeyDown(KeyCode.F12)) VersusTraining.ShowInputs = !VersusTraining.ShowInputs;
+                if (Eclipse.Input.EclipseInput.GetKeyDown(KeyCode.F8)) VersusTraining.ShowReadouts = !VersusTraining.ShowReadouts;
+                if (Eclipse.Input.EclipseInput.GetKeyDown(KeyCode.F11)) Eclipse.Diagnostics.EclipseFightDebugMenu.ShowCollisionShapes = !Eclipse.Diagnostics.EclipseFightDebugMenu.ShowCollisionShapes;
+                if (Eclipse.Input.EclipseInput.GetKeyDown(KeyCode.F12)) VersusTraining.ShowInputs = !VersusTraining.ShowInputs;
             }
             else if (!menu)
             {
-                if (UnityEngine.Input.GetKeyDown(KeyCode.F9)) { fight.TrainingPlaceFighters(false); VersusTraining.ResetReadouts(); EclipseUiAudio.Play(UiSound.Tick); }
-                if (UnityEngine.Input.GetKeyDown(KeyCode.F10)) { _swapped = !_swapped; fight.TrainingPlaceFighters(_swapped); EclipseUiAudio.Play(UiSound.Tick); }
-                if (UnityEngine.Input.GetKeyDown(KeyCode.F11)) Eclipse.Diagnostics.EclipseFightDebugMenu.ShowCollisionShapes = !Eclipse.Diagnostics.EclipseFightDebugMenu.ShowCollisionShapes;
-                if (UnityEngine.Input.GetKeyDown(KeyCode.F12)) VersusTraining.ShowInputs = !VersusTraining.ShowInputs;
-                if (UnityEngine.Input.GetKeyDown(KeyCode.PageDown)) { VersusTraining.SpeedIndex = (VersusTraining.SpeedIndex + VersusTraining.Speeds.Length - 1) % VersusTraining.Speeds.Length; }
-                if (UnityEngine.Input.GetKeyDown(KeyCode.PageUp)) CycleRecording();
+                if (Eclipse.Input.EclipseInput.GetKeyDown(KeyCode.F9)) { fight.TrainingPlaceFighters(false); VersusTraining.ResetReadouts(); EclipseUiAudio.Play(UiSound.Tick); }
+                if (Eclipse.Input.EclipseInput.GetKeyDown(KeyCode.F10)) { _swapped = !_swapped; fight.TrainingPlaceFighters(_swapped); EclipseUiAudio.Play(UiSound.Tick); }
+                if (Eclipse.Input.EclipseInput.GetKeyDown(KeyCode.F11)) Eclipse.Diagnostics.EclipseFightDebugMenu.ShowCollisionShapes = !Eclipse.Diagnostics.EclipseFightDebugMenu.ShowCollisionShapes;
+                if (Eclipse.Input.EclipseInput.GetKeyDown(KeyCode.F12)) VersusTraining.ShowInputs = !VersusTraining.ShowInputs;
+                if (Eclipse.Input.EclipseInput.GetKeyDown(KeyCode.PageDown)) { VersusTraining.SpeedIndex = (VersusTraining.SpeedIndex + VersusTraining.Speeds.Length - 1) % VersusTraining.Speeds.Length; }
+                if (Eclipse.Input.EclipseInput.GetKeyDown(KeyCode.PageUp)) CycleRecording();
                 Time.timeScale = fight.IsPaused() ? Time.timeScale : VersusTraining.Speeds[Mathf.Clamp(VersusTraining.SpeedIndex, 0, VersusTraining.Speeds.Length - 1)];
             }
             string advantage = VersusTraining.FrameAdvantage == int.MinValue ? "-" :

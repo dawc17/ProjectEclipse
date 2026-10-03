@@ -27,6 +27,7 @@ internal static class Program
             LockstepInMemory(lossPercent: 35, seed: 2);
             DesyncDetection();
             ReplayRoundTrip();
+            BalanceProtocolTests.Run(Check);
             UdpHandshakeRejectsMismatch();
             UdpMatch(latencyMs: 0, lossPercent: 0, delay: 2);
             UdpMatch(latencyMs: 40, lossPercent: 10, delay: 4);

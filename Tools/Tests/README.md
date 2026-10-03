@@ -23,7 +23,20 @@ python Tools/Tests/Runtime/TestAuditDECorpus.py
 python Tools/Tests/Runtime/TestDEXmlAudit.py
 python Tools/Tests/CharacterForms/TestCharacterForms.py
 python Tools/Tests/CharacterForms/TestCharacterForms.py --case TestFormModifierTransfer
+python Tools/Tests/Presentation/TestVersusTransition.py
 ```
+
+The versus-transition suite checks native loading artwork ownership and the
+unchanged VS completion timer for local, online, replay, training and campaign
+paths with controlled Unity dependencies. It does not render the transition or
+run a game playtest.
+
+`pwsh -NoProfile -File Tools/Tests/Presentation/TestVersusPreviewNative.ps1`
+uses the matching Unity editor in an isolated project with graphics enabled. It
+checks the production fighter preview's animation ticks, changing pixels and
+transparency across scene unloading, UI visibility and world/texture cleanup.
+Fighter meshes are controlled animated quads; this is native rendering validation,
+not a multiplayer game playtest.
 
 The corpus suite uses temporary controlled inputs. Character-form checks reuse
 the extracted-C# assertions from the PowerShell runners and require the matching
@@ -53,7 +66,23 @@ Select the runner for the subsystem you changed rather than invoking every
 script. `Shared/LoadUnityManagedAssemblies.ps1` is the shared loader, not a test runner.
 Some historical DE checks require downstream content or local research inputs.
 
+PvP balance checks are `Combat/TestPvpBalance.ps1` (strict JSON, immutable rules,
+hashing, inheritance, nonlethal chip and recovery with controlled native
+dependencies) and `Combat/TestPvpHealthRuntime.ps1` (compiled recovered health
+setters, pool cloning/reset, production rollback policy and state hash).
+The compiled health runner and Underworld runner accept `-AssemblyDirectory`
+and `-UnityManagedDirectory` overrides for the matching compiled game/editor
+references. `Presentation/TestPvpHealthBarNative.ps1` renders the production
+recovery component and native skew mesh in an isolated Unity project, with
+controlled health and atlas-base dependencies. None is a full online playtest.
+
 ## Native validators
+
+`Runtime/TestUnity6Workflows.ps1` uses the matching Unity 6.6 editor in an isolated
+project to test input devices across Play Mode frames, modern UI modules and
+native Build Profile/Multiplayer Play Mode scenario serialization. It does not
+perform a full game build or multiplayer fight; see
+[the workflow guide](../../Docs/Engineering/UNITY_6_WORKFLOWS.md).
 
 `Validate*.cs` and `Verify*.cs` are fixtures invoked by their paired runners or
 through an explicit Unity editor command; they are not imported into the main

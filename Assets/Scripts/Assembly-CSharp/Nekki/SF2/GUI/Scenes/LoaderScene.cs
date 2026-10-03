@@ -82,7 +82,13 @@ namespace Nekki.SF2.GUI.Scenes
 			// The Single-mode LoadSceneAsync below already unloads unused assets.
 			// An extra sweep here scans the same objects twice, followed by a forced
 			// full collection, producing long stalls even when nothing is reclaimed.
-			if (get_PrevScene() == ScreenType.ModulePreloader)
+			if (LMGJJNACLFG == ScreenType.ModuleFight && Eclipse.Multiplayer.LocalVersusMenu.VersusSplashVisible)
+			{
+				// Multiplayer's persistent VS introduction owns this transition.
+				_LoaderType1.SetActive(false);
+				_LoaderType2.SetActive(false);
+			}
+			else if (get_PrevScene() == ScreenType.ModulePreloader)
 			{
 				_LoaderType1.SetActive(true);
 				_LoaderType2.SetActive(false);

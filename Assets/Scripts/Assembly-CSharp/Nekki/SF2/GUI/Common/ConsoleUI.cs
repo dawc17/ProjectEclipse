@@ -119,17 +119,17 @@ namespace Nekki.SF2.GUI.Common
 
 		private void Update()
 		{
-			if (Input.GetKeyDown(KeyCode.BackQuote))
+			if (Eclipse.Input.EclipseInput.GetKeyDown(KeyCode.BackQuote))
 			{
 				OnToggleConsoleButton();
 			}
 			if (get_IsWindowActive() && _CommandList.Count > 0)
 			{
-				if (Input.GetKeyDown(KeyCode.UpArrow))
+				if (Eclipse.Input.EclipseInput.GetKeyDown(KeyCode.UpArrow))
 				{
 					SelectPrevCommand();
 				}
-				if (Input.GetKeyDown(KeyCode.DownArrow))
+				if (Eclipse.Input.EclipseInput.GetKeyDown(KeyCode.DownArrow))
 				{
 					SelectNextCommand();
 				}

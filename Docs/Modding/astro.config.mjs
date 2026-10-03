@@ -37,6 +37,7 @@ export default defineConfig({
           { slug: 'api/sprites-and-textures' },
           { slug: 'api/save-compatibility' },
           { slug: 'guides/compatibility' },
+          { slug: 'guides/pvp-balance' },
         ] },
         { label: 'Function index', slug: 'reference' },
         { label: 'Content reference', items: [

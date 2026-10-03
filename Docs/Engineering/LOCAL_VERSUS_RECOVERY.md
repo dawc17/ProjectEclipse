@@ -148,6 +148,41 @@ authentication/save queue processing for that captured local profile. The captur
 flag deliberately outlives the visible session so stale callbacks after title return
 cannot write local state into the campaign save.
 
+### Lobby-to-fight presentation
+
+Local and online matches (including room matches and rematches) keep the Eclipse
+VS introduction visible across native scene loading until the first round is
+prepared. The loader scene still clears its atlas cache and loads the fight, but
+disables both vanilla loading pictures while that introduction owns the screen.
+The menu backdrop holds its rendered frame while the outgoing scenery unloads.
+Before loading starts, both fighter previews preserve their live world roots
+across scene unloading. Each root owns its model container, render layers,
+fighter meshes and camera; the UI continues displaying that camera's texture.
+Animation and camera framing keep updating during loading. Hiding the VS screen
+deactivates its independent preview worlds, and destroying the preview components
+releases those worlds and textures.
+
+The native VS artwork is hidden for these matches. Its animation duration and
+simulation stop event remain unchanged so peer synchronization and existing
+recorded input timelines do not change. Replays, training and campaign fights
+retain their existing native presentation. The introduction starts loading after
+its normal online delay; local players can still start loading sooner with Enter,
+Space or Escape. It disappears only when the owned fight reaches round one;
+loading errors and early disconnects keep their replacement menus visible.
+
+`python Tools/Tests/Presentation/TestVersusTransition.py` passes 48 controlled
+production-method checks for loading artwork ownership and preserved native VS
+timers. Unity's bundled compiler compiled all four game assemblies, and the
+online-core suite passed 55,227 checks.
+`pwsh -NoProfile -File Tools/Tests/Presentation/TestVersusPreviewNative.ps1`
+also passes 30 native rendering checks using the complete production preview
+component with controlled animated fighter meshes: models and cameras survive
+scene unloading, animation ticks and rendered pixels continue changing,
+transparency is preserved, hiding the UI stops the worlds, reopening resumes them,
+and preview destruction releases the worlds and textures. This verifies
+the live preview lifetime in Unity; the full multiplayer transition with recovered
+fighter art still needs a game playtest.
+
 The first implementation passed 46 native Unity checks recorded in
 `Temp/LocalVersusNative/result.txt`, including title boot, fighter input and movement,
 rounds, draws, rematches, results, teardown, and unchanged primary/backup save

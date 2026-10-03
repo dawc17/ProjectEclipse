@@ -255,8 +255,8 @@ namespace Eclipse.UI
         private void ReadInput(float now)
         {
             if (now - openedAt < .15f) return;
-            var keyboard = UnityEngine.Input.GetKey(KeyCode.LeftArrow) || UnityEngine.Input.GetKey(KeyCode.A) ? -1 :
-                UnityEngine.Input.GetKey(KeyCode.RightArrow) || UnityEngine.Input.GetKey(KeyCode.D) ? 1 : 0;
+            var keyboard = Eclipse.Input.EclipseInput.GetKey(KeyCode.LeftArrow) || Eclipse.Input.EclipseInput.GetKey(KeyCode.A) ? -1 :
+                Eclipse.Input.EclipseInput.GetKey(KeyCode.RightArrow) || Eclipse.Input.EclipseInput.GetKey(KeyCode.D) ? 1 : 0;
             float pad = 0f;
             try
             {
@@ -275,11 +275,11 @@ namespace Eclipse.UI
                 Step(direction);
             }
             heldDirection = direction;
-            float wheel = UnityEngine.Input.mouseScrollDelta.y;
+            float wheel = Eclipse.Input.EclipseInput.mouseScrollDelta.y;
             if (Mathf.Abs(wheel) > .01f) Step(wheel > 0f ? -1 : 1);
-            if (UnityEngine.Input.GetKeyDown(KeyCode.Return) || UnityEngine.Input.GetKeyDown(KeyCode.KeypadEnter) ||
-                UnityEngine.Input.GetKeyDown(KeyCode.Space)) Choose();
-            else if (UnityEngine.Input.GetKeyDown(KeyCode.Backspace)) Close();
+            if (Eclipse.Input.EclipseInput.GetKeyDown(KeyCode.Return) || Eclipse.Input.EclipseInput.GetKeyDown(KeyCode.KeypadEnter) ||
+                Eclipse.Input.EclipseInput.GetKeyDown(KeyCode.Space)) Choose();
+            else if (Eclipse.Input.EclipseInput.GetKeyDown(KeyCode.Backspace)) Close();
         }
 
         private void Step(int direction)

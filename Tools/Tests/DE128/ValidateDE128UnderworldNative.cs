@@ -200,7 +200,7 @@ public static class ValidateDE128UnderworldNative
             var enemy = (Model)typeof(Fight).GetField("CKNCPOABFBO", Hidden).GetValue(fight);
             var player = (Model)typeof(Fight).GetField("_playerModel", Hidden).GetValue(fight);
             if (enemy == null || player == null || fight.get_FightTimeInFrames() < 60) return;
-            var live = fight.OGNINOBBHIG();
+            var live = fight.GetFightDefinition();
             if (live?.FightId?.ToString() != new FightIDS(scripts.Content.RuntimeFightId(
                     scripts.Content.Fights.First(value => value.Id.ToString() == FightId).Id)).ToString() ||
                 !UnderworldZonePolicy.IsRaidZone(live.Battle.OAEIILGHJMG) ||

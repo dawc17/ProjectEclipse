@@ -50,7 +50,7 @@ namespace Eclipse.UI
             image.type = Image.Type.Sliced;
             image.color = Gold;
             image.raycastTarget = false;
-            lastMouse = UnityEngine.Input.mousePosition;
+            lastMouse = Eclipse.Input.EclipseInput.mousePosition;
         }
 
         private static bool Eligible()
@@ -93,13 +93,13 @@ namespace Eclipse.UI
         // Navigation keys or a gamepad show the ring; moving or clicking the mouse hides it.
         private void ReadDevice(EventSystem events)
         {
-            Vector3 mouse = UnityEngine.Input.mousePosition;
-            if ((mouse - lastMouse).sqrMagnitude > 4f || UnityEngine.Input.GetMouseButtonDown(0) || UnityEngine.Input.touchCount > 0)
+            Vector3 mouse = Eclipse.Input.EclipseInput.mousePosition;
+            if ((mouse - lastMouse).sqrMagnitude > 4f || Eclipse.Input.EclipseInput.GetMouseButtonDown(0) || Eclipse.Input.EclipseInput.touchCount > 0)
                 navigating = false;
             lastMouse = mouse;
-            bool pressed = UnityEngine.Input.GetKeyDown(KeyCode.UpArrow) || UnityEngine.Input.GetKeyDown(KeyCode.DownArrow) ||
-                           UnityEngine.Input.GetKeyDown(KeyCode.LeftArrow) || UnityEngine.Input.GetKeyDown(KeyCode.RightArrow) ||
-                           UnityEngine.Input.GetKeyDown(KeyCode.Tab);
+            bool pressed = Eclipse.Input.EclipseInput.GetKeyDown(KeyCode.UpArrow) || Eclipse.Input.EclipseInput.GetKeyDown(KeyCode.DownArrow) ||
+                           Eclipse.Input.EclipseInput.GetKeyDown(KeyCode.LeftArrow) || Eclipse.Input.EclipseInput.GetKeyDown(KeyCode.RightArrow) ||
+                           Eclipse.Input.EclipseInput.GetKeyDown(KeyCode.Tab);
             try
             {
                 var dpad = GamePad.GetStick(GamePad.Stick.Dpad, GamePad.Player.Any);

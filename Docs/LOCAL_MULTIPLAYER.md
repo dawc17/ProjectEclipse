@@ -42,6 +42,19 @@ matches. See [Online Versus](Engineering/ONLINE_VERSUS.md) for the current netwo
 loadout, replay, and verification details; the local-mode description above records
 the initial recovery implementation.
 
+## Adjustable balance
+
+Choose a JSON balance preset with **BALANCE** in the lobby or training setup.
+Open **SF2 > Multiplayer > PvP Balance** in Unity to edit, duplicate, import or
+export presets, preview category/equipment/move inheritance and restart training
+with saved changes. Defaults retain the 0.5 hit / 0.25 blocked multipliers, make
+blocked damage recoverable and prevent blocked strikes from knocking out.
+Landing hits or making the opponent block restores existing grey health at the
+configured rates. Active matches and rematches retain their captured rules.
+See [the profile guide](Modding/src/content/docs/guides/pvp-balance.md) for all
+fields, defaults, paths and online/replay compatibility, and
+[implementation and checks](Engineering/PVP_BALANCE.md) for verification limits.
+
 ## Verification
 
 `Tools/Tests/Combat/TestLocalVersusRules.ps1` and `Tools/Tests/Combat/TestLocalVersusInput.ps1` compile the

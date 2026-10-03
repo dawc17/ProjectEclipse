@@ -141,7 +141,7 @@ class ValidateFormParameterCopy
         var allowed = new PerkInfoItem { Name = "AllowedPerk" };
         var source = new ModelParameters {
             IsPlayer = player, UserControlled = player, AiControlled = !player,
-            IBBALIJOJMC = SceneTypes.SceneFight, CIDCNCDFONA = 40,
+            IBBALIJOJMC = SceneTypes.SceneFight, MaxLife = 40,
             EclipseCharacterId = "sample:restricted-form",
             EclipseSkinModels = new[] { "sample:skin.xml" },
             Weapon = new ItemInfo { Type = "Weapon" } };
@@ -158,7 +158,7 @@ class ValidateFormParameterCopy
         Check(source.JBIOECDAAKP().SequenceEqual(new[] { allowed }), "native perk exclusion covers equipment after innate filtering");
         var copy = new ModelParameters(source);
         Check(copy.IsPlayer == player && copy.UserControlled == player && copy.AiControlled == !player &&
-            copy.CIDCNCDFONA == 40 && copy.EclipseCharacterId == source.EclipseCharacterId,
+            copy.MaxLife == 40 && copy.EclipseCharacterId == source.EclipseCharacterId,
             "copy preserves participant role, prepared health pool and destination character");
         Check(Moves(copy).SequenceEqual(Moves(source)), "copy must not re-enable RestrictedKick in the native animation filter");
         Check(copy.JBIOECDAAKP().SequenceEqual(source.JBIOECDAAKP()), "copy must not re-enable equipment BlockedPerk in native perk aggregation");

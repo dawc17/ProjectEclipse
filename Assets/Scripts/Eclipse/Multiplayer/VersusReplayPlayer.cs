@@ -116,13 +116,13 @@ namespace Eclipse.Multiplayer
             }
             else if (!LocalVersusMenu.Ensure().IsShowing)
             {
-                if (UnityEngine.Input.GetKeyDown(KeyCode.Space)) TogglePause();
-                if (UnityEngine.Input.GetKeyDown(KeyCode.Period)) Step();
-                if (UnityEngine.Input.GetKeyDown(KeyCode.Minus) || UnityEngine.Input.GetKeyDown(KeyCode.KeypadMinus)) SetSpeed(Math.Max(0, _speedIndex - 1));
-                if (UnityEngine.Input.GetKeyDown(KeyCode.Equals) || UnityEngine.Input.GetKeyDown(KeyCode.KeypadPlus)) SetSpeed(Math.Min(Speeds.Length - 1, _speedIndex + 1));
-                if (UnityEngine.Input.GetKeyDown(KeyCode.H)) _hidden = !_hidden;
+                if (Eclipse.Input.EclipseInput.GetKeyDown(KeyCode.Space)) TogglePause();
+                if (Eclipse.Input.EclipseInput.GetKeyDown(KeyCode.Period)) Step();
+                if (Eclipse.Input.EclipseInput.GetKeyDown(KeyCode.Minus) || Eclipse.Input.EclipseInput.GetKeyDown(KeyCode.KeypadMinus)) SetSpeed(Math.Max(0, _speedIndex - 1));
+                if (Eclipse.Input.EclipseInput.GetKeyDown(KeyCode.Equals) || Eclipse.Input.EclipseInput.GetKeyDown(KeyCode.KeypadPlus)) SetSpeed(Math.Min(Speeds.Length - 1, _speedIndex + 1));
+                if (Eclipse.Input.EclipseInput.GetKeyDown(KeyCode.H)) _hidden = !_hidden;
             }
-            if (UnityEngine.Input.GetAxisRaw("Mouse X") != 0 || UnityEngine.Input.GetAxisRaw("Mouse Y") != 0) _shownUntil = Time.unscaledTime + 3f;
+            if (Eclipse.Input.EclipseInput.GetAxisRaw("Mouse X") != 0 || Eclipse.Input.EclipseInput.GetAxisRaw("Mouse Y") != 0) _shownUntil = Time.unscaledTime + 3f;
             bool paused = fight != null && fight.IsPaused();
             float visible = _hidden || LocalVersusMenu.Ensure().IsShowing ? 0f : paused || _seekTarget >= 0 || Time.unscaledTime < _shownUntil ? 1f : .35f;
             _group.alpha = Mathf.MoveTowards(_group.alpha, visible, Time.unscaledDeltaTime * 3f);

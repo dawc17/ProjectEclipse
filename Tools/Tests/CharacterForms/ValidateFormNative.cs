@@ -107,8 +107,8 @@ public static class ValidateFormNative
                 originalAi = enemy.Parameters.AiControlled;
                 enemy.EBABHGHPLFK().PerkVariables[Counter] = 17;
                 enemy.EBABHGHPLFK().PerkStringVariables[Phase] = "shifting";
-                enemy.GFNCMLFKBGP(enemy.Parameters.CIDCNCDFONA * .75f);
-                originalRatio = enemy.KKMCHCNOHMB() / enemy.Parameters.CIDCNCDFONA;
+                enemy.GFNCMLFKBGP(enemy.Parameters.MaxLife * .75f);
+                originalRatio = enemy.KKMCHCNOHMB() / enemy.Parameters.MaxLife;
                 Debug.Log("[FormNative] Initial body ready; health ratio=" + originalRatio);
             }
             if (enemy != original && switchedAt < 0)
@@ -123,7 +123,7 @@ public static class ValidateFormNative
                     enemy.Parameters.AiControlled != originalAi)
                     throw new Exception("Form replacement changed participant input/AI eligibility.");
                 CheckVariables(enemy);
-                float ratio = enemy.KKMCHCNOHMB() / enemy.Parameters.CIDCNCDFONA;
+                float ratio = enemy.KKMCHCNOHMB() / enemy.Parameters.MaxLife;
                 if (Math.Abs(ratio - originalRatio) > .001f) throw new Exception("Health ratio changed across form swap: " + ratio);
                 switchedAt = fight.get_FightTimeInFrames();
                 Debug.Log("[FormNative] Native body replaced at frame " + switchedAt + "; weapon=" +

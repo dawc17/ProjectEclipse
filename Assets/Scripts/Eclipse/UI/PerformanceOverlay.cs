@@ -315,7 +315,7 @@ namespace Eclipse.Diagnostics
 
 		private void Update()
 		{
-			if (UnityEngine.Input.GetKeyDown(KeyCode.F3))
+			if (Eclipse.Input.EclipseInput.GetKeyDown(KeyCode.F3))
 			{
 				CycleMode();
 				ShowStatus("Performance overlay: " + ModeLabel(_mode));
@@ -324,7 +324,7 @@ namespace Eclipse.Diagnostics
 			{
 				return;
 			}
-			if (UnityEngine.Input.GetKeyDown(KeyCode.F4))
+			if (Eclipse.Input.EclipseInput.GetKeyDown(KeyCode.F4))
 			{
 				SaveReport();
 			}
@@ -601,7 +601,7 @@ namespace Eclipse.Diagnostics
 		{
 			try
 			{
-				string directory = Path.Combine(Application.persistentDataPath, "Diagnostics");
+				string directory = Path.Combine(Eclipse.Runtime.EditorPlayModeContext.PersistentDataPath, "Diagnostics");
 				Directory.CreateDirectory(directory);
 				string path = Path.Combine(directory, "performance-" + DateTime.Now.ToString("yyyyMMdd-HHmmss") + ".txt");
 				File.WriteAllText(path, BuildReport());

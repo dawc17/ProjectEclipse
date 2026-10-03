@@ -229,7 +229,7 @@ custom addresses. Players browse, create, or join rooms by code.
   Ending or switching viewing unsubscribes; final history is released once the
   fight ends and all viewers have received it or left. Joining late may require
   substantial catch-up on slow devices. Portable fight snapshots are not used.
-  Room protocol 4 requires the updated server and clients to be deployed together.
+  Room protocol 5 requires the updated server and clients to be deployed together.
 - **Connecting a pair.** `RoomClient` uses one UDP socket for the server,
   hole-punch probes and the fight, so the opponent punches into the NAT mapping
   the server observed.
@@ -379,3 +379,14 @@ unity command eval 'return ValidateLocalVersusNative.Restore();' --caller plugin
   `Eclipse.CriticalPause` PlayerPref.
 - The round timer (`ViewerFight`) and round end (`Fight.RenderRound`) were
   already tick-driven. `GameUtils.LDBMFAMEMPF` (two steps per tick) is never set.
+
+## Balance profile synchronization
+
+[Adjustable PvP balance](PVP_BALANCE.md) adds a gameplay hash to the lobby,
+readiness acknowledgement and match start (netplay protocol 4). The host chooses
+from locally available JSON presets; both peers and spectators must have
+matching rules. Names, IDs and file formatting do not affect the gameplay hash.
+Changing host rules clears readiness, and each match freezes a snapshot.
+Replay format 3 embeds that snapshot. Formats 1 and 2 remain readable for browser
+metadata but are refused for gameplay. Room protocol 5 changes the streamed
+match-start payload; deploy matching servers and clients together.

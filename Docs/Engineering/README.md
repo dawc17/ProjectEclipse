@@ -11,7 +11,8 @@ Eclipse currently targets Unity 6.6.
 | Raid presentation | [Navigation layout](RAID_NAVIGATION_LAYOUT.md), [runtime UI fixes](RuntimeUiFixes.md) |
 | Historical UI work | [September 28 implementation and verification record](UI_CONTINUATION_2026-09-28.md); open items are in the [backlog](../../todo.md) |
 | Mod selection | [Mod menu testing](MOD_MENU_TESTING.md) |
-| Multiplayer | [Local versus recovery](LOCAL_VERSUS_RECOVERY.md), [online versus](ONLINE_VERSUS.md) |
+| Multiplayer | [Local versus recovery](LOCAL_VERSUS_RECOVERY.md), [online versus](ONLINE_VERSUS.md), [adjustable PvP balance](PVP_BALANCE.md) |
+| Unity 6 workflows | [Input System, Multiplayer Play Mode and Build Profiles](UNITY_6_WORKFLOWS.md) |
 | Performance | [Callback allocation](CallbackAllocationFix.md), [remaining hitch fix](RemainingHitchFix.md) |
 | Artwork provenance | [Title background](TitleScreenArtwork.md) |
 | Historical editor upgrade | [Unity 2022 procedure](UNITY_2022_UPGRADE.md) |

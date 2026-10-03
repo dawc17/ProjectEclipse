@@ -76,7 +76,8 @@ namespace Eclipse.UI
             group = gameObject.AddComponent<CanvasGroup>();
             group.alpha = 0f;
             if (EventSystem.current == null)
-                new GameObject("Touch Layout Input", typeof(EventSystem), typeof(StandaloneInputModule)).transform.SetParent(transform, false);
+                new GameObject("Touch Layout Input", typeof(EventSystem), typeof(UnityEngine.InputSystem.UI.InputSystemUIInputModule)).transform.SetParent(transform, false);
+            Eclipse.Input.EclipseUiInput.Ensure(EventSystem.current);
 
             root = Stretch(transform, "Root");
             BuildPreview();
@@ -403,25 +404,25 @@ namespace Eclipse.UI
         private void ReadKeys()
         {
             if (Time.unscaledTime - openedAt < .1f) return;
-            if (UnityEngine.Input.GetKeyDown(KeyCode.Escape)) { Close(false); return; }
-            if (UnityEngine.Input.GetKeyDown(KeyCode.Return) || UnityEngine.Input.GetKeyDown(KeyCode.KeypadEnter)) { Close(true); return; }
-            bool shift = UnityEngine.Input.GetKey(KeyCode.LeftShift) || UnityEngine.Input.GetKey(KeyCode.RightShift);
-            if (UnityEngine.Input.GetKeyDown(KeyCode.Tab)) Select((selected + (shift ? handles.Count - 1 : 1)) % handles.Count);
+            if (Eclipse.Input.EclipseInput.GetKeyDown(KeyCode.Escape)) { Close(false); return; }
+            if (Eclipse.Input.EclipseInput.GetKeyDown(KeyCode.Return) || Eclipse.Input.EclipseInput.GetKeyDown(KeyCode.KeypadEnter)) { Close(true); return; }
+            bool shift = Eclipse.Input.EclipseInput.GetKey(KeyCode.LeftShift) || Eclipse.Input.EclipseInput.GetKey(KeyCode.RightShift);
+            if (Eclipse.Input.EclipseInput.GetKeyDown(KeyCode.Tab)) Select((selected + (shift ? handles.Count - 1 : 1)) % handles.Count);
             if (selected < 0) return;
             float step = shift ? 40f : 8f;
             Vector2 move = Vector2.zero;
-            if (UnityEngine.Input.GetKeyDown(KeyCode.LeftArrow)) move.x -= step;
-            if (UnityEngine.Input.GetKeyDown(KeyCode.RightArrow)) move.x += step;
-            if (UnityEngine.Input.GetKeyDown(KeyCode.UpArrow)) move.y += step;
-            if (UnityEngine.Input.GetKeyDown(KeyCode.DownArrow)) move.y -= step;
+            if (Eclipse.Input.EclipseInput.GetKeyDown(KeyCode.LeftArrow)) move.x -= step;
+            if (Eclipse.Input.EclipseInput.GetKeyDown(KeyCode.RightArrow)) move.x += step;
+            if (Eclipse.Input.EclipseInput.GetKeyDown(KeyCode.UpArrow)) move.y += step;
+            if (Eclipse.Input.EclipseInput.GetKeyDown(KeyCode.DownArrow)) move.y -= step;
             if (move != Vector2.zero)
             {
                 bool snap = layout.snap; layout.snap = false;
                 MoveTo(selected, Centre(selected) + move, false);
                 layout.snap = snap;
             }
-            float resize = UnityEngine.Input.GetKeyDown(KeyCode.Equals) || UnityEngine.Input.GetKeyDown(KeyCode.KeypadPlus) ? .05f :
-                UnityEngine.Input.GetKeyDown(KeyCode.Minus) || UnityEngine.Input.GetKeyDown(KeyCode.KeypadMinus) ? -.05f : 0f;
+            float resize = Eclipse.Input.EclipseInput.GetKeyDown(KeyCode.Equals) || Eclipse.Input.EclipseInput.GetKeyDown(KeyCode.KeypadPlus) ? .05f :
+                Eclipse.Input.EclipseInput.GetKeyDown(KeyCode.Minus) || Eclipse.Input.EclipseInput.GetKeyDown(KeyCode.KeypadMinus) ? -.05f : 0f;
             if (resize != 0f)
             {
                 var placement = layout.Get(handles[selected].Control.Id);

@@ -139,6 +139,7 @@ namespace Eclipse.Multiplayer
             {
                 roomNameField = AddTextField(body, "ROOM NAME", draft.Name, 32);
                 if (!editingRoom) passwordField = AddTextField(body, "PASSWORD", "", 24, "optional");
+                AddChoice(body, "YOUR BALANCE", () => PvpBalanceProfiles.Selected.Name, PvpBalanceProfiles.Cycle);
                 AddChoice(body, "PLAYERS", () => draft.MaxPlayers.ToString(), () => draft.MaxPlayers = draft.MaxPlayers >= RoomProtocol.MaxMembers ? 2 : draft.MaxPlayers + 1);
                 AddChoice(body, "FIRST TO", () => WinsLabel(draft.WinsRequired), () => draft.WinsRequired = draft.WinsRequired % 5 + 1);
                 AddChoice(body, "ARENA", () => VersusRoster.ArenaName(draft.Arena),
@@ -254,7 +255,7 @@ namespace Eclipse.Multiplayer
         private void SendRoomChat(string text)
         {
             if (roomChatInput == null) return;
-            bool submitted = UnityEngine.Input.GetKey(KeyCode.Return) || UnityEngine.Input.GetKey(KeyCode.KeypadEnter);
+            bool submitted = Eclipse.Input.EclipseInput.GetKey(KeyCode.Return) || Eclipse.Input.EclipseInput.GetKey(KeyCode.KeypadEnter);
             if (!submitted) return;
             if (!string.IsNullOrWhiteSpace(text)) RoomSession.Current?.Say(text);
             roomChatInput.text = string.Empty;

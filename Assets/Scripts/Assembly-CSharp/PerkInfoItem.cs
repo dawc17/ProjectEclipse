@@ -684,7 +684,7 @@ public class PerkInfoItem
 	{
 		if (Fight.GetCurrentFight() != null && KJFKPMCPIBH.HBDLDIKHFEG.Equals("isRaid"))
 		{
-			bool flag = Fight.GetCurrentFight().OGNINOBBHIG().get_Type() == BattleType.FightRaid;
+			bool flag = Fight.GetCurrentFight().GetFightDefinition().get_Type() == BattleType.FightRaid;
 			DCJLKCFKCOM.DCJLKCFKCOM = ((!flag) ? "0" : "1");
 		}
 	}

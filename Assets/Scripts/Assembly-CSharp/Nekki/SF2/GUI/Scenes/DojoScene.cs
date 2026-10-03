@@ -76,11 +76,11 @@ namespace Nekki.SF2.GUI.Scenes
 
 		private void FixedUpdate()
 		{
-			if ((OGKFKJFGOIE || Input.GetKeyDown(KeyCode.Equals)) && fight != null)
+			if ((OGKFKJFGOIE || Eclipse.Input.EclipseInput.GetKeyDown(KeyCode.Equals)) && fight != null)
 			{
 				fight.Draw();
 			}
-			if (Input.GetKeyDown(KeyCode.Minus))
+			if (Eclipse.Input.EclipseInput.GetKeyDown(KeyCode.Minus))
 			{
 				OGKFKJFGOIE = !OGKFKJFGOIE;
 			}

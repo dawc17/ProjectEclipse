@@ -84,7 +84,7 @@ namespace Eclipse.Modding
             using (var hash = System.Security.Cryptography.SHA256.Create())
             {
                 string key = BitConverter.ToString(hash.ComputeHash(Encoding.UTF8.GetBytes(identity))).Replace("-", "");
-                return Path.Combine(Application.persistentDataPath, "ModSelections", key + ".xml");
+                return Path.Combine(Eclipse.Runtime.EditorPlayModeContext.PersistentDataPath, "ModSelections", key + ".xml");
             }
         }
 
@@ -95,6 +95,8 @@ namespace Eclipse.Modding
 
         public static string GetDefaultModsRoot()
         {
+            if (Eclipse.Runtime.EditorPlayModeContext.Role != null)
+                return Path.Combine(Eclipse.Runtime.EditorPlayModeContext.PersistentDataPath, "Mods");
 #if UNITY_EDITOR || UNITY_STANDALONE
             // A launcher-managed installation keeps mods outside version directories.
             string launcherMods = Environment.GetEnvironmentVariable("ECLIPSE_MODS_ROOT");
@@ -105,7 +107,7 @@ namespace Eclipse.Modding
             if (parent == null) throw new InvalidOperationException("Cannot determine game root from Application.dataPath.");
             return Path.Combine(parent.FullName, "Mods");
 #else
-            return Path.Combine(Application.persistentDataPath, "Mods");
+            return Path.Combine(Eclipse.Runtime.EditorPlayModeContext.PersistentDataPath, "Mods");
 #endif
         }
 

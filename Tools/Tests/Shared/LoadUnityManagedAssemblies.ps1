@@ -1,6 +1,6 @@
-function Import-SF2ManagedRuntime([string]$ProjectPath) {
+function Import-SF2ManagedRuntime([string]$ProjectPath, [string]$AssemblyDirectory = '', [string]$UnityManagedDirectory = '') {
     if ($PSVersionTable.PSVersion.Major -lt 7) {
-        throw 'Unity 2022 managed runtime checks require PowerShell 7 (pwsh), not Windows PowerShell 5.1.'
+        throw 'Unity managed runtime checks require PowerShell 7 (pwsh), not Windows PowerShell 5.1.'
     }
     $projectFile = Join-Path $ProjectPath 'Assembly-CSharp.csproj'
     [xml]$project = Get-Content -Raw -LiteralPath $projectFile
@@ -13,13 +13,21 @@ function Import-SF2ManagedRuntime([string]$ProjectPath) {
             [Reflection.Assembly]::LoadFrom($path) | Out-Null
         }
     }
-    $runtime = Join-Path $ProjectPath 'Temp/Bin/Debug/Eclipse.Runtime.dll'
+    if ($UnityManagedDirectory) {
+        Get-ChildItem -LiteralPath $UnityManagedDirectory -Filter 'UnityEngine*.dll' | ForEach-Object {
+            [Reflection.Assembly]::LoadFrom($_.FullName) | Out-Null
+        }
+    }
+    if (!$AssemblyDirectory) { $AssemblyDirectory = Join-Path $ProjectPath 'Temp/Bin/Debug' }
+    $json = Get-ChildItem -Path (Join-Path $ProjectPath 'Library/PackageCache/com.unity.nuget.newtonsoft-json*/Runtime/Newtonsoft.Json.dll') -ErrorAction SilentlyContinue | Select-Object -First 1
+    if ($json) { [Reflection.Assembly]::LoadFrom($json.FullName) | Out-Null }
+    $runtime = Join-Path $AssemblyDirectory 'Eclipse.Runtime.dll'
     if (Test-Path -LiteralPath $runtime -PathType Leaf) {
         [Reflection.Assembly]::LoadFrom($runtime) | Out-Null
     }
-    $firstpass = Join-Path $ProjectPath 'Temp/Bin/Debug/Assembly-CSharp-firstpass.dll'
+    $firstpass = Join-Path $AssemblyDirectory 'Assembly-CSharp-firstpass.dll'
     if (Test-Path -LiteralPath $firstpass -PathType Leaf) {
         [Reflection.Assembly]::LoadFrom($firstpass) | Out-Null
     }
-    return [Reflection.Assembly]::LoadFrom((Join-Path $ProjectPath 'Temp/Bin/Debug/Assembly-CSharp.dll'))
+    return [Reflection.Assembly]::LoadFrom((Join-Path $AssemblyDirectory 'Assembly-CSharp.dll'))
 }

@@ -593,7 +593,7 @@ namespace Nekki.SF2.Core.Fights.Controller
 			{
 				foreach (CBBEIGACPPD.GIPHMILLKGA item in NBMONJPAMHI.BFEBNHGFIHB[i])
 				{
-					if (Input.GetKeyDown(item.EDEEELJMHLG) || Input.GetKey(item.EDEEELJMHLG))
+					if (Eclipse.Input.EclipseInput.GetKeyDown(item.EDEEELJMHLG) || Eclipse.Input.EclipseInput.GetKey(item.EDEEELJMHLG))
 					{
 						if (!item.isActive)
 						{

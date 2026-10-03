@@ -41,100 +41,27 @@ public static class GamePad
 
 	public static bool GetButtonDown(Button KLNKEPMAGKF, Player EKFPHMLKDAP) // best guess for name
 	{
-		KeyCode key = KNBAPAJMFIN(KLNKEPMAGKF, EKFPHMLKDAP);
-		return Input.GetKeyDown(key);
+		return Eclipse.Input.EclipseInput.GetGamepadButton((int)KLNKEPMAGKF, (int)EKFPHMLKDAP, 1);
 	}
 
 	public static bool GetButtonUp(Button KLNKEPMAGKF, Player EKFPHMLKDAP) // best guess for name
 	{
-		KeyCode key = KNBAPAJMFIN(KLNKEPMAGKF, EKFPHMLKDAP);
-		return Input.GetKeyUp(key);
+		return Eclipse.Input.EclipseInput.GetGamepadButton((int)KLNKEPMAGKF, (int)EKFPHMLKDAP, 2);
 	}
 
 	public static bool GetButton(Button KLNKEPMAGKF, Player EKFPHMLKDAP) // best guess for name
 	{
-		KeyCode key = KNBAPAJMFIN(KLNKEPMAGKF, EKFPHMLKDAP);
-		return Input.GetKey(key);
+		return Eclipse.Input.EclipseInput.GetGamepadButton((int)KLNKEPMAGKF, (int)EKFPHMLKDAP);
 	}
 
 	public static Vector2 GetStick(Stick NMADGDHJBGB, Player EKFPHMLKDAP, bool IMFLNPNECCO = false) // best guess for name
 	{
-		// Only numbered axes are configured. Pick the strongest connected pad
-		// for menus instead of looking up nonexistent *_0 axes.
-		if (EKFPHMLKDAP == Player.Any)
-		{
-			Vector2 strongest = Vector2.zero;
-			string[] devices = Input.GetJoystickNames();
-			for (int i = 0; i < devices.Length && i < 2; i++)
-			{
-				if (string.IsNullOrEmpty(devices[i])) continue;
-				Vector2 stick = GetStick(NMADGDHJBGB, (Player)(i + 1), IMFLNPNECCO);
-				if (stick.sqrMagnitude > strongest.sqrMagnitude) strongest = stick;
-			}
-			return strongest;
-		}
-		string axisName = string.Empty;
-		string axisName2 = string.Empty;
-		switch (NMADGDHJBGB)
-		{
-		case Stick.Dpad:
-			axisName = "DPad_XAxis_" + (int)EKFPHMLKDAP;
-			axisName2 = "DPad_YAxis_" + (int)EKFPHMLKDAP;
-			break;
-		case Stick.LeftStick:
-			axisName = "L_XAxis_" + (int)EKFPHMLKDAP;
-			axisName2 = "L_YAxis_" + (int)EKFPHMLKDAP;
-			break;
-		case Stick.RightStick:
-			axisName = "R_XAxis_" + (int)EKFPHMLKDAP;
-			axisName2 = "R_YAxis_" + (int)EKFPHMLKDAP;
-			break;
-		}
-		Vector2 result = Vector3.zero;
-		try
-		{
-			if (!IMFLNPNECCO)
-			{
-				result.x = Input.GetAxis(axisName);
-				result.y = 0f - Input.GetAxis(axisName2);
-			}
-			else
-			{
-				result.x = Input.GetAxisRaw(axisName);
-				result.y = 0f - Input.GetAxisRaw(axisName2);
-			}
-		}
-		catch (Exception lIOGIBJBHAH)
-		{
-			AdvLog.CCOFFJPPAKC(lIOGIBJBHAH);
-			AdvLog.LOPHFKMOPAA("Have you set up all axes correctly? \nThe easiest solution is to replace the InputManager.asset with version located in the GamepadInput package. \nWarning: do so will overwrite any existing input");
-		}
-		return result;
+		return Eclipse.Input.EclipseInput.GetGamepadStick((int)NMADGDHJBGB, (int)EKFPHMLKDAP, IMFLNPNECCO);
 	}
 
 	public static float GetTrigger(Trigger CPBHKJFPFJB, Player EKFPHMLKDAP, bool IMFLNPNECCO = false) // best guess for name
 	{
-		string axisName = string.Empty;
-		switch (CPBHKJFPFJB)
-		{
-		case Trigger.LeftTrigger:
-			axisName = "TriggersL_" + (int)EKFPHMLKDAP;
-			break;
-		case Trigger.RightTrigger:
-			axisName = "TriggersR_" + (int)EKFPHMLKDAP;
-			break;
-		}
-		float result = 0f;
-		try
-		{
-			result = (IMFLNPNECCO ? Input.GetAxisRaw(axisName) : Input.GetAxis(axisName));
-		}
-		catch (Exception lIOGIBJBHAH)
-		{
-			AdvLog.CCOFFJPPAKC(lIOGIBJBHAH);
-			AdvLog.LOPHFKMOPAA("Have you set up all axes correctly? \nThe easiest solution is to replace the InputManager.asset with version located in the GamepadInput package. \nWarning: do so will overwrite any existing input");
-		}
-		return result;
+		return Eclipse.Input.EclipseInput.GetGamepadTrigger((int)CPBHKJFPFJB, (int)EKFPHMLKDAP, IMFLNPNECCO);
 	}
 
 	private static KeyCode KNBAPAJMFIN(Button KLNKEPMAGKF, Player EKFPHMLKDAP)

@@ -54,7 +54,12 @@
     <Analyzer Include="/home/czapla/Unity/Hub/Editor/6000.6.0f1/Editor/Data/BCLExtensions/TargetingPacks/netstandard2.1/analyzers/dotnet/roslyn4.0/cs/System.Text.Json.SourceGeneration.dll" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Assets\Scripts\Eclipse\Multiplayer\PvpRecoverableBar.cs" />
+    <Compile Include="Assets\Scripts\Eclipse\Multiplayer\PvpBalanceCombat.cs" />
+    <Compile Include="Assets\Scripts\Eclipse\Multiplayer\PvpBalanceProfiles.cs" />
     <Compile Include="Assets/Scripts/Eclipse/Modding/MoonSharpScriptRuntimeP2.cs" />
+    <Compile Include="Assets/Scripts/Eclipse/Input/EclipseUiInput.cs" />
+    <Compile Include="Assets/Scripts/Eclipse/Multiplayer/MultiplayerEditorStartup.cs" />
     <Compile Include="Assets/Scripts/Assembly-CSharp/Nekki/SF2/GUI/Fight/FightScene.cs" />
     <Compile Include="Assets/Scripts/Assembly-CSharp/ProfilePerk.cs" />
     <Compile Include="Assets/Scripts/Assembly-CSharp/ModelReloader.cs" />
@@ -1866,6 +1871,10 @@
     </Reference>
     <Reference Include="UnityEngine.ContentLoadModule">
       <HintPath>/home/czapla/Unity/Hub/Editor/6000.6.0f1/Editor/Data/Managed/UnityEngine/UnityEngine.ContentLoadModule.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Unity.InputSystem">
+      <HintPath>Library/ScriptAssemblies/Unity.InputSystem.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="UnityEngine.CoreModule">

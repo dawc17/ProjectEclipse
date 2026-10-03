@@ -88,7 +88,11 @@ namespace Eclipse.Multiplayer
         public static string Platform =>
             Application.platform + " " + System.Runtime.InteropServices.RuntimeInformation.ProcessArchitecture + " " + Runtime;
 
-        public static string SavedName { get => PlayerPrefs.GetString(NamePreference, "Player"); set => PlayerPrefs.SetString(NamePreference, value ?? "Player"); }
+        public static string SavedName
+        {
+            get => Eclipse.Runtime.EditorPlayModeContext.Role ?? PlayerPrefs.GetString(NamePreference, "Player");
+            set { if (Eclipse.Runtime.EditorPlayModeContext.Role == null) PlayerPrefs.SetString(NamePreference, value ?? "Player"); }
+        }
         public static string SavedAddress { get => PlayerPrefs.GetString(AddressPreference, ""); set => PlayerPrefs.SetString(AddressPreference, value ?? ""); }
         public static int SavedPort { get => PlayerPrefs.GetInt(PortPreference, NetProtocol.DefaultPort); set => PlayerPrefs.SetInt(PortPreference, value); }
         public static int SavedDelay { get => Mathf.Clamp(PlayerPrefs.GetInt(DelayPreference, NetProtocol.DefaultInputDelay), 0, NetProtocol.MaxInputDelay); set => PlayerPrefs.SetInt(DelayPreference, value); }
@@ -112,6 +116,8 @@ namespace Eclipse.Multiplayer
             session.Lobby = new LobbyState
             {
                 HostLoadout = session.LocalLoadout.ToCode(),
+                BalanceHash = PvpBalanceProfiles.Selected.Hash,
+                BalanceName = PvpBalanceProfiles.Selected.Name,
                 Arena = SavedArena,
                 Netcode = netcode,
                 InputDelay = netcode == NetcodeMode.Rollback ? NetProtocol.DefaultRollbackDelay : SavedDelay,
@@ -150,6 +156,8 @@ namespace Eclipse.Multiplayer
             session.Lobby = new LobbyState
             {
                 HostLoadout = session.LocalLoadout.ToCode(),
+                BalanceHash = PvpBalanceProfiles.Selected.Hash,
+                BalanceName = PvpBalanceProfiles.Selected.Name,
                 Arena = VersusRoster.ResolveArena(settings.Arena, pairing.Seed),
                 WinsRequired = settings.WinsRequired,
                 RoundTimeSeconds = settings.RoundTimeSeconds,
@@ -317,7 +325,7 @@ namespace Eclipse.Multiplayer
             Notice = IsHost ? RemoteName + " joined." : "Connected to " + RemoteName + ".";
             Debug.Log("[Online] " + Notice);
             if (IsHost) SendLobby();
-            else Peer.SendReliable(NetMessages.GuestLobby(LocalLoadout.ToCode(), LocalReady));
+            else SendGuestLobby();
             LocalVersusMenu.Ensure().OnOnlineChanged();
         }
 
@@ -363,8 +371,27 @@ namespace Eclipse.Multiplayer
         public void ToggleReady()
         {
             if (IsHost) return;
+            if (!PvpBalanceProfiles.TryFind(Lobby.BalanceHash, out _))
+            {
+                Notice = "Install the host's balance profile: " + Lobby.BalanceName + ". Its gameplay hash must match.";
+                LocalReady = false;
+                SendGuestLobby();
+                return;
+            }
             LocalReady = !LocalReady;
             SendGuestLobby();
+        }
+
+        public void SetBalance(Eclipse.Multiplayer.Balance.PvpBalanceSnapshot balance)
+        {
+            if (!IsHost || RoomMatch != null || balance == null ||
+                Phase != OnlinePhase.Hosting && Phase != OnlinePhase.Lobby) return;
+            if (Lobby.BalanceHash == balance.Hash) return;
+            Lobby.BalanceHash = balance.Hash;
+            Lobby.BalanceName = balance.Name;
+            Lobby.GuestReady = false;
+            LocalWantsRematch = RemoteWantsRematch = false;
+            SendLobby();
         }
 
         public void CycleArena()
@@ -413,6 +440,7 @@ namespace Eclipse.Multiplayer
             if (!IsHost) return "Only the host can start.";
             if (Phase != OnlinePhase.Lobby && Phase != OnlinePhase.Result) return "Waiting for an opponent.";
             if (!Lobby.GuestReady) return RemoteName + " is not ready yet.";
+            if (!PvpBalanceProfiles.TryFind(Lobby.BalanceHash, out _)) return "The selected balance profile is unavailable.";
             return null;
         }
 
@@ -431,6 +459,7 @@ namespace Eclipse.Multiplayer
                 InputDelay = Lobby.InputDelay,
                 Seed = _seedOverride ?? new System.Random().Next(),
                 RollbackWindow = Lobby.Netcode == NetcodeMode.Rollback ? NetProtocol.DefaultRollbackWindow : 0,
+                BalanceHash = Lobby.BalanceHash,
             };
             _seedOverride = null;
             Peer.SendReliable(start.Encode());
@@ -445,7 +474,7 @@ namespace Eclipse.Multiplayer
 
         private void SendGuestLobby()
         {
-            if (Peer.State == NetplayState.Connected) Peer.SendReliable(NetMessages.GuestLobby(LocalLoadout.ToCode(), LocalReady));
+            if (Peer.State == NetplayState.Connected) Peer.SendReliable(NetMessages.GuestLobby(LocalLoadout.ToCode(), LocalReady, Lobby.BalanceHash));
             LocalVersusMenu.Ensure().OnOnlineChanged();
         }
 
@@ -483,8 +512,10 @@ namespace Eclipse.Multiplayer
                 ", seed " + start.Seed + ".");
             try
             {
+                if (!PvpBalanceProfiles.TryFind(start.BalanceHash, out var balance))
+                    throw new InvalidOperationException("The match's balance profile is unavailable or differs from the host's.");
                 var settings = new LocalVersusSettings(hostLoadout, guestLoadout, arena, true,
-                    start.WinsRequired, start.RoundTimeSeconds, VersusMode.Online, hostName, guestName, start.Seed);
+                    start.WinsRequired, start.RoundTimeSeconds, VersusMode.Online, hostName, guestName, start.Seed, balance: balance);
                 LocalVersusSession.StartMatch(settings, () => _source = new OnlineInputSource(this, settings, timeline, IsHost ? 0 : 1));
             }
             catch (Exception exception)
@@ -615,12 +646,22 @@ namespace Eclipse.Multiplayer
                     case NetMessageType.GuestLobby when IsHost:
                         var guestLoadout = LoadoutCode.Read(reader);
                         bool ready = reader.Bool();
+                        string readyBalanceHash = reader.Str();
                         if (VersusLoadouts.TryFromCode(guestLoadout, out _)) Lobby.GuestLoadout = guestLoadout;
-                        Lobby.GuestReady = ready && VersusLoadouts.TryFromCode(Lobby.GuestLoadout, out _);
+                        Lobby.GuestReady = ready && readyBalanceHash == Lobby.BalanceHash && VersusLoadouts.TryFromCode(Lobby.GuestLoadout, out _);
                         SendLobby();
                         break;
                     case NetMessageType.HostLobby when !IsHost:
-                        Lobby = LobbyState.Decode(reader);
+                        var nextLobby = LobbyState.Decode(reader);
+                        bool balanceChanged = Lobby.BalanceHash != nextLobby.BalanceHash;
+                        Lobby = nextLobby;
+                        if (balanceChanged)
+                        {
+                            bool available = PvpBalanceProfiles.TryFind(Lobby.BalanceHash, out _);
+                            LocalReady = RoomMatch != null && available;
+                            Notice = available ? "Balance profile: " + Lobby.BalanceName + "." : "Install the host's balance profile: " + Lobby.BalanceName + ". Its gameplay hash must match.";
+                            SendGuestLobby();
+                        }
                         LocalVersusMenu.Ensure().OnOnlineChanged();
                         break;
                     case NetMessageType.StartMatch when !IsHost:

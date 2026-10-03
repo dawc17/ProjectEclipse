@@ -71,7 +71,7 @@ class ItemInfo { public string SubType; }
 class ModelParameters {
     public int RemainingHealthBars=1;
     public bool IsPlayer,AiControlled=true,KMNLACDHAFE;
-    public float CIDCNCDFONA=100;
+    public float MaxLife=100;
     public float KKMCHCNOHMB()=>100;
     public ItemInfo KDABEFBJMOD(string type)=>null;
 }

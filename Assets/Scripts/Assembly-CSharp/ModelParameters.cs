@@ -106,7 +106,11 @@ public class ModelParameters
 
 	public float KDHBBGLCGIL;
 
-	public float CIDCNCDFONA;
+	// best guess for name
+	public float MaxLife;
+
+	// PvP grey health, in the same single-bar units as combat damage.
+	public float RecoverableLife;
 
 	public EndRoundType EndRoundType;
 
@@ -434,7 +438,7 @@ public class ModelParameters
 		EndRoundType = EndRoundType.EndRoundTypeNone;
 		PEBKEBIBAFA = 1;
 		KDHBBGLCGIL = 0f;
-		CIDCNCDFONA = 0f;
+		MaxLife = 0f;
 		RoundsWon = 0;
 		HJNOICKOFDL = 0;
 		AKLPHMOAIGK = 0;
@@ -503,7 +507,7 @@ public class ModelParameters
 		EndRoundType = NBMGOEMJJAF.EndRoundType;
 		PEBKEBIBAFA = NBMGOEMJJAF.PEBKEBIBAFA;
 		KDHBBGLCGIL = NBMGOEMJJAF.KDHBBGLCGIL;
-		CIDCNCDFONA = NBMGOEMJJAF.CIDCNCDFONA;
+		MaxLife = NBMGOEMJJAF.MaxLife;
 		RoundsWon = NBMGOEMJJAF.RoundsWon;
 		HJNOICKOFDL = NBMGOEMJJAF.HJNOICKOFDL;
 		AKLPHMOAIGK = NBMGOEMJJAF.AKLPHMOAIGK;
@@ -537,6 +541,7 @@ public class ModelParameters
 		NFENFPMIBFD = NBMGOEMJJAF.NFENFPMIBFD;
 		CEFONNONAKG = NBMGOEMJJAF.CEFONNONAKG;
 		_CurrentLife = NBMGOEMJJAF._CurrentLife;
+		RecoverableLife = NBMGOEMJJAF.RecoverableLife;
 		DEGCGHDAMDA = NBMGOEMJJAF.DEGCGHDAMDA;
 		KBPOKMKFIAD = NBMGOEMJJAF.KBPOKMKFIAD;
 		AFHOBFEEHPL = NBMGOEMJJAF.AFHOBFEEHPL;
@@ -1194,20 +1199,21 @@ public class ModelParameters
 	{
 		if (AGICDDJBPLB())
 		{
-			_CurrentLife = (ObscuredFloat)(CIDCNCDFONA);
+			_CurrentLife = (ObscuredFloat)(MaxLife);
 		}
 		else if (value < 0f)
 		{
 			_CurrentLife = (ObscuredFloat)(0f);
 		}
-		else if (value > CIDCNCDFONA)
+		else if (value > MaxLife)
 		{
-			_CurrentLife = (ObscuredFloat)(CIDCNCDFONA);
+			_CurrentLife = (ObscuredFloat)(MaxLife);
 		}
 		else
 		{
 			_CurrentLife = (ObscuredFloat)(value);
 		}
+		RecoverableLife = (float)_CurrentLife <= 0f ? 0f : Mathf.Clamp(RecoverableLife, 0f, Mathf.Max(0f, MaxLife - (float)_CurrentLife));
 	}
 
 	public void GEACPINOAAN(float value)
@@ -1304,7 +1310,7 @@ public class ModelParameters
 
 	public float HABJPOFCIHA()
 	{
-		return CIDCNCDFONA > 0f ? (ObscuredFloat)(_CurrentLife) / CIDCNCDFONA : 0f;
+		return MaxLife > 0f ? (ObscuredFloat)(_CurrentLife) / MaxLife : 0f;
 	}
 
 	public bool OJMIFOAHKBK()
@@ -1316,14 +1322,14 @@ public class ModelParameters
 	{
 		float num = (ObscuredFloat)(_CurrentLife);
 		num += AOGLLMEFEJB;
-		num = Mathf.Min(num, CIDCNCDFONA);
+		num = Mathf.Min(num, MaxLife);
 		num = Mathf.Max(0f, num);
 		GFNCMLFKBGP(num);
 	}
 
 	public void BCLGFKDDNKH()
 	{
-		GFNCMLFKBGP(CIDCNCDFONA);
+		GFNCMLFKBGP(MaxLife);
 	}
 
 	private bool FDDBPFJBHEB()

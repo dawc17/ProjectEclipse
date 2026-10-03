@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 1,
+  "id": "default",
+  "name": "Default",
+  "hitDamageScale": 0.5,
+  "blockedDamageScale": 0.25,
+  "recoverableBlockedFraction": 1.0,
+  "recoverOnHit": 0.5,
+  "recoverOnBlock": 0.25,
+  "recoverableLossOnHit": 0.0,
+  "minimumLifeOnBlock": 0.0001,
+  "categories": [],
+  "equipment": [],
+  "moves": []
+}

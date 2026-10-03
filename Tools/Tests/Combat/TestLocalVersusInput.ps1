@@ -21,6 +21,10 @@ public static class GamePad {
  public static Vector2 GetStick(Stick s,Player p,bool raw=false)=>Axes.TryGetValue((p,s),out var v)?v:Vector2.zero;
 }
 namespace Eclipse.Input {
+ public static class EclipseInput {
+  public static bool GetKey(KeyCode key)=>UnityEngine.Input.GetKey(key);
+  public static bool IsGamepadConnected(int player)=>player>0&&player<=UnityEngine.Input.Devices.Length&&!string.IsNullOrEmpty(UnityEngine.Input.Devices[player-1]);
+ }
  public static class FightControllerBindings { public static GamePad.Stick MovementStick=>GamePad.Stick.LeftStick; public static int Get(int a)=>a; public static bool IsPressed(int a,GamePad.Player p)=>GamePad.Buttons.Contains((p,a)); }
  public static class FightKeyBindings { public static KeyCode Get(KeyCode k)=>k; }
 }

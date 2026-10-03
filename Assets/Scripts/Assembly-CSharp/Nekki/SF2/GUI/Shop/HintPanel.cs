@@ -217,7 +217,7 @@ namespace Nekki.SF2.GUI.Shop
 
 		public void Update()
 		{
-			if (showingHint && (Input.touchCount > 0 || Input.anyKeyDown) && (EventSystem.current == null || DBEKMNDHBCG != EventSystem.current.currentSelectedGameObject))
+			if (showingHint && (Eclipse.Input.EclipseInput.touchCount > 0 || Eclipse.Input.EclipseInput.anyKeyDown) && (EventSystem.current == null || DBEKMNDHBCG != EventSystem.current.currentSelectedGameObject))
 			{
 				HideHintAndStopCorutine();
 			}

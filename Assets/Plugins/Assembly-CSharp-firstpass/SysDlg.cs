@@ -28,10 +28,10 @@ public class SysDlg : MonoBehaviour
 
 	private void Update()
 	{
-		Touch[] touches = Input.touches;
-		for (int i = 0; i < touches.Length; i++)
+		var touches = UnityEngine.InputSystem.EnhancedTouch.Touch.activeTouches;
+		for (int i = 0; i < touches.Count; i++)
 		{
-			if (touches[i].phase == TouchPhase.Ended && new Rect((float)Screen.width / 10f, (float)Screen.height / 8f * 6f, (float)Screen.width / 10f * 8f, (float)Screen.height / 8f).Contains(touches[i].position))
+			if (touches[i].phase == UnityEngine.InputSystem.TouchPhase.Ended && new Rect((float)Screen.width / 10f, (float)Screen.height / 8f * 6f, (float)Screen.width / 10f * 8f, (float)Screen.height / 8f).Contains(touches[i].screenPosition))
 			{
 				Close();
 			}

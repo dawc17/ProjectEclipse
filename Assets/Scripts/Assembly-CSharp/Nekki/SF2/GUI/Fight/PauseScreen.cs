@@ -63,7 +63,7 @@ namespace Nekki.SF2.GUI.Fight
 
 		private void PBFOLPNNGOJ()
 		{
-			string text = global::Fight.GetCurrentFight().OGNINOBBHIG().GJOAJAIJHOE();
+			string text = global::Fight.GetCurrentFight().GetFightDefinition().GJOAJAIJHOE();
 			bool flag = !string.IsNullOrEmpty(text);
 			RulesLabel.gameObject.SetActive(flag);
 			if (flag)

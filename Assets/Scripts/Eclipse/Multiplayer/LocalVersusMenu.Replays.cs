@@ -213,7 +213,7 @@ namespace Eclipse.Multiplayer
                 replaySelected = replayEntries.Find(e => e.Path == path);
                 BuildReplayActions();
             };
-            field.onEndEdit.AddListener(_ => { if (UnityEngine.Input.GetKey(KeyCode.Return) || UnityEngine.Input.GetKey(KeyCode.KeypadEnter)) save(); });
+            field.onEndEdit.AddListener(_ => { if (Eclipse.Input.EclipseInput.GetKey(KeyCode.Return) || Eclipse.Input.EclipseInput.GetKey(KeyCode.KeypadEnter)) save(); });
             AddButton(replayActions, "SAVE NAME", () => save(), 0, UiSound.Confirm);
             AddButton(replayActions, "CANCEL", BuildReplayActions, 0, UiSound.Back);
             if (EventSystemAvailable) { UnityEngine.EventSystems.EventSystem.current.SetSelectedGameObject(field.gameObject); field.ActivateInputField(); }

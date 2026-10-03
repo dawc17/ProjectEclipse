@@ -136,7 +136,8 @@ namespace Eclipse.UI
             scaler.screenMatchMode = CanvasScaler.ScreenMatchMode.Expand;
             gameObject.AddComponent<GraphicRaycaster>();
             if (EventSystem.current == null)
-                ownedEventSystem = new GameObject("Title Input", typeof(EventSystem), typeof(StandaloneInputModule)).GetComponent<EventSystem>();
+                ownedEventSystem = new GameObject("Title Input", typeof(EventSystem), typeof(UnityEngine.InputSystem.UI.InputSystemUIInputModule)).GetComponent<EventSystem>();
+            Eclipse.Input.EclipseUiInput.Ensure(EventSystem.current);
             previousSelection = EventSystem.current.currentSelectedGameObject;
             previousNavigation = EventSystem.current.sendNavigationEvents;
             EventSystem.current.sendNavigationEvents = false;
@@ -211,7 +212,7 @@ namespace Eclipse.UI
             while (t < Total)
             {
                 t += Mathf.Min(Time.unscaledDeltaTime, .05f);
-                if (t > Lead && t < fadeOutAt - .5f && (UnityEngine.Input.anyKeyDown || UnityEngine.Input.GetMouseButtonDown(0)))
+                if (t > Lead && t < fadeOutAt - .5f && (Eclipse.Input.EclipseInput.anyKeyDown || Eclipse.Input.EclipseInput.GetMouseButtonDown(0)))
                 {
                     // Skip: fade out from wherever the fade-in had reached.
                     float shown = Mathf.Clamp01((t - Lead) / FadeIn);
@@ -254,7 +255,7 @@ namespace Eclipse.UI
             while (t < fadeOutAt + FadeOut + Rest)
             {
                 t += Mathf.Min(Time.unscaledDeltaTime, .05f);
-                if (t > FadeIn && t < fadeOutAt && (UnityEngine.Input.anyKeyDown || UnityEngine.Input.GetMouseButtonDown(0))) fadeOutAt = t;
+                if (t > FadeIn && t < fadeOutAt && (Eclipse.Input.EclipseInput.anyKeyDown || Eclipse.Input.EclipseInput.GetMouseButtonDown(0))) fadeOutAt = t;
                 float alpha = t < fadeOutAt ? Mathf.Clamp01(t / FadeIn) : 1f - Mathf.Clamp01((t - fadeOutAt) / FadeOut);
                 fade.alpha = alpha * alpha * (3f - 2f * alpha);
                 yield return null;
@@ -541,17 +542,17 @@ namespace Eclipse.UI
             homePresentation = null;
             showcaseBlend = 0f;
             lastTitleActivity = Time.unscaledTime;
-            lastTitlePointer = UnityEngine.Input.mousePosition;
+            lastTitlePointer = Eclipse.Input.EclipseInput.mousePosition;
             EclipseUiAudio.SetTitleFightFocus(0f);
             if (!optionsOnly) Cursor.visible = true;
         }
 
         private bool TitleActivity()
         {
-            Vector2 pointer = UnityEngine.Input.mousePosition;
+            Vector2 pointer = Eclipse.Input.EclipseInput.mousePosition;
             bool moved = (pointer - lastTitlePointer).sqrMagnitude > .25f;
             lastTitlePointer = pointer;
-            return moved || UnityEngine.Input.anyKey || UnityEngine.Input.mouseScrollDelta.sqrMagnitude > 0f
+            return moved || Eclipse.Input.EclipseInput.anyKey || Eclipse.Input.EclipseInput.mouseScrollDelta.sqrMagnitude > 0f
                 || GamePad.GetStick(GamePad.Stick.Dpad, GamePad.Player.Any).sqrMagnitude > .16f
                 || GamePad.GetStick(GamePad.Stick.LeftStick, GamePad.Player.Any).sqrMagnitude > .16f
                 || GamePad.GetStick(GamePad.Stick.RightStick, GamePad.Player.Any).sqrMagnitude > .16f
@@ -972,6 +973,14 @@ namespace Eclipse.UI
             EclipseLoadingOverlay.Show();
         }
 
+#if UNITY_EDITOR
+        internal void EnterMultiplayerForTesting()
+        {
+            Eclipse.Multiplayer.LocalVersusSession.RequestEntry();
+            BeginCampaign();
+        }
+#endif
+
         private void Update()
         {
             bool showcasing = AdvanceShowcase(Time.unscaledTime, Time.unscaledDeltaTime, TitleActivity(), Application.isFocused);
@@ -1003,17 +1012,17 @@ namespace Eclipse.UI
             bool padConfirm, padBack;
             int padHorizontal;
             int padVertical = PadNavigation(out padConfirm, out padBack, out padHorizontal);
-            if (UnityEngine.Input.GetKeyDown(KeyCode.Escape) || padBack) { EclipseUiAudio.Play(UiSound.Back); Back(); return; }
+            if (Eclipse.Input.EclipseInput.GetKeyDown(KeyCode.Escape) || padBack) { EclipseUiAudio.Play(UiSound.Back); Back(); return; }
             // Discoverable shortcut for the Home-only "STAGE >" corner chip: C on keyboard,
             // Y on a controller (both otherwise unused on this screen).
-            if (currentPage == "Home" && (UnityEngine.Input.GetKeyDown(KeyCode.C) || GamePad.GetButtonDown(GamePad.Button.Y, GamePad.Player.Any)))
+            if (currentPage == "Home" && (Eclipse.Input.EclipseInput.GetKeyDown(KeyCode.C) || GamePad.GetButtonDown(GamePad.Button.Y, GamePad.Player.Any)))
             { CycleScene(); return; }
             if (campaignNameField != null && campaignNameField.isFocused)
             {
                 // Let text entry own letters, spaces and arrows; they must not submit
                 // a button or change the title's selection while naming a campaign.
-                if (UnityEngine.Input.GetKeyDown(KeyCode.Return) || padConfirm) campaignNameSubmit?.Invoke();
-                else if (UnityEngine.Input.GetKeyDown(KeyCode.Tab) || padVertical != 0)
+                if (Eclipse.Input.EclipseInput.GetKeyDown(KeyCode.Return) || padConfirm) campaignNameSubmit?.Invoke();
+                else if (Eclipse.Input.EclipseInput.GetKeyDown(KeyCode.Tab) || padVertical != 0)
                 {
                     campaignNameField.DeactivateInputField();
                     selected = Mathf.Clamp(controls.IndexOf(campaignNameField) + 1, 0, controls.Count - 1);
@@ -1022,8 +1031,8 @@ namespace Eclipse.UI
                 return;
             }
             // Explicit navigation avoids dependence on the recovered EventSystem's input axes.
-            int delta = UnityEngine.Input.GetKeyDown(KeyCode.DownArrow) || UnityEngine.Input.GetKeyDown(KeyCode.Tab) ? 1 :
-                UnityEngine.Input.GetKeyDown(KeyCode.UpArrow) ? -1 : padVertical;
+            int delta = Eclipse.Input.EclipseInput.GetKeyDown(KeyCode.DownArrow) || Eclipse.Input.EclipseInput.GetKeyDown(KeyCode.Tab) ? 1 :
+                Eclipse.Input.EclipseInput.GetKeyDown(KeyCode.UpArrow) ? -1 : padVertical;
             if (controls.Count == 0) return;
             var active = EventSystem.current == null ? null : EventSystem.current.currentSelectedGameObject;
             int activeIndex = controls.FindIndex(c => c != null && c.gameObject == active);
@@ -1036,10 +1045,10 @@ namespace Eclipse.UI
             var slider = controls[selected] as Slider;
             if (slider != null)
             {
-                if (UnityEngine.Input.GetKeyDown(KeyCode.LeftArrow) || padHorizontal < 0) slider.value -= .05f;
-                if (UnityEngine.Input.GetKeyDown(KeyCode.RightArrow) || padHorizontal > 0) slider.value += .05f;
+                if (Eclipse.Input.EclipseInput.GetKeyDown(KeyCode.LeftArrow) || padHorizontal < 0) slider.value -= .05f;
+                if (Eclipse.Input.EclipseInput.GetKeyDown(KeyCode.RightArrow) || padHorizontal > 0) slider.value += .05f;
             }
-            if (UnityEngine.Input.GetKeyDown(KeyCode.Return) || UnityEngine.Input.GetKeyDown(KeyCode.Space) || padConfirm)
+            if (Eclipse.Input.EclipseInput.GetKeyDown(KeyCode.Return) || Eclipse.Input.EclipseInput.GetKeyDown(KeyCode.Space) || padConfirm)
             {
                 var button = controls[selected] as Button;
                 if (button != null && button.interactable) button.onClick.Invoke();

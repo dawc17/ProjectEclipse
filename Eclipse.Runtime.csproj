@@ -53,7 +53,10 @@
     <Analyzer Include="/home/czapla/Unity/Hub/Editor/6000.6.0f1/Editor/Data/BCLExtensions/TargetingPacks/netstandard2.1/analyzers/dotnet/roslyn4.0/cs/System.Text.Json.SourceGeneration.dll" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Assets\Scripts\Eclipse\Runtime\PvpBalance.cs" />
     <Compile Include="Assets/Scripts/Eclipse/Runtime/Modding/ModScripting.cs" />
+    <Compile Include="Assets/Scripts/Eclipse/Runtime/EclipseInput.cs" />
+    <Compile Include="Assets/Scripts/Eclipse/Runtime/EditorPlayModeContext.cs" />
     <Compile Include="Assets/Scripts/Eclipse/Runtime/Modding/AssetId.cs" />
     <Compile Include="Assets/Scripts/Eclipse/Runtime/Modding/CoreContentImporterP1C.cs" />
     <Compile Include="Assets/Scripts/Eclipse/Runtime/Modding/ModSelection.cs" />
@@ -163,6 +166,10 @@
     </Reference>
     <Reference Include="UnityEngine.ContentLoadModule">
       <HintPath>/home/czapla/Unity/Hub/Editor/6000.6.0f1/Editor/Data/Managed/UnityEngine/UnityEngine.ContentLoadModule.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Unity.InputSystem">
+      <HintPath>Library/ScriptAssemblies/Unity.InputSystem.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="UnityEngine.CoreModule">

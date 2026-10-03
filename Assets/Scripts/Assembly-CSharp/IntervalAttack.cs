@@ -215,7 +215,7 @@ public class IntervalAttack : IntervalAnimation
 	{
 		get
 		{
-			return ACCOBHPHDDN();
+			return GetDamageAttributes();
 		}
 	}
 
@@ -302,7 +302,8 @@ public class IntervalAttack : IntervalAnimation
 		return KAFFLGLEKPG;
 	}
 
-	public List<global::Pair<string, float>> ACCOBHPHDDN()
+	// best guess for name
+	public List<global::Pair<string, float>> GetDamageAttributes()
 	{
 		return AJNCNCFDLKL;
 	}

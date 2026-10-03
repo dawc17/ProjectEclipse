@@ -1,4 +1,5 @@
 using System;
+using Eclipse.Multiplayer.Balance;
 
 namespace Eclipse.Multiplayer
 {
@@ -36,11 +37,12 @@ namespace Eclipse.Multiplayer
         public int Seed { get; }
         /// <summary>Player two is driven by the game AI with this tactic (training only), or null.</summary>
         public string PlayerTwoTactic { get; }
+        public PvpBalanceSnapshot Balance { get; }
 
         public LocalVersusSettings(VersusLoadout playerOneLoadout, VersusLoadout playerTwoLoadout, string location,
             bool keyboardPlayerOne, int winsRequired = 2, int roundTimeSeconds = 99,
             VersusMode mode = VersusMode.Local, string playerOneName = null, string playerTwoName = null, int? seed = null,
-            bool sharedKeyboard = false, string playerTwoTactic = null)
+            bool sharedKeyboard = false, string playerTwoTactic = null, PvpBalanceSnapshot balance = null)
         {
             if (playerOneLoadout == null || string.IsNullOrWhiteSpace(playerOneLoadout.Weapon)) throw new ArgumentException("Choose player one's loadout.", nameof(playerOneLoadout));
             if (playerTwoLoadout == null || string.IsNullOrWhiteSpace(playerTwoLoadout.Weapon)) throw new ArgumentException("Choose player two's loadout.", nameof(playerTwoLoadout));
@@ -59,13 +61,14 @@ namespace Eclipse.Multiplayer
             PlayerTwoName = string.IsNullOrWhiteSpace(playerTwoName) ? "PLAYER 2" : playerTwoName.Trim();
             Seed = seed ?? new Random().Next();
             PlayerTwoTactic = mode == VersusMode.Training && !string.IsNullOrEmpty(playerTwoTactic) ? playerTwoTactic : null;
+            Balance = balance ?? PvpBalanceProfiles.Selected;
         }
 
         /// <summary>The same matchup with a fresh seed, for a local rematch.</summary>
         public LocalVersusSettings Reseeded()
         {
             return new LocalVersusSettings(PlayerOneLoadout, PlayerTwoLoadout, Location, KeyboardPlayerOne,
-                WinsRequired, RoundTimeSeconds, Mode, PlayerOneName, PlayerTwoName, null, SharedKeyboard, PlayerTwoTactic);
+                WinsRequired, RoundTimeSeconds, Mode, PlayerOneName, PlayerTwoName, null, SharedKeyboard, PlayerTwoTactic, Balance);
         }
     }
 

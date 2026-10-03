@@ -50,7 +50,7 @@ public class IntroModule : LoadingModule
 
 	public override void JLPMOKPFECK()
 	{
-		if (!CHIHBINEGFL && Input.anyKeyDown)
+		if (!CHIHBINEGFL && Eclipse.Input.EclipseInput.anyKeyDown)
 		{
 			HLKOKIDAPGO();
 		}

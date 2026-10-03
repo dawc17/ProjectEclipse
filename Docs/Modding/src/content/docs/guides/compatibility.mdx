@@ -27,19 +27,31 @@ regional format, including languages that normally use a decimal comma.
 
 ## Multiplayer combat and recordings
 
-Local and online versus use equal combat ratings for both fighters. Native
-strike damage is multiplied by `0.5` for unblocked hits and `0.25` for blocked
-hits, after the native block and critical modifiers. For example, a strike that
-previously dealt 20% of full health now deals 10%; a blocked strike that previously
-dealt 4% now deals 1%. Training uses these same versus damage rules. Campaign
-and title-screen sparring keep their own rules.
+Local and online versus use equal combat ratings for both fighters. Their
+JSON balance presets configure damage multipliers and recoverable blocked
+damage. Defaults multiply native unblocked strikes by `0.5` and blocked strikes
+by `0.25`, after native block/critical modifiers. All actual blocked damage is
+recoverable by default; blocked strikes leave a positive amount of health and
+cannot knock out. Landing an attack or making the opponent block restores
+existing grey health according to the preset's recovery rates. Training uses
+these same rules. Campaign and title-screen sparring retain their own rules.
 
-The multiplier is applied before lethal damage is capped to remaining health,
-so a reduced hit can leave the target alive. This does not change hit reactions,
-knockback, or block detection. Lua and equipment behavior that separately apply
-health changes do not receive this native strike multiplier.
+See <a href={pageUrl('guides/pvp-balance')}>Tune PvP balance</a> for the editor,
+JSON fields, inheritance, recovery calculations and sharing presets. The native
+strike multiplier is applied before the lethal damage cap and does not change
+hit reactions, knockback or block detection. Separate scripted health changes
+do not receive this multiplier.
 
-Online peers and replay playback must match the combat balance identifier as
-well as enabled mods and the equipment roster. Recordings made with the previous
-damage balance are rejected instead of playing with different outcomes. Both
-online players need the updated balance.
+Online peers must match the combat engine identifier, enabled mods, equipment
+roster and the selected gameplay rules hash. Changing the host's rules clears
+guest readiness. New replays store their immutable JSON rules; changing your
+selected preset does not change playback. Older recordings without the balance
+snapshot remain browsable but cannot play in this combat version. Use netplay
+protocol 4 and room protocol 5 clients with an updated room server.
+
+When testing mods with Unity Multiplayer Play Mode, Eclipse's tagged editor
+clients use separate saves, control bindings, mod selections and user-installed
+mod directories under `MultiplayerPlayMode/<player tag>` in the normal data
+directory. Install and enable matching mods for every client. Ordinary editor
+sessions and player builds keep their existing data paths. These editor tags
+are testing settings and do not add Lua capabilities.

@@ -56,7 +56,7 @@ public class SampleSelector : MonoBehaviour
 
 	private void Update()
 	{
-		if (Input.GetKeyDown(KeyCode.Escape))
+		if (Eclipse.Input.EclipseInput.GetKeyDown(KeyCode.Escape))
 		{
 			if (SelectedSample != null && SelectedSample.NMACGEJHPDN())
 			{
@@ -67,7 +67,7 @@ public class SampleSelector : MonoBehaviour
 				Application.Quit();
 			}
 		}
-		if ((Input.GetKeyDown(KeyCode.KeypadEnter) || Input.GetKeyDown(KeyCode.Return)) && SelectedSample != null && !SelectedSample.NMACGEJHPDN())
+		if ((Eclipse.Input.EclipseInput.GetKeyDown(KeyCode.KeypadEnter) || Eclipse.Input.EclipseInput.GetKeyDown(KeyCode.Return)) && SelectedSample != null && !SelectedSample.NMACGEJHPDN())
 		{
 			SelectedSample.CreateUnityObject();
 		}

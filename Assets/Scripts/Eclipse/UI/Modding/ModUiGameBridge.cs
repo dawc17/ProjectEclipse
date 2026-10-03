@@ -109,25 +109,25 @@ namespace Eclipse.UI.Modding
             var stick = GamePad.GetStick(GamePad.Stick.LeftStick, GamePad.Player.One, true);
             float vertical = Mathf.Abs(pad.y) > .5f ? pad.y : stick.y;
             float horizontal = Mathf.Abs(pad.x) > .5f ? pad.x : stick.x;
-            int nextHorizontal = UnityEngine.Input.GetKey(KeyCode.LeftArrow) ? -1 : UnityEngine.Input.GetKey(KeyCode.RightArrow) ? 1 :
+            int nextHorizontal = Eclipse.Input.EclipseInput.GetKey(KeyCode.LeftArrow) ? -1 : Eclipse.Input.EclipseInput.GetKey(KeyCode.RightArrow) ? 1 :
                 horizontal > .5f ? 1 : horizontal < -.5f ? -1 : 0;
-            bool tab = UnityEngine.Input.GetKey(KeyCode.Tab);
-            bool reverseTab = UnityEngine.Input.GetKey(KeyCode.LeftShift) || UnityEngine.Input.GetKey(KeyCode.RightShift);
-            bool down = UnityEngine.Input.GetKey(KeyCode.DownArrow);
-            bool up = UnityEngine.Input.GetKey(KeyCode.UpArrow);
+            bool tab = Eclipse.Input.EclipseInput.GetKey(KeyCode.Tab);
+            bool reverseTab = Eclipse.Input.EclipseInput.GetKey(KeyCode.LeftShift) || Eclipse.Input.EclipseInput.GetKey(KeyCode.RightShift);
+            bool down = Eclipse.Input.EclipseInput.GetKey(KeyCode.DownArrow);
+            bool up = Eclipse.Input.EclipseInput.GetKey(KeyCode.UpArrow);
             int next = tab ? (reverseTab ? -1 : 1) : down ? 1 : up ? -1 : vertical > .5f ? -1 : vertical < -.5f ? 1 : 0;
-            bool submitHeld = UnityEngine.Input.GetKey(KeyCode.Return) || UnityEngine.Input.GetKey(KeyCode.Space) ||
+            bool submitHeld = Eclipse.Input.EclipseInput.GetKey(KeyCode.Return) || Eclipse.Input.EclipseInput.GetKey(KeyCode.Space) ||
                 GamePad.GetButton(GamePad.Button.A, GamePad.Player.One);
-            bool backHeld = UnityEngine.Input.GetKey(KeyCode.Escape) ||
+            bool backHeld = Eclipse.Input.EclipseInput.GetKey(KeyCode.Escape) ||
                 GamePad.GetButton(GamePad.Button.B, GamePad.Player.One);
             if (waitForNeutral)
             {
                 if (next == 0 && nextHorizontal == 0 && !submitHeld && !backHeld) waitForNeutral = false;
                 return;
             }
-            bool submit = UnityEngine.Input.GetKeyDown(KeyCode.Return) || UnityEngine.Input.GetKeyDown(KeyCode.Space) ||
+            bool submit = Eclipse.Input.EclipseInput.GetKeyDown(KeyCode.Return) || Eclipse.Input.EclipseInput.GetKeyDown(KeyCode.Space) ||
                 GamePad.GetButtonDown(GamePad.Button.A, GamePad.Player.One);
-            bool back = UnityEngine.Input.GetKeyDown(KeyCode.Escape) ||
+            bool back = Eclipse.Input.EclipseInput.GetKeyDown(KeyCode.Escape) ||
                 GamePad.GetButtonDown(GamePad.Button.B, GamePad.Player.One);
             int move = 0;
             if (next != 0 && (next != direction || Time.unscaledTime >= repeatAt))

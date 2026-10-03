@@ -253,7 +253,7 @@ namespace Eclipse.Multiplayer
 
     public static class VersusReplays
     {
-        public static string Directory => Path.Combine(Application.persistentDataPath, "Replays");
+        public static string Directory => Path.Combine(Eclipse.Runtime.EditorPlayModeContext.PersistentDataPath, "Replays");
         public static string LastPath => Path.Combine(Directory, "last.eclreplay");
 
         public const int KeepNewest = 40;
@@ -264,6 +264,8 @@ namespace Eclipse.Multiplayer
             {
                 Build = OnlineVersusSession.BuildId,
                 Content = OnlineVersusSession.ContentFingerprint(),
+                BalanceHash = settings.Balance.Hash,
+                BalanceJson = settings.Balance.ToJson(),
                 LeftName = settings.PlayerOneName,
                 RightName = settings.PlayerTwoName,
                 Arena = settings.Location,
@@ -322,6 +324,13 @@ namespace Eclipse.Multiplayer
         /// <summary>Why this build cannot play the replay back, or null.</summary>
         public static string Incompatibility(VersusReplay replay)
         {
+            if (replay.SourceFormat < 3) return "Recorded before adjustable PvP balance; this combat version cannot verify its playback.";
+            try
+            {
+                var balance = Eclipse.Multiplayer.Balance.PvpBalanceProfile.Parse(replay.BalanceJson).Compile();
+                if (balance.Hash != replay.BalanceHash) return "The recorded balance profile does not match its gameplay hash.";
+            }
+            catch (Exception error) { return "The recorded balance profile is invalid: " + error.Message; }
             if (replay.Build != OnlineVersusSession.BuildId)
             {
                 NetIdentity.SplitBuild(replay.Build, out var version, out var runtime);

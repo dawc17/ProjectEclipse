@@ -13,9 +13,9 @@ public class TutorialComponent : SFMonoBehaviour<object>
 
 	private void Update()
 	{
-		if (TutorialCanvas.get_Instance().get_BlockOn() && IsActive && Input.GetMouseButtonUp(0))
+		if (TutorialCanvas.get_Instance().get_BlockOn() && IsActive && Eclipse.Input.EclipseInput.GetMouseButtonUp(0))
 		{
-			Vector2 vector = Input.mousePosition;
+			Vector2 vector = Eclipse.Input.EclipseInput.mousePosition;
 			Vector3 position = base.transform.position;
 			RectTransform component = base.gameObject.GetComponent<RectTransform>();
 			Vector2 vector2 = Vector2.Scale(component.rect.size, component.lossyScale);

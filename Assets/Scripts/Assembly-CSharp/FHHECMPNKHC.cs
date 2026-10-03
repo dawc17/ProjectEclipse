@@ -53,7 +53,7 @@ public class FHHECMPNKHC : global::EventDispatcher<object>
 
 	private void IJKEJMLLMNA(CBBEIGACPPD.GIPHMILLKGA KGBGENDIMBC)
 	{
-		if (Input.GetKeyDown(KGBGENDIMBC.EDEEELJMHLG) || Input.GetKey(KGBGENDIMBC.EDEEELJMHLG))
+		if (Eclipse.Input.EclipseInput.GetKeyDown(KGBGENDIMBC.EDEEELJMHLG) || Eclipse.Input.EclipseInput.GetKey(KGBGENDIMBC.EDEEELJMHLG))
 		{
 			if (!KGBGENDIMBC.isActive)
 			{

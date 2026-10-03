@@ -55,7 +55,7 @@ class ModelParameters
 {
     public bool IsPlayer, UserControlled, AiControlled, EAJHPCJJCDI, ABLMGLAKJBL, LNHMCKNCGDP;
     public int RoundsWon, DEGCGHDAMDA = -1;
-    public float CIDCNCDFONA, _CurrentLife;
+    public float MaxLife, _CurrentLife;
     public Tactic HBFMBOHLKPJ;
     public ItemInfo Skeleton, Weapon, Armor, Helm;
     public string EclipseBodyModel;
@@ -117,7 +117,7 @@ class Rules
     public void PrepareItemRules(List<ItemRule> rules)
     {
         var p = ModRuntime.Destination;
-        if (p.CIDCNCDFONA <= 0 || p.KKMCHCNOHMB() <= 0 || p.IAIHFLGBIPB.Count != AnimationData.Count)
+        if (p.MaxLife <= 0 || p.KKMCHCNOHMB() <= 0 || p.IAIHFLGBIPB.Count != AnimationData.Count)
             throw new InvalidOperationException("item rules reached before native health/move initialization");
         if (p.IsPlayer != Current.IsPlayer || p.UserControlled != Current.UserControlled || p.AiControlled != Current.AiControlled)
             throw new InvalidOperationException("item rules reached before participant ownership restoration");
@@ -142,7 +142,7 @@ class Fight
         public int Disposals;
         public PreparedFormModel(ModelParameters p)
         {
-            if (p.CIDCNCDFONA <= 0 || p.KKMCHCNOHMB() <= 0)
+            if (p.MaxLife <= 0 || p.KKMCHCNOHMB() <= 0)
                 throw new InvalidOperationException("native construction received an empty health pool");
             if (!p.ItemPasses.SequenceEqual(new[] { false, true }) || p.AttributePasses < 2 ||
                 !p.AttributePaths.SequenceEqual(p.ModelDocuments) ||
@@ -171,16 +171,16 @@ class ValidateFormInitialization
     }
     static ModelParameters Current(bool player, bool controlled, bool ai) => new ModelParameters {
         IsPlayer = player, UserControlled = controlled, AiControlled = ai,
-        CIDCNCDFONA = 200, _CurrentLife = 75, DEGCGHDAMDA = 200, RoundsWon = 2,
+        MaxLife = 200, _CurrentLife = 75, DEGCGHDAMDA = 200, RoundsWon = 2,
         EAJHPCJJCDI = true, ABLMGLAKJBL = false, HBFMBOHLKPJ = new Tactic { Name = "old_tactic" },
         IAIHFLGBIPB = new List<int> { 9 }, ModelDocuments = new List<string> { "live_body.xml" } };
     static ModelParameters Destination(int life) => new ModelParameters {
-        DEGCGHDAMDA = life, CIDCNCDFONA = 0, _CurrentLife = 0, RoundsWon = 8,
+        DEGCGHDAMDA = life, MaxLife = 0, _CurrentLife = 0, RoundsWon = 8,
         EAJHPCJJCDI = true, HBFMBOHLKPJ = new Tactic { Name = "new_tactic" },
         Weapon = new ItemInfo { ModelFileName = "destination_weapon" },
         IAIHFLGBIPB = new List<int> { 87 }, ModelDocuments = new List<string> { "stale.xml" } };
     static string State(ModelParameters p) => string.Join("|", new object[] { p.IsPlayer, p.UserControlled, p.AiControlled,
-        p.CIDCNCDFONA, p.KKMCHCNOHMB(), p.OJLKDEHMIAC(), p.RoundsWon, p.EAJHPCJJCDI, p.ABLMGLAKJBL,
+        p.MaxLife, p.KKMCHCNOHMB(), p.OJLKDEHMIAC(), p.RoundsWon, p.EAJHPCJJCDI, p.ABLMGLAKJBL,
         p.HBFMBOHLKPJ?.Name, string.Join(",", p.IAIHFLGBIPB), string.Join(",", p.ModelDocuments) });
     static void Requests()
     {
@@ -205,7 +205,7 @@ class ValidateFormInitialization
             Check(destination.ItemRound == Math.Max(1, requestedRound) &&
                 fight._rulesInspector.Selected == (player ? fight._rulesInspector.Player : fight._rulesInspector.Enemy),
                 "current side and one-based round select item rules");
-            Check(destination.CIDCNCDFONA == 1 && destination.KKMCHCNOHMB() == 1 && destination.HBFMBOHLKPJ == tactic,
+            Check(destination.MaxLife == 1 && destination.KKMCHCNOHMB() == 1 && destination.HBFMBOHLKPJ == tactic,
                 "initialized fallback health and destination tactic reach body preparation");
             Check(State(current) == before && fight.Queued.Disposals == 0,
                 "queue acceptance preserves live participant and transfers preparation ownership");
@@ -247,7 +247,7 @@ class ValidateFormInitialization
             var staleMoves = p.IAIHFLGBIPB;
             Check(GameUtils.InitializeFormParameters(p, current) == p, "initializer retains owned parameter identity");
             float maximum = life > 0 ? life : 1;
-            Check(p.CIDCNCDFONA == maximum && p.KKMCHCNOHMB() == maximum, "native Life or one-bar fallback fills current health");
+            Check(p.MaxLife == maximum && p.KKMCHCNOHMB() == maximum, "native Life or one-bar fallback fills current health");
             var model = new Model { Parameters = p };
             Check(model.EPCNJLEHJCB() == player && model.BCKKCJONNHG() == controlled && model.FGKAFKFBFEM() == ai,
                 "native side/input/AI accessors preserve all participant role combinations");

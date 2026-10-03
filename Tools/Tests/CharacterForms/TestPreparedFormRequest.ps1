@@ -9,7 +9,7 @@ $code=@'
 using System;
 using System.Collections.Generic;
 class Vector3f{public float X;public Vector3f(float x){X=x;}public Vector3f(Vector3f other){X=other.X;}}
-class Parameters{public bool IsPlayer,IsWinner;public int RoundsWon;public float CIDCNCDFONA=100,Health=100;public void GFNCMLFKBGP(float value){Health=value;}}
+class Parameters{public bool IsPlayer,IsWinner;public int RoundsWon;public float MaxLife=100,Health=100;public void GFNCMLFKBGP(float value){Health=value;}}
 class Model{public Parameters Parameters=new Parameters();public List<Model> _Enemies=new List<Model>();public Model Owner;public Vector3f Position=new Vector3f(0);public int NFOOGKCGFAB=1;public object KDAHHIMLJGG=new object();public float KKMCHCNOHMB()=>Parameters.Health;public Vector3f PLBNCDCFPML()=>Position;public int KFCNPADAMHA()=>NFOOGKCGFAB;public void SetModelPosition(Vector3f value){Position=value;}public Model BDJBNOPNCNB()=>Owner??this;public void CJNGMIMHFCC(Model enemy){_Enemies.Add(enemy);}}
 class Selector{public object Pending;public void PrepareFormAnimation(Model model){Pending=model.KDAHHIMLJGG;}}
 class Fight{
@@ -22,7 +22,7 @@ void CommitPreparedForm(Model old,PreparedFormModel prepared,FormRenderBindings 
 void Drain(){Exception error=null;try{Apply();}catch(Exception e){error=e;}Complete(error);}
 static void Check(bool value,string message){if(!value)throw new Exception(message);}
 static void Main(){
- var f=new Fight();var old=new Model();var next=new Model();next.Parameters.CIDCNCDFONA=200;
+ var f=new Fight();var old=new Model();var next=new Model();next.Parameters.MaxLife=200;
  var enemy=new Model();var child=new Model{Owner=enemy};old._Enemies.AddRange(new[]{enemy,enemy,child});
  var p=new PreparedFormModel{Model=next};int callbacks=0;Exception result=null;
  Check(f.QueuePreparedFighterForm(old,p,e=>{callbacks++;result=e;}),"accepted");

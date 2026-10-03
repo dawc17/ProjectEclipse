@@ -23,7 +23,7 @@ $node = $adapter.GetType().GetMethod('BuildWarriorNode', $flags).Invoke($adapter
 if ($node.GetAttribute('ShieldTotal') -ne '10' -or $node.GetAttribute('Tactic') -ne 'Standard') { throw 'Raid warrior adapter lost pool/tactic.' }
 $boss = [ModelParameters]::new()
 $boss.ShieldTotal = [int]$node.GetAttribute('ShieldTotal')
-$boss.CIDCNCDFONA = 1
+$boss.MaxLife = 1
 $boss.GFNCMLFKBGP(1)
 $boss.GEACPINOAAN(-1.25)
 if ($boss.RemainingHealthBars -ne 9 -or [Math]::Abs($boss.CurrentHealthBarFraction - 0.75) -gt 0.0002 -or $boss.OJMIFOAHKBK()) { throw 'Cross-bar damage/count failed.' }

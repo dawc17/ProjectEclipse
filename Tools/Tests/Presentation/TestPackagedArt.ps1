@@ -43,6 +43,7 @@ Copy-Item -Exclude ModModeRuntime.cs -Path (Join-Path $root 'Assets/Scripts/Ecli
 Copy-Item -Path (Join-Path $root 'Assets/Scripts/Eclipse/Runtime/Modding/*.cs') -Destination (Join-Path $fixture 'Assets/Scripts/Eclipse/Runtime/Modding') -Force
 Copy-Item -LiteralPath (Join-Path $PSScriptRoot 'ValidatePackagedArt.cs') -Destination (Join-Path $fixture 'Assets/ValidatePackagedArt.cs')
 Copy-Item -LiteralPath (Join-Path $PSScriptRoot '../Shared/LegacyModdingStubs.cs') -Destination (Join-Path $fixture 'Assets/LegacyModdingStubs.cs')
+Copy-Item -LiteralPath (Join-Path $PSScriptRoot '../Shared/NormalEditorPlayModeContext.cs') -Destination (Join-Path $fixture 'Assets/NormalEditorPlayModeContext.cs')
 Copy-Item -Path (Join-Path $root 'Mods/example.enchantment/*') -Destination (Join-Path $fixture 'Assets/TestMods/example.enchantment') -Recurse -Force
 Copy-Item -Path (Join-Path $root 'Assets/Scripts/Eclipse/Content/TarAssets/*') -Destination (Join-Path $fixture 'Assets/Scripts/Eclipse/Content/TarAssets') -Recurse -Force
 Copy-Item -Path (Join-Path $root 'Assets/Resources/SF2Content/Art/*') -Destination (Join-Path $fixture 'Assets/Resources/SF2Content/Art') -Recurse -Force

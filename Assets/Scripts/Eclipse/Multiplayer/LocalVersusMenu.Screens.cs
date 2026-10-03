@@ -79,9 +79,9 @@ namespace Eclipse.Multiplayer
                 UnityEngine.EventSystems.EventSystem.current.currentSelectedGameObject.GetComponent<InputField>() != null;
             if (!typing)
             {
-                if (backAction != null && UnityEngine.Input.GetKeyDown(KeyCode.Escape)) { inputFrame = Time.frameCount; EclipseUiAudio.Play(UiSound.Back); backAction(); return; }
+                if (backAction != null && Eclipse.Input.EclipseInput.GetKeyDown(KeyCode.Escape)) { inputFrame = Time.frameCount; EclipseUiAudio.Play(UiSound.Back); backAction(); return; }
                 foreach (var (key, action) in shortcuts)
-                    if (UnityEngine.Input.GetKeyDown(key)) { inputFrame = Time.frameCount; EclipseUiAudio.Play(UiSound.Confirm); action(); return; }
+                    if (Eclipse.Input.EclipseInput.GetKeyDown(key)) { inputFrame = Time.frameCount; EclipseUiAudio.Play(UiSound.Confirm); action(); return; }
             }
             if ((page == Page.ModeSelect || page == Page.OnlineHome || page == Page.RoomBrowser || page == Page.Replays) && Time.unscaledTime >= nextShowcaseAt)
             {

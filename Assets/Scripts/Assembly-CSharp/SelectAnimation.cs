@@ -817,7 +817,7 @@ public class SelectAnimation
 		conditions.IDCHHGHAENM = ACENLMONNPA.IDCHHGHAENM;
 		conditions.BOECCPNHAII = (int)ACENLMONNPA.GHHCDAFIKJE.Impulse.GetX();
 		conditions.BFLPOMAHPJD = (ObscuredFloat)(ACENLMONNPA.Parameters.KKMCHCNOHMB());
-		conditions.KGCJIBCACBH = ACENLMONNPA.Parameters.CIDCNCDFONA;
+		conditions.KGCJIBCACBH = ACENLMONNPA.Parameters.MaxLife;
 		conditions.PKMHOICGDIM = ACENLMONNPA.GLEKCPCMINJ();
 		conditions.JJDNDOLCMMN = ACENLMONNPA.GetMagicCharges();
 		conditions.KHDBLNPFDPE = ACENLMONNPA.CKAKLHDLHJO();
@@ -983,7 +983,7 @@ public class SelectAnimation
 						if (ACENLMONNPA.FGKAFKFBFEM() && ACENLMONNPA.Parameters.KMNLACDHAFE && fGCODGKLHED != null)
 						{
 							float num = (ObscuredFloat)(fGCODGKLHED.Parameters.KKMCHCNOHMB());
-							float cIDCNCDFONA = fGCODGKLHED.Parameters.CIDCNCDFONA;
+							float cIDCNCDFONA = fGCODGKLHED.Parameters.MaxLife;
 							float num2 = num / cIDCNCDFONA;
 							if (num2 <= GameUtils.BJACOFCAHPD.BeginnerCheat)
 							{

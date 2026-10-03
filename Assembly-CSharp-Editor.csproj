@@ -54,7 +54,9 @@
     <Analyzer Include="/home/czapla/Unity/Hub/Editor/6000.6.0f1/Editor/Data/BCLExtensions/TargetingPacks/netstandard2.1/analyzers/dotnet/roslyn4.0/cs/System.Text.Json.SourceGeneration.dll" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Assets\Editor\PvpBalanceEditor.cs" />
     <Compile Include="Assets/Editor/CampaignSaveEditorRelease.cs" />
+    <Compile Include="Assets/Editor/EclipseUnity6Workflows.cs" />
     <Compile Include="Assets/Editor/GameplayContentBuildProcessor.cs" />
     <Compile Include="Assets/Editor/DevRaidHealthBarValidator.cs" />
     <Compile Include="Assets/Editor/MissingScriptScanner.cs" />
@@ -133,6 +135,10 @@
     </Reference>
     <Reference Include="UnityEngine.ContentLoadModule">
       <HintPath>/home/czapla/Unity/Hub/Editor/6000.6.0f1/Editor/Data/Managed/UnityEngine/UnityEngine.ContentLoadModule.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Unity.InputSystem">
+      <HintPath>Library/ScriptAssemblies/Unity.InputSystem.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="UnityEngine.CoreModule">

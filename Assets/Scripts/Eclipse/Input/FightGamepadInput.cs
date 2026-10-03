@@ -80,7 +80,7 @@ namespace Eclipse.Input
 		{
 			if (keys == null) return false;
 			foreach (var key in keys)
-				if (UnityEngine.Input.GetKey(key)) return true;
+				if (Eclipse.Input.EclipseInput.GetKey(key)) return true;
 			return false;
 		}
 	}
@@ -147,9 +147,7 @@ namespace Eclipse.Input
 
 			public static bool IsConnected(GamePad.Player player)
 			{
-				var devices = UnityEngine.Input.GetJoystickNames();
-				int index = (int)player - 1;
-				return index >= 0 && index < devices.Length && !string.IsNullOrEmpty(devices[index]);
+				return EclipseInput.IsGamepadConnected((int)player);
 			}
 
 			private bool ReadButton(int action, KeyCode key, KeyCode[] layoutKeys, bool keyboard, bool gamepad)
@@ -161,7 +159,7 @@ namespace Eclipse.Input
 			// The player's rebindable key, unless a fixed layout replaces it.
 			private bool Key(KeyCode defaultKey, KeyCode[] layoutKeys)
 			{
-				return _layout != null ? FightKeyboardLayout.Held(layoutKeys) : UnityEngine.Input.GetKey(FightKeyBindings.Get(defaultKey));
+				return _layout != null ? FightKeyboardLayout.Held(layoutKeys) : Eclipse.Input.EclipseInput.GetKey(FightKeyBindings.Get(defaultKey));
 			}
 
 		public void ReleaseAll()

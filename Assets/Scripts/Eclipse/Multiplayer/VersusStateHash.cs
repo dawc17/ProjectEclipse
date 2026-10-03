@@ -7,7 +7,7 @@ namespace Eclipse.Multiplayer
     public struct FighterSnapshot
     {
         public bool Present;
-        public float X, Y, Life;
+        public float X, Y, Life, RecoverableLife;
         public int Facing, RoundsWon, Frame, Interval;
         public string Animation;
     }
@@ -49,6 +49,7 @@ namespace Eclipse.Multiplayer
                 Y = position != null ? position.GetY() : float.NaN,
                 Facing = model.KFCNPADAMHA(),
                 Life = model.KKMCHCNOHMB(),
+                RecoverableLife = model.Parameters != null ? model.Parameters.RecoverableLife : 0f,
                 RoundsWon = model.Parameters != null ? model.Parameters.RoundsWon : -1,
                 Animation = model.GetCurrentAnimation()?.Name,
             };
@@ -82,6 +83,7 @@ namespace Eclipse.Multiplayer
             hasher.Add(fighter.Y);
             hasher.Add(fighter.Facing);
             hasher.Add(fighter.Life);
+            hasher.Add(fighter.RecoverableLife);
             hasher.Add(fighter.RoundsWon);
             hasher.Add(fighter.Animation);
             hasher.Add(fighter.Frame);
@@ -107,6 +109,7 @@ namespace Eclipse.Multiplayer
             if (!fighter.Present) { text.Append("none"); return; }
             text.Append(Exact(fighter.X)).Append(',').Append(Exact(fighter.Y)).Append(" f").Append(fighter.Facing)
                 .Append(" hp ").Append(Exact(fighter.Life)).Append(" w").Append(fighter.RoundsWon)
+                .Append(" grey ").Append(Exact(fighter.RecoverableLife))
                 .Append(' ').Append(fighter.Animation ?? "-").Append(' ').Append(fighter.Frame).Append('/').Append(fighter.Interval);
         }
 

@@ -16,6 +16,7 @@
     <Compile Include="../../Assets/Scripts/Eclipse/Multiplayer/Online/Rooms/*.cs" />
     <Compile Include="../../Server/EclipseRooms/RoomServer.cs" />
     <Compile Include="RoomTests.cs" />
+    <Compile Include="BalanceProtocolTests.cs" />
     <Compile Include="RollbackTests.cs" />
     <Compile Include="Program.cs" />
   </ItemGroup>

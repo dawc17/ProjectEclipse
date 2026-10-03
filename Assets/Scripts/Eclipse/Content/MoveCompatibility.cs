@@ -147,7 +147,7 @@ namespace Eclipse.Content
 		public override bool IsEqual(global::Model model, global::InfoAnimation animation)
 		{
 			global::Fight fight = global::Fight.GetCurrentFight();
-			global::FightList fightList = fight == null ? null : fight.OGNINOBBHIG();
+			global::FightList fightList = fight == null ? null : fight.GetFightDefinition();
 			bool matches = _hasExpectedType && fightList != null && fightList.get_Type() == _expectedType;
 			return IsNot ? !matches : matches;
 		}

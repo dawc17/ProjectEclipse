@@ -85,7 +85,7 @@ public class VideoPlayerController : MonoBehaviour
 		{
 			return;
 		}
-		if (Time.frameCount > playStartedFrame + 1 && (Input.touchCount > 0 || Input.anyKeyDown || Input.GetMouseButtonDown(0)))
+		if (Time.frameCount > playStartedFrame + 1 && (Eclipse.Input.EclipseInput.touchCount > 0 || Eclipse.Input.EclipseInput.anyKeyDown || Eclipse.Input.EclipseInput.GetMouseButtonDown(0)))
 		{
 			PNANBCJNMAL();
 			return;

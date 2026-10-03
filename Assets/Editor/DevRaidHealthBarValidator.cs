@@ -55,7 +55,7 @@ public static class DevRaidHealthBarValidator
                 var rect = life.get_rectTransform();
                 rect.anchorMin = rect.anchorMax = new Vector2(0.5f, 0.5f);
                 rect.anchoredPosition = new Vector2(290, 170 - row * 110);
-                var parameters = new ModelParameters { CIDCNCDFONA = 1, ShieldTotal = 40 };
+                var parameters = new ModelParameters { MaxLife = 1, ShieldTotal = 40 };
                 parameters.GFNCMLFKBGP(1);
                 life.Init(parameters);
                 life.SetRaidStyle(true);
@@ -137,7 +137,7 @@ public static class DevRaidHealthBarValidator
         try
         {
             life.gameObject.SetActive(true);
-            var parameters = new ModelParameters { CIDCNCDFONA = 1, ShieldTotal = 2 };
+            var parameters = new ModelParameters { MaxLife = 1, ShieldTotal = 2 };
             parameters.GFNCMLFKBGP(1f);
             life.Init(parameters);
             life.SetRaidStyle(true);

@@ -193,7 +193,7 @@ public static class ValidateLocalVersusNative
                     if (!Ready(fight) || fight.get_RoundNumber() <= round) return;
                     Check(!LocalVersusSession.HasResult && fight.GetPlayerModel().Parameters.RoundsWon == 0 &&
                         fight.GetEnemyModel().Parameters.RoundsWon == 0, "Equal timeout replays with neither player awarded a round");
-                    fight.GetEnemyModel().GFNCMLFKBGP(fight.GetEnemyModel().Parameters.CIDCNCDFONA * .5f);
+                    fight.GetEnemyModel().GFNCMLFKBGP(fight.GetEnemyModel().Parameters.MaxLife * .5f);
                     SetTimerExpired(fight);
                     step = 8;
                     break;
@@ -216,7 +216,7 @@ public static class ValidateLocalVersusNative
                     Check(fight.GetPlayerModel().Parameters.RoundsWon == 0 &&
                         fight.GetEnemyModel().Parameters.RoundsWon == 0 && !LocalVersusSession.HasResult,
                         "Double knockout replays without awarding a round");
-                    fight.GetPlayerModel().GFNCMLFKBGP(fight.GetPlayerModel().Parameters.CIDCNCDFONA * .5f);
+                    fight.GetPlayerModel().GFNCMLFKBGP(fight.GetPlayerModel().Parameters.MaxLife * .5f);
                     SetTimerExpired(fight);
                     step = 16;
                     break;

@@ -109,7 +109,7 @@ namespace Eclipse.Modding
         {
             if (model == null || model.Parameters == null || model.PLBNCDCFPML() == null) return null;
             var position = model.PLBNCDCFPML();
-            return new ModFighterSnapshot(model.KKMCHCNOHMB(), model.Parameters.CIDCNCDFONA,
+            return new ModFighterSnapshot(model.KKMCHCNOHMB(), model.Parameters.MaxLife,
                 model.Parameters.HealthBarCount, position.GetX(),position.GetY(),position.GetZ(),
                 CaptureAnimationSnapshot(model));
         }

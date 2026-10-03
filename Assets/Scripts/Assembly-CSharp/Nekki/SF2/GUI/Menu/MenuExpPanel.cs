@@ -66,7 +66,7 @@ namespace Nekki.SF2.GUI.Menu
 
 		private void Update()
 		{
-			if (IAGHIGDNCGO <= 0 && Input.anyKeyDown)
+			if (IAGHIGDNCGO <= 0 && Eclipse.Input.EclipseInput.anyKeyDown)
 			{
 				HideHint();
 			}

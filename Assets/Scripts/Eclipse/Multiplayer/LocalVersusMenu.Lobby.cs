@@ -44,11 +44,12 @@ namespace Eclipse.Multiplayer
                 RefreshLobbyArena();
                 UiReveal.Play(arenaCard, .08f, .34f, new Vector2(0, -20), .96f);
 
-                var rules = Place(content, "Rules", new Vector2(.5f, 1), new Vector2(0, -206), new Vector2(420, 128));
+                var rules = Place(content, "Rules", new Vector2(.5f, 1), new Vector2(0, -206), new Vector2(420, 168));
                 var rulesPaper = rules.gameObject.AddComponent<PaperPanel>(); rulesPaper.color = Paper; rulesPaper.raycastTarget = true;
-                var list = Place(rules, "List", new Vector2(.5f, .5f), Vector2.zero, new Vector2(390, 104));
+                var list = Place(rules, "List", new Vector2(.5f, .5f), Vector2.zero, new Vector2(390, 144));
                 var layout = list.gameObject.AddComponent<VerticalLayoutGroup>(); layout.spacing = 10; layout.childControlHeight = layout.childControlWidth = true; layout.childForceExpandHeight = false;
                 AddChoice(list, "FIRST TO", () => winsRequired + (winsRequired == 1 ? " WIN" : " WINS"), () => winsRequired = winsRequired % 5 + 1, 220);
+                AddChoice(list, "BALANCE", () => PvpBalanceProfiles.Selected.Name, PvpBalanceProfiles.Cycle, 220);
                 AddChoice(list, "CONTROLS", SchemeLabel, () =>
                 {
                     // Keyboard + gamepad -> two gamepads -> shared keyboard.
@@ -163,8 +164,8 @@ namespace Eclipse.Multiplayer
         // ---- VS splash ----
 
         /// <summary>
-        /// Both fighters, their loadouts and the arena, before the fight loads. Fixed length
-        /// online (both sides start together); Enter skips it locally.
+        /// Both fighters, their loadouts and the arena, kept visible until the first round.
+        /// Loading begins after a fixed introduction online; Enter starts it sooner locally.
         /// </summary>
         public void PlayVersusSplash(LocalVersusSettings settings, Action then)
         {
@@ -214,13 +215,19 @@ namespace Eclipse.Multiplayer
             while (page == Page.Splash && Time.unscaledTime < splashEndsAt)
             {
                 if (skippable && Time.unscaledTime >= skippableAt &&
-                    (UnityEngine.Input.GetKeyDown(KeyCode.Return) || UnityEngine.Input.GetKeyDown(KeyCode.Space) || UnityEngine.Input.GetKeyDown(KeyCode.Escape)))
+                    (Eclipse.Input.EclipseInput.GetKeyDown(KeyCode.Return) || Eclipse.Input.EclipseInput.GetKeyDown(KeyCode.Space) || Eclipse.Input.EclipseInput.GetKeyDown(KeyCode.Escape)))
                     break;
                 yield return null;
             }
             if (page != Page.Splash) yield break;
             var then = splashContinue;
             splashContinue = null;
+            foreach (var preview in panel.GetComponentsInChildren<VersusFighterPreview>())
+                preview.KeepAliveDuringLoading();
+            // Keep the last rendered arena behind the fighters across scene unloads.
+            // Its native scenery belongs to the outgoing scene; the UI and texture persist.
+            backdrop.HoldForLoading();
+            EclipseUiAudio.StopTitleMusic();
             then?.Invoke();
         }
     }

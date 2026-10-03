@@ -23,7 +23,7 @@ namespace Eclipse.Multiplayer
         private UnityEngine.Camera _camera;
         private RenderTexture _render, _upright;
 
-        private static string Folder => Path.Combine(Application.persistentDataPath, "ArenaThumbnails", Safe(Application.version), "2");
+        private static string Folder => Path.Combine(Eclipse.Runtime.EditorPlayModeContext.PersistentDataPath, "ArenaThumbnails", Safe(Application.version), "2");
 
         /// <summary>
         /// The arena's picture now if it is ready, otherwise null; <paramref name="ready"/> runs

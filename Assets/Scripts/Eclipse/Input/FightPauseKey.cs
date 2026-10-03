@@ -17,8 +17,8 @@ namespace Eclipse.Input
 
         public static void Tick(int backControllerCount)
         {
-            bool down = UnityEngine.Input.GetKeyDown(KeyCode.Return) || UnityEngine.Input.GetKeyDown(KeyCode.KeypadEnter);
-            bool up = UnityEngine.Input.GetKeyUp(KeyCode.Return) || UnityEngine.Input.GetKeyUp(KeyCode.KeypadEnter);
+            bool down = Eclipse.Input.EclipseInput.GetKeyDown(KeyCode.Return) || Eclipse.Input.EclipseInput.GetKeyDown(KeyCode.KeypadEnter);
+            bool up = Eclipse.Input.EclipseInput.GetKeyUp(KeyCode.Return) || Eclipse.Input.EclipseInput.GetKeyUp(KeyCode.KeypadEnter);
             if (down) armed = CanOpen(backControllerCount) && !AltHeld();
             if (!up) return;
             bool open = armed && CanOpen(backControllerCount);
@@ -30,7 +30,7 @@ namespace Eclipse.Input
 
         private static bool AltHeld()
         {
-            return UnityEngine.Input.GetKey(KeyCode.LeftAlt) || UnityEngine.Input.GetKey(KeyCode.RightAlt);
+            return Eclipse.Input.EclipseInput.GetKey(KeyCode.LeftAlt) || Eclipse.Input.EclipseInput.GetKey(KeyCode.RightAlt);
         }
 
         private static bool CanOpen(int backControllerCount)

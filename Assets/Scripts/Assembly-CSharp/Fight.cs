@@ -567,7 +567,7 @@ public class Fight
             var position = model.PLBNCDCFPML();
             if (position == null) return null;
             var parameters = model.Parameters;
-            return new ModFighterSnapshot(model.KKMCHCNOHMB(), parameters.CIDCNCDFONA,
+            return new ModFighterSnapshot(model.KKMCHCNOHMB(), parameters.MaxLife,
                 parameters.HealthBarCount, position.GetX(), position.GetY(), position.GetZ(),
                 ModRuntime.CaptureAnimationSnapshot(model));
         }
@@ -894,7 +894,7 @@ public class Fight
 	{
 		get
 		{
-			return OGNINOBBHIG();
+			return GetFightDefinition();
 		}
 		set
 		{
@@ -1248,7 +1248,8 @@ public class Fight
 		}
 	}
 
-	public FightList OGNINOBBHIG()
+	// best guess for name
+	public FightList GetFightDefinition()
 	{
 		return FightDefinition;
 	}
@@ -2292,9 +2293,13 @@ public class Fight
         if (_eclipseFightBeginDispatched && EGHPHELLOGO.KJDFJPBIGJC == CKNCPOABFBO)
             DispatchEclipseOpponent(ModEffectEvent.DamageResolving, null,
                 new ModIncomingHit(() => gHHCDAFIKJE.EEDJBBOCFNL, amount => gHHCDAFIKJE.EEDJBBOCFNL = (float)amount, gHHCDAFIKJE.DFOHNJEBDED, gHHCDAFIKJE.DNGKOMPMPCD));
+		if (IsLocalVersus && gHHCDAFIKJE.DFOHNJEBDED)
+			gHHCDAFIKJE.EEDJBBOCFNL = Eclipse.Multiplayer.PvpBalanceCombat.ClampBlocked(this, EGHPHELLOGO.KJDFJPBIGJC, gHHCDAFIKJE.EEDJBBOCFNL);
 		EGHPHELLOGO.KJDFJPBIGJC.LogDamage(gHHCDAFIKJE.EEDJBBOCFNL, BHLIBKKJNKH(hFIIPNLCIEE), gHHCDAFIKJE.DefenceAttribute);
 		float eclipseHealthBefore = EGHPHELLOGO.KJDFJPBIGJC.KKMCHCNOHMB();
 		UpdateLife(EGHPHELLOGO.KJDFJPBIGJC, 0f - gHHCDAFIKJE.EEDJBBOCFNL);
+		if (IsLocalVersus)
+			Eclipse.Multiplayer.PvpBalanceCombat.AfterStrike(this, EGHPHELLOGO.KJDFJPBIGJC, EGHPHELLOGO.GAIBPAGPEGK, gHHCDAFIKJE.DFOHNJEBDED, eclipseHealthBefore);
 		// Eclipse training and replay readouts (damage, combos, frame advantage).
 		if (IsLocalVersus && Eclipse.Multiplayer.VersusTraining.Observing)
 			Eclipse.Multiplayer.VersusTraining.OnHit(EGHPHELLOGO.GAIBPAGPEGK, EGHPHELLOGO.KJDFJPBIGJC, gHHCDAFIKJE.EEDJBBOCFNL,
@@ -3528,7 +3533,7 @@ public class Fight
 		case ScreenFightType.TYPE_INFO_ROUND:
 		case ScreenFightType.TYPE_INFO_SKIP_ROUND:
 			StartStance();
-			if (_currentFight.OGNINOBBHIG() != null && _currentFight.OGNINOBBHIG().get_Type() == BattleType.FightRaid && _currentFight.OGNINOBBHIG().GJOAJAIJHOE() != string.Empty && preFight != null)
+			if (_currentFight.GetFightDefinition() != null && _currentFight.GetFightDefinition().get_Type() == BattleType.FightRaid && _currentFight.GetFightDefinition().GJOAJAIJHOE() != string.Empty && preFight != null)
 			{
 				preFight.CreateFightRule();
 			}
@@ -4144,9 +4149,9 @@ public class Fight
         {
             var original = expected.Parameters;
             var parameters = replacement.Parameters;
-            if (original.CIDCNCDFONA <= 0 || parameters.CIDCNCDFONA <= 0)
+            if (original.MaxLife <= 0 || parameters.MaxLife <= 0)
                 throw new InvalidOperationException("Form health pools must be positive.");
-            parameters.GFNCMLFKBGP(expected.KKMCHCNOHMB() / original.CIDCNCDFONA * parameters.CIDCNCDFONA);
+            parameters.GFNCMLFKBGP(expected.KKMCHCNOHMB() / original.MaxLife * parameters.MaxLife);
             parameters.RoundsWon = original.RoundsWon;
             parameters.IsWinner = original.IsWinner;
             replacement.SetModelPosition(new Vector3f(expected.PLBNCDCFPML()));
@@ -4798,8 +4803,8 @@ public class Fight
 		if (_location == null || player == null || enemy == null) return;
 		player.TrainingMoveToX((swapped ? _location.CLGGLBHOMCE : _location.JJNMOJLLDEC).GetX());
 		enemy.TrainingMoveToX((swapped ? _location.JJNMOJLLDEC : _location.CLGGLBHOMCE).GetX());
-		SetLife(player, player.Parameters.CIDCNCDFONA);
-		SetLife(enemy, enemy.Parameters.CIDCNCDFONA);
+		SetLife(player, player.Parameters.MaxLife);
+		SetLife(enemy, enemy.Parameters.MaxLife);
 	}
 
 	/// <summary>Eclipse training: keeps the round clock from running out.</summary>

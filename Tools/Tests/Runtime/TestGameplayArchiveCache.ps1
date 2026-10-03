@@ -3,8 +3,9 @@ $root = Split-Path -Parent (Split-Path -Parent (Split-Path -Parent $PSScriptRoot
 $fixture = Join-Path $root ('Temp/GameplayArchiveCache-' + [Guid]::NewGuid().ToString('N'))
 New-Item -ItemType Directory -Path $fixture | Out-Null
 $source = [Security.SecurityElement]::Escape((Join-Path $root 'Assets/Scripts/Eclipse/Content/GameplayContentArchive.cs'))
+$context = [Security.SecurityElement]::Escape((Join-Path $root 'Assets/Scripts/Eclipse/Runtime/EditorPlayModeContext.cs'))
 @"
-<Project Sdk="Microsoft.NET.Sdk"><PropertyGroup><OutputType>Exe</OutputType><TargetFramework>net10.0</TargetFramework></PropertyGroup><ItemGroup><Compile Include="$source" /></ItemGroup></Project>
+<Project Sdk="Microsoft.NET.Sdk"><PropertyGroup><OutputType>Exe</OutputType><TargetFramework>net10.0</TargetFramework></PropertyGroup><ItemGroup><Compile Include="$source" /><Compile Include="$context" /></ItemGroup></Project>
 "@ | Set-Content -LiteralPath (Join-Path $fixture 'Test.csproj')
 @'
 using System;

@@ -33,6 +33,13 @@ namespace Eclipse.Multiplayer
         public bool IsShowing { get; private set; }
         // Lets the loading overlay step aside once the local versus lobby is up.
         public static bool LobbyVisible => instance != null && instance.IsShowing && instance.IsBackdropPage;
+        internal static bool VersusSplashVisible => instance != null && instance.IsShowing && instance.page == Page.Splash;
+
+        internal static void FinishVersusSplash()
+        {
+            // A disconnect or loading failure may have replaced the splash with a menu.
+            if (VersusSplashVisible) instance.Hide();
+        }
         /// <summary>While any versus menu covers the fight, local devices send neutral input.</summary>
         public static bool BlocksFightInput => instance != null && instance.IsShowing;
         private readonly System.Collections.Generic.List<(UnityEngine.UI.Text label, Func<string> value)> liveLabels =
@@ -110,7 +117,7 @@ namespace Eclipse.Multiplayer
             }
             var fight = Fight.GetCurrentFight();
             if (fight == null || !fight.IsLocalVersus || !overFight) return;
-            bool pausePressed = UnityEngine.Input.GetKeyDown(KeyCode.Escape);
+            bool pausePressed = Eclipse.Input.EclipseInput.GetKeyDown(KeyCode.Escape);
             if (!pausePressed && (GamePad.GetButtonDown(GamePad.Button.Start, GamePad.Player.One) ||
                 (!CurrentKeyboardPlayerOne() && GamePad.GetButtonDown(GamePad.Button.Start, GamePad.Player.Two))))
             {
@@ -269,6 +276,9 @@ namespace Eclipse.Multiplayer
                             ShowOnlineLobby();
                         }));
                         AddInfo(body, "OPPONENT", () => session.RemoteLoadout?.WeaponName ?? "Choosing...");
+                        if (session.IsHost && session.RoomMatch == null)
+                            AddChoice(body, "BALANCE", () => session.Lobby.BalanceName, PvpBalanceProfiles.Cycle);
+                        else AddInfo(body, "BALANCE", () => session.Lobby.BalanceName);
                         if (session.IsHost)
                         {
                             AddChoice(body, "ARENA", () => ArenaLabel(session.Lobby.Arena),
@@ -667,7 +677,8 @@ namespace Eclipse.Multiplayer
         private void EnsureEventSystem()
         {
             if (EventSystem.current == null)
-                ownedEventSystem = new GameObject("Local Versus Input", typeof(EventSystem), typeof(StandaloneInputModule)).GetComponent<EventSystem>();
+                ownedEventSystem = new GameObject("Local Versus Input", typeof(EventSystem), typeof(UnityEngine.InputSystem.UI.InputSystemUIInputModule)).GetComponent<EventSystem>();
+            Eclipse.Input.EclipseUiInput.Ensure(EventSystem.current);
             if (navigationEventSystem == EventSystem.current) return;
             RestoreNavigation();
             navigationEventSystem = EventSystem.current;
@@ -699,10 +710,10 @@ namespace Eclipse.Multiplayer
             bool keyboardMove = false;
             if (!typing)
             {
-                if (UnityEngine.Input.GetKeyDown(KeyCode.DownArrow) || UnityEngine.Input.GetKeyDown(KeyCode.Tab)) { direction = Vector2Int.down; keyboardMove = true; }
-                else if (UnityEngine.Input.GetKeyDown(KeyCode.UpArrow)) { direction = Vector2Int.up; keyboardMove = true; }
-                else if (UnityEngine.Input.GetKeyDown(KeyCode.LeftArrow)) { direction = Vector2Int.left; keyboardMove = true; }
-                else if (UnityEngine.Input.GetKeyDown(KeyCode.RightArrow)) { direction = Vector2Int.right; keyboardMove = true; }
+                if (Eclipse.Input.EclipseInput.GetKeyDown(KeyCode.DownArrow) || Eclipse.Input.EclipseInput.GetKeyDown(KeyCode.Tab)) { direction = Vector2Int.down; keyboardMove = true; }
+                else if (Eclipse.Input.EclipseInput.GetKeyDown(KeyCode.UpArrow)) { direction = Vector2Int.up; keyboardMove = true; }
+                else if (Eclipse.Input.EclipseInput.GetKeyDown(KeyCode.LeftArrow)) { direction = Vector2Int.left; keyboardMove = true; }
+                else if (Eclipse.Input.EclipseInput.GetKeyDown(KeyCode.RightArrow)) { direction = Vector2Int.right; keyboardMove = true; }
             }
             if (direction != Vector2Int.zero && (keyboardMove || direction != heldNavigation || Time.unscaledTime >= repeatNavigationAt))
             {
@@ -721,8 +732,8 @@ namespace Eclipse.Multiplayer
             if (typing) return;
             if (IsBackdropPage && backAction != null && GamePad.GetButtonDown(GamePad.Button.B, GamePad.Player.Any))
             { Eclipse.UI.EclipseUiAudio.Play(Eclipse.UI.UiSound.Back); backAction(); return; }
-            if (UnityEngine.Input.GetKeyDown(KeyCode.Return) || UnityEngine.Input.GetKeyDown(KeyCode.KeypadEnter) ||
-                UnityEngine.Input.GetKeyDown(KeyCode.Space) || GamePad.GetButtonDown(GamePad.Button.A, GamePad.Player.Any))
+            if (Eclipse.Input.EclipseInput.GetKeyDown(KeyCode.Return) || Eclipse.Input.EclipseInput.GetKeyDown(KeyCode.KeypadEnter) ||
+                Eclipse.Input.EclipseInput.GetKeyDown(KeyCode.Space) || GamePad.GetButtonDown(GamePad.Button.A, GamePad.Player.Any))
             {
                 selected = events.currentSelectedGameObject;
                 if (selected != null && selected.activeInHierarchy && selected.transform.IsChildOf(panel))

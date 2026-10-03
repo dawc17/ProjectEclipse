@@ -330,8 +330,8 @@ public static class SF2Paths
 		}
 		LFGMJKBJIEG = true;
 		KBOPNEIIDNL = string.Empty;
-		FFKEDOBDLOL = Application.persistentDataPath;
-		JKKPDAFGLJL = Application.persistentDataPath;
+		FFKEDOBDLOL = Eclipse.Runtime.EditorPlayModeContext.PersistentDataPath;
+		JKKPDAFGLJL = Eclipse.Runtime.EditorPlayModeContext.PersistentDataPath;
 		CGOHPKEBECD = true;
 		string text = CBFMFIHKMFI();
 		if (string.IsNullOrEmpty(FFKEDOBDLOL))

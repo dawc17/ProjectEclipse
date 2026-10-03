@@ -124,7 +124,7 @@ public static class ValidateTitleSparringNative
                     if (ticks >= 1500 && !forcedKnockout)
                     {
                         Check(leftAttacks > 0 && rightAttacks > 0, "CPUs failed to trade native attacks.");
-                        firstFight.UpdateLife(firstRight, -firstRight.Parameters.CIDCNCDFONA * 2f);
+                        firstFight.UpdateLife(firstRight, -firstRight.Parameters.MaxLife * 2f);
                         firstFight.SetLife(firstLeft, 0f);
                         Check(firstLeft.Parameters.HABJPOFCIHA() == 1f && firstRight.Parameters.HABJPOFCIHA() == 1f,
                             "Title fighters lost health under lethal damage/direct life assignment.");
@@ -422,7 +422,7 @@ public static class ValidateTitleSparringNative
             Check(Fight.GetCurrentFight() == firstFight && Get("stageView") == stage, "UI mood changes reloaded the fight/content.");
             Call(screen, "Home");
             Check(((CanvasGroup)Get("homePresentation")).alpha == 1f, "Returning Home preserved a hidden menu.");
-            firstFight.UpdateLife(firstRight, -firstRight.Parameters.CIDCNCDFONA * 2f);
+            firstFight.UpdateLife(firstRight, -firstRight.Parameters.MaxLife * 2f);
             firstFight.SetLife(firstLeft, 0f);
             Check(firstLeft.Parameters.HABJPOFCIHA() == 1f && firstRight.Parameters.HABJPOFCIHA() == 1f
                 && !firstLeft.Parameters.PCALDKCJGCK && !firstRight.Parameters.PCALDKCJGCK,

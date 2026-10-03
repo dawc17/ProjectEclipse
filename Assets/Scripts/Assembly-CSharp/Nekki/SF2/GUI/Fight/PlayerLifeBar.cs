@@ -79,6 +79,7 @@ namespace Nekki.SF2.GUI.Fight
 			Eclipse.Rendering.Interpolation.TickPresentationSmoother.AttachFill(_hitBar,
 				Eclipse.Rendering.Interpolation.TickPresentationSmoother.Clock.Fight);
 			HEGIABHIPHA = JCICKLIMBEF;
+			Eclipse.Multiplayer.PvpRecoverableBar.Attach(_healthBar, JCICKLIMBEF);
 			JEBDBEIMPLK();
 		}
 

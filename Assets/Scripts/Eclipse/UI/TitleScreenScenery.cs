@@ -756,7 +756,7 @@ namespace Eclipse.UI
             Vector2 target = new Vector2(Mathf.Sin(t * .11f) * .35f, Mathf.Sin(t * .083f) * .25f);
             if (Application.isFocused && Screen.width > 0 && Screen.height > 0)
             {
-                Vector2 mouse = UnityEngine.Input.mousePosition;
+                Vector2 mouse = Eclipse.Input.EclipseInput.mousePosition;
                 if (mouse.x >= 0 && mouse.y >= 0 && mouse.x <= Screen.width && mouse.y <= Screen.height)
                     target += new Vector2(mouse.x / Screen.width - .5f, mouse.y / Screen.height - .5f) * 1.4f;
             }
@@ -939,14 +939,14 @@ namespace Eclipse.UI
             var stick = GamePad.GetStick(GamePad.Stick.Dpad, GamePad.Player.Any) + GamePad.GetStick(GamePad.Stick.LeftStick, GamePad.Player.Any);
             if (GamePad.GetButtonDown(GamePad.Button.A, GamePad.Player.Any) || GamePad.GetButtonDown(GamePad.Button.B, GamePad.Player.Any) ||
                 GamePad.GetButtonDown(GamePad.Button.Start, GamePad.Player.Any) || stick.sqrMagnitude > .25f) pad = true;
-            else if (UnityEngine.Input.anyKeyDown && !JoystickKeyDown() || UnityEngine.Input.GetAxisRaw("Mouse X") != 0f) pad = false;
+            else if (Eclipse.Input.EclipseInput.anyKeyDown && !JoystickKeyDown() || Eclipse.Input.EclipseInput.GetAxisRaw("Mouse X") != 0f) pad = false;
             if (pad != padMode) { padMode = pad; BuildHints(); }
         }
 
         private static bool JoystickKeyDown()
         {
             for (var key = KeyCode.JoystickButton0; key <= KeyCode.Joystick8Button19; key++)
-                if (UnityEngine.Input.GetKeyDown(key)) return true;
+                if (Eclipse.Input.EclipseInput.GetKeyDown(key)) return true;
             return false;
         }
 

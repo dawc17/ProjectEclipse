@@ -221,8 +221,8 @@ namespace Eclipse.Multiplayer
             _group.alpha = Mathf.Clamp01((Time.unscaledTime - _openedAt) / .22f);
             float now = Time.unscaledTime;
             if (now - _openedAt < .15f) return;
-            int keyboard = UnityEngine.Input.GetKey(KeyCode.LeftArrow) || UnityEngine.Input.GetKey(KeyCode.A) ? -1 :
-                UnityEngine.Input.GetKey(KeyCode.RightArrow) || UnityEngine.Input.GetKey(KeyCode.D) ? 1 : 0;
+            int keyboard = Eclipse.Input.EclipseInput.GetKey(KeyCode.LeftArrow) || Eclipse.Input.EclipseInput.GetKey(KeyCode.A) ? -1 :
+                Eclipse.Input.EclipseInput.GetKey(KeyCode.RightArrow) || Eclipse.Input.EclipseInput.GetKey(KeyCode.D) ? 1 : 0;
             float pad = 0f;
             bool choose = false, cancel = false;
             try
@@ -242,10 +242,10 @@ namespace Eclipse.Multiplayer
                 Move(direction);
             }
             _held = direction;
-            float wheel = UnityEngine.Input.mouseScrollDelta.y;
+            float wheel = Eclipse.Input.EclipseInput.mouseScrollDelta.y;
             if (Mathf.Abs(wheel) > .1f) Move(wheel > 0 ? -1 : 1);
-            if (choose || UnityEngine.Input.GetKeyDown(KeyCode.Return) || UnityEngine.Input.GetKeyDown(KeyCode.KeypadEnter) || UnityEngine.Input.GetKeyDown(KeyCode.Space)) { Choose(); return; }
-            if (cancel || UnityEngine.Input.GetKeyDown(KeyCode.Escape) || UnityEngine.Input.GetKeyDown(KeyCode.Backspace)) { Cancel(); return; }
+            if (choose || Eclipse.Input.EclipseInput.GetKeyDown(KeyCode.Return) || Eclipse.Input.EclipseInput.GetKeyDown(KeyCode.KeypadEnter) || Eclipse.Input.EclipseInput.GetKeyDown(KeyCode.Space)) { Choose(); return; }
+            if (cancel || Eclipse.Input.EclipseInput.GetKeyDown(KeyCode.Escape) || Eclipse.Input.EclipseInput.GetKeyDown(KeyCode.Backspace)) { Cancel(); return; }
             if (_previewAt >= 0f && Time.unscaledTime >= _previewAt)
             {
                 _previewAt = -1f;

@@ -39,9 +39,9 @@ namespace Eclipse.Multiplayer
                 pick.onClick.AddListener(OpenTrainingArenaPicker);
                 RefreshTrainingArena();
 
-                var rules = Place(content, "Dummy", new Vector2(.5f, 1), new Vector2(0, -184), new Vector2(420, 250));
+                var rules = Place(content, "Dummy", new Vector2(.5f, 1), new Vector2(0, -184), new Vector2(420, 290));
                 var rulesPaper = rules.gameObject.AddComponent<PaperPanel>(); rulesPaper.color = Paper; rulesPaper.raycastTarget = true;
-                var list = Place(rules, "List", new Vector2(.5f, .5f), Vector2.zero, new Vector2(390, 226));
+                var list = Place(rules, "List", new Vector2(.5f, .5f), Vector2.zero, new Vector2(390, 266));
                 var layout = list.gameObject.AddComponent<VerticalLayoutGroup>(); layout.spacing = 8; layout.childControlHeight = layout.childControlWidth = true; layout.childForceExpandHeight = false;
                 AddTrainingChoices(list, 200);
 
@@ -90,6 +90,7 @@ namespace Eclipse.Multiplayer
         /// <summary>The dummy and rule choices, shared by the setup page and the in-fight menu.</summary>
         private void AddTrainingChoices(RectTransform list, float valueWidth)
         {
+            AddChoice(list, "BALANCE", () => PvpBalanceProfiles.Selected.Name, PvpBalanceProfiles.Cycle, valueWidth);
             AddChoice(list, "DUMMY", () => VersusTraining.Control == DummyControl.Cpu ? "CPU" : VersusTraining.Control == DummyControl.Playback ? "PLAYBACK" :
                 VersusTraining.Control == DummyControl.Record ? "RECORDING" : "SCRIPTED", () =>
             {
@@ -149,7 +150,7 @@ namespace Eclipse.Multiplayer
             {
                 // Two columns: the dummy on the left, the view and actions on the right.
                 var columns = Rect(body, "Columns");
-                columns.gameObject.AddComponent<LayoutElement>().preferredHeight = 266;
+                columns.gameObject.AddComponent<LayoutElement>().preferredHeight = 322;
                 var split = columns.gameObject.AddComponent<HorizontalLayoutGroup>();
                 split.spacing = 40; split.childControlWidth = split.childControlHeight = true; split.childForceExpandWidth = true; split.childForceExpandHeight = true;
                 var left = TrainingColumn(columns);
@@ -167,7 +168,7 @@ namespace Eclipse.Multiplayer
                 AddButton(exits, "LOADOUTS & ARENA", () => { LocalVersusSession.ShowMultiplayerHome(); ShowTraining(); }, 0);
                 AddButton(exits, "EXIT TRAINING", LocalVersusSession.ShowMultiplayerHome, 0, UiSound.Back);
             }, ResumeTraining, 1120);
-            SetStatus("Esc resumes.   Record dummy: you play the dummy until Page Up, then it repeats your moves.");
+            SetStatus("Balance changes restart training on resume.   Record dummy: you play the dummy until Page Up, then it repeats your moves.");
         }
 
         private RectTransform TrainingColumn(RectTransform parent)
@@ -183,7 +184,7 @@ namespace Eclipse.Multiplayer
             // The game AI is chosen when the dummy is built; switching to or from it starts over,
             // as does resuming once a round with normal health has ended the match.
             bool wantsCpu = VersusTraining.Control == DummyControl.Cpu, builtCpu = trainingBuiltControl == DummyControl.Cpu;
-            if (LocalVersusSession.HasResult || wantsCpu != builtCpu ||
+            if (LocalVersusSession.HasResult || LocalVersusSession.Settings?.Balance.Hash != PvpBalanceProfiles.Selected.Hash || wantsCpu != builtCpu ||
                 VersusTraining.Control == DummyControl.Cpu && LocalVersusSession.Settings?.PlayerTwoTactic != VersusTraining.CpuTactic)
             {
                 LocalVersusSession.ShowMultiplayerHome();

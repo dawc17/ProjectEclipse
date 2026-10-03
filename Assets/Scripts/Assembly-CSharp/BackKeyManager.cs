@@ -51,7 +51,7 @@ public class BackKeyManager : SFMonoBehaviour<object>
 
 	private void Update()
 	{
-		if (Input.GetKeyDown(KeyCode.Escape))
+		if (Eclipse.Input.EclipseInput.GetKeyDown(KeyCode.Escape))
 		{
 			OnBackKeyClicked();
 		}

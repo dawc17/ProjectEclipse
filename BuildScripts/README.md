@@ -17,6 +17,12 @@ The [launcher guide](../Launcher/README.md) documents release requirements and
 publishing commands. Player outputs use ignored `Builds/`; launcher/release
 outputs use ignored `BuildScripts/out/`.
 
+`BuildPlayers.ps1` selects native Unity 6 Build Profiles with
+`-activeBuildProfile`. `All` builds Windows and Android; `WindowsDevelopment`
+and `WindowsEditableXml` are opt-in targets. It resolves the editor version from
+`ProjectSettings/ProjectVersion.txt`; pass `-Unity` for a custom installation.
+See [profile setup and multiplayer testing](../Docs/Engineering/UNITY_6_WORKFLOWS.md).
+
 ## Historical reconstruction scripts
 
 Older asset/source patch scripts and manual compiler response files are retained

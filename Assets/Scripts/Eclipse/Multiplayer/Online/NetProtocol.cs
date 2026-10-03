@@ -8,8 +8,8 @@ namespace Eclipse.Multiplayer.Online
     /// </summary>
     public static class NetProtocol
     {
-        /// <summary>2: rollback netcode, run-length input blocks and time sync. 3: full loadouts.</summary>
-        public const byte Version = 3;
+        /// <summary>2: rollback netcode, run-length input blocks and time sync. 3: full loadouts. 4: balance profile hashes.</summary>
+        public const byte Version = 4;
         public const int DefaultPort = 7291;
         public const int MaxPacketSize = 1200;
         public const int MaxStringBytes = 200;
@@ -177,10 +177,12 @@ namespace Eclipse.Multiplayer.Online
         public int InputDelay = NetProtocol.DefaultInputDelay;
         public NetcodeMode Netcode = NetcodeMode.Rollback;
         public bool GuestReady;
+        public string BalanceHash = string.Empty;
+        public string BalanceName = string.Empty;
 
         public byte[] Encode()
         {
-            var writer = new NetWriter(256);
+            var writer = new NetWriter(512);
             writer.U8((byte)NetMessageType.HostLobby);
             HostLoadout.Write(writer);
             GuestLoadout.Write(writer);
@@ -190,6 +192,8 @@ namespace Eclipse.Multiplayer.Online
             writer.U8((byte)InputDelay);
             writer.Bool(GuestReady);
             writer.U8((byte)Netcode);
+            writer.Str(BalanceHash);
+            writer.Str(BalanceName);
             return writer.ToArray();
         }
 
@@ -205,6 +209,8 @@ namespace Eclipse.Multiplayer.Online
                 InputDelay = reader.U8(),
                 GuestReady = reader.Bool(),
                 Netcode = NetcodeModes.Read(reader),
+                BalanceHash = reader.Str(),
+                BalanceName = reader.Str(),
             };
             if (state.InputDelay > NetProtocol.MaxInputDelay) throw new NetFormatException("Input delay out of range.");
             return state;
@@ -224,10 +230,11 @@ namespace Eclipse.Multiplayer.Online
         public int Seed;
         /// <summary>Prediction window in ticks; 0 plays delay-based lockstep.</summary>
         public int RollbackWindow;
+        public string BalanceHash = string.Empty;
 
         public byte[] Encode()
         {
-            var writer = new NetWriter(256);
+            var writer = new NetWriter(512);
             writer.U8((byte)NetMessageType.StartMatch);
             writer.U8((byte)MatchIndex);
             HostLoadout.Write(writer);
@@ -238,6 +245,7 @@ namespace Eclipse.Multiplayer.Online
             writer.U8((byte)InputDelay);
             writer.I32(Seed);
             writer.U8((byte)RollbackWindow);
+            writer.Str(BalanceHash);
             return writer.ToArray();
         }
 
@@ -254,6 +262,7 @@ namespace Eclipse.Multiplayer.Online
                 InputDelay = reader.U8(),
                 Seed = reader.I32(),
                 RollbackWindow = reader.U8(),
+                BalanceHash = reader.Str(),
             };
             if (start.InputDelay > NetProtocol.MaxInputDelay) throw new NetFormatException("Input delay out of range.");
             if (start.RollbackWindow > InputTimeline.MaxPredictionLimit) throw new NetFormatException("Rollback window out of range.");
@@ -263,12 +272,13 @@ namespace Eclipse.Multiplayer.Online
 
     public static class NetMessages
     {
-        public static byte[] GuestLobby(LoadoutCode loadout, bool ready)
+        public static byte[] GuestLobby(LoadoutCode loadout, bool ready, string balanceHash = "")
         {
-            var writer = new NetWriter(1 + LoadoutCode.Size + 1);
+            var writer = new NetWriter(1 + LoadoutCode.Size + 1 + 1 + NetProtocol.MaxStringBytes);
             writer.U8((byte)NetMessageType.GuestLobby);
             loadout.Write(writer);
             writer.Bool(ready);
+            writer.Str(balanceHash);
             return writer.ToArray();
         }
 

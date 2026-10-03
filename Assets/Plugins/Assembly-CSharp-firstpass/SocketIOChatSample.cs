@@ -56,7 +56,7 @@ public sealed class SocketIOChatSample : MonoBehaviour
 
 	private void Update()
 	{
-		if (Input.GetKeyDown(KeyCode.Escape))
+		if (Eclipse.Input.EclipseInput.GetKeyDown(KeyCode.Escape))
 		{
 			SampleSelector.SelectedSample.EHDDIIAKFGI();
 		}

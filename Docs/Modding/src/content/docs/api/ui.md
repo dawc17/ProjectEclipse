@@ -27,6 +27,12 @@ keyboard/controller navigation. Back closes their foreground view. HUDs do not
 capture keyboard navigation automatically; their buttons currently use pointer
 input. Opening any view **does not pause combat**.
 
+Eclipse uses Unity's Input System for keyboard, mouse, touch and gamepad input.
+Existing bindings retain their meanings. Gamepad buttons use their semantic
+positions (A/Cross is south, B/Circle east, Y/Triangle north and X/Square west),
+so mod UI follows the same controls as native menus. This does not add raw
+device access to Lua or change click callbacks.
+
 Layouts use a 1280×720 reference canvas and default to the center of the screen's
 safe area. The open definition accepts an optional `placement`:
 

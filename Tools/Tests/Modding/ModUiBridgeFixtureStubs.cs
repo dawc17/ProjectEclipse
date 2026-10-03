@@ -1,6 +1,17 @@
 // The isolated Unity fixture controls native shell/device signals. UI bridge,
 // coordinator, view and scope code are production sources, not copies.
 using UnityEngine;
+// This historical fixture controls shell signals through its Unity 2022 backend.
+// The modern native backend is covered separately by TestUnity6Workflows.ps1.
+namespace Eclipse.Input {
+    public static class EclipseInput {
+        public static bool GetKey(KeyCode key) => UnityEngine.Input.GetKey(key);
+        public static bool GetKeyDown(KeyCode key) => UnityEngine.Input.GetKeyDown(key);
+        public static bool GetMouseButtonDown(int button) => UnityEngine.Input.GetMouseButtonDown(button);
+        public static Vector3 mousePosition => UnityEngine.Input.mousePosition;
+        public static Vector2 mouseScrollDelta => UnityEngine.Input.mouseScrollDelta;
+    }
+}
 namespace Eclipse.Modding {
     public static class ModRuntime {
         public static bool IsInitialized=true;

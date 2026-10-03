@@ -133,7 +133,7 @@ namespace Nekki.SF2.GUI.Dialogs
 
 		private void Update()
 		{
-			if ((Input.GetMouseButtonDown(0) || Input.touchCount > 0) && DAJKLNPEONE)
+			if ((Eclipse.Input.EclipseInput.GetMouseButtonDown(0) || Eclipse.Input.EclipseInput.touchCount > 0) && DAJKLNPEONE)
 			{
 				_scroll.OnBackgroundClick();
 			}
@@ -275,7 +275,7 @@ namespace Nekki.SF2.GUI.Dialogs
 			case ScreenType.ModuleFight:
 			{
 				FightScene current = Scene<FightScene>.get_Current();
-				if (current != null && current.Fight != null && current.Fight.OGNINOBBHIG() != null && current.Fight.OGNINOBBHIG().get_Type() != BattleType.FightNone)
+				if (current != null && current.Fight != null && current.Fight.GetFightDefinition() != null && current.Fight.GetFightDefinition().get_Type() != BattleType.FightNone)
 				{
 					return false;
 				}

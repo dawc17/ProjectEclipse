@@ -17,7 +17,7 @@ namespace Eclipse.Content.TarAssets
             if (bundle == null || string.IsNullOrEmpty(bundle.file))
                 throw new InvalidDataException("TAR asset bundle record has no file.");
 
-            string cacheRoot = Path.Combine(Application.persistentDataPath, CacheDirectoryName);
+            string cacheRoot = Path.Combine(Eclipse.Runtime.EditorPlayModeContext.PersistentDataPath, CacheDirectoryName);
             Directory.CreateDirectory(cacheRoot);
             string key = !string.IsNullOrEmpty(bundle.sha256) ? bundle.sha256 : SafeFileName(bundle.file);
             string tarPath = Path.Combine(cacheRoot, key + ".tar");

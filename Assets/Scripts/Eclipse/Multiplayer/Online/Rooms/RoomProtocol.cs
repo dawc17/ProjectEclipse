@@ -12,7 +12,7 @@ namespace Eclipse.Multiplayer.Online.Rooms
     /// </summary>
     public static class RoomProtocol
     {
-        public const byte Version = 4;
+        public const byte Version = 5;
         public const int DefaultPort = 7300;
         public const int MaxMembers = 8;
         public const int MaxCandidates = 6;

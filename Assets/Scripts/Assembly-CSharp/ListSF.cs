@@ -2292,7 +2292,7 @@ public class ListSF
 		kIKOGDEPGHB.BHHLEBHLBLH = false;
 		kIKOGDEPGHB.PCALDKCJGCK = false;
 		kIKOGDEPGHB.RoundsWon = 0;
-		kIKOGDEPGHB.CIDCNCDFONA = 0f;
+		kIKOGDEPGHB.MaxLife = 0f;
 		if (!kIKOGDEPGHB.KKFBCOKMNDF)
 		{
 			kIKOGDEPGHB.Node = node;

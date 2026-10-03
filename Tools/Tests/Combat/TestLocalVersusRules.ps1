@@ -11,6 +11,7 @@ using Eclipse.Multiplayer;
 // is a controlled value holder; catalog loading and equipment are Unity concerns.
 namespace Eclipse.Multiplayer
 {
+    public static class PvpBalanceProfiles { public static Eclipse.Multiplayer.Balance.PvpBalanceSnapshot Selected => new Eclipse.Multiplayer.Balance.PvpBalanceProfile().Compile(); }
     public sealed class VersusLoadout
     {
         public string Weapon { get; }
@@ -48,6 +49,7 @@ static class Program
               settings.WinsRequired == 3 && settings.RoundTimeSeconds == 120,
               "Settings did not retain constructor values.");
 
+        Check(ReferenceEquals(settings.Reseeded().Balance, settings.Balance), "Reseeding changed frozen balance rules.");
         var type = typeof(LocalVersusSettings);
         foreach (var property in type.GetProperties())
             Check(!property.CanWrite, "Settings property is mutable: " + property.Name);
@@ -88,10 +90,13 @@ static class Program
 
 $program | Set-Content -Encoding UTF8 -LiteralPath (Join-Path $fixture 'Program.cs')
 $source = [Security.SecurityElement]::Escape((Join-Path $root 'Assets/Scripts/Eclipse/Multiplayer/LocalVersusSettings.cs'))
+$balanceSource = [Security.SecurityElement]::Escape((Join-Path $root 'Assets/Scripts/Eclipse/Runtime/PvpBalance.cs'))
+$jsonReference = (Get-ChildItem -Path (Join-Path $root 'Library/PackageCache/com.unity.nuget.newtonsoft-json*/Runtime/Newtonsoft.Json.dll') | Select-Object -First 1).FullName
+$jsonReference = [Security.SecurityElement]::Escape($jsonReference)
 @"
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup><OutputType>Exe</OutputType><TargetFramework>net10.0</TargetFramework></PropertyGroup>
-  <ItemGroup><Compile Include="$source" /></ItemGroup>
+  <ItemGroup><Compile Include="$source" /><Compile Include="$balanceSource" /><Reference Include="Newtonsoft.Json"><HintPath>$jsonReference</HintPath></Reference></ItemGroup>
 </Project>
 "@ | Set-Content -Encoding UTF8 -LiteralPath (Join-Path $fixture 'Fixture.csproj')
 
