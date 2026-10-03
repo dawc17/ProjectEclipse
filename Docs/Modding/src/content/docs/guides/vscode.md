@@ -13,7 +13,7 @@ The extension is installed from a `.vsix` package, not the Marketplace. Get it f
 a successful **Modding editor** workflow artifact, or build it using the
 [source README](https://github.com/dawc17/ProjectEclipse/tree/main/Tools/ModdingEditor).
 
-1. Install **Lua** by **sumneko** in VS Code. **3.18.2** is the tested version;
+1. Install **Lua** by **sumneko** in VS Code. **3.19.1** is the currently tested version;
    choose it with the gear menu > **Install Another Version** if needed.
 2. Press **Ctrl+Shift+P**, run **Extensions: Install from VSIX...**, and select
    `eclipse-modding-0.1.0.vsix`. Reload when prompted.
@@ -87,6 +87,16 @@ test the filename guard, fighter rig and strike in a running fight. See
 [native move replacement](../../api/moves-and-tactics/#sf2movesreplace).
 
 ## Understand warnings
+
+Framework service authoring completes `sf2.extensions.register`, its schema fields
+and `handler(request, caller)`. Consumer lookups complete `get`, `call` and
+`try_call`; the editor checks capabilities and direct manifest dependencies.
+The framework defines the actual request/response fields, which Eclipse validates
+when the service runs. For a complete pair, copy the repository's
+`Tools/ModdingEditor/templates/focus-framework` and `focus-addon` folders into Mods.
+See [framework mods and shared services](../../api/extensions/) for installation,
+ownership and version rules. These templates are separate from the Create Mod
+command's Training Blade starter.
 
 Open **View > Problems**. LuaLS checks names, argument types, required fields, and
 handle kinds. Eclipse Modding adds checks for:

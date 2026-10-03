@@ -66,6 +66,12 @@ Select the runner for the subsystem you changed rather than invoking every
 script. `Shared/LoadUnityManagedAssemblies.ps1` is the shared loader, not a test runner.
 Some historical DE checks require downstream content or local research inputs.
 
+`Modding/TestModExtensions.ps1` runs the production Lua runtime and script-session
+lifecycle against controlled asset/combat/UI sources. It covers typed framework
+services, capability/dependency/version checks, isolated data, startup rollback,
+execution limits, migration restrictions and the shipped Focus framework/add-on
+with saved-state reload. It does not render a native fight or perform a game playtest.
+
 PvP balance checks are `Combat/TestPvpBalance.ps1` (strict JSON, immutable rules,
 hashing, inheritance, nonlethal chip and recovery with controlled native
 dependencies) and `Combat/TestPvpHealthRuntime.ps1` (compiled recovered health

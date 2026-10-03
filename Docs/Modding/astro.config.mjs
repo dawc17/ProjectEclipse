@@ -57,6 +57,7 @@ export default defineConfig({
         { label: 'Behavior and progression', items: [
           { slug: 'api/perks-and-enchantments' },
           { slug: 'api/behavior-instances' },
+          { slug: 'api/extensions' },
           { slug: 'api/combat-callbacks' },
           { slug: 'api/fighter' },
           { slug: 'api/profile' },

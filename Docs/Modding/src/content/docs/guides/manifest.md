@@ -62,6 +62,8 @@ A capability permits an operation; a dependency permits references to another ow
 | Capability | Used for |
 | --- | --- |
 | `content.register` | Register content and use the documented content lookups. |
+| `extensions.provide` | Publish versioned Lua services for dependent mods. |
+| `extensions.call` | Acquire and call services from declared direct dependencies. See [framework mods](../../api/extensions/). |
 | `content.patch` | Supported changes to existing content, such as localization or perk choices. |
 | `assets.replace` | Explicit replacement of an existing asset. |
 | `state.read`, `state.write` | Read and write mod-owned profile state. |

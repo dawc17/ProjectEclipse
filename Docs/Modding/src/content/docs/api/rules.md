@@ -576,8 +576,10 @@ from an operation inside a handler are suppressed, preventing recursive loops.
 Shield keys are isolated by rule ID, so two rules reusing one behavior do not
 replace each other's shield on the same fighter.
 
-This API does **not** yet provide custom victory conditions, tick callbacks, animation control, additional fighters, or custom
-HUDs. The available operations remain the documented fighter methods. Rules can be attached to new fights or appended to or replace
+Behavior rules support simulation ticks and can update owned HUDs through the
+documented combat and UI callbacks. Custom victory conditions, general animation
+control and additional simultaneous fighters remain outside this contract.
+The available operations remain the documented fighter methods. Rules can be attached to new fights or appended to or replace
 the rules of existing encounters through [fight patches](../content-graph/#sf2fightspatch).
 
 Attacker-side scaling is available through `on_damage_dealing` and

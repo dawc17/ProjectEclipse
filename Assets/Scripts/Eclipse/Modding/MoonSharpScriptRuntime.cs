@@ -541,8 +541,11 @@ namespace Eclipse.Modding
                         foreach (KeyValuePair<string, ModParameterValue> pair in values)
                             table.Set(pair.Key, ToDynValue(pair.Value));
                     }
-                    DynValue result = RunBounded(handler, Mod.Id + ":state-migration-" + fromVersion,
-                        MaxStateMigrationInstructionSlices, new[] { DynValue.NewTable(table) });
+                    DynValue result;
+                    _migratingState = true;
+                    try { result = RunBounded(handler, Mod.Id + ":state-migration-" + fromVersion,
+                        MaxStateMigrationInstructionSlices, new[] { DynValue.NewTable(table) }); }
+                    finally { _migratingState = false; }
                     Table output;
                     if (result == null || result.IsNil()) output = table;
                     else if (result.Type == DataType.Table) output = result.Table;
@@ -648,6 +651,8 @@ namespace Eclipse.Modding
                 if (_disposed) return;
                 _callbackWorkers.Clear();
                 _disposed = true;
+                _api.Extensions?.RemoveOwner(Mod.Id);
+                _extensionHandles = new System.Runtime.CompilerServices.ConditionalWeakTable<Table, ModExtensionDefinition>();
                 _api.State.BindingChanged -= OnSequenceBindingChanged;
                 StopSequence(false);
                 _actScreen?.Dispose();
@@ -742,6 +747,7 @@ namespace Eclipse.Modding
 
             private DynValue RunBounded(DynValue function, string sourceName, int maxSlices, DynValue[] args)
             {
+                using var execution = _api.Extensions?.EnterExecution(Mod.Id);
                 // Each new MoonSharp coroutine allocates two 1 MiB stacks. Keep a
                 // private worker suspended between successful calls instead of
                 // allocating those stacks on every combat tick. Nested callbacks
@@ -1066,6 +1072,7 @@ namespace Eclipse.Modding
                 AddUiModule(root);
                 AddVisualsModule(root);
                 AddUnderworldModule(root);
+                AddExtensionsModule(root);
 
                 DynValue value = DynValue.NewTable(root);
                 _modules.Add(moduleName, value);

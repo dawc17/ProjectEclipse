@@ -402,6 +402,21 @@ namespace Eclipse.Modding
                 }
             }
 
+            // Preserve fingerprints for content sets without this new domain.
+            if (content.Extensions.Count > 0)
+            {
+                Append(canonical, "extensions-v1");
+                var extensions = new List<ModExtensionDefinition>(content.Extensions);
+                extensions.Sort((left, right) => CompareIds(left.Id, right.Id));
+                Append(canonical, extensions.Count);
+                foreach (var extension in extensions)
+                {
+                    Append(canonical, extension.Id.ToString());
+                    Append(canonical, extension.Version);
+                    AppendExtensionSchema(canonical, extension.Request);
+                    AppendExtensionSchema(canonical, extension.Response);
+                }
+            }
             AppendPhaseOneContent(canonical, content);
 
             var stateDefinitions = modState == null
@@ -475,6 +490,21 @@ namespace Eclipse.Modding
             where T : ItemDefinition
         {
             for (int i = 0; i < source.Count; i++) target.Add(source[i]);
+        }
+
+        private static void AppendExtensionSchema(StringBuilder canonical, ModParameterSchema schema)
+        {
+            var fields = new List<ModParameterDefinition>(schema.Parameters);
+            fields.Sort((left, right) => string.CompareOrdinal(left.Name, right.Name));
+            Append(canonical, fields.Count);
+            foreach (var field in fields)
+            {
+                Append(canonical, field.Name);
+                Append(canonical, (int)field.Type);
+                Append(canonical, field.Required);
+                Append(canonical, field.HasDefault);
+                if (field.HasDefault) Append(canonical, field.DefaultValue.ToWireString());
+            }
         }
 
         private static void AppendItem(StringBuilder canonical, ItemDefinition item)

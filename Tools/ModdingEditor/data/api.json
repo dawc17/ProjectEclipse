@@ -1,5 +1,59 @@
 {
   "functions": {
+    "sf2.extensions.register": {
+      "params": {
+        "definition": "Eclipse.ExtensionDefinition"
+      },
+      "returns": "`<mod-id>:extensions/<id>` as a string.",
+      "capability": "extensions.provide",
+      "url": "https://dawc17.github.io/ProjectEclipse/api/extensions/#sf2extensionsregister",
+      "summary": "",
+      "requires": "`extensions.provide`. `id` uses the normal local definition path rules. `version` is an integer from 1–1000000. `handler` is a Lua function. Request/response schemas are optional; unknown registration fields fail.",
+      "when": "In the provider's entrypoint. Exports become available after its content transaction commits, before dependents load. Duplicate IDs and late registration fail."
+    },
+    "sf2.extensions.get": {
+      "params": {
+        "reference": "string",
+        "version": "integer"
+      },
+      "returns": "An opaque handle owned by this script. Unavailable services, wrong categories, undeclared dependencies and incompatible versions raise errors.",
+      "capability": "extensions.call",
+      "referenceKind": "extension",
+      "bounds": {
+        "version": [
+          1,
+          1000000
+        ]
+      },
+      "url": "https://dawc17.github.io/ProjectEclipse/api/extensions/#sf2extensionsget",
+      "summary": "",
+      "requires": "`extensions.call`, a direct provider dependency, a qualified `<mod-id>:extensions/<id>` reference and the exact integer service version.",
+      "when": "After the provider loads, normally once in the consumer's entrypoint. Keep the handle in local session memory for later callbacks."
+    },
+    "sf2.extensions.call": {
+      "params": {
+        "extension": "Eclipse.ExtensionHandle",
+        "request": "table<string,number|boolean|string>"
+      },
+      "returns": "A detached response. Invalid handles/requests, provider failures, invalid responses and exceeded budgets raise an error in the consumer.",
+      "capability": "extensions.call",
+      "url": "https://dawc17.github.io/ProjectEclipse/api/extensions/#sf2extensionscall",
+      "summary": "",
+      "requires": "`extensions.call` and a handle acquired by this script. The provider must remain available with the same version. Requests must match its schema.",
+      "when": "Loading or supported runtime callbacks. Keep per-frame calls small. State migrations and reward-configuration callbacks cannot invoke services, including through a captured handle."
+    },
+    "sf2.extensions.try_call": {
+      "params": {
+        "extension": "Eclipse.ExtensionHandle",
+        "request": "table<string,number|boolean|string>"
+      },
+      "returns": "`response, nil` on success; `nil, diagnostic_string` on rejection or provider failure. Handler failure diagnostics identify the provider and caller. Successful changes before a failure remain applied.",
+      "capability": "extensions.call",
+      "url": "https://dawc17.github.io/ProjectEclipse/api/extensions/#sf2extensionstry_call",
+      "summary": "",
+      "requires": "`extensions.call`; a missing capability still raises an error. All ownership, schema, lifecycle and restricted-callback rules still apply.",
+      "when": "The same boundaries as `call`, when recovery is possible. It does not reset budgets, retry or turn a failed operation into success."
+    },
     "sf2.items.register_weapon": {
       "params": {
         "definition": "Eclipse.WeaponDefinition"
@@ -2246,6 +2300,23 @@
           "Defaults to true. Required saved fields need defaults."
         ],
         "default?": "number|boolean|string"
+      }
+    },
+    "ExtensionHandle": {
+      "fields": {
+        "private __eclipseExtension": "true"
+      }
+    },
+    "ExtensionDefinition": {
+      "fields": {
+        "id": "string",
+        "version": [
+          "integer",
+          "Exact service contract version, 1-1000000."
+        ],
+        "request?": "table<string,Eclipse.FieldSchema|\"number\"|\"integer\"|\"boolean\"|\"string\">",
+        "response?": "table<string,Eclipse.FieldSchema|\"number\"|\"integer\"|\"boolean\"|\"string\">",
+        "handler": "fun(request:table<string,number|boolean|string>,caller:string):table<string,number|boolean|string>"
       }
     },
     "StateDefinition": {

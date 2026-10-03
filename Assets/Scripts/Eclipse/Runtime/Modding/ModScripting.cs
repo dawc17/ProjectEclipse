@@ -38,6 +38,7 @@ namespace Eclipse.Modding
         public AssetResolver Assets { get; }
         public ModRegistrationTransaction Registration { get; }
         public ModStateRuntime State { get; }
+        public ModExtensionRegistry Extensions { get; }
 
         public bool IsRewardConfigurationActive { get; private set; }
 
@@ -75,7 +76,7 @@ namespace Eclipse.Modding
         }
 
         public ModApiFacade(ModDescriptor mod, AssetResolver assets, ModRegistrationTransaction registration,
-            ModStateRuntime state, Action<ModLogEntry> logger)
+            ModStateRuntime state, Action<ModLogEntry> logger, ModExtensionRegistry extensions = null)
         {
             Mod = mod ?? throw new ArgumentNullException(nameof(mod));
             Assets = assets ?? throw new ArgumentNullException(nameof(assets));
@@ -83,6 +84,7 @@ namespace Eclipse.Modding
                 throw new ArgumentException("Registration transaction belongs to another mod.", nameof(registration));
             Registration = registration;
             State = state ?? throw new ArgumentNullException(nameof(state));
+            Extensions = extensions;
             _logger = logger;
         }
 

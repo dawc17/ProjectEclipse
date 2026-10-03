@@ -18,6 +18,7 @@ namespace Eclipse.Modding
         public ModContentCatalog Content { get; }
         internal string StartupTimings { get; private set; }
         public ModStateRuntime State { get; }
+        private readonly ModExtensionRegistry _extensions;
 
         public bool HasErrors
         {
@@ -33,7 +34,7 @@ namespace Eclipse.Modding
 
         private ModScriptSession(string runtimeName, List<IModScriptContext> contexts,
             ModDescriptor[] activeMods, ModDiagnostic[] diagnostics, ModContentCatalog content,
-            ModStateRuntime state)
+            ModStateRuntime state, ModExtensionRegistry extensions)
         {
             RuntimeName = runtimeName ?? string.Empty;
             _contexts = contexts;
@@ -41,6 +42,7 @@ namespace Eclipse.Modding
             Diagnostics = Array.AsReadOnly(diagnostics ?? Array.Empty<ModDiagnostic>());
             Content = content ?? throw new ArgumentNullException(nameof(content));
             State = state ?? throw new ArgumentNullException(nameof(state));
+            _extensions = extensions;
             // Registration is frozen before session construction. Cache handlers, not live
             // equipped instances: native rules may change the latter during an encounter.
             foreach (var behavior in Content.Behaviors)
@@ -110,6 +112,7 @@ namespace Eclipse.Modding
             var diagnostics = new List<ModDiagnostic>();
             var content = new ModContentCatalog();
             var state = new ModStateRuntime();
+            var extensions = new ModExtensionRegistry();
             importCore?.Invoke(content);
             long localizationMs = 0, contextMs = 0, executeMs = 0, commitMs = 0;
             var watch = new System.Diagnostics.Stopwatch();
@@ -132,7 +135,7 @@ namespace Eclipse.Modding
                     watch.Restart();
                     ModLocalizationLoader.Load(mod, host.Assets, registration);
                     localizationMs += watch.ElapsedMilliseconds;
-                    var api = new ModApiFacade(mod, host.Assets, registration, state, logger);
+                    var api = new ModApiFacade(mod, host.Assets, registration, state, logger, extensions);
                     watch.Restart();
                     context = runtime.CreateContext(mod, api);
                     contextMs += watch.ElapsedMilliseconds;
@@ -142,6 +145,7 @@ namespace Eclipse.Modding
                     executeMs += watch.ElapsedMilliseconds;
                     watch.Restart();
                     registration.Commit();
+                    extensions.Activate(mod.Id);
                     commitMs += watch.ElapsedMilliseconds;
                     contexts.Add(context);
                     active.Add(mod);
@@ -151,6 +155,7 @@ namespace Eclipse.Modding
                 catch (Exception exception)
                 {
                     state.RemoveDefinition(mod.Id);
+                    extensions.RemoveOwner(mod.Id);
                     string source = mod.Manifest.Entrypoint;
                     ModScriptException scriptException = exception as ModScriptException;
                     if (scriptException != null && !string.IsNullOrEmpty(scriptException.SourceName))
@@ -169,7 +174,7 @@ namespace Eclipse.Modding
             content.Freeze();
             host.Assets.SetReplacements(content.AssetReplacements);
             state.FreezeDefinitions();
-            return new ModScriptSession(runtime.Name, contexts, active.ToArray(), diagnostics.ToArray(), content, state)
+            return new ModScriptSession(runtime.Name, contexts, active.ToArray(), diagnostics.ToArray(), content, state, extensions)
             {
                 StartupTimings = "mod localizations " + localizationMs + " ms, contexts " + contextMs +
                     " ms, entrypoints " + executeMs + " ms (includes asset descriptions), commits " + commitMs +
@@ -250,6 +255,7 @@ namespace Eclipse.Modding
 
         public void Dispose()
         {
+            _extensions.Dispose();
             _subscriptions.Clear();
             for (int i = _contexts.Count - 1; i >= 0; i--)
                 _contexts[i]?.Dispose();

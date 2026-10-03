@@ -8,6 +8,30 @@ const { createMod } = require('../src/scaffold.cjs');
 const template = path.resolve(__dirname, '../templates/weapon');
 const header = 'local sf2 = require("sf2")\n';
 
+test('framework and add-on templates validate service capabilities and dependencies', async () => {
+    for (const id of ['example.focus-framework', 'example.focus-addon']) {
+        const directory = path.resolve(__dirname, '../../../Mods', id);
+        const mod = await p.indexMod(directory);
+        assert.deepEqual(mod.issues, []);
+        const text = await fs.readFile(path.join(directory, 'scripts/main.lua'), 'utf8');
+        assert.deepEqual(p.analyze(text, mod).issues, []);
+        const starter = path.resolve(__dirname, '../templates', id.replace('example.', ''));
+        const indexedStarter = await p.indexMod(starter);
+        assert.deepEqual(indexedStarter.issues, []);
+        assert.deepEqual(p.analyze(text, indexedStarter).issues, []);
+        for (const file of ['mod.toml', 'scripts/main.lua'])
+            assert.equal(await fs.readFile(path.join(starter, file), 'utf8'), await fs.readFile(path.join(directory, file), 'utf8'));
+        const missing = p.analyze(text, {...mod, data:{...mod.data, capabilities:[]}}).issues;
+        assert(missing.some(issue => issue.capability === (id.endsWith('framework') ? 'extensions.provide' : 'extensions.call')));
+    }
+    const directory = path.resolve(__dirname, '../../../Mods/example.focus-addon');
+    const mod = await p.indexMod(directory);
+    const text = header + "sf2.extensions.get('example.focus-framework:extensions/status', 1)";
+    const undeclared = p.analyze(text, {...mod, data:{...mod.data, dependencies:[]}}).issues;
+    assert(undeclared.some(issue => issue.code === 'dependency'));
+    assert(p.analyze(text.replace(', 1)', ', 0)'), mod).issues.some(issue => issue.code === 'range'));
+});
+
 test('floor stain starter validates and exposes flight and accumulation fields', async () => {
     const directory = path.resolve(__dirname, '../templates/floor-stains');
     const mod = await p.indexMod(directory);

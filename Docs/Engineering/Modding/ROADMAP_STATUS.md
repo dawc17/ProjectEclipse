@@ -2,6 +2,14 @@
 
 Last broad reconciliation: 2026-09-12. Scope remains **G01–G14 plus E1–E8**.
 
+2026-10-03 creator-platform continuation: typed, versioned Lua framework services
+now route between dependent mods with isolated records, ownership/capability
+checks and bounded execution. The shipped Focus framework/add-on demonstrates
+shared saved state, combat callbacks and HUD data across reloads. This advances
+E7/E8; broader engine operations, pack tooling and native gameplay acceptance
+remain open. Source changes and verification limits are recorded in
+[the creator-platform work log](CREATOR_PLATFORM_WORK_LOG.md).
+
 2026-09-20 continuation (Step 41): pending Lua assembly now connects twelve
 normal/Eclipse Sensei battles, 23 fights, 34 loadouts, 57 reward slots and 56 map
 translations. A generic native map fix prevents locked normal entries from

@@ -145,6 +145,18 @@ local EnchantmentHandle = {}
 ---@field default? number|boolean|string
 local FieldSchema = {}
 
+---@class (exact) Eclipse.ExtensionHandle
+---@field private __eclipseExtension true
+local ExtensionHandle = {}
+
+---@class (exact) Eclipse.ExtensionDefinition
+---@field id string
+---@field version integer Exact service contract version, 1-1000000.
+---@field request? table<string,Eclipse.FieldSchema|"number"|"integer"|"boolean"|"string">
+---@field response? table<string,Eclipse.FieldSchema|"number"|"integer"|"boolean"|"string">
+---@field handler fun(request:table<string,number|boolean|string>,caller:string):table<string,number|boolean|string>
+local ExtensionDefinition = {}
+
 ---@class (exact) Eclipse.StateDefinition
 ---@field version integer
 ---@field fields? table<string,Eclipse.FieldSchema|"number"|"integer"|"boolean"|"string">
@@ -2266,6 +2278,9 @@ local enchantments = {}
 ---@class Eclipse.Module_events
 local events = {}
 
+---@class Eclipse.Module_extensions
+local extensions = {}
+
 ---@class Eclipse.Module_fights
 local fights = {}
 
@@ -2370,6 +2385,41 @@ local warriors = {}
 
 ---@class Eclipse.Module_zones
 local zones = {}
+
+---Requires: `extensions.provide`. `id` uses the normal local definition path rules. `version` is an integer from 1–1000000. `handler` is a Lua function. Request/response schemas are optional; unknown registration fields fail.
+---When: In the provider's entrypoint. Exports become available after its content transaction commits, before dependents load. Duplicate IDs and late registration fail.
+---Returns: `<mod-id>:extensions/<id>` as a string.
+---[Full reference](https://dawc17.github.io/ProjectEclipse/api/extensions/#sf2extensionsregister)
+---@param definition Eclipse.ExtensionDefinition
+---@return string
+function extensions.register(definition) end
+
+---Requires: `extensions.call`, a direct provider dependency, a qualified `<mod-id>:extensions/<id>` reference and the exact integer service version.
+---When: After the provider loads, normally once in the consumer's entrypoint. Keep the handle in local session memory for later callbacks.
+---Returns: An opaque handle owned by this script. Unavailable services, wrong categories, undeclared dependencies and incompatible versions raise errors.
+---[Full reference](https://dawc17.github.io/ProjectEclipse/api/extensions/#sf2extensionsget)
+---@param reference string
+---@param version integer
+---@return Eclipse.ExtensionHandle
+function extensions.get(reference, version) end
+
+---Requires: `extensions.call` and a handle acquired by this script. The provider must remain available with the same version. Requests must match its schema.
+---When: Loading or supported runtime callbacks. Keep per-frame calls small. State migrations and reward-configuration callbacks cannot invoke services, including through a captured handle.
+---Returns: A detached response. Invalid handles/requests, provider failures, invalid responses and exceeded budgets raise an error in the consumer.
+---[Full reference](https://dawc17.github.io/ProjectEclipse/api/extensions/#sf2extensionscall)
+---@param extension Eclipse.ExtensionHandle
+---@param request table<string,number|boolean|string>
+---@return table<string,number|boolean|string>
+function extensions.call(extension, request) end
+
+---Requires: `extensions.call`; a missing capability still raises an error. All ownership, schema, lifecycle and restricted-callback rules still apply.
+---When: The same boundaries as `call`, when recovery is possible. It does not reset budgets, retry or turn a failed operation into success.
+---Returns: `response, nil` on success; `nil, diagnostic_string` on rejection or provider failure. Handler failure diagnostics identify the provider and caller. Successful changes before a failure remain applied.
+---[Full reference](https://dawc17.github.io/ProjectEclipse/api/extensions/#sf2extensionstry_call)
+---@param extension Eclipse.ExtensionHandle
+---@param request table<string,number|boolean|string>
+---@return table<string,number|boolean|string>|nil, string|nil
+function extensions.try_call(extension, request) end
 
 ---Create a new weapon definition owned by your mod.
 ---Requires: `content.register` and dependencies for referenced content.
@@ -4110,4 +4160,4 @@ function Fighter:show_status_icon(key, sprite, frames, stacks?) end
 ---@param key string
 function Fighter:clear_status_icon(key) end
 
-return { achievements = achievements, assets = assets, battles = battles, behaviors = behaviors, counters = counters, enchantments = enchantments, events = events, fights = fights, forge = forge, fx = fx, items = items, itemsets = itemsets, locales = locales, localization = localization, locations = locations, log = log, mod = mod, modes = modes, moves = moves, perks = perks, price = price, profile = profile, progression = progression, quests = quests, raids = raids, random = random, rewards = rewards, rules = rules, scenes = scenes, services = services, settings = settings, shop = shop, state = state, story = story, tactics = tactics, timers = timers, ui = ui, underworld = underworld, visuals = visuals, warriors = warriors, zones = zones }
+return { achievements = achievements, assets = assets, battles = battles, behaviors = behaviors, counters = counters, enchantments = enchantments, events = events, extensions = extensions, fights = fights, forge = forge, fx = fx, items = items, itemsets = itemsets, locales = locales, localization = localization, locations = locations, log = log, mod = mod, modes = modes, moves = moves, perks = perks, price = price, profile = profile, progression = progression, quests = quests, raids = raids, random = random, rewards = rewards, rules = rules, scenes = scenes, services = services, settings = settings, shop = shop, state = state, story = story, tactics = tactics, timers = timers, ui = ui, underworld = underworld, visuals = visuals, warriors = warriors, zones = zones }

@@ -2541,7 +2541,7 @@ namespace Eclipse.Modding
         private bool _completed;
 
         public ModDescriptor Mod { get; }
-        public int RegistrationCount => _localizations.Count + _weapons.Count + _armors.Count + _helms.Count +
+        public int RegistrationCount => _extensions.Count + _localizations.Count + _weapons.Count + _armors.Count + _helms.Count +
             _ranged.Count + _magic.Count + _itemRedirects.Count + _shopListings.Count + _perks.Count +
             _enchantments.Count + _behaviors.Count + _zones.Count + _battles.Count + _fights.Count +
             _warriors.Count + _fightRules.Count + _rewards.Count + _localizationPatches.Count + _fightPatches.Count +
@@ -3376,6 +3376,7 @@ namespace Eclipse.Modding
             ValidateP2Commit();
             ValidateP3Commit();
             ValidateVisualsCommit();
+            ValidateExtensionsCommit();
 
             var localizations = new LocalizationDefinition[_localizations.Count];
             int localizationIndex = 0;
@@ -3422,6 +3423,7 @@ namespace Eclipse.Modding
             ApplyDojoButtonCommit();
             ApplyVisualsCommit();
             ApplyFxCommit();
+            ApplyExtensionsCommit();
             _completed = true;
             ClearPending();
         }
@@ -3728,6 +3730,7 @@ namespace Eclipse.Modding
             ClearFxPending();
             ClearP2Pending();
             ClearP3Pending();
+            _extensions.Clear();
         }
     }
 

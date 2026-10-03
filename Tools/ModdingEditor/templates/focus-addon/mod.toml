@@ -1,0 +1,15 @@
+schema = 1
+id = "example.focus-addon"
+name = "Focus Trial"
+version = "1.0.0"
+authors = ["Eclipse"]
+entrypoint = "scripts/main.lua"
+capabilities = ["extensions.call", "content.register", "content.patch", "combat.modify_outgoing_hit", "ui.create"]
+
+[[dependencies]]
+id = "core"
+version = ">=1.0.0 <2.0.0"
+
+[[dependencies]]
+id = "example.focus-framework"
+version = ">=1.0.0 <2.0.0"

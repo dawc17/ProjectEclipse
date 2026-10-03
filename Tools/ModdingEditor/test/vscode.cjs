@@ -38,6 +38,23 @@ exports.run = async function () {
         assert(found, 'VS Code did not offer register_weapon through the installed Lua extension');
         passed.push('PASS: real VS Code Lua extension provides weapon completion after enabling the preview');
 
+        const serviceUri = vscode.Uri.joinPath(folder.uri, 'scripts', 'service-completion.lua');
+        fs.writeFileSync(serviceUri.fsPath, 'local sf2=require("sf2")\nsf2.extensions.');
+        await vscode.workspace.openTextDocument(serviceUri);
+        let servicesFound = false;
+        const serviceDeadline = Date.now() + 30000;
+        while (Date.now() < serviceDeadline) {
+            const result = await vscode.commands.executeCommand('vscode.executeCompletionItemProvider', serviceUri, new vscode.Position(1, 15));
+            const labels = result?.items.map(item => String(typeof item.label === 'string' ? item.label : item.label.label)) ?? [];
+            if (['register', 'get', 'call', 'try_call'].every(name => labels.some(label => label === name || label.startsWith(name + '(')))) {
+                servicesFound = true;
+                break;
+            }
+            await new Promise(resolve => setTimeout(resolve, 500));
+        }
+        assert(servicesFound, 'Framework service function completion missing');
+        passed.push('PASS: framework service registration, lookup and calls complete');
+
         const stainUri = vscode.Uri.joinPath(folder.uri, 'scripts', 'stain-completion.lua');
         fs.writeFileSync(stainUri.fsPath, 'local sf2=require("sf2")\nsf2.fx.stain {\n    \n}');
         await vscode.workspace.openTextDocument(stainUri);

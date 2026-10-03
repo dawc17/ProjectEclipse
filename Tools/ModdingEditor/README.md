@@ -46,8 +46,8 @@ are ready; native tutorials can defer completion. UI definitions now accept
 `on_back(view)` to acknowledge or retain a foreground menu/modal on user Back.
 Scene/profile cleanup continues to invoke only `on_close`.
 
-Editor support for all 37 public Eclipse API modules: 182 functions, aliases, and
-callbacks; 76 constants; and 242 typed structures. Version 0.1.0 retains the ID
+Editor support for all 41 public Eclipse API modules: 213 functions, aliases, and
+callbacks; 74 constants; and 276 typed structures. Version 0.1.0 retains the ID
 `eclipse-modding.eclipse-modding-preview` so it upgrades the original prototype.
 
 Move authoring now completes `damage_terms = { { type, shift } }`, the native
@@ -118,7 +118,7 @@ Adds `kind = "image"` UI nodes with a typed `sprite` handle and explicit
 positive width/height. The generated `UiNode` contract includes completion for
 `sprite`; artwork preserves aspect ratio and uses the shared UI container styling.
 
-1. Install **Lua** by **sumneko** in VS Code. LuaLS **3.18.2** is the tested version.
+1. Install **Lua** by **sumneko** in VS Code. LuaLS **3.19.1** is the currently tested version.
 2. Build the package below, then run **Extensions: Install from VSIX...** and
    select `dist/eclipse-modding-0.1.0.vsix`. Reload when prompted.
 3. Open the folder containing `mod.toml` and run **Eclipse Modding: Enable in This Folder**.
@@ -128,6 +128,19 @@ The package is not on the Marketplace. Relevant GitHub Actions runs also produce
 VSIX artifact. Project indexing runs locally and never executes your Lua scripts.
 
 ## Features
+
+Framework mods can publish typed services with `sf2.extensions.register` and
+dependent mods acquire them with `get`, then use `call` or `try_call`. Completion
+covers versions, schemas and handlers; diagnostics check `extensions.provide`,
+`extensions.call` and direct dependencies. Service IDs are content definitions,
+so the editor does not look for them in the asset directory. Domain rules and
+provider availability are checked by the game.
+
+Copy both `templates/focus-framework` and `templates/focus-addon` to your Mods
+directory to start a shared saved resource and a combat/HUD add-on. Preserve
+their manifest IDs initially; when renaming the framework, update the add-on's
+dependency and qualified service references together. See the public
+[framework service reference](../../Docs/Modding/src/content/docs/api/extensions.md).
 
 Includes game-styled `toggle` and `slider` nodes, typed `on_change`
 callbacks and `sf2.ui.set_checked`. Slider values are normalized to 0–1;

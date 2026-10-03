@@ -9,7 +9,7 @@ import { pageUrl } from '../../../../site.config.mjs';
 
 Each <a href={pageUrl('reference')}>function section</a> lists its arguments, return value, capabilities, and timing. A field that appears in recovered game XML is not automatically available in Lua. Unknown definition fields and unsupported callback names can fail mod loading.
 
-The current API supports typed content definitions, combat behavior callbacks, saved mod state, local modes and raids, achievement counters, and explicit asset replacement. Quest tables and tactics configure supported native systems. They do not provide arbitrary Lua quest callbacks or programmable opponent AI.
+The current API supports typed content definitions, combat behavior callbacks and ticks, saved mod state, branching/generated local modes and raids, owned UI, achievement counters, and explicit asset replacement. Story subscriptions support procedural logic at documented lifecycle boundaries. Programmable tactics choose among native eligible actions. <a href={pageUrl('api/extensions')}>Framework services</a> let dependent mods share typed Lua functionality. Each system retains its documented authority and timing limits; arbitrary engine objects and custom combat outcomes are outside the current contract.
 
 ## Test what players use
 

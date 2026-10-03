@@ -19,6 +19,13 @@ const primitive = 'number|boolean|string';
 type('FieldSchema', { type: enumOf('number','integer','boolean','string'), 'required?': ['boolean','Defaults to true. Required saved fields need defaults.'], 'default?': primitive });
 const schema = `table<string,${E('FieldSchema')}|${enumOf('number','integer','boolean','string')}>`;
 const values = 'table<string,any>'; // Runtime schemas determine these keys/types; do not invent static types.
+type('ExtensionHandle', { 'private __eclipseExtension': 'true' });
+const extensionValues = 'table<string,number|boolean|string>';
+type('ExtensionDefinition', { id:'string', version:['integer','Exact service contract version, 1-1000000.'], 'request?':schema, 'response?':schema, handler:`fun(request:${extensionValues},caller:string):${extensionValues}` });
+fn('extensions.register',{definition:E('ExtensionDefinition')},'string','extensions.provide');
+fn('extensions.get',{reference:'string',version:'integer'},H('Extension'),'extensions.call',{referenceKind:'extension',bounds:{version:[1,1000000]}});
+fn('extensions.call',{extension:H('Extension'),request:extensionValues},extensionValues,'extensions.call');
+fn('extensions.try_call',{extension:H('Extension'),request:extensionValues},`${extensionValues}|nil, string|nil`,'extensions.call');
 const migrations = `table<integer,fun(old:${values}):${values}|nil>`;
 type('StateDefinition', { version:'integer', 'fields?':schema, 'aliases?':'table<string,string>', 'tombstones?':'string[]', 'migrations?':migrations });
 type('BehaviorState', { 'fields?':schema, 'lifetime?':enumOf('round','fight','saved'), 'version?':'integer', 'migrations?':migrations });

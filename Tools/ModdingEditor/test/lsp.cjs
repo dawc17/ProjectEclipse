@@ -682,6 +682,17 @@ async function main() {
         return ['present','wins','losses'].every(name=>found.some(value=>value.startsWith(name)));
     },'saved fight progress snapshot fields');
 
+    const extensionFields = probe('extension-fields.lua', 'local sf2=require("sf2")\nsf2.extensions.register { | }');
+    await until(async () => {
+        const found = labels(await request('textDocument/completion', extensionFields));
+        return ['id','version','request','response','handler'].every(name => found.some(value => value.startsWith(name)));
+    }, 'extension service registration fields');
+    const extensionHandle = probe('extension-handle.lua', 'local sf2=require("sf2")\nlocal service=sf2.extensions.get("example.focus-framework:extensions/status",1)\nsf2.extensions.call(service, {})\nsf2.extensions.|');
+    await until(async () => {
+        const found = labels(await request('textDocument/completion', extensionHandle));
+        return ['get','call','try_call','register'].every(name => found.some(value => value.startsWith(name)));
+    }, 'versioned extension calls');
+
     const invalidUri = open('invalid.lua', [
         'local sf2 = require("sf2")',
         'sf2.items.register_weapon {',

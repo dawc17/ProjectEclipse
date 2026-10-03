@@ -55,6 +55,7 @@
   <ItemGroup>
     <Compile Include="Assets\Scripts\Eclipse\Runtime\PvpBalance.cs" />
     <Compile Include="Assets/Scripts/Eclipse/Runtime/Modding/ModScripting.cs" />
+    <Compile Include="Assets/Scripts/Eclipse/Runtime/Modding/ModExtensions.cs" />
     <Compile Include="Assets/Scripts/Eclipse/Runtime/EclipseInput.cs" />
     <Compile Include="Assets/Scripts/Eclipse/Runtime/EditorPlayModeContext.cs" />
     <Compile Include="Assets/Scripts/Eclipse/Runtime/Modding/AssetId.cs" />
